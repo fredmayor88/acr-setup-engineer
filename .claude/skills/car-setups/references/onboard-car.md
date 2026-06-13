@@ -43,7 +43,8 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 
      - **User confirms (Yes):** Load every row from the template. Treat each entry as if it
        were an extracted row (same `Section`, `Adjustment`, `Min`, `Max`, `Unit`,
-       `Discrete steps` fields). If an entry carries an optional **`surface`** field
+       `Discrete steps`, **`order`** fields — copy the template's `order:` straight into the
+       row's `Order`). If an entry carries an optional **`surface`** field
        (`Tarmac`/`Gravel`/`Snow`), set that row's `Surface` accordingly and upsert on
        `Car` + `Adjustment` + `Surface`; entries without `surface` are baseline rows (blank
        `Surface`). A template that already includes surface-specific rows means **no gravel pass
@@ -85,6 +86,12 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
    row that appears on screen** — if a parameter shows `—` in both screenshots, still create
    the row with Min=`—`, Max=`—` and flag it for user enumeration; only omit a row if it is
    absent from the screenshots entirely.
+   - **Also assign each parameter's `Order`** — its display position, from where it appears
+     top-to-bottom (Front side before Rear) on the setup screens. Use the **canonical ACR
+     defaults + section-blocked numbering** in `notion-structure.md` (*Setups column order*);
+     for any car-specific parameter not in that list, give it a number **inside its section's
+     block** matching its screenshot position (exact slot needn't be perfect — the block keeps
+     it grouped). A surface-tagged row shares its baseline row's `Order`.
    - **Always record the actual values shown in the screenshots**, including for discretely-stepped
      parameters: if the min screenshot shows `1` and the max shows `3` for gear set, record
      Min=1, Max=3.
@@ -184,25 +191,29 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
    - Upsert one row per `Car × Adjustment` into the `Parameters` DB (match on `Car` +
      `Adjustment` + `Surface`; update if present, else create — never duplicate). These tarmac
      baseline rows leave **`Surface` blank** (the gravel pass in step 8 may add `Gravel`-tagged
-     rows later). Set `Min`/`Max`/`Unit`. For `—` named-selection params, write the observed
+     rows later). Set `Min`/`Max`/`Unit` **and `Order`** (step 3; a surface-tagged row mirrors its
+     baseline row's `Order`). For `—` named-selection params, write the observed
      option names into `Discrete steps` (observed values only); for numeric params leave
      `Discrete steps` blank. **ACR exception:** set `Tyre Type` `Discrete steps` to the standard
      ACR tyre list and `Brake pads/shoe` (front & rear) to `SOFT, MEDIUM, HARD`.
+     **Backfill:** if refreshing a car whose existing rows have a blank `Order`, fill it from the
+     canonical defaults (`notion-structure.md`) — no re-screenshotting needed.
    - Ensure the `Setups` DB has a matching **value property** per Adjustment: **Number** for a
      numeric parameter (has a numeric `Min..Max`), **Select** for an enumerated one
-     (`Min/Max = —`). Don't remove or rename existing properties. When adding new value
-     properties, create them in canonical section order (Gearbox → Suspensions → Dampers →
-     Axles → Differentials → Wheels/Tyres → Brakes → Electronics & Aerodynamics), Front before
-     Rear within each section — Notion appends columns in creation order, so this determines
-     the table's column sequence.
+     (`Min/Max = —`). Don't remove or rename existing properties. Then **apply the column order**
+     (`notion-structure.md` → *Applying the order*): set the main `Setups` table view's `SHOW` to
+     the meta columns followed by all value columns sorted by each parameter's `Order`. Creation
+     order does **not** drive the rendered table — the view's `SHOW` directive does.
    - **Record the car's identity facts** on the `{Car}` page: `Drivetrain`, and the
      `Engine layout` / `Weight bias` / `Weight` resolved in step 5 (write `couldn't determine`
      for any that weren't found). These live on the page next to each other — never as
      `Parameters` rows.
    - **Seed the `{Car}` page body in this order** (create sections that are missing; never
      overwrite existing content):
-     1. **H2 "Setups"** heading + the `Setups[Car=this]` filtered linked view (hide blank
-        columns). This must come first so it's the first thing visible on mobile.
+     1. **H2 "Setups"** heading + the `Setups[Car=this]` filtered linked view. Set the view's
+        `SHOW` to this car's applicable value columns in `Order` sequence (meta columns first) —
+        this orders the columns **and** hides blank ones in one step (`notion-structure.md` →
+        *Applying the order*). This must come first so it's the first thing visible on mobile.
      2. **H2 "Guidelines"** heading + a short stub inviting car-specific tuning preferences
         (tone per `tuning-guidelines-template.md`).
 
@@ -233,7 +244,8 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      3. **Show the diff and confirm:** present a short list of only the parameters whose gravel
         range differs (baseline → gravel). Proceed on the OK.
      4. **Write a `Surface = Gravel` row only for each differing parameter** — upsert on `Car` +
-        `Adjustment` + `Surface = Gravel`, carrying the gravel `Min`/`Max`/`Unit`/`Discrete steps`.
+        `Adjustment` + `Surface = Gravel`, carrying the gravel `Min`/`Max`/`Unit`/`Discrete steps`
+        (and the **same `Order`** as the baseline row).
         **Never touch the baseline rows**, and **never** create a gravel row for a parameter whose
         range is unchanged (it stays a single blank-`Surface` row). If the `Parameters` DB has no
         `Surface` property yet, add it first (per `notion-structure.md` create-if-missing).

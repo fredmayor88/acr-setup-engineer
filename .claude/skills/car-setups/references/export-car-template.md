@@ -26,6 +26,7 @@ parameter file for a car.
   rules as other workflows (resolve by name, no hardcoded IDs; stay within `Car setups` scope).
   Read each row's optional **`Surface`** tag too — a car may have a baseline row (blank `Surface`)
   **and** a surface-specific row (e.g. `Gravel`) for the same `Adjustment`; export **both**.
+  Read each row's **`Order`** too (the display position — emitted as `order:` in the YAML).
 - Read the car's `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page under `{Game}`.
 - Also read the car-level identity fields from the `{Car}` page, when present: `Engine layout`
   (front/mid/rear), `Weight bias` (front/balanced/rear), and `Weight` (approximate kerb weight,
@@ -48,20 +49,12 @@ Proceed on either answer; if the user wants to fill gaps first, stop here and re
 re-run the export afterwards.
 
 ### 3. Sort parameters
-Order rows to match the standard in-game screen order:
-
-1. Gearbox
-2. Suspensions
-3. Dampers
-4. Axles
-5. Differential / Differentials
-6. Wheels/Tyres
-7. Brakes
-8. Electronics
-
-Within each section, list Front parameters before Rear; otherwise sort by `Adjustment` name
-alphabetically. When a parameter has both a baseline and a surface-specific row, emit the
-**baseline (no `surface`) first**, then the surface-tagged rows.
+Order rows by each parameter's **`Order`** ascending (`notion-structure.md` → *Setups column
+order*) — the in-game screen sequence (Gearbox → Suspensions → Dampers → Axles → Differentials →
+Wheels/Tyres → Brakes → Electronics & Aerodynamics, Front before Rear). A row with no `Order`
+falls back to the end of its section, then `Adjustment` name. When a parameter has both a baseline
+and a surface-specific row (they share the same `Order`), emit the **baseline (no `surface`) first**,
+then the surface-tagged rows.
 
 ### 4. Format as YAML
 Produce a YAML block with this exact structure:
@@ -77,6 +70,7 @@ version: "{game version the parameters were captured in, e.g. 0.4 — or unknown
 parameters:
   - section: "{Section}"
     adjustment: "{Adjustment}"
+    order: {integer display position, e.g. 2020}
     min: {numeric value or "—"}
     max: {numeric value or "—"}
     unit: "{Unit or empty string}"
@@ -90,6 +84,10 @@ Rules:
 - `discrete_steps`: use a comma-separated string for filled values (e.g.
   `"Short, Medium, Long"`); use an empty string `""` for blank entries.
 - `unit`: empty string `""` when there is no unit.
+- `order`: the integer display position (section-blocked, e.g. `2020`; see `notion-structure.md`
+  → *Setups column order*). Emit the `Order` read from Notion; if a row has none, fall back to the
+  canonical default for that parameter. A surface-specific row carries the **same** `order` as its
+  baseline.
 - `surface`: **optional, per-parameter.** Emit it only for a surface-specific row (the row's
   `Surface` is set); **omit the line entirely for baseline rows** (blank `Surface`). A parameter
   whose range differs on gravel appears as two entries: the baseline (no `surface`) and a second
@@ -168,6 +166,7 @@ pressure:
 - The `version` field records the **game version the parameters were captured for** (e.g. `0.4`),
   taken from the user's answer to the Game version input; write `"unknown"` if they don't know.
   It is informational metadata — nothing validates it on import. The `engine_layout` /
-  `weight_bias` / `weight` header fields and the per-parameter `surface` field remain **optional
-  and backward-compatible**: a template with none of them imports exactly as before (all baseline
-  rows), regardless of the `version` value.
+  `weight_bias` / `weight` header fields, the per-parameter `surface` field, and the per-parameter
+  `order` field remain **optional and backward-compatible**: a template missing any of them imports
+  exactly as before (a missing `order` falls back to the canonical defaults in
+  `notion-structure.md`), regardless of the `version` value.

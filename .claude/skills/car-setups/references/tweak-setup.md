@@ -28,7 +28,7 @@ within `Car setups` scope — no workspace-wide Notion searches.
 
 ### 2. Load constraints + drivetrain
 Fetch the car's `Parameters` rows (within `Car setups → {Game} → Parameters`):
-`Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Surface`. Read `Drivetrain` (FWD/RWD/AWD)
+`Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Order`, `Surface`. Read `Drivetrain` (FWD/RWD/AWD)
 from the `{Car}` page attribute. **Resolve each parameter's legal range for the source setup's
 `Surface`** (loaded in step 1) — use the surface-specific row if the parameter has one; for
 `Snow`, fall back to a `Gravel` row before the baseline (see
@@ -89,12 +89,17 @@ Never modify the source setup row or its page body.
   - Set: `Name`, `Car`, `Stage`, `Surface` (all inherited from source), `Source = generated`,
     `Mode` (inherit source mode, default `learn`), `Date` = today.
   - Leave **`Learn from this` unchecked** — the user opts in after vetting.
+- **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on the
+  main `Setups` table view and on this setup's stage/per-car linked view to the meta columns + value
+  columns by each parameter's `Order` (linked view hides blanks). Idempotent view update — the row
+  write above stays append-only.
 - **Page body** (two toggles, mobile-readable — no wide tables):
   1. Toggle **"Changes from {source name}"** — list each changed parameter: old value → new
      value + one-line rationale. This is the quick-reference for what was actually different.
   2. Toggle **"Full justification"** — per-section reasoning for every parameter (same format
-     as `build-setup`: grouped by section, short headings + bullets). This covers both changed
-     and unchanged parameters so the full reasoning is self-contained.
+     as `build-setup`: grouped by section and ordered by each parameter's `Order`, short headings +
+     bullets). This covers both changed and unchanged parameters so the full reasoning is
+     self-contained.
 
 ### 8. Report
 In chat: summarise what changed and why, link the new Notion row, and remind the user to tick

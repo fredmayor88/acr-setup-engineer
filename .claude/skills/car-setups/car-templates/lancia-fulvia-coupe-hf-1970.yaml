@@ -8,132 +8,154 @@ version: "0.4"
 parameters:
   - section: "Gearbox"
     adjustment: "Gear Set"
+    order: 1010
     min: 1
     max: 3
     unit: ""
     discrete_steps: ""
   - section: "Suspensions"
     adjustment: "Adjuster Ring Front"
+    order: 2010
     min: 0.0630
     max: 0.0740
     unit: "m"
     discrete_steps: "0.0630, 0.0740"
   - section: "Suspensions"
     adjustment: "Adjuster Ring Rear"
+    order: 2030
     min: 0.0540
     max: 0.0700
     unit: "m"
     discrete_steps: "0.0540, 0.0700"
   - section: "Differentials"
     adjustment: "Differential Ratio Front"
+    order: 5005
     min: "—"
     max: "—"
     unit: ""
     discrete_steps: "41//7, 41//8, 43//9, 43//10, 41//10, 43//11, 37//10, 39//11, 37//11"
   - section: "Differentials"
     adjustment: "LSD Power/Coast Ramp Front"
+    order: 5010
     min: "—"
     max: "—"
     unit: ""
     discrete_steps: "85/85, 80/85, 75/85, 70/80"
   - section: "Differentials"
     adjustment: "LSD Preload Front"
+    order: 5020
     min: 0.0
     max: 200.0
     unit: "Nm"
     discrete_steps: ""
   - section: "Differentials"
     adjustment: "Plates Number Front"
+    order: 5030
     min: 2
     max: 4
     unit: ""
     discrete_steps: ""
   - section: "Wheels"
-    adjustment: "Pressure Front"
-    min: 10.0
-    max: 45.0
-    unit: "psi"
-    discrete_steps: ""
+    adjustment: "Tyre Type"
+    order: 6010
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)"
   - section: "Wheels"
-    adjustment: "Pressure Rear"
+    adjustment: "Pressure Front"
+    order: 6020
     min: 10.0
     max: 45.0
     unit: "psi"
     discrete_steps: ""
   - section: "Wheels"
     adjustment: "Toe Front"
+    order: 6040
     min: -0.0010
     max: 0.0010
     unit: "m"
     discrete_steps: ""
   - section: "Wheels"
-    adjustment: "Tyre Type"
-    min: "—"
-    max: "—"
-    unit: ""
-    discrete_steps: "Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)"
-  - section: "Brakes"
-    adjustment: "Brake Calipers Front"
-    min: "—"
-    max: "—"
-    unit: ""
-    discrete_steps: "2X54 TYPE2"
-  - section: "Brakes"
-    adjustment: "Brake Calipers Rear"
-    min: "—"
-    max: "—"
-    unit: ""
-    discrete_steps: "2X33.3 TYPE1"
+    adjustment: "Pressure Rear"
+    order: 6050
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
   - section: "Brakes"
     adjustment: "Brake Discs Front"
+    order: 7010
     min: "—"
     max: "—"
     unit: ""
     discrete_steps: "257/140X9 P TYPE1"
   - section: "Brakes"
-    adjustment: "Brake Discs Rear"
+    adjustment: "Brake Calipers Front"
+    order: 7020
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "257/150X9 P TYPE1"
+    discrete_steps: "2X54 TYPE2"
   - section: "Brakes"
     adjustment: "Brake Pads Front"
+    order: 7030
     min: "—"
     max: "—"
     unit: ""
     discrete_steps: "SOFT, MEDIUM, HARD"
   - section: "Brakes"
-    adjustment: "Brake Pads Rear"
-    min: "—"
-    max: "—"
-    unit: ""
-    discrete_steps: "SOFT, MEDIUM, HARD"
-  - section: "Brakes"
-    adjustment: "Handbrake Force"
-    min: 0.50
-    max: 1.50
+    adjustment: "Proportioning Ratio"
+    order: 7040
+    min: 0.0000
+    max: 1.0000
     unit: ""
     discrete_steps: ""
   - section: "Brakes"
     adjustment: "Proportioning Preload"
+    order: 7045
     min: 0.75
     max: 2.25
     unit: "MPa"
     discrete_steps: ""
   - section: "Brakes"
-    adjustment: "Proportioning Ratio"
-    min: 0.0000
-    max: 1.0000
+    adjustment: "Handbrake Force"
+    order: 7070
+    min: 0.50
+    max: 1.50
     unit: ""
     discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Brake Discs Rear"
+    order: 7080
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "257/150X9 P TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Calipers Rear"
+    order: 7090
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "2X33.3 TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Pads Rear"
+    order: 7100
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
   - section: "Electronics"
     adjustment: "ABS Map"
+    order: 8010
     min: 1
     max: 3
     unit: ""
     discrete_steps: ""
   - section: "Electronics"
     adjustment: "TCS Map"
+    order: 8020
     min: 1
     max: 3
     unit: ""

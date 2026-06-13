@@ -30,7 +30,10 @@ There is nothing to review without values.
 ### 2. Load constraints + drivetrain
 Fetch the car's `Parameters` rows **via [notion-rest-read.md](notion-rest-read.md)** (stay within
 `Car setups → {Game} → Parameters`): `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`,
-`Surface`. Also read the `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page attribute. **Resolve
+`Order`, `Surface`. Also read the `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page attribute.
+When the review lists several parameters together, present them in `Order` sequence
+(`notion-structure.md` → *Setups column order*). This workflow is read-only — it never reorders
+Notion columns. **Resolve
 each parameter's legal range for the setup's `Surface`** (loaded in step 1) — the surface-specific
 row if the parameter has one; for `Snow`, fall back to a `Gravel` row before the baseline (see
 [notion-rest-read.md](notion-rest-read.md)).

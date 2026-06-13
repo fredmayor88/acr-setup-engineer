@@ -58,7 +58,9 @@ game, tell the user to onboard the car via screenshots (`onboard-car.md`) and bu
    (imported setups carry raw numbers without stage/goal context — the user checks it after
    deciding a setup is worth learning from), plus the mapped value properties. Record values
    **as-is** (don't snap — they were already accepted in-game). **Never modify or delete existing
-   rows.**
+   rows.** After appending, **apply the column order** (`notion-structure.md` → *Applying the
+   order*): set the `SHOW` on the main `Setups` table view and the car's linked view to the meta +
+   value columns by each parameter's `Order` — an idempotent view update, not a rebuild.
 
 6. **Report.** Setups imported, anything flagged outside the catalog, and whether the deterministic
    parser or the AI fallback was used.

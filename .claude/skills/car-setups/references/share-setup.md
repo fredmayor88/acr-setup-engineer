@@ -16,13 +16,14 @@ never writes to Notion.
    ask the user to pick; do not proceed until one is identified.
 
 2. **Load section + unit metadata.** Fetch the car's `Parameters` rows to get `Section`,
-   `Adjustment`, and `Unit` for every parameter. This is the only way to know which
-   section each value belongs to and what unit label to append.
+   `Adjustment`, `Unit`, and `Order` for every parameter. This is the only way to know which
+   section each value belongs to, what unit label to append, and the display order.
 
-3. **Build the snippet.** Group parameters by `Section`, in the same order they appear
-   on the setup screens (Gearbox → Suspensions → Dampers → Axles → Differentials →
-   Wheels/Tyres → Brakes → Electronics & Aerodynamics). Within each section, list Front
-   parameters before Rear, then other parameters alphabetically. One line per parameter:
+3. **Build the snippet.** Group parameters by `Section` and order them — both the sections and
+   the parameters within them — by each parameter's **`Order`** (`notion-structure.md` → *Setups
+   column order*): the in-game screen sequence (Gearbox → Suspensions → Dampers → Axles →
+   Differentials → Wheels/Tyres → Brakes → Electronics & Aerodynamics, Front before Rear).
+   One line per parameter:
 
    ```
    Adjustment: value unit
@@ -48,8 +49,8 @@ Gear set: 2
 
 [Suspensions]
 Front ride height: 120 mm
-Rear ride height: 125 mm
 Spring stiffness front: 57700 N/m
+Rear ride height: 125 mm
 Spring stiffness rear: 50000 N/m
 ARB front: 3
 ARB rear: 2

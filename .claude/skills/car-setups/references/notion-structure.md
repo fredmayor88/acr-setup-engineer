@@ -58,9 +58,9 @@ Car setups (root page)
 Two DBs **per game** only — car/stage pages are **filtered linked views**, never new DBs.
 
 ## `Parameters` DB — one row per `Car × Adjustment` (× `Surface` when ranges differ)
-`Car`, `Section`, `Adjustment` (title), `Min`, `Max`, `Unit`, **`Discrete steps`**, and an
-optional **`Surface`**. The authoritative legal-value catalog. Parameter availability is **per
-car** — absent parameters simply have no row.
+`Car`, `Section`, `Adjustment` (title), `Min`, `Max`, `Unit`, **`Discrete steps`**, **`Order`**,
+and an optional **`Surface`**. The authoritative legal-value catalog. Parameter availability is
+**per car** — absent parameters simply have no row.
 
 - **`Surface`** (Select, **optional**) — options `Tarmac`, `Gravel`, `Snow`. **Blank = the
   default/baseline** range, captured from the required **tarmac** onboarding pass; it applies to
@@ -95,13 +95,20 @@ car** — absent parameters simply have no row.
   standard lists for `Tyre type` (full tyre list) and `Brake pads` (`SOFT, MEDIUM, HARD`),
   which are immediately usable. **When present it is the authoritative legal set** for that
   car's parameter; when blank the parameter is treated as continuous over `Min..Max`.
+- **`Order`** (Number) — the parameter's **display position**, driving the order of every `Setups`
+  column and every setup projection. Seeded at onboarding from the order the parameter appears on
+  the in-game setup screens (canonical ACR defaults + numbering in **Setups column order** below);
+  the bundled templates carry it as `order:`. **User-owned:** the user may renumber it in Notion to
+  rearrange columns, and the change shows on the next onboard/build. It is **per `Adjustment`** — a
+  surface-specific row carries the **same `Order`** as its baseline row (both collapse to one
+  `Setups` column).
 - A row read as **"no adjustment"** in-game is recorded as not adjustable (don't fabricate a
   range). There is no `Steps` / `Step size` / `Type` column — the presence of `Discrete steps`
   (vs. a numeric `Min..Max`) is what tells `build-setup` how to choose a value.
-- **Create-if-missing:** include the `Surface` select when first creating the `Parameters` DB.
-  When writing a surface-tagged row to a **pre-existing** DB that lacks the property, add the
-  `Surface` select first, then write the row. Never tag the baseline rows — leave their `Surface`
-  blank.
+- **Create-if-missing:** include the `Surface` select **and the `Order` number** when first creating
+  the `Parameters` DB. When writing to a **pre-existing** DB that lacks a property, add it first
+  (`Surface` select before a surface-tagged row; `ADD COLUMN "Order" NUMBER` before writing `Order`),
+  then write the row. Never tag the baseline rows — leave their `Surface` blank.
 
 ## `Setups` DB — one row per setup
 - **Meta:** `Name` (title), `Car`, `Stage`, `Surface`, `Game version`, `Date`,
@@ -115,10 +122,108 @@ car** — absent parameters simply have no row.
   acceptable alternative if the merged dropdown becomes noisy. Includes `Tyre type` and any
   car-specific params (transitions, centre/front diff, electronics, brake hardware) as they're
   discovered. Per-car legality is enforced by the **skill** against that car's `Parameters` row
-  (range or `Discrete steps`) — Notion's column type is just storage.
+  (range or `Discrete steps`) — Notion's column type is just storage. **Column display order**
+  follows each parameter's `Order` (see *Setups column order* below), applied through the view's
+  `SHOW` directive — never creation order.
 - **`Learn from this`** gates the learning pool: `build-setup` `learn` mode learns only from
   checked rows. Default **unchecked for both** `generated` and `imported` — the user checks it
   after reviewing and deciding a setup is worth learning from.
+
+## Setups column order — driven by the per-parameter `Order`
+
+The display order of the `Setups` DB's **value columns** — and of every setup projection (the table
+view, the per-car/per-stage linked views, the page-body justification toggle, the share snippet, and
+exported templates) — is governed by each parameter's **`Order`** number in the `Parameters` catalog,
+**not** by the order columns were created. Notion never reorders columns from row data, and SQL-DDL
+schema insertion order does not reliably drive the rendered table — the lever is the view's **`SHOW`**
+directive (see *Applying the order* below).
+
+**Comparator.** Sort value columns by their parameter's **`Order` ascending**. A column whose
+parameter has no `Order` falls back to `section_block + 990` (the end of its section), then by
+`Adjustment` name. **Meta columns always come first**, before any value column, in this order:
+`Name`, `Car`, `Stage`, `Surface`, `Date`, `Source`, `Mode`, `Rating`, `Learn from this`,
+`Game version`, `Notes`.
+
+**Ties are fine — never an error.** If two parameters share the same `Order` (e.g. after a manual
+edit), show the tied columns in any order; don't flag, warn, or disambiguate. Order only has to be
+right at the section / `Order` granularity.
+
+### Canonical ACR default order (what onboarding assigns)
+Numbering is **section-blocked** (`section×1000 + within×10`): the number encodes the section (so the
+cross-car column union always groups correctly) and the ×10 gaps leave room to insert or renumber by
+hand. Onboarding assigns these from the setup screens; the bundled templates carry them as `order:`.
+
+```
+Gearbox (1000)
+  Gear Set ........................ 1010
+Suspensions (2000)                (per corner: Adjuster Ring, then Spring Stiffness)
+  Adjuster Ring Front ............. 2010
+  Spring Stiffness Front .......... 2020
+  Adjuster Ring Rear .............. 2030
+  Spring Stiffness Rear ........... 2040
+Dampers (3000)                    (per corner: Slow Bump, Slow Rebound, Fast Bump, Fast Rebound)
+  Slow Bump Front ................. 3010
+  Slow Rebound Front .............. 3020
+  Fast Bump Front ................. 3030
+  Fast Rebound Front .............. 3040
+  Slow Bump Rear .................. 3050
+  Slow Rebound Rear ............... 3060
+  Fast Bump Rear .................. 3070
+  Fast Rebound Rear ............... 3080
+Axles (4000)
+  Anti-roll Bar Stiffness Front ... 4010
+  Anti-roll Bar Stiffness Rear .... 4020
+Differentials (5000)              (per corner: LSD Power/Coast Ramp, LSD Preload, Plates Number)
+  LSD Power/Coast Ramp Front ...... 5010
+  LSD Preload Front ............... 5020
+  Plates Number Front ............. 5030
+  LSD Power/Coast Ramp Rear ....... 5040
+  LSD Preload Rear ................ 5050
+  Plates Number Rear .............. 5060
+Wheels/Tyres (6000)               (per corner: Pressure, Camber, Toe; FFB Multiplier skipped)
+  Tyre Type ....................... 6010   (tyre-compound choice — leads the section)
+  Pressure Front .................. 6020
+  Camber Front .................... 6030
+  Toe Front ....................... 6040
+  Pressure Rear ................... 6050
+  Camber Rear ..................... 6060
+  Toe Rear ........................ 6070
+Brakes (7000)                     (front hardware → central brake-system box → rear hardware)
+  Brake Discs Front ............... 7010
+  Brake Calipers Front ............ 7020
+  Brake Pads Front ................ 7030
+  Front Bias ...................... 7040
+  Front Cylinder .................. 7050
+  Rear Cylinder ................... 7060
+  Handbrake Force ................. 7070
+  Brake Discs Rear ................ 7080
+  Brake Calipers Rear ............. 7090
+  Brake Pads Rear ................. 7100
+Electronics & Aerodynamics (8000) (Additional Lights toggle not captured — omitted)
+  ABS Map ......................... 8010
+  TCS Map ......................... 8020
+```
+
+**Car-specific extras** not in this list (AWD centre/front diffs, damper bump/rebound *transitions*,
+engine/throttle map, master-cylinder variants, adjustable aero, …) get a number **inside the right
+section block**, from their screenshot position (e.g. a centre diff between the front & rear diff
+groups → ~5035; a bump transition in Dampers → ~3045). The exact within-section slot need not be
+perfect — the section block keeps them grouped (this is the accepted fallback for cars whose
+parameter set differs from the list).
+
+### Applying the order (the `SHOW` operation)
+Whenever a workflow creates/updates the `Setups` schema **or appends a setup row**, **(re)assert the
+column order** — it is idempotent, so an alphabetized table or an edited `Order` self-heals on the
+next run, with no migration:
+1. Read `Order` per `Adjustment` from the `Parameters` catalog (workflows already read these rows via
+   [notion-rest-read.md](notion-rest-read.md); for the **main** table's cross-car union, query the
+   whole `Parameters` data source once to map every property name → `Order`).
+2. Build the ordered property-name list (meta columns first, then value columns by the comparator).
+3. Push it with the view **`SHOW`** directive (`notion-update-view`, or set it when creating a view
+   via `notion-create-view`):
+   - **main `Setups` table view** → `SHOW` all meta + all value columns in order;
+   - **per-car / per-stage linked views** → `SHOW` meta + only that car's applicable value columns in
+     order — this orders the columns **and** hides the blank ones in a single step.
 
 ## Car & stage pages
 
@@ -160,12 +265,11 @@ Users often read these pages on a **phone while playing**, so:
 - **Optimise for reading a single setup**, not side-by-side comparison (comparison stays a
   desktop task on the wide table view).
 - Each generated setup's **page body contains only the per-parameter justification**, grouped
-  by section, inside a **toggle** so it's collapsible.
-  **Canonical section order** (used for page body toggles, share snippets, and Setups DB column
-  creation order):
-  Gearbox → Suspensions → Dampers → Axles → Differentials → Wheels/Tyres → Brakes →
-  Electronics & Aerodynamics.
-  Within each section, **Front parameters appear before Rear**.
+  by section, inside a **toggle** so it's collapsible. Order the sections and the parameters within
+  them by each parameter's **`Order`** (see *Setups column order* above) — the same sequence as the
+  in-game setup screens (Gearbox → Suspensions → Dampers → Axles → Differentials → Wheels/Tyres →
+  Brakes → Electronics & Aerodynamics, Front before Rear). The same `Order` governs share snippets
+  and exported templates, so every projection matches the table.
   **Never duplicate values into a page body checklist** — the database row is the single source
   of truth. A checklist would drift the moment the user edits a value in the table.
 - **No wide tables inside page bodies** (they scroll horizontally on a phone); use short

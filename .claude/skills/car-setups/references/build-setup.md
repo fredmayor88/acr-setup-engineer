@@ -22,8 +22,8 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 1. **Load the constraints + drivetrain + identity facts.** Fetch the car's `Parameters` rows
    **via [notion-rest-read.md](notion-rest-read.md)** (the connector can't list rows reliably) → for
-   each, record `Min`, `Max`, `Unit`, the optional **`Discrete steps`** set, and the optional
-   **`Surface`** tag. A parameter may have a baseline row (blank `Surface`) **and** a
+   each, record `Min`, `Max`, `Unit`, the optional **`Discrete steps`** set, the **`Order`** (drives
+   column / page-body ordering — step 8), and the optional **`Surface`** tag. A parameter may have a baseline row (blank `Surface`) **and** a
    surface-specific row (e.g. `Gravel`); keep both for now — you'll **resolve each parameter's
    legal range for the stage's surface** (per [notion-rest-read.md](notion-rest-read.md)) once the
    surface is known in step 3. Determine the car's
@@ -91,12 +91,20 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
      known), `Date` (today), `Source = generated`, `Mode`, the chosen `Tyre type`, and each value
      property. Leave **`Learn from this` unchecked** (the user opts in after vetting). **Never
      modify or delete existing rows.**
-   - In the row's **page body**: the **per-parameter justification inside a toggle** — group
-     by section in game-menu order — Gearbox → Suspensions → Dampers → Axles → Differentials →
-     Wheels/Tyres → Brakes → Electronics & Aerodynamics — with **Front parameters listed before
-     Rear** within each section. Explain notable choices and **cite which guideline drove each**
-     (especially a *user* guideline). No wide tables; short headings + bullets. **Do not** duplicate values
-     into a separate checklist — the database row is the single source of truth.
+   - **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on
+     the **main `Setups` table view** (meta columns + all value columns by `Order`) and on **this
+     setup's stage/per-car linked view** (meta + this car's applicable value columns by `Order`,
+     hiding blanks). Idempotent — this re-asserts the order from the current `Order` values, so the
+     new setup's projection and the table read in game-menu order (and an alphabetized table or an
+     edited `Order` self-heals). It's a view update, not a row/schema rebuild — the append above
+     stays a single row. If a parameter has a blank `Order`, fall back to the canonical defaults
+     (`notion-structure.md`) and optionally backfill it onto the `Parameters` row.
+   - In the row's **page body**: the **per-parameter justification inside a toggle** — grouped by
+     section and ordered by each parameter's **`Order`** (the in-game screen sequence: Gearbox →
+     Suspensions → Dampers → Axles → Differentials → Wheels/Tyres → Brakes → Electronics &
+     Aerodynamics, Front before Rear). Explain notable choices and **cite which guideline drove
+     each** (especially a *user* guideline). No wide tables; short headings + bullets. **Do not**
+     duplicate values into a separate checklist — the database row is the single source of truth.
 
 9. **Report.** Summarise the setup (incl. tyre type), assumptions, which user guidelines were
    applied, and whether any checked prior setups were learned from. Link the new row; remind the
