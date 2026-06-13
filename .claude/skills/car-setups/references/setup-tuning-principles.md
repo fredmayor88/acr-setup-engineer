@@ -375,6 +375,25 @@ Fast rebound damping controls the high-speed resistance of the damper shaft duri
 
 Increasing this setting raises the force opposing suspension extension, which helps to slow down and better control wheel oscillations. This creates a firmer response, improving stability on smoother terrain, but can in turn reduce the wheel's contact time with the ground, potentially impacting grip on rougher surfaces.
 
+#### Bump Transition
+
+The Bump Threshold Speed in a car's suspension is adjusted using the Fast Bump preload via a simple screw. This adjustment controls when the piston holes fully open, transitioning the damper to its softer setting.
+
+Increasing the Bump Transition delays the opening, making the suspension maintain higher damping during rapid vibrations, improving stability but potentially increasing tyre contact losses.
+
+Decreasing the Bump Transition value allows the opening to free up sooner, causing the softer damping phase to activate sooner, reducing the force applied during normal body movements.
+While this can enhance comfort, it may also lead to unwanted vehicle oscillations, affecting overall handling and control.
+
+#### Rebound Transition
+
+The Rebound Transition in a car suspension is adjusted using the Fast Rebound preload, controlled by a simple screw.
+
+This mechanism either anticipates or delays the full opening of the piston holes, which sets the damper to its soft rebound rate.
+
+Increasing the Rebound Transition value will delay the opening, maintaining higher damping during fast vibrations, improving stability but potentially increasing tyre contact losses.
+
+Lowering the Rebound Transition value will anticipate the opening, reducing damping force earlier during rebound, which can lead to less control over body movements through unwanted oscillations, but is better suited to rougher and bumpier surfaces.
+
 ### Axles
 
 #### Anti-Roll Bar Stiffness
@@ -505,6 +524,67 @@ Find the right balance for your own driving preference and surface type you're d
 
 It's important to note that this pressure bias setting does not directly translate to the final brake torque at each wheel. Variations such as brake caliper efficiency, brake disc size, and tyre grip can all influence the actual torque applied. Therefore, always verify the final brake torque distribution on the wheels to ensure optimal balance and performance.
 
+#### Master Cylinder (templates also call it "Front Cylinder" / "Rear Cylinder")
+
+The Master Cylinder converts the driver's foot force into hydraulic pressure for the braking system.
+
+In rally cars, it can come as a single unit with two internal cylinders for the front and rear axles. This design limits direct adjustment of brake bias, but bias can be indirectly influenced by altering the diameters of these cylinders.
+
+Alternatively, some setups use two separate Master Cylinders, one for each axle. This allows for direct brake bias control through a lever mechanism, which adjusts how much the brake pedal pushes on each cylinder, giving the driver fine-tuned braking balance between front and rear wheels.
+
+Increasing the Master Cylinders value will reduce the line pressure, decreasing braking power, making it harder to lock by requiring heavier braking inputs. This is ideal for more loose or low grip surface. Decreasing the Master Cylinder will increase the line pressure, increasing braking power to the point that the brakes lock, which is better suited for higher grip tarmac stages.
+
+#### Proportioning Preload
+
+Basic or stock brake systems typically offer limited adjustability, but they often include an adjustable Proportioning Valve to enhance brake balance. As the car decelerates, it requires increasing front brake bias for stability and control.
+The Proportioning Valve achieves this by reducing the rear brake line pressure once a certain Preload pressure is reached. This reduction occurs according to a set Ratio, allowing fine-tuning of brake performance.
+
+Adjusting the Preload pressure changes the point of the rear pressure cut. A higher Preload delays the cut, making rear braking more aggressive, while a lower Preload causes earlier cut, favoring front brake dominance.
+
+#### Proportioning Ratio
+
+Basic or stock brake systems typically offer limited adjustability, but they can include an adjustable Proportioning Valve to enhance brake balance. As the car decelerates, it requires increasing front brake bias for stability and control.
+The Proportioning Valve achieves this by reducing the rear brake line pressure once a certain Preload pressure is reached. This reduction occurs according to a set Ratio, allowing fine-tuning of brake performance.
+
+Adjusting the ratio changes how much pressure is cut from the rear brakes: higher ratios decrease the pressure reduction, making the rear brakes more aggressive, while lower ratios increase pressure reduction for a more stable rear braking feel.
+
+#### Handbrake Force
+
+The handbrake system can be finely tuned by adjusting or replacing components such as the handbrake calipers, brake pads, or the master cylinder pressure. With Handbrake Force, you are adjusting the whole system to increase or reduce its effect.
+
+Increasing the Handbrake Force requires less pull on the handbrake to lock the wheels, even on smoother and grippier surfaces, making it easier to rotate the car with less modulation required.
+
+Decreasing the Handbrake Force will require more pull on the handbrake to lock the wheels, reducing the cars desire to rotate as quickly or sharply when trying to engage or modulate the handbrake.
+
+Tune based on the your preference and the amount of available grip.
+
+#### Discs (templates also call it "Brake Discs")
+
+Modulating brake power becomes more difficult on low-grip surfaces, so choosing smaller brake discs can help by directly reducing the brake torque applied.
+
+Brake discs are sorted by diameter and cooling efficiency, the larger the disc, the greater the potential brake torque and better cooling.
+
+Smaller, non-vented discs tend to heat up more quickly than larger, highly vented ones, which is important to consider in your strategy.
+
+Keep in mind that changing the discs will likely affect your brake bias as well.
+
+#### Calipers (templates also call it "Brake Calipers")
+
+If a disc is compatible with multiple calipers, you'll see the available options sorted by piston area size.
+
+A larger piston area generally means greater braking force and better cooling efficiency.
+
+However, keep in mind that each caliper uses its own set of brake pad compounds, so the actual wheel torque may vary depending on the caliper chosen.
+
+#### Pads/Shoe (templates also call it "Brake Pads")
+
+You can select from various compounds for your brake pads or shoes, each suited to different driving conditions.
+
+For shorter rally stages, you might prefer softer pads with a strong initial bite and better stopping power. This does come at a cost though, with faster wear and increased chance of locking on loose surfaces.
+For longer or low-grip stages, more highly durable compounds are generally better, as they last longer and maintain a more consistent performance.
+
+Keep in mind that different pads or shoes can affect the brake bias at each wheel, so always check and adjust the bias accordingly to ensure optimal handling and safety.
+
 ### Differentials
 
 #### Differential Ratio
@@ -514,6 +594,26 @@ You may adjust one or both axle differential ratios; even differently one from t
 However, this also raises the overall final drive ratio, which reduces top speed but improves acceleration. To maintain the original final drive effect, you can compensate by adjusting the gearbox final ratio in the opposite direction.
 
 This asymmetric setup not only changes torque distribution but also preloads the center differential, allowing it to respond more quickly to differences in wheel slip between axles, improving traction and handling in rally conditions.
+
+#### Center Differential Ratio
+
+> **Maintainer note:** in-game this field shows the generic gear-ratio text below (it appears to
+> reuse the *Primary Gear* description as a placeholder). For the actual centre-diff torque-split
+> behaviour, see *Center Ratio to Rear* and the `[AWD]` differential guidance above. Transcribed
+> verbatim:
+
+Higher gear ratios in a car are designed to improve acceleration, allowing the vehicle to reach top speeds more quickly from a standstill. By favoring quicker engine revving and faster power delivery, these ratios provide an advantage during rapid changes in pace, such as tight corners or technical sections.
+
+However, this comes with trade-offs. While acceleration is enhanced, the car's top speed is reduced, limiting its maximum velocity on straights. Moreover, higher ratios can negatively affect traction, as increased torque at the wheels may lead to wheel spin, especially on loose or slippery surfaces.
+
+#### Center Ratio to Rear
+
+You can adjust the torque distribution to the rear differential by altering its ratio relative to the front differential.
+
+Setting a higher ratio than the front shifts more torque to the rear, increasing rear bias.
+However, this also raises the overall final drive ratio, which reduces top speed but improves acceleration. To maintain the original final drive ratio, you can compensate by adjusting the gearbox final ratio in the opposite direction.
+
+This asymmetric setup not only changes the front-to-rear torque balance but can also preload the center differential, allowing it to respond quicker to differences in axle slip, enhancing traction and handling in rally conditions.
 
 #### LSD Power/Coast Ramp
 
@@ -542,6 +642,35 @@ Increasing the number of plates amplifies the locking effect, making the LSD mor
 Reducing the number of plates reduces the locking effect, allowing for freer wheel rotation. This shifts the bias towards more freer rotation and better cornering during coast, but more understeer when on power.
 
 This adjustability enables fine-tuning of the LSD to match driving style and conditions, enhancing traction and vehicle control within various scenarios.
+
+### Electronics & Aerodynamics
+
+#### ABS Map
+
+The ABS (Anti-lock Braking System) is an active safety system that prevents the wheels from locking during sudden braking, thus avoiding skidding and loss of grip.
+
+When the ABS detects locking, it acts cyclically (hundreds of times per second) temporarily reducing the brake pressure on the wheel about to lock. Once the wheel starts to rotate again, the brake pressure is restored.
+
+When the ABS is deactivated (OFF) the control of the brake pressure is completely in the hands of the driver. As the ABS values increase, the system becomes more sensitive to the pressure, anticipating the wheel lock and optimizing the response.
+
+The braking distance with the ABS active may be slightly longer than with a driver-controlled braking without locking the wheels. However, in the event of a wheel lock, stopping times are significantly longer without ABS.
+On slippery surfaces, such as dirt and snow, the ABS may be too intrusive due to the ease with which the wheels lock.
+
+#### TCS Map
+
+The TCS (Traction Control System) is a traction control system that prevents the drive wheels from slipping during acceleration by reducing engine power or intervening on the brakes when it detects that one wheel is spinning faster than the others.
+
+The system optimizes the performance and stability of the vehicle, especially during acceleration in difficult conditions such as rain, snow or slippery surfaces. Furthermore, by reducing wheel slippage during extreme acceleration, it improves traction and ensures more efficient power transfer.
+
+With the TCS deactivated (OFF) the driver has full control over acceleration. Greater experience is required in dosing the pressure, preventing loss of grip and thus obtaining superior performance.
+
+By increasing the intensity of the system, the TCS becomes more sensitive to wheel slippage, intervening to reduce it and ensuring adequate performance even for those with less experience, reducing the need to carefully control the accelerator.
+
+#### Additional Lights
+
+Additional lights are powerful light components used to improve visibility during night stages and low visibility conditions in rally racing. While they can significantly enhance a driver's ability to see the road ahead, many cars only have them as optional equipment, and regulations often enforce their installation for night events.
+
+These lights are delicate and positioned on the car's front, making them vulnerable to damage from collisions. Because of their fragility, installing additional lights requires the car's bodywork to be in good condition. If the front bodywork is heavily damaged, it must be repaired before the lights can be securely fitted, ensuring both safety and functionality.
 
 ## Sources & version caveats
 
