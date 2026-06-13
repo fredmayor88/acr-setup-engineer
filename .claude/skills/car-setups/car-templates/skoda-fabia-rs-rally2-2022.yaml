@@ -1,0 +1,256 @@
+car: "Skoda Fabia RS Rally2 2022"
+game: "ACR"
+drivetrain: "AWD"
+engine_layout: "transverse front-mounted turbocharged inline-4"
+weight_bias: "~60% front / ~40% rear"
+weight: "~1230 kg (FIA Rally2 minimum)"
+version: "1"
+parameters:
+  - section: "Gearbox"
+    adjustment: "Gear Set"
+    min: 1
+    max: 1
+    unit: ""
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Front"
+    min: 0.0000
+    max: 0.3000
+    unit: "m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Rear"
+    min: 0.0000
+    max: 0.3000
+    unit: "m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Front"
+    min: 30000
+    max: 60000
+    unit: "N/m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Front"
+    min: 15000
+    max: 37500
+    unit: "N/m"
+    discrete_steps: ""
+    surface: "Gravel"
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Rear"
+    min: 30000
+    max: 60000
+    unit: "N/m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Rear"
+    min: 15000
+    max: 37500
+    unit: "N/m"
+    discrete_steps: ""
+    surface: "Gravel"
+  - section: "Dampers"
+    adjustment: "Fast Bump Front"
+    min: 1750
+    max: 4750
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Bump Rear"
+    min: 1750
+    max: 4750
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Rebound Front"
+    min: 2750
+    max: 8500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Rebound Rear"
+    min: 2750
+    max: 8500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Bump Front"
+    min: 2250
+    max: 5750
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Bump Rear"
+    min: 2250
+    max: 5750
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Rebound Front"
+    min: 3250
+    max: 9750
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Rebound Rear"
+    min: 3250
+    max: 9750
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Front"
+    min: 2250
+    max: 17450
+    unit: "N/m"
+    discrete_steps: "2250, 4150, 6050, 7950, 9850, 11750, 13650, 15550, 17450"
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Rear"
+    min: 3750
+    max: 29750
+    unit: "N/m"
+    discrete_steps: "3750, 7000, 10250, 13500, 16750, 20000, 23250, 26500, 29750"
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "68/85, 44/85, 39/85"
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "68/85, 44/85, 39/85"
+  - section: "Differentials"
+    adjustment: "LSD Preload Front"
+    min: 0.0
+    max: 200.0
+    unit: "Nm"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "LSD Preload Rear"
+    min: 0.0
+    max: 200.0
+    unit: "Nm"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Plates Number Front"
+    min: 2
+    max: 8
+    unit: ""
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Plates Number Rear"
+    min: 2
+    max: 8
+    unit: ""
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Camber Front"
+    min: -4.5
+    max: 1.0
+    unit: "°"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Camber Rear"
+    min: -4.5
+    max: 1.0
+    unit: "°"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Pressure Front"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Pressure Rear"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Toe Front"
+    min: -0.0100
+    max: 0.0100
+    unit: "m"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Toe Rear"
+    min: -0.0100
+    max: 0.0100
+    unit: "m"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Brake Calipers Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "4X38.1/41.3 TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Calipers Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "4X38.1/41.3 TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Discs Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "300/193X32 B TYPE1, 355/249X32 B TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Discs Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "300/193X32 B TYPE1, 355/249X32 B TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Pads Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Brake Pads Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Front Bias"
+    min: 0.250
+    max: 0.750
+    unit: ""
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Front Cylinder"
+    min: 15.88
+    max: 25.4
+    unit: "mm"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Handbrake Force"
+    min: 0.50
+    max: 1.50
+    unit: ""
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Rear Cylinder"
+    min: 15.88
+    max: 25.4
+    unit: "mm"
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "ABS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "TCS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""
