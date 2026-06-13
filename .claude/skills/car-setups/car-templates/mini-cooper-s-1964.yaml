@@ -4,7 +4,7 @@ drivetrain: "FWD"
 engine_layout: "front-mounted transverse inline-4, front-wheel drive"
 weight_bias: "~63% front / ~37% rear"
 weight: "~650 kg"
-version: "1"
+version: "0.4"
 parameters:
   - section: "Gearbox"
     adjustment: "Gear Set"

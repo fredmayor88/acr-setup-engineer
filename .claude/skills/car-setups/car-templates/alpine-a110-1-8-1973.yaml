@@ -4,7 +4,7 @@ drivetrain: "RWD"
 engine_layout: "rear-mounted longitudinal inline-4 (1.8L), behind the cockpit, ahead of the rear axle"
 weight_bias: "~36% front / ~64% rear"
 weight: "~700 kg"
-version: "1"
+version: "0.4"
 parameters:
   - section: "Gearbox"
     adjustment: "Gear Set"

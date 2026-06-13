@@ -13,6 +13,9 @@ parameter file for a car.
 ## Inputs
 - **Car name** — ask if not provided or ambiguous (must match a car already onboarded in Notion).
 - **Game** — defaults to ACR; ask only if the user has multiple games and it's unclear.
+- **Game version** — ask which game version the parameters were captured in (e.g. `0.4`), since
+  tunable ranges can shift between versions. If the user doesn't know, write `"unknown"`. (No
+  Notion lookup — don't try to infer it from existing setups.)
 
 ## Procedure
 
@@ -70,7 +73,7 @@ drivetrain: "{FWD|RWD|AWD}"
 engine_layout: "{descriptive engine placement, e.g. mid-rear transverse V6 behind the driver}"
 weight_bias: "{front/rear percentages, e.g. ~44% front / ~56% rear}"
 weight: "{approx kerb weight, e.g. ~950 kg}"
-version: "1"
+version: "{game version the parameters were captured in, e.g. 0.4 — or unknown}"
 parameters:
   - section: "{Section}"
     adjustment: "{Adjustment}"
@@ -162,7 +165,9 @@ pressure:
 - The exported file is a snapshot of the current Notion state. If the user updates parameters
   later, they can re-run the export to get a fresh copy.
 - Never include personal data (user name, email, Notion IDs) in the exported YAML.
-- The `version` field is always `"1"`. The optional `engine_layout` / `weight_bias` / `weight`
-  header fields and the optional per-parameter `surface` field are all part of this same v1
-  format — they are backward-compatible additions and do **not** bump the version. A template with
-  no `surface` fields imports exactly as before (all baseline rows).
+- The `version` field records the **game version the parameters were captured for** (e.g. `0.4`),
+  taken from the user's answer to the Game version input; write `"unknown"` if they don't know.
+  It is informational metadata — nothing validates it on import. The `engine_layout` /
+  `weight_bias` / `weight` header fields and the per-parameter `surface` field remain **optional
+  and backward-compatible**: a template with none of them imports exactly as before (all baseline
+  rows), regardless of the `version` value.

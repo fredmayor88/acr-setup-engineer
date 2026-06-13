@@ -4,7 +4,7 @@ drivetrain: "AWD"
 engine_layout: "front-longitudinal turbo flat-4 boxer (2.0L EJ20G)"
 weight_bias: "~58% front / ~42% rear"
 weight: "~1,200 kg"
-version: "1"
+version: "0.4"
 parameters:
   - section: "Gearbox"
     adjustment: "Gear Set"

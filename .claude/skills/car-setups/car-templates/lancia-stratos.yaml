@@ -4,7 +4,7 @@ drivetrain: "RWD"
 engine_layout: "mid-rear transverse V6 behind the driver"
 weight_bias: "~44% front / ~56% rear"
 weight: "~950 kg"
-version: "1"
+version: "0.4"
 parameters:
   - section: "Gearbox"
     adjustment: "Gear Set"

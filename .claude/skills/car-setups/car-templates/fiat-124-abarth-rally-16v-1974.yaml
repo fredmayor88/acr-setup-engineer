@@ -4,7 +4,7 @@ drivetrain: "RWD"
 engine_layout: "front-mounted longitudinal DOHC inline-4 (1.8 L / 1756 cc, 16-valve competition head)"
 weight_bias: "~55% front / ~45% rear (estimated — no published figure for the classic car)"
 weight: "~938 kg"
-version: "1"
+version: "0.4"
 parameters:
   - section: "Gearbox"
     adjustment: "Gear Set"

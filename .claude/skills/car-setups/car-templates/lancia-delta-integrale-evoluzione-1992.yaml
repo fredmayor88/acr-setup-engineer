@@ -4,7 +4,7 @@ drivetrain: "AWD"
 engine_layout: "front transverse inline-4 turbo (2.0L 16v)"
 weight_bias: "~63% front / ~37% rear"
 weight: "~1,300 kg"
-version: "1"
+version: "0.4"
 parameters:
   - section: "Gearbox"
     adjustment: "Gear Set"
