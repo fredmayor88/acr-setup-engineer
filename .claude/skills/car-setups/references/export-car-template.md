@@ -1,7 +1,8 @@
 # Workflow: export a car parameter template
 
 Export a car's full parameter catalog from Notion as a YAML template file that can be bundled
-with the skill and shared with the community. The exported file, once added to `car-templates/`,
+with the skill and shared with the community. The exported file, once added to the skill's
+`.claude/skills/car-setups/car-templates/` folder (the same one the bundled templates live in),
 lets future users onboard the same car without screenshots.
 
 ## Trigger phrases
@@ -106,10 +107,12 @@ Always show the YAML as a fenced code block in chat regardless of what else is a
 ````
 
 Then tell the user:
-> "Save this as `car-templates/{slug}.yaml` in the skill repo (the slug is the car name
-> lowercased with spaces and special characters replaced by hyphens, e.g.
-> `lancia-stratos-hf.yaml`). Once committed, the skill will offer it automatically to anyone
-> who onboards this car."
+> "Save this as `.claude/skills/car-setups/car-templates/{slug}.yaml` in the skill repo — this is
+> the **same folder the bundled templates live in**, so the skill picks it up automatically (a
+> bare `car-templates/` at the repo root is the wrong place and won't be loaded). The slug is the
+> car name lowercased with spaces and special characters replaced by hyphens, e.g.
+> `lancia-stratos-hf.yaml`. Once committed, the skill will offer it automatically to anyone who
+> onboards this car."
 
 ### 6. Offer to share it with the community
 After showing the code block, invite the user to contribute it back — warmly, and without any
@@ -134,11 +137,13 @@ pressure:
   The link is just (no code sandbox needed — the filename is short):
 
   ```
-  https://github.com/fredmayor88/car-setups/new/main?filename=car-templates/{slug}.yaml
+  https://github.com/fredmayor88/car-setups/new/main?filename=.claude/skills/car-setups/car-templates/{slug}.yaml
   ```
 
   where `{slug}` is the car name lowercased with spaces and special characters replaced by hyphens
-  (e.g. `lancia-stratos-hf`).
+  (e.g. `lancia-stratos-hf`). **Use the full `.claude/skills/car-setups/car-templates/` path** —
+  that's where the bundled templates live and where the skill loads them from; a bare
+  `car-templates/` at the repo root is the wrong place and won't be picked up.
 
   Then hand the user the link with friendly, jargon-free steps:
   > "Here's your share link: {link}
