@@ -102,26 +102,53 @@ Then tell the user:
 > `lancia-stratos-hf.yaml`). Once committed, the skill will offer it automatically to anyone
 > who onboards this car."
 
-### 6. GitHub PR offer
-Always ask after showing the code block:
-> "Want me to open a GitHub PR to add this template to the community library?"
+### 6. Offer to share it with the community
+After showing the code block, invite the user to contribute it back — warmly, and without any
+pressure:
 
-- **If the user says yes:** Check whether GitHub MCP tools are available (look for tools in the
-  `mcp__github__*` namespace). 
-  - **Tools available:** Create a branch named `add-template/{slug}`, commit the YAML file at
-    `car-templates/{slug}.yaml`, then open a pull request:
-    - **Title:** `Add parameter template: {Car Name}`
-    - **Body:** One-sentence description of the car + note that the template was exported from
-      a user's Notion via the car-setups skill + list any parameters that have blank
-      `Discrete steps` (so reviewers know what's still needed).
-    - Report the PR URL to the user.
-  - **Tools unavailable:** Let the user know there's no GitHub connection in this session and
-    direct them to `https://github.com/fredmayor88/car-setups` with instructions:
-    > "Create a new branch, add the file at `car-templates/{slug}.yaml` with the content
-    > above, and open a pull request. The maintainers will review and bundle it with the
-    > next release."
+> "You built this catalog from scratch, so right now it only lives in your Notion. If you share
+> it, the next person who drives the **{Car}** can onboard it in one click — no screenshots, no
+> typing. Want me to make a quick share link?
+> (It just needs a free GitHub account. If you already have one, it'd be a lovely thing to give
+> back to the community. No account, or not in the mood? No problem at all — we'll skip it.)"
 
-- **If the user says no:** Done.
+- **If the user says yes:** Make a **ready-to-go share link** that opens the project's website
+  with the file's name and contents already filled in. The user signs in to GitHub if asked, then
+  clicks one green button — GitHub quietly makes their own copy of the project and opens the
+  share request for them. No tokens, no command line, nothing to install.
+
+  Build the link in the code sandbox so the contents are encoded correctly (do **not** assemble
+  the link by hand — special characters in the YAML must be escaped):
+
+  ```python
+  import urllib.parse
+  yaml_text = """<paste the exact YAML you generated above, verbatim>"""
+  slug = "<car-name slug, e.g. lancia-stratos-hf>"
+  car  = "<Car Name, e.g. Lancia Stratos HF>"
+  base = "https://github.com/fredmayor88/car-setups/new/main"
+  link = (base
+          + "?filename="    + urllib.parse.quote(f"car-templates/{slug}.yaml")
+          + "&value="       + urllib.parse.quote(yaml_text)
+          + "&message="     + urllib.parse.quote(f"Add parameter template: {car}")
+          + "&description="  + urllib.parse.quote("Exported from Notion via the car-setups skill."))
+  print(link)
+  ```
+
+  Then hand the user the link with friendly, jargon-free steps:
+  > "Here's your share link: {link}
+  >
+  > 1. Click it (sign in to GitHub if it asks).
+  > 2. Scroll down and click the green **Commit changes** / **Propose new file** button.
+  > 3. Click the green button once more on the next screen to open the request.
+  >
+  > That's it — the maintainers will review it and bundle it into the next release. Thank you 🙏"
+
+  **Fallback (only if they say the link won't load** — can happen for unusually large files**):**
+  give them the shorter link with the filename only —
+  `https://github.com/fredmayor88/car-setups/new/main?filename=car-templates/{slug}.yaml` — and
+  say: "Click it, paste the YAML I showed above into the editor, then use the same green button."
+
+- **If the user says no:** Done — no follow-up, no nagging.
 
 ## Rules
 - Export reads Notion; it never writes to Notion.
