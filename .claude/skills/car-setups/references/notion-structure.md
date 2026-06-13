@@ -72,9 +72,11 @@ car** — absent parameters simply have no row.
   - **Row key (upsert):** `Car` + `Adjustment` + `Surface` — match on all three; update if
     present, else create. A blank `Surface` is itself a distinct key value (the baseline row).
   - **Resolution rule** (how `build-setup`/`tweak`/`review`/`import` pick a parameter's legal
-    range for a setup on surface **S**): use the row whose `Surface = S` **if one exists**, else
-    fall back to the **blank-`Surface`** row. If neither exists, the parameter isn't available
-    for that car. (Same rule documented for readers in [notion-rest-read.md](notion-rest-read.md).)
+    range for a setup on surface **S**): use the row whose `Surface = S` **if one exists**;
+    **else if `S = Snow`, fall back to a `Gravel` row** (snow inherits gravel's softer ranges —
+    onboarding does a gravel pass but no separate snow pass); else fall back to the
+    **blank-`Surface`** row. If none exists, the parameter isn't available for that car. (Same
+    rule documented for readers in [notion-rest-read.md](notion-rest-read.md).)
   - **Backward compatible:** existing catalogs are entirely blank-`Surface`, so every parameter
     resolves to its single row on every surface — unchanged behavior, no migration.
 - **`Min` / `Max`** — the extremes read from the min/max setup screenshots. Always capture the

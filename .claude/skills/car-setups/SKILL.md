@@ -54,9 +54,14 @@ Bundled tools (stdlib Python, run via code execution):
   doesn't have.
 - **Surface-resolved ranges.** A `Parameters` row may carry an optional **`Surface`** tag
   (`Tarmac`/`Gravel`/`Snow`); a few parameters expose a different range per surface. The legal
-  range for a setup on surface **S** is the row tagged `S` **if one exists**, else the blank
-  (baseline) row. Resolve this before choosing/validating any value (see
-  `references/notion-rest-read.md`). Most parameters have only the baseline row.
+  range for a setup on surface **S** is the row tagged `S` **if one exists**; else if `S` is
+  `Snow`, a `Gravel` row **if one exists** (snow inherits gravel's softer ranges — cars are
+  onboarded with a gravel pass but no separate snow pass); else the blank (baseline) row. Resolve
+  this before choosing/validating any value (see `references/notion-rest-read.md`). Most
+  parameters have only the baseline row. **The user may set the build's surface explicitly**
+  ("build a gravel setup", "use tarmac parameters") — this overrides the stage's surface for the
+  **whole** build (range resolution, tyre choice, and surface-tagged guidelines) and becomes the
+  setup row's `Surface`.
 - **Notion scope is `Car setups` only — never search broadly.** Navigate the hierarchy
   explicitly by name starting from the `Car setups` root; do not issue workspace-wide Notion
   searches to locate setup data, guidelines, or parameters. If a Notion API call returns results

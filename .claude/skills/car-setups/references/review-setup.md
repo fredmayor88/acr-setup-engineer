@@ -32,7 +32,7 @@ Fetch the car's `Parameters` rows **via [notion-rest-read.md](notion-rest-read.m
 `Car setups → {Game} → Parameters`): `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`,
 `Surface`. Also read the `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page attribute. **Resolve
 each parameter's legal range for the setup's `Surface`** (loaded in step 1) — the surface-specific
-row if the parameter has one, else the baseline row (see
+row if the parameter has one; for `Snow`, fall back to a `Gravel` row before the baseline (see
 [notion-rest-read.md](notion-rest-read.md)).
 
 ### 3. Load guideline layers
@@ -54,7 +54,7 @@ Evaluate across three dimensions:
 
 **a. Constraint validation**
 For every parameter that has a value in the setup row, check against its **surface-resolved**
-range (the row for the setup's `Surface`, else the baseline — step 2):
+range (the row for the setup's `Surface`; `Snow` falls back to `Gravel`, then baseline — step 2):
 - If that row has `Discrete steps` filled → the value must be exactly one of those steps.
 - Otherwise → the value must be within `Min..Max` (inclusive).
 Any violation is a **hard error** — list every one found; do not suppress or soften them.

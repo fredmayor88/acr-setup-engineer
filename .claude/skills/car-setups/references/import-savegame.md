@@ -48,8 +48,8 @@ game, tell the user to onboard the car via screenshots (`onboard-car.md`) and bu
    to the user rather than dropping it. **Validate each value against the catalog row resolved for
    that setup's surface** — map the parsed `surface` to the catalog's `Tarmac`/`Gravel`/`Snow`
    (asphalt → Tarmac; dirt/mud → Gravel; ice → Snow; anything else → baseline), then use the
-   surface-specific row if the parameter has one, else the baseline row (see
-   [notion-rest-read.md](notion-rest-read.md)). The value should fall within that row's
+   surface-specific row if the parameter has one; for `Snow`, fall back to a `Gravel` row before
+   the baseline (see [notion-rest-read.md](notion-rest-read.md)). The value should fall within that row's
    `Min..Max`, or be a member of its `Discrete steps` when filled; **flag mismatches** rather than
    dropping them (a save value outside the catalog usually means the catalog is incomplete, not
    that the value is wrong). Then add one new

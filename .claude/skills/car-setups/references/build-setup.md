@@ -13,6 +13,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
   ask the user for the stage description, or create it.
 - **Setup name** (e.g. `alsace gpt1`).
 - **Mode** — `learn` (default) or `independent`.
+- **Surface override** (optional) — if the user names a surface ("build a gravel setup", "use
+  tarmac settings/parameters", "treat this as snow"), it **overrides the stage page's surface for
+  the whole build**: range resolution, tyre choice, surface-tagged guidelines, and the written
+  row's `Surface`. Without it, the surface comes from the stage page (step 3).
 
 ## Procedure
 
@@ -42,7 +46,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 3. **Load the stage context (most specific).** Fetch the stage page: surface, key
    corners/speeds, what the driver wants (rotation, stability, braking, bumps). It overrides the
-   general guidelines where it speaks to the same thing.
+   general guidelines where it speaks to the same thing. **Fix the build surface here:** if the
+   user gave a **Surface override** (Inputs), it wins over the stage's stated surface — use it as
+   the surface for guideline layer 3 (step 2.3), tyre choice (step 5), range resolution
+   (steps 5–6), and the row's `Surface` (step 8); otherwise use the stage's surface.
 
 4. **Handle prior setups by mode.**
    - `learn` (default): fetch existing `Setups` rows for this car **where `Learn from this` is
@@ -55,8 +62,9 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 5. **Choose values.** First pick the **tyre type** for the surface/conditions (biggest grip
    decision). Then, per parameter, reason from tyre + surface + stage + style + the merged
    guidelines (drivetrain-filtered), then make it legal — **using the range resolved for the
-   stage's surface** (the surface-specific row if the parameter has one, else the baseline row;
-   see [notion-rest-read.md](notion-rest-read.md)) — **no step grid, no interpolation**:
+   build surface** (the surface-specific row if the parameter has one; for `Snow`, fall back to a
+   `Gravel` row before the baseline; see [notion-rest-read.md](notion-rest-read.md)) — **no step
+   grid, no interpolation**:
    - **`Discrete steps` filled** → pick **one value from that exact set** (covers coarse
      numerics like spring stiffness and named options like gear set). The checklist value is
      exact.
@@ -67,9 +75,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    Never go outside `Min..Max` or off the `Discrete steps` set; never invent a parameter the car
    doesn't have.
 
-6. **Validate.** Re-check every chosen value against the catalog **for the stage's surface**
-   (surface-resolved range): discrete picks must be a member of `Discrete steps`; continuous
-   picks must be within `Min..Max`. Fix any violation before writing.
+6. **Validate.** Re-check every chosen value against the catalog **for the build surface**
+   (surface-resolved range — `Snow` falls back to `Gravel`, then baseline): discrete picks must be
+   a member of `Discrete steps`; continuous picks must be within `Min..Max`. Fix any violation
+   before writing.
 
 7. **Ensure the stage exists.** Per `notion-structure.md`, make sure the `{stage}` page (with its
    filtered `Setups[Car, Stage]` view) exists under the car's `setups`; create it from the stage

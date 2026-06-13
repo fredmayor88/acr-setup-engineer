@@ -57,11 +57,15 @@ surface. Whenever you need a parameter's legal range for a setup on **surface S*
 setup's `Surface`):
 
 1. If a row for that `Adjustment` has `Surface == S`, use **that** row's `Min`/`Max`/`Discrete steps`.
-2. Otherwise use the **baseline** row (no `Surface`).
-3. If neither exists, the parameter isn't available for that car — skip it.
+2. **Else if `S == Snow` and a `Surface == Gravel` row exists, use the `Gravel` row** — snow
+   inherits gravel's softer ranges (cars are onboarded with a gravel pass but no separate snow
+   pass).
+3. Otherwise use the **baseline** row (no `Surface`).
+4. If none exists, the parameter isn't available for that car — skip it.
 
-So group the returned rows by `Adjustment`, then pick the surface-matching row if present, else
-the baseline. Most parameters have only the baseline row and resolve to it on every surface.
+So group the returned rows by `Adjustment`, then pick the surface-matching row if present (for
+`Snow`, fall back to a `Gravel` row before the baseline), else the baseline. Most parameters have
+only the baseline row and resolve to it on every surface.
 
 ## No token (or the query fails)
 This REST query **is** the read path — don't substitute the connector's row-listing, which is

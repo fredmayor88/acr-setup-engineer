@@ -213,6 +213,9 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
    > screen, and compare the **spring stiffness** min/max to what I just captured
    > ({tarmac spring-stiffness range}). Same, or different?"
 
+   No separate **snow** pass is needed: snow setups inherit the `Gravel` rows via the resolution
+   rule (`Snow` → `Gravel` → baseline; see `notion-rest-read.md`).
+
    - **Same (or the user would rather not bother):** nothing to do — the baseline covers every
      surface. Continue to the report.
    - **It differs:** ask for a **second full min/max pass taken on a gravel stage** (both a min

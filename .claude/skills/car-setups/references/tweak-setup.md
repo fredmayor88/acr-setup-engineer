@@ -30,8 +30,11 @@ within `Car setups` scope — no workspace-wide Notion searches.
 Fetch the car's `Parameters` rows (within `Car setups → {Game} → Parameters`):
 `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Surface`. Read `Drivetrain` (FWD/RWD/AWD)
 from the `{Car}` page attribute. **Resolve each parameter's legal range for the source setup's
-`Surface`** (loaded in step 1) — use the surface-specific row if the parameter has one, else the
-baseline row (see [notion-rest-read.md](notion-rest-read.md)).
+`Surface`** (loaded in step 1) — use the surface-specific row if the parameter has one; for
+`Snow`, fall back to a `Gravel` row before the baseline (see
+[notion-rest-read.md](notion-rest-read.md)). If the user **explicitly re-targets the surface**
+("tweak this for gravel"), use that surface instead — it drives resolution and the new row's
+`Surface`.
 
 ### 3. Load guideline layers
 Same precedence chain as `build-setup.md` (lowest → highest):
