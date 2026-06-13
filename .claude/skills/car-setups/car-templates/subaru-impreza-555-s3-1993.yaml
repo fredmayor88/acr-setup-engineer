@@ -1,0 +1,290 @@
+car: "Subaru Impreza 555 (S3) 1993"
+game: "ACR"
+drivetrain: "AWD"
+engine_layout: "front-longitudinal turbo flat-4 boxer (2.0L EJ20G)"
+weight_bias: "~58% front / ~42% rear"
+weight: "~1,200 kg"
+version: "1"
+parameters:
+  - section: "Gearbox"
+    adjustment: "Gear Set"
+    min: 1
+    max: 7
+    unit: ""
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Front"
+    min: 0.0000
+    max: 0.2000
+    unit: "m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Rear"
+    min: 0.0000
+    max: 0.2000
+    unit: "m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Front"
+    min: 28000
+    max: 48000
+    unit: "N/m"
+    discrete_steps: "28000, 33000, 38000, 43000, 48000"
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Rear"
+    min: 23000
+    max: 35000
+    unit: "N/m"
+    discrete_steps: "23000, 26000, 29000, 32000, 35000"
+  - section: "Dampers"
+    adjustment: "Bump Transition Front"
+    min: 0.050
+    max: 0.250
+    unit: "m/s"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Bump Transition Rear"
+    min: 0.050
+    max: 0.250
+    unit: "m/s"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Bump Front"
+    min: 2000
+    max: 8500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Bump Rear"
+    min: 2000
+    max: 7500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Rebound Front"
+    min: 3000
+    max: 9500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Rebound Rear"
+    min: 2500
+    max: 7500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Rebound Transition Front"
+    min: 0.050
+    max: 0.250
+    unit: "m/s"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Rebound Transition Rear"
+    min: 0.050
+    max: 0.250
+    unit: "m/s"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Bump Front"
+    min: 3000
+    max: 11500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Bump Rear"
+    min: 2500
+    max: 9500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Rebound Front"
+    min: 4500
+    max: 12500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Rebound Rear"
+    min: 3500
+    max: 9000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Front"
+    min: 10500
+    max: 24500
+    unit: "N/m"
+    discrete_steps: ""
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Rear"
+    min: 7500
+    max: 21500
+    unit: "N/m"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Center Ratio to Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "31//31, 23//24, 23//25, 30//33, 27//30, 22//25, 22//26, 24//30, 22//28, 21//28, 20//29"
+  - section: "Differentials"
+    adjustment: "Differential Ratio Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "36//7, 39//8, 37//8, 40//9, 35//8, 48//11, 37//9, 39//10, 35//9, 31//8, 37//10, 39//11, 38//11, 31//9, 37//11"
+  - section: "Differentials"
+    adjustment: "Differential Ratio Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "36//7, 39//8, 37//8, 40//9, 35//8, 48//11, 37//9, 39//10, 35//9, 31//8, 37//10, 39//11, 38//11, 31//9, 37//11"
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "90/90, 75/90, 65/75, 50/85"
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "90/90, 65/80, 60/70, 45/55"
+  - section: "Differentials"
+    adjustment: "LSD Preload Front"
+    min: 0.0
+    max: 200.0
+    unit: "Nm"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "LSD Preload Rear"
+    min: 0.0
+    max: 250.0
+    unit: "Nm"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Plates Number Front"
+    min: 2
+    max: 6
+    unit: ""
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Plates Number Rear"
+    min: 2
+    max: 6
+    unit: ""
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Camber Front"
+    min: -3.5
+    max: 1.0
+    unit: "°"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Camber Rear"
+    min: -3.7
+    max: 1.0
+    unit: "°"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Pressure Front"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Pressure Rear"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Toe Front"
+    min: -0.0100
+    max: 0.0100
+    unit: "m"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Toe Rear"
+    min: -0.0100
+    max: 0.0100
+    unit: "m"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Brake Calipers Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "2X42.9 TYPE1, 8X26/32 TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Calipers Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "1X38.1 TYPE1, 4X30/34 TYPE2"
+  - section: "Brakes"
+    adjustment: "Brake Discs Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "277/170x24 P Type1, 380/290x32 B Type1"
+  - section: "Brakes"
+    adjustment: "Brake Discs Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "266/193x18 P Type1, 313/225x25.4 B Type1"
+  - section: "Brakes"
+    adjustment: "Brake Pads Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Brake Pads Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Front Bias"
+    min: 0.250
+    max: 0.750
+    unit: "ratio"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Front Cylinder"
+    min: 15.88
+    max: 25.4
+    unit: "mm"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Handbrake Force"
+    min: 0.50
+    max: 1.50
+    unit: ""
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Rear Cylinder"
+    min: 15.88
+    max: 25.4
+    unit: "mm"
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "ABS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "Additional Lights"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "ON"
+  - section: "Electronics"
+    adjustment: "TCS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""

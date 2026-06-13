@@ -1,0 +1,140 @@
+car: "Mini Cooper S 1964"
+game: "ACR"
+drivetrain: "FWD"
+engine_layout: "front-mounted transverse inline-4, front-wheel drive"
+weight_bias: "~63% front / ~37% rear"
+weight: "~650 kg"
+version: "1"
+parameters:
+  - section: "Gearbox"
+    adjustment: "Gear Set"
+    min: 1
+    max: 4
+    unit: ""
+    discrete_steps: ""
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Front"
+    min: 0
+    max: 5500
+    unit: "N/m"
+    discrete_steps: "0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500"
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Rear"
+    min: 0
+    max: 4500
+    unit: "N/m"
+    discrete_steps: "0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500"
+  - section: "Differentials"
+    adjustment: "Differential Ratio Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "67//14, 65//15, 64//15, 62//15, 63//16, 64//17, 62//18"
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "60/80, 45/65, 35/60"
+  - section: "Differentials"
+    adjustment: "LSD Preload Front"
+    min: 0.0
+    max: 150.0
+    unit: "Nm"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Plates Number Front"
+    min: 2
+    max: 6
+    unit: ""
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Pressure Front"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Pressure Rear"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Toe Front"
+    min: -0.0010
+    max: 0.0010
+    unit: "m"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Tyre Type"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)"
+  - section: "Brakes"
+    adjustment: "Brake Calipers Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "2X44.4 TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Calipers Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "1X15.9 TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Discs Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "190.5/99X9.5 P TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Discs Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "210/178X31.75 P TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Pads Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Brake Pads Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Handbrake Force"
+    min: 0.50
+    max: 1.50
+    unit: ""
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Proportioning Preload"
+    min: 1.75
+    max: 4.00
+    unit: "MPa"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Proportioning Ratio"
+    min: 0.0000
+    max: 1.0000
+    unit: ""
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "ABS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "TCS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""

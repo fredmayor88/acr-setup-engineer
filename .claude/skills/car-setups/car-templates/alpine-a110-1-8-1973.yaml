@@ -1,0 +1,206 @@
+car: "Alpine A110 1.8 1973"
+game: "ACR"
+drivetrain: "RWD"
+engine_layout: "rear-mounted longitudinal inline-4 (1.8L), behind the cockpit, ahead of the rear axle"
+weight_bias: "~36% front / ~64% rear"
+weight: "~700 kg"
+version: "1"
+parameters:
+  - section: "Gearbox"
+    adjustment: "Gear Set"
+    min: 1
+    max: 4
+    unit: ""
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Front"
+    min: 0.0000
+    max: 0.0600
+    unit: "m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Rear"
+    min: 0.0000
+    max: 0.0600
+    unit: "m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Front"
+    min: 90000
+    max: 300000
+    unit: "N/m"
+    discrete_steps: "90000, 120000, 150000, 180000, 210000, 240000, 270000, 300000"
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Rear"
+    min: 63750
+    max: 195000
+    unit: "N/m"
+    discrete_steps: "63750, 82500, 101250, 120000, 138750, 157500, 176250, 195000"
+  - section: "Dampers"
+    adjustment: "Fast Bump Front"
+    min: 5000
+    max: 30000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Bump Rear"
+    min: 2500
+    max: 25000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Rebound Front"
+    min: 5000
+    max: 30000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Rebound Rear"
+    min: 3000
+    max: 25000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Bump Front"
+    min: 5000
+    max: 30000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Bump Rear"
+    min: 2500
+    max: 25000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Rebound Front"
+    min: 5000
+    max: 30000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Rebound Rear"
+    min: 3000
+    max: 25000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Front"
+    min: 6250
+    max: 15250
+    unit: "N/m"
+    discrete_steps: "6250, 7250, 8250, 9250, 10250, 11250, 12250, 13250, 14250, 15250"
+  - section: "Differentials"
+    adjustment: "Differential Ratio Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "33//8, 31//8, 34//9, 32//9, 27//8, 34//11"
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "45/45, 45//30, 30//45, 30/30"
+  - section: "Differentials"
+    adjustment: "LSD Preload Rear"
+    min: 0.0
+    max: 150.0
+    unit: "Nm"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Plates Number Rear"
+    min: 2
+    max: 4
+    unit: ""
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Toe Front"
+    min: -0.0010
+    max: 0.0010
+    unit: "m"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Tyre Pressure"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Tyre Type"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "Dry Tarmac, Wet Tarmac, Gravel, Snow"
+  - section: "Brakes"
+    adjustment: "Brake Calipers Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "1X48 TYPE3, 1X38 TYPE2"
+  - section: "Brakes"
+    adjustment: "Brake Calipers Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "1X45 TYPE1, 1X32 TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Discs Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "254/160X12 P TYPE1, 260/170X8 P TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Discs Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "250/160X10 P TYPE1, 260/170X8 P TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Pads Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Brake Pads Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Handbrake Force"
+    min: 0.50
+    max: 1.50
+    unit: ""
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Master Cylinder"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "19.05_19.05, 22.23_22.23"
+  - section: "Brakes"
+    adjustment: "Proportioning Preload"
+    min: 1.75
+    max: 5.25
+    unit: "MPa"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Proportioning Ratio"
+    min: 0.0000
+    max: 1.0000
+    unit: ""
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "ABS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "TCS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""

@@ -1,0 +1,132 @@
+# Workflow: export a car parameter template
+
+Export a car's full parameter catalog from Notion as a YAML template file that can be bundled
+with the skill and shared with the community. The exported file, once added to `car-templates/`,
+lets future users onboard the same car without screenshots.
+
+## Trigger phrases
+"export template", "export car template", "create bundle file", "share my parameters",
+"contribute my car", "submit my car setup parameters", or any request to produce a shareable
+parameter file for a car.
+
+## Inputs
+- **Car name** — ask if not provided or ambiguous (must match a car already onboarded in Notion).
+- **Game** — defaults to ACR; ask only if the user has multiple games and it's unclear.
+
+## Procedure
+
+### 1. Read from Notion
+- Navigate to `Car setups → {Game} → Parameters` DB and fetch all rows where `Car` = the
+  requested car **using [notion-rest-read.md](notion-rest-read.md)** (the connector can't list
+  rows reliably — this is what made export slow and incomplete). Follow the same name-resolution
+  rules as other workflows (resolve by name, no hardcoded IDs; stay within `Car setups` scope).
+- Read the car's `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page under `{Game}`.
+- Also read the car-level identity fields from the `{Car}` page, when present: `Engine layout`
+  (front/mid/rear), `Weight bias` (front/balanced/rear), and `Weight` (approximate kerb weight,
+  e.g. `~950 kg`). These may be blank or hold the literal `couldn't determine` — carry whatever
+  is there. They are car facts, **not** rows in the `Parameters` DB.
+- If no rows are found, tell the user the car hasn't been onboarded yet and stop.
+
+### 2. Completeness check
+Before formatting, scan for gaps and warn (but do NOT block the export):
+
+- **Unnamed enumeration params** (`Min = —` and `Max = —`) with blank `Discrete steps`:
+  list them explicitly — these entries will export with an empty `discrete_steps` field, making
+  them unusable to anyone who imports the template without first filling that column.
+- **Flagged numeric params** (any row where `Min` or `Max` is unexpectedly `—`): note them.
+
+Show the warning as a numbered list of parameter names and what's missing. Then ask:
+> "Export anyway with these gaps, or would you like to fill them in Notion first?"
+
+Proceed on either answer; if the user wants to fill gaps first, stop here and remind them to
+re-run the export afterwards.
+
+### 3. Sort parameters
+Order rows to match the standard in-game screen order:
+
+1. Gearbox
+2. Suspensions
+3. Dampers
+4. Axles
+5. Differential / Differentials
+6. Wheels/Tyres
+7. Brakes
+8. Electronics
+
+Within each section, sort by `Adjustment` name alphabetically.
+
+### 4. Format as YAML
+Produce a YAML block with this exact structure:
+
+```yaml
+car: "{Car Name}"
+game: "{Game}"
+drivetrain: "{FWD|RWD|AWD}"
+engine_layout: "{descriptive engine placement, e.g. mid-rear transverse V6 behind the driver}"
+weight_bias: "{front/rear percentages, e.g. ~44% front / ~56% rear}"
+weight: "{approx kerb weight, e.g. ~950 kg}"
+version: "1"
+parameters:
+  - section: "{Section}"
+    adjustment: "{Adjustment}"
+    min: {numeric value or "—"}
+    max: {numeric value or "—"}
+    unit: "{Unit or empty string}"
+    discrete_steps: "{comma-separated list or empty string}"
+```
+
+Rules:
+- `min` and `max`: use a bare number (no quotes) for numeric values; use `"—"` (quoted em-dash)
+  for named-selection parameters.
+- `discrete_steps`: use a comma-separated string for filled values (e.g.
+  `"Short, Medium, Long"`); use an empty string `""` for blank entries.
+- `unit`: empty string `""` when there is no unit.
+- `engine_layout`, `weight_bias`, `weight`: **optional** car-level header fields. Emit each only
+  when the `{Car}` page has a value; omit the line entirely if blank. If the page holds the
+  literal `couldn't determine`, carry it through as-is. These are not parameters.
+- Use double quotes around all string values; no quotes around numbers.
+- Produce clean YAML — no trailing spaces, consistent 2-space indentation.
+
+### 5. Present to user
+Always show the YAML as a fenced code block in chat regardless of what else is available:
+
+````
+```yaml
+<generated YAML here>
+```
+````
+
+Then tell the user:
+> "Save this as `car-templates/{slug}.yaml` in the skill repo (the slug is the car name
+> lowercased with spaces and special characters replaced by hyphens, e.g.
+> `lancia-stratos-hf.yaml`). Once committed, the skill will offer it automatically to anyone
+> who onboards this car."
+
+### 6. GitHub PR offer
+Always ask after showing the code block:
+> "Want me to open a GitHub PR to add this template to the community library?"
+
+- **If the user says yes:** Check whether GitHub MCP tools are available (look for tools in the
+  `mcp__github__*` namespace). 
+  - **Tools available:** Create a branch named `add-template/{slug}`, commit the YAML file at
+    `car-templates/{slug}.yaml`, then open a pull request:
+    - **Title:** `Add parameter template: {Car Name}`
+    - **Body:** One-sentence description of the car + note that the template was exported from
+      a user's Notion via the car-setups skill + list any parameters that have blank
+      `Discrete steps` (so reviewers know what's still needed).
+    - Report the PR URL to the user.
+  - **Tools unavailable:** Let the user know there's no GitHub connection in this session and
+    direct them to `https://github.com/fredmayor88/car-setups` with instructions:
+    > "Create a new branch, add the file at `car-templates/{slug}.yaml` with the content
+    > above, and open a pull request. The maintainers will review and bundle it with the
+    > next release."
+
+- **If the user says no:** Done.
+
+## Rules
+- Export reads Notion; it never writes to Notion.
+- The exported file is a snapshot of the current Notion state. If the user updates parameters
+  later, they can re-run the export to get a fresh copy.
+- Never include personal data (user name, email, Notion IDs) in the exported YAML.
+- The `version` field is always `"1"`. The optional `engine_layout` / `weight_bias` / `weight`
+  header fields are part of this same v1 format — adding them does **not** bump the version.

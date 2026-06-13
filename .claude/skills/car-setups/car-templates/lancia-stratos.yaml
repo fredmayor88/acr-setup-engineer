@@ -1,0 +1,259 @@
+car: "Lancia Stratos HF 1976"
+game: "ACR"
+drivetrain: "RWD"
+engine_layout: "mid-rear transverse V6 behind the driver"
+weight_bias: "~44% front / ~56% rear"
+weight: "~950 kg"
+version: "1"
+parameters:
+  - section: "Gearbox"
+    adjustment: "Gear Set"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: "1, 2, 3"
+
+  - section: "Gearbox"
+    adjustment: "Primary Gear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "35//30*33//28, 33//28*32//31, 33//31*31//30, 30//31*31//29, 31//30*31//32, 29//27*31//35, 31//32*30//31, 26//31*31//30"
+
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Front"
+    min: 0.0
+    max: 0.1
+    unit: "m"
+    discrete_steps: ""
+
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Rear"
+    min: 0.0
+    max: 0.2
+    unit: "m"
+    discrete_steps: ""
+
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Front"
+    min: 42300
+    max: 73100
+    unit: "N/m"
+    discrete_steps: "42300, 50000, 57700, 65400, 73100"
+
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Rear"
+    min: 22825
+    max: 52330
+    unit: "N/m"
+    discrete_steps: "22825, 32660, 42495, 52330"
+
+  - section: "Dampers"
+    adjustment: "Fast Bump Front"
+    min: 2000
+    max: 7500
+    unit: "Ns/m"
+    discrete_steps: ""
+
+  - section: "Dampers"
+    adjustment: "Fast Bump Rear"
+    min: 1000
+    max: 4500
+    unit: "Ns/m"
+    discrete_steps: ""
+
+  - section: "Dampers"
+    adjustment: "Fast Rebound Front"
+    min: 3000
+    max: 11500
+    unit: "Ns/m"
+    discrete_steps: ""
+
+  - section: "Dampers"
+    adjustment: "Fast Rebound Rear"
+    min: 1500
+    max: 9000
+    unit: "Ns/m"
+    discrete_steps: ""
+
+  - section: "Dampers"
+    adjustment: "Slow Bump Front"
+    min: 2500
+    max: 8250
+    unit: "Ns/m"
+    discrete_steps: ""
+
+  - section: "Dampers"
+    adjustment: "Slow Bump Rear"
+    min: 1500
+    max: 5750
+    unit: "Ns/m"
+    discrete_steps: ""
+
+  - section: "Dampers"
+    adjustment: "Slow Rebound Front"
+    min: 3500
+    max: 12500
+    unit: "Ns/m"
+    discrete_steps: ""
+
+  - section: "Dampers"
+    adjustment: "Slow Rebound Rear"
+    min: 2000
+    max: 10000
+    unit: "Ns/m"
+    discrete_steps: ""
+
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Front"
+    min: 1250
+    max: 5000
+    unit: "N/m"
+    discrete_steps: ""
+
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Rear"
+    min: 2250
+    max: 9250
+    unit: "N/m"
+    discrete_steps: ""
+
+  - section: "Differentials"
+    adjustment: "Differential Ratio"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "65//17, 65//19"
+
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "60/70, 50/65, 45/50"
+
+  - section: "Differentials"
+    adjustment: "LSD Preload"
+    min: 0.0
+    max: 220.0
+    unit: "Nm"
+    discrete_steps: ""
+
+  - section: "Differentials"
+    adjustment: "Plates Number"
+    min: 2
+    max: 6
+    unit: ""
+    discrete_steps: ""
+
+  - section: "Wheels"
+    adjustment: "Camber Front"
+    min: -2.5
+    max: 0.5
+    unit: "°"
+    discrete_steps: ""
+
+  - section: "Wheels"
+    adjustment: "Camber Rear"
+    min: -3.0
+    max: 0.0
+    unit: "°"
+    discrete_steps: ""
+
+  - section: "Wheels"
+    adjustment: "Pressure Front"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+
+  - section: "Wheels"
+    adjustment: "Pressure Rear"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+
+  - section: "Wheels"
+    adjustment: "Toe Front"
+    min: -0.001
+    max: 0.001
+    unit: "m"
+    discrete_steps: ""
+
+  - section: "Wheels"
+    adjustment: "Tyre Type"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)"
+
+  - section: "Brakes"
+    adjustment: "Calipers Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "4X44.4 TYPE1, 2X48 TYPE4"
+
+  - section: "Brakes"
+    adjustment: "Calipers Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "4X38.1 TYPE1, 2X38 TYPE2"
+
+  - section: "Brakes"
+    adjustment: "Discs Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "267/156X28 B TYPE1, 271/160X22 P TYPE1"
+
+  - section: "Brakes"
+    adjustment: "Discs Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "267/156X28 B TYPE1, 271/180X20 P TYPE1"
+
+  - section: "Brakes"
+    adjustment: "Front Bias"
+    min: 0.25
+    max: 0.75
+    unit: ""
+    discrete_steps: ""
+
+  - section: "Brakes"
+    adjustment: "Handbrake Force"
+    min: 0.5
+    max: 1.5
+    unit: ""
+    discrete_steps: ""
+
+  - section: "Brakes"
+    adjustment: "Pads/Shoe Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+
+  - section: "Brakes"
+    adjustment: "Pads/Shoe Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+
+  - section: "Electronics"
+    adjustment: "ABS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""
+
+  - section: "Electronics"
+    adjustment: "TCS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""

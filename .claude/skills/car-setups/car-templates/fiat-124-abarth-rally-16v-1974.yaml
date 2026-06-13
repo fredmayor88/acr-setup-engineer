@@ -1,0 +1,212 @@
+car: "Fiat 124 Abarth Rally 16V 1974"
+game: "ACR"
+drivetrain: "RWD"
+engine_layout: "front-mounted longitudinal DOHC inline-4 (1.8 L / 1756 cc, 16-valve competition head)"
+weight_bias: "~55% front / ~45% rear (estimated — no published figure for the classic car)"
+weight: "~938 kg"
+version: "1"
+parameters:
+  - section: "Gearbox"
+    adjustment: "Gear Set"
+    min: 1
+    max: 2
+    unit: ""
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Front"
+    min: 0.0350
+    max: 0.1100
+    unit: "M"
+    discrete_steps: "0.0350, 0.1100"
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Rear"
+    min: 0.0450
+    max: 0.1000
+    unit: "M"
+    discrete_steps: "0.0450, 0.1000"
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Front"
+    min: 52000
+    max: 130000
+    unit: "N/M"
+    discrete_steps: "52000, 130000"
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Rear"
+    min: 32500
+    max: 50000
+    unit: "N/M"
+    discrete_steps: "32500, 50000"
+  - section: "Dampers"
+    adjustment: "Fast Bump Front"
+    min: 1500
+    max: 5500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Bump Rear"
+    min: 1000
+    max: 3000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Rebound Front"
+    min: 3500
+    max: 8750
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Rebound Rear"
+    min: 1500
+    max: 5000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Bump Front"
+    min: 2500
+    max: 7500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Bump Rear"
+    min: 1000
+    max: 4000
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Rebound Front"
+    min: 4500
+    max: 11500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Rebound Rear"
+    min: 2000
+    max: 6500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Front"
+    min: 6500
+    max: 7800
+    unit: "N/M"
+    discrete_steps: "6500, 7150, 7800"
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Rear"
+    min: 3830
+    max: 5000
+    unit: "N/m"
+    discrete_steps: "3830, 4064, 4298, 4532, 4766, 5000"
+  - section: "Differentials"
+    adjustment: "Differential Ratio Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "43//7, 43//8, 43//10"
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "60 / 60, 45 / 45"
+  - section: "Differentials"
+    adjustment: "LSD Preload Rear"
+    min: 0.0
+    max: 120.0
+    unit: "Nm"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Plates Number Rear"
+    min: 2
+    max: 4
+    unit: ""
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Pressure Front"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Pressure Rear"
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Toe Front"
+    min: -0.0010
+    max: 0.0010
+    unit: "m"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Brake Calipers Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "1X48 TYPE1, 2X48 TYPE2"
+  - section: "Brakes"
+    adjustment: "Brake Calipers Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "1X34 TYPE1, 2X38 TYPE4"
+  - section: "Brakes"
+    adjustment: "Brake Discs Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "227/135X10 P TYPE1, 256/145X20 P TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Discs Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "227/135X10 P TYPE1, 256/145X9.6 P TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Pads Front"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Brake Pads Rear"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Handbrake Force"
+    min: 0.50
+    max: 1.50
+    unit: ""
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Proportioning Preload"
+    min: 0.85
+    max: 2.10
+    unit: "MPa"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Proportioning Ratio"
+    min: 0.0000
+    max: 1.0000
+    unit: ""
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "ABS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "Additional Lights"
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "ON"
+  - section: "Electronics"
+    adjustment: "TCS Map"
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""
