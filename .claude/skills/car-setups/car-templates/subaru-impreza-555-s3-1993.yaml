@@ -26,16 +26,30 @@ parameters:
     discrete_steps: ""
   - section: "Suspensions"
     adjustment: "Spring Stiffness Front"
+    min: 70000
+    max: 105000
+    unit: "N/m"
+    discrete_steps: "70000, 75000, 80000, 85000, 90000, 95000, 100000, 105000"
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Rear"
+    min: 45000
+    max: 80000
+    unit: "N/m"
+    discrete_steps: "45000, 50000, 55000, 60000, 65000, 70000, 75000, 80000"
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Front"
     min: 28000
     max: 48000
     unit: "N/m"
     discrete_steps: "28000, 33000, 38000, 43000, 48000"
+    surface: "Gravel"
   - section: "Suspensions"
     adjustment: "Spring Stiffness Rear"
     min: 23000
     max: 35000
     unit: "N/m"
     discrete_steps: "23000, 26000, 29000, 32000, 35000"
+    surface: "Gravel"
   - section: "Dampers"
     adjustment: "Bump Transition Front"
     min: 0.050
