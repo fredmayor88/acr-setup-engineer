@@ -265,15 +265,15 @@ parameters:
     unit: ""
     discrete_steps: ""
   - section: "Brakes"
-    adjustment: "Handbrake Force"
-    min: 0.50
-    max: 1.50
-    unit: ""
-    discrete_steps: ""
-  - section: "Brakes"
     adjustment: "Rear Cylinder"
     min: 15.88
     max: 22.23
+    unit: ""
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Handbrake Force"
+    min: 0.50
+    max: 1.50
     unit: ""
     discrete_steps: ""
   - section: "Electronics"
