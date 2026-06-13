@@ -13,6 +13,7 @@ parameters:
     max: 4
     unit: ""
     discrete_steps: ""
+
   - section: "Axles"
     adjustment: "Anti-roll Bar Stiffness Front"
     order: 4010
@@ -27,6 +28,7 @@ parameters:
     max: 4500
     unit: "N/m"
     discrete_steps: "0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000, 4500"
+
   - section: "Differentials"
     adjustment: "Differential Ratio Front"
     order: 5005
@@ -55,6 +57,7 @@ parameters:
     max: 6
     unit: ""
     discrete_steps: ""
+
   - section: "Wheels"
     adjustment: "Tyre Type"
     order: 6010
@@ -83,6 +86,7 @@ parameters:
     max: 45.0
     unit: "psi"
     discrete_steps: ""
+
   - section: "Brakes"
     adjustment: "Brake Discs Front"
     order: 7010
@@ -146,6 +150,7 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "SOFT, MEDIUM, HARD"
+
   - section: "Electronics"
     adjustment: "ABS Map"
     order: 8010

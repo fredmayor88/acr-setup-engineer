@@ -13,7 +13,6 @@ parameters:
     max: 3
     unit: ""
     discrete_steps: "1, 2, 3"
-
   - section: "Gearbox"
     adjustment: "Primary Gear"
     order: 1020
@@ -29,7 +28,6 @@ parameters:
     max: 0.1
     unit: "m"
     discrete_steps: ""
-
   - section: "Suspensions"
     adjustment: "Spring Stiffness Front"
     order: 2020
@@ -37,7 +35,6 @@ parameters:
     max: 73100
     unit: "N/m"
     discrete_steps: "42300, 50000, 57700, 65400, 73100"
-
   - section: "Suspensions"
     adjustment: "Adjuster Ring Rear"
     order: 2030
@@ -45,7 +42,6 @@ parameters:
     max: 0.2
     unit: "m"
     discrete_steps: ""
-
   - section: "Suspensions"
     adjustment: "Spring Stiffness Rear"
     order: 2040
@@ -61,7 +57,6 @@ parameters:
     max: 8250
     unit: "Ns/m"
     discrete_steps: ""
-
   - section: "Dampers"
     adjustment: "Slow Rebound Front"
     order: 3020
@@ -69,7 +64,6 @@ parameters:
     max: 12500
     unit: "Ns/m"
     discrete_steps: ""
-
   - section: "Dampers"
     adjustment: "Fast Bump Front"
     order: 3030
@@ -77,7 +71,6 @@ parameters:
     max: 7500
     unit: "Ns/m"
     discrete_steps: ""
-
   - section: "Dampers"
     adjustment: "Fast Rebound Front"
     order: 3040
@@ -85,7 +78,6 @@ parameters:
     max: 11500
     unit: "Ns/m"
     discrete_steps: ""
-
   - section: "Dampers"
     adjustment: "Slow Bump Rear"
     order: 3050
@@ -93,7 +85,6 @@ parameters:
     max: 5750
     unit: "Ns/m"
     discrete_steps: ""
-
   - section: "Dampers"
     adjustment: "Slow Rebound Rear"
     order: 3060
@@ -101,7 +92,6 @@ parameters:
     max: 10000
     unit: "Ns/m"
     discrete_steps: ""
-
   - section: "Dampers"
     adjustment: "Fast Bump Rear"
     order: 3070
@@ -109,7 +99,6 @@ parameters:
     max: 4500
     unit: "Ns/m"
     discrete_steps: ""
-
   - section: "Dampers"
     adjustment: "Fast Rebound Rear"
     order: 3080
@@ -125,7 +114,6 @@ parameters:
     max: 5000
     unit: "N/m"
     discrete_steps: ""
-
   - section: "Axles"
     adjustment: "Anti-roll Bar Stiffness Rear"
     order: 4020
@@ -141,7 +129,6 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "65//17, 65//19"
-
   - section: "Differentials"
     adjustment: "LSD Power/Coast Ramp"
     order: 5010
@@ -149,7 +136,6 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "60/70, 50/65, 45/50"
-
   - section: "Differentials"
     adjustment: "LSD Preload"
     order: 5020
@@ -157,7 +143,6 @@ parameters:
     max: 220.0
     unit: "Nm"
     discrete_steps: ""
-
   - section: "Differentials"
     adjustment: "Plates Number"
     order: 5030
@@ -173,7 +158,6 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)"
-
   - section: "Wheels"
     adjustment: "Pressure Front"
     order: 6020
@@ -181,7 +165,6 @@ parameters:
     max: 45.0
     unit: "psi"
     discrete_steps: ""
-
   - section: "Wheels"
     adjustment: "Camber Front"
     order: 6030
@@ -189,7 +172,6 @@ parameters:
     max: 0.5
     unit: "°"
     discrete_steps: ""
-
   - section: "Wheels"
     adjustment: "Toe Front"
     order: 6040
@@ -197,7 +179,6 @@ parameters:
     max: 0.001
     unit: "m"
     discrete_steps: ""
-
   - section: "Wheels"
     adjustment: "Pressure Rear"
     order: 6050
@@ -205,7 +186,6 @@ parameters:
     max: 45.0
     unit: "psi"
     discrete_steps: ""
-
   - section: "Wheels"
     adjustment: "Camber Rear"
     order: 6060
@@ -221,7 +201,6 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "267/156X28 B TYPE1, 271/160X22 P TYPE1"
-
   - section: "Brakes"
     adjustment: "Calipers Front"
     order: 7020
@@ -229,7 +208,6 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "4X44.4 TYPE1, 2X48 TYPE4"
-
   - section: "Brakes"
     adjustment: "Pads/Shoe Front"
     order: 7030
@@ -237,7 +215,6 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "SOFT, MEDIUM, HARD"
-
   - section: "Brakes"
     adjustment: "Front Bias"
     order: 7040
@@ -245,7 +222,6 @@ parameters:
     max: 0.75
     unit: ""
     discrete_steps: ""
-
   - section: "Brakes"
     adjustment: "Handbrake Force"
     order: 7070
@@ -253,7 +229,6 @@ parameters:
     max: 1.5
     unit: ""
     discrete_steps: ""
-
   - section: "Brakes"
     adjustment: "Discs Rear"
     order: 7080
@@ -261,7 +236,6 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "267/156X28 B TYPE1, 271/180X20 P TYPE1"
-
   - section: "Brakes"
     adjustment: "Calipers Rear"
     order: 7090
@@ -269,7 +243,6 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "4X38.1 TYPE1, 2X38 TYPE2"
-
   - section: "Brakes"
     adjustment: "Pads/Shoe Rear"
     order: 7100
@@ -285,7 +258,6 @@ parameters:
     max: 3
     unit: ""
     discrete_steps: ""
-
   - section: "Electronics"
     adjustment: "TCS Map"
     order: 8020

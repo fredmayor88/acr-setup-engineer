@@ -13,6 +13,7 @@ parameters:
     max: 1
     unit: ""
     discrete_steps: ""
+
   - section: "Suspensions"
     adjustment: "Adjuster Ring Front"
     order: 2010
@@ -57,6 +58,7 @@ parameters:
     unit: "N/m"
     discrete_steps: ""
     surface: "Gravel"
+
   - section: "Dampers"
     adjustment: "Slow Bump Front"
     order: 3010
@@ -113,6 +115,7 @@ parameters:
     max: 8500
     unit: "Ns/m"
     discrete_steps: ""
+
   - section: "Axles"
     adjustment: "Anti-roll Bar Stiffness Front"
     order: 4010
@@ -127,6 +130,7 @@ parameters:
     max: 29750
     unit: "N/m"
     discrete_steps: "3750, 7000, 10250, 13500, 16750, 20000, 23250, 26500, 29750"
+
   - section: "Differentials"
     adjustment: "LSD Power/Coast Ramp Front"
     order: 5010
@@ -169,6 +173,7 @@ parameters:
     max: 8
     unit: ""
     discrete_steps: ""
+
   - section: "Wheels"
     adjustment: "Pressure Front"
     order: 6020
@@ -211,6 +216,7 @@ parameters:
     max: 0.0100
     unit: "m"
     discrete_steps: ""
+
   - section: "Brakes"
     adjustment: "Brake Discs Front"
     order: 7010
@@ -281,6 +287,7 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "SOFT, MEDIUM, HARD"
+
   - section: "Electronics"
     adjustment: "ABS Map"
     order: 8010

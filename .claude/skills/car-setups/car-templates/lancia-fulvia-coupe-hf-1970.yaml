@@ -13,6 +13,7 @@ parameters:
     max: 3
     unit: ""
     discrete_steps: ""
+
   - section: "Suspensions"
     adjustment: "Adjuster Ring Front"
     order: 2010
@@ -27,6 +28,7 @@ parameters:
     max: 0.0700
     unit: "m"
     discrete_steps: "0.0540, 0.0700"
+
   - section: "Differentials"
     adjustment: "Differential Ratio Front"
     order: 5005
@@ -55,6 +57,7 @@ parameters:
     max: 4
     unit: ""
     discrete_steps: ""
+
   - section: "Wheels"
     adjustment: "Tyre Type"
     order: 6010
@@ -83,6 +86,7 @@ parameters:
     max: 45.0
     unit: "psi"
     discrete_steps: ""
+
   - section: "Brakes"
     adjustment: "Brake Discs Front"
     order: 7010
@@ -146,6 +150,7 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "SOFT, MEDIUM, HARD"
+
   - section: "Electronics"
     adjustment: "ABS Map"
     order: 8010

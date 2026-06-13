@@ -13,6 +13,7 @@ parameters:
     max: 5
     unit: ""
     discrete_steps: ""
+
   - section: "Differentials"
     adjustment: "Differential Ratio Rear"
     order: 5035
@@ -41,6 +42,7 @@ parameters:
     max: 6
     unit: ""
     discrete_steps: ""
+
   - section: "Wheels"
     adjustment: "Tyre Type"
     order: 6010
@@ -76,6 +78,7 @@ parameters:
     max: 45.0
     unit: "psi"
     discrete_steps: ""
+
   - section: "Brakes"
     adjustment: "Brake Discs Front"
     order: 7010
@@ -132,6 +135,7 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "SOFT, MEDIUM, HARD"
+
   - section: "Electronics"
     adjustment: "ABS Map"
     order: 8010

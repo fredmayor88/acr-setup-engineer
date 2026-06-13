@@ -207,7 +207,7 @@ Electronics & Aerodynamics (8000) (Additional Lights toggle not captured — omi
 **Car-specific extras** not in this list (AWD centre/front diffs, damper bump/rebound *transitions*,
 engine/throttle map, master-cylinder variants, adjustable aero, …) get a number **inside the right
 section block**, from their screenshot position (e.g. a centre diff between the front & rear diff
-groups → ~5035; a bump transition in Dampers → ~3045). The exact within-section slot need not be
+groups → ~5032; a bump transition in Dampers → ~3045). The exact within-section slot need not be
 perfect — the section block keeps them grouped (this is the accepted fallback for cars whose
 parameter set differs from the list).
 

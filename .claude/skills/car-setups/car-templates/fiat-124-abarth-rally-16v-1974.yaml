@@ -13,6 +13,7 @@ parameters:
     max: 2
     unit: ""
     discrete_steps: ""
+
   - section: "Suspensions"
     adjustment: "Adjuster Ring Front"
     order: 2010
@@ -41,6 +42,7 @@ parameters:
     max: 50000
     unit: "N/M"
     discrete_steps: "32500, 50000"
+
   - section: "Dampers"
     adjustment: "Slow Bump Front"
     order: 3010
@@ -97,6 +99,7 @@ parameters:
     max: 5000
     unit: "Ns/m"
     discrete_steps: ""
+
   - section: "Axles"
     adjustment: "Anti-roll Bar Stiffness Front"
     order: 4010
@@ -111,6 +114,7 @@ parameters:
     max: 5000
     unit: "N/m"
     discrete_steps: "3830, 4064, 4298, 4532, 4766, 5000"
+
   - section: "Differentials"
     adjustment: "Differential Ratio Rear"
     order: 5035
@@ -139,6 +143,7 @@ parameters:
     max: 4
     unit: ""
     discrete_steps: ""
+
   - section: "Wheels"
     adjustment: "Pressure Front"
     order: 6020
@@ -160,6 +165,7 @@ parameters:
     max: 45.0
     unit: "psi"
     discrete_steps: ""
+
   - section: "Brakes"
     adjustment: "Brake Discs Front"
     order: 7010
@@ -223,6 +229,7 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: "SOFT, MEDIUM, HARD"
+
   - section: "Electronics"
     adjustment: "Additional Lights"
     order: 8005
