@@ -63,7 +63,8 @@ game, tell the user to onboard the car via screenshots (`onboard-car.md`) and bu
    value columns by each parameter's `Order` — an idempotent view update, not a rebuild.
 
 6. **Report.** Setups imported, anything flagged outside the catalog, and whether the deterministic
-   parser or the AI fallback was used.
+   parser or the AI fallback was used. Remind the user that imported setups start **unrated** and
+   unchecked — they can **rate each `1`–`5`** and tick `Learn from this` once they've vetted it.
 
 ## Save format clues (for the AI fallback)
 - The file is an **Unreal Engine 5 GVAS** save (`/Script/dmengine.SaveGameSlot` ·

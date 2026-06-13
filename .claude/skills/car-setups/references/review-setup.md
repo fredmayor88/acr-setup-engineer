@@ -19,7 +19,7 @@ Navigate to `Car setups → {Game} → Setups` DB and find the row matching the 
 within `Car setups` scope — do not issue workspace-wide Notion searches.
 
 - **Unique match:** Load all value properties, plus `Car`, `Stage`, `Surface`, `Mode`, `Notes`,
-  `Rating` (Number, **1–5**, higher = better; blank = unrated).
+  `Rating` (a **1–5 Select**, higher = better; blank = unrated).
 - **Multiple matches:** List them (Name / Car / Stage / Date) and ask the user to pick one.
 - **No match:** Tell the user and stop.
 

@@ -113,9 +113,13 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
 ## `Setups` DB — one row per setup
 - **Meta:** `Name` (title), `Car`, `Stage`, `Surface`, `Game version`, `Date`,
   `Source` (`generated` | `imported`), `Mode` (`learn` | `independent`),
-  `Rating` (**Number**, integer **1–5**, higher = better; **blank = unrated**), `Notes`,
-  **`Learn from this`** (checkbox). Create `Rating` as a **Number** column. It is **user-entered**
-  after driving — the skill never writes it, only reads it (learn weighting, review).
+  `Rating` (**Select**, options `1`–`5`, higher = better; **blank = unrated**), `Notes`,
+  **`Learn from this`** (checkbox). Create `Rating` as a **Select** with five options `1` `2` `3`
+  `4` `5` (in that order) — the picker then shows the user the valid values and prevents
+  out-of-range entries — and give the column the description *"How good was this setup? 1 = poor …
+  5 = great. Leave blank until you've driven it."* It is **user-entered** after driving — the skill
+  never writes it, only reads it, mapping the chosen label to its integer (`"4"` → 4) for learn
+  weighting / review. 
 - **Values:** one property per tunable parameter (canonical `Adjustment` name), union across
   the game's cars; blank where a parameter doesn't apply. **Numeric** (Min/Max are numbers,
   whether continuous or discretely-stepped) → **Number**. **Named/string** (Min/Max are string
