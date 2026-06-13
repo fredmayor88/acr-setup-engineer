@@ -1,13 +1,13 @@
 ---
 name: car-setups
-description: A complete system for the whole lifecycle of a personalized car setup for Assetto Corsa Rally (and other rally/racing games), saved to the user's Notion. Setups are tailored to the user's driving style and preferences and get more personal as they rate and learn from past setups. Use when the user wants to onboard a car (capture its tunable parameters from min/max setup-screen screenshots or a bundled template), generate or tweak a setup for a stage from its description and their driving style, review or share an existing setup from Notion, import existing setups from a save file, or export an onboarded car as a shareable community template. Reads and writes through the user's Notion connection and keeps every value within the car's legal ranges.
+description: A complete system for the whole lifecycle of a personalized car setup for Assetto Corsa Rally (and other rally/racing games), saved to the user's Notion. Setups are tailored to the user's driving style and preferences and get more personal as they rate and learn from past setups. Use when the user wants to onboard a car (capture its tunable parameters from min/max setup-screen screenshots or a bundled template), generate or tweak a setup for a stage from its description and their driving style, review or share an existing setup from Notion, import existing setups from a save file, export an onboarded car as a shareable community template, or ask questions about setups and tuning (why a setup uses a value, what a parameter does, how to think about ARBs/diffs/springs/etc.). Reads and writes through the user's Notion connection and keeps every value within the car's legal ranges.
 ---
 
 # car-setups
 
 A **complete system for the whole lifecycle of a personalized car setup** for rally games (built
-for **Assetto Corsa Rally**, ACR) — onboard, build, tweak, review, share, and import — storing
-everything in the user's **Notion** via their Notion connection. Setups are **tailored to the
+for **Assetto Corsa Rally**, ACR) — onboard, build, tweak, review, share, import, and explain —
+storing everything in the user's **Notion** via their Notion connection. Setups are **tailored to the
 user's driving style and preferences** and get more personal as the user rates and learns from
 past setups. The **game is chosen at onboarding** (ACR or another game) and data is filed under a
 per-game page; other games are supported with the same workflows, except **save-file import is
@@ -19,7 +19,7 @@ tunable parameters, Min/Max ranges, and Discrete steps pre-filled. When onboardi
 has a bundled template, the skill offers to auto-populate Notion from it (skipping screenshots).
 Users can export their own onboarded car's parameters as a template to contribute back.
 
-There are four workflows — read the matching file before acting:
+Pick the matching workflow and read its file before acting:
 
 | If the user wants to… | Follow |
 |---|---|
@@ -27,6 +27,7 @@ There are four workflows — read the matching file before acting:
 | Build a setup for a stage | `references/build-setup.md` |
 | Tweak / refine an existing setup based on driving feedback | `references/tweak-setup.md` |
 | Review an existing setup from Notion | `references/review-setup.md` |
+| Ask a question / explain a setup or a tuning concept (read-only) | `references/ask-setups.md` |
 | Share a setup as a plain-text snippet (copy-paste) | `references/share-setup.md` |
 | Import existing setups from a save file | `references/import-savegame.md` |
 | Export a car's parameters as a community template file | `references/export-car-template.md` |

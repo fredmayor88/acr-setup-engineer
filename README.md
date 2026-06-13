@@ -20,6 +20,10 @@ share it, and import what you already have. It was built for ACR but the approac
 4. **Reviews an existing setup** — critiques a setup already in your Notion: checks for
    constraint violations, guideline alignment, and internal consistency, then appends a
    timestamped AI Review section to the setup's Notion page.
+5. **Answers your setup questions** — ask why one of your setups uses a value, what a setting
+   actually does, or how to think about ARBs, diffs, springs, and the rest. It explains from the
+   same tuning knowledge it builds with (and reads your setup from Notion when you ask about a
+   specific one). Read-only — it answers in chat and changes nothing.
 6. **Shares a setup** — produces a compact, copy-pasteable plain-text summary you can drop
    into Discord, WhatsApp, or a forum.
 7. **Imports your existing setups** — from an ACR save file, so it can learn from what already
@@ -126,6 +130,16 @@ Say: *"Review my alsace gpt1 setup."*
 Claude checks every value against the car's legal ranges and the tuning guidelines, flags
 anything misaligned, and suggests specific alternatives with reasoning. The review is printed in
 chat and added as a timestamped section at the bottom of the setup's Notion page.
+
+**Ask about a setup or tuning**
+
+Just ask — e.g.: *"What's the impact of a stiffer front ARB?"*, *"What are the basic rules for
+setting up ARBs and diffs?"*, *"Why is the ride height set so high on my Wales setup?"*, or
+*"Why is the front ARB stiffer on my Alsace setup than my Wales one?"*
+
+Claude answers from the same tuning knowledge it builds setups with — reading the specific setup
+from your Notion when you ask about one, and comparing two when you ask. It's read-only: it
+explains in chat and never changes your Notion.
 
 **Import setups you already made**
 
