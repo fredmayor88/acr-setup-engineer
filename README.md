@@ -171,11 +171,11 @@ are loaded from the template — no screenshots needed.
 **Contribute your car (optional, but lovely).** If you onboarded a car from screenshots, it's
 not in the shared library yet — sharing it saves the next driver the whole screenshot process.
 Once onboarded, say *"Export a template for the Lancia Stratos"* and Claude formats the car's
-Notion parameters as a YAML file, then offers you a **one-click share link**. You click it, sign
-in to GitHub, and press one button — GitHub makes your own copy of the project and opens the
-contribution for you. No command line, no tokens, nothing to install — it just needs a **free
-GitHub account**. Already have one? It'd be a great way to give back. Don't, or not in the mood?
-No worries — skip it; everything still works.
+Notion parameters as a YAML file, then offers you a **share link**. You click it, sign in to
+GitHub, paste the file Claude gives you, and press one button — GitHub makes your own copy of the
+project and opens the contribution for you. No command line, no tokens, nothing to install — it
+just needs a **free GitHub account**. Already have one? It'd be a great way to give back. Don't,
+or not in the mood? No worries — skip it; everything still works.
 
 ## Troubleshooting
 

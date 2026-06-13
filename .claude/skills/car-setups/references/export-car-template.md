@@ -121,41 +121,34 @@ pressure:
 > (It just needs a free GitHub account. If you already have one, it'd be a lovely thing to give
 > back to the community. No account, or not in the mood? No problem at all — we'll skip it.)"
 
-- **If the user says yes:** Make a **ready-to-go share link** that opens the project's website
-  with the file's name and contents already filled in. The user signs in to GitHub if asked, then
-  clicks one green button — GitHub quietly makes their own copy of the project and opens the
-  share request for them. No tokens, no command line, nothing to install.
+- **If the user says yes:** Give them a **filename-prefilled link** to the project's web editor.
+  They sign in to GitHub (if asked), **paste** the YAML into the editor, and click one green
+  button — GitHub quietly makes their own copy of the project and opens the share request for
+  them. No tokens, no command line, nothing to install.
 
-  Build the link in the code sandbox so the contents are encoded correctly (do **not** assemble
-  the link by hand — special characters in the YAML must be escaped):
+  **Do NOT prefill the file *contents* in the URL.** A template is several KB, and a
+  contents-prefilled link exceeds GitHub's URL length limit — the user gets *"Your request URL is
+  too long."* Prefill **only the filename** (short and safe); the user pastes the body, which you
+  already showed in the code block above.
 
-  ```python
-  import urllib.parse
-  yaml_text = """<paste the exact YAML you generated above, verbatim>"""
-  slug = "<car-name slug, e.g. lancia-stratos-hf>"
-  car  = "<Car Name, e.g. Lancia Stratos HF>"
-  base = "https://github.com/fredmayor88/car-setups/new/main"
-  link = (base
-          + "?filename="    + urllib.parse.quote(f"car-templates/{slug}.yaml")
-          + "&value="       + urllib.parse.quote(yaml_text)
-          + "&message="     + urllib.parse.quote(f"Add parameter template: {car}")
-          + "&description="  + urllib.parse.quote("Exported from Notion via the car-setups skill."))
-  print(link)
+  The link is just (no code sandbox needed — the filename is short):
+
   ```
+  https://github.com/fredmayor88/car-setups/new/main?filename=car-templates/{slug}.yaml
+  ```
+
+  where `{slug}` is the car name lowercased with spaces and special characters replaced by hyphens
+  (e.g. `lancia-stratos-hf`).
 
   Then hand the user the link with friendly, jargon-free steps:
   > "Here's your share link: {link}
   >
   > 1. Click it (sign in to GitHub if it asks).
-  > 2. Scroll down and click the green **Commit changes** / **Propose new file** button.
-  > 3. Click the green button once more on the next screen to open the request.
+  > 2. **Paste the YAML I showed above** into the editor box.
+  > 3. Scroll down and click the green **Commit changes** / **Propose new file** button.
+  > 4. Click the green button once more on the next screen to open the request.
   >
   > That's it — the maintainers will review it and bundle it into the next release. Thank you 🙏"
-
-  **Fallback (only if they say the link won't load** — can happen for unusually large files**):**
-  give them the shorter link with the filename only —
-  `https://github.com/fredmayor88/car-setups/new/main?filename=car-templates/{slug}.yaml` — and
-  say: "Click it, paste the YAML I showed above into the editor, then use the same green button."
 
 - **If the user says no:** Done — no follow-up, no nagging.
 
