@@ -46,8 +46,22 @@ python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>" 
 - `checkbox` → boolean. `number` → number or omitted when null.
 
 For the **Parameters catalog** each object contains: `Adjustment`, `Section`, `Min`, `Max`,
-`Unit`, `Discrete steps` (blank `""` means continuous or never captured), `Car`.
+`Unit`, `Discrete steps` (blank `""` means continuous or never captured), `Car`, and an optional
+`Surface` (`Tarmac` / `Gravel` / `Snow`; **omitted when blank** — that's the baseline row).
 Build the in-memory catalog from these — then apply the normal value/legality rules.
+
+## Resolving the range for a surface
+A `Car × Adjustment` may have **more than one row**: a baseline row (`Surface` omitted) plus an
+optional surface-specific row (e.g. `Surface = Gravel`) when its legal range differs on that
+surface. Whenever you need a parameter's legal range for a setup on **surface S** (the stage's /
+setup's `Surface`):
+
+1. If a row for that `Adjustment` has `Surface == S`, use **that** row's `Min`/`Max`/`Discrete steps`.
+2. Otherwise use the **baseline** row (no `Surface`).
+3. If neither exists, the parameter isn't available for that car — skip it.
+
+So group the returned rows by `Adjustment`, then pick the surface-matching row if present, else
+the baseline. Most parameters have only the baseline row and resolve to it on every surface.
 
 ## No token (or the query fails)
 This REST query **is** the read path — don't substitute the connector's row-listing, which is

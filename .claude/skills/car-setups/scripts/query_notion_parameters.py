@@ -138,7 +138,9 @@ def main():
         for row in rows:
             label = row.get('Adjustment') or row.get('Name', '?')
             section = row.get('Section', '')
+            surface = row.get('Surface', '')
             suffix = f' [{section}]' if section else ''
+            suffix += f' ({surface})' if surface else ''
             print(f'  {label}{suffix}: {json.dumps(row)}')
     else:
         print(json.dumps(rows, indent=2))

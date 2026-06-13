@@ -46,7 +46,7 @@ the token back, copy it into other pages, or include it in exports.
 Car setups (root page)
 ├── Config (page, optional)     holds the read-only Notion API token (see "Reading rows" below)
 └── {Game}                      e.g. ACR
-    ├── Parameters        (DB)  the catalog — one row per Car × Adjustment
+    ├── Parameters        (DB)  the catalog — one row per Car × Adjustment × Surface
     ├── Setups            (DB)  one row per setup
     ├── Tuning guidelines (page) global user preferences (seeded from the template)
     └── {Car} (page)            per car: identity facts (Drivetrain, Engine layout, Weight
@@ -57,11 +57,26 @@ Car setups (root page)
 
 Two DBs **per game** only — car/stage pages are **filtered linked views**, never new DBs.
 
-## `Parameters` DB — one row per `Car × Adjustment`
-`Car`, `Section`, `Adjustment` (title), `Min`, `Max`, `Unit`, **`Discrete steps`**. The
-authoritative legal-value catalog. Parameter availability is **per car** — absent parameters
-simply have no row.
+## `Parameters` DB — one row per `Car × Adjustment` (× `Surface` when ranges differ)
+`Car`, `Section`, `Adjustment` (title), `Min`, `Max`, `Unit`, **`Discrete steps`**, and an
+optional **`Surface`**. The authoritative legal-value catalog. Parameter availability is **per
+car** — absent parameters simply have no row.
 
+- **`Surface`** (Select, **optional**) — options `Tarmac`, `Gravel`, `Snow`. **Blank = the
+  default/baseline** range, captured from the required **tarmac** onboarding pass; it applies to
+  **any** surface that has no surface-specific override row. Most parameters keep a single
+  blank-`Surface` row. A few parameters (chiefly on the **Suspensions** screen — e.g. spring
+  stiffness) expose a **different range on gravel**; for those, a second row tagged
+  `Surface = Gravel` (or `Snow`) holds the surface-specific `Min`/`Max`/`Discrete steps`. The
+  blank-`Surface` row and a `Gravel` row for the same `Car × Adjustment` coexist legitimately.
+  - **Row key (upsert):** `Car` + `Adjustment` + `Surface` — match on all three; update if
+    present, else create. A blank `Surface` is itself a distinct key value (the baseline row).
+  - **Resolution rule** (how `build-setup`/`tweak`/`review`/`import` pick a parameter's legal
+    range for a setup on surface **S**): use the row whose `Surface = S` **if one exists**, else
+    fall back to the **blank-`Surface`** row. If neither exists, the parameter isn't available
+    for that car. (Same rule documented for readers in [notion-rest-read.md](notion-rest-read.md).)
+  - **Backward compatible:** existing catalogs are entirely blank-`Surface`, so every parameter
+    resolves to its single row on every surface — unchanged behavior, no migration.
 - **`Min` / `Max`** — the extremes read from the min/max setup screenshots. Always capture the
   actual values shown, including for discretely-stepped parameters (e.g. gear set Min=1, Max=3).
   Use `—` only for **named-selection params** — either component/compound names with no numeric
@@ -81,6 +96,10 @@ simply have no row.
 - A row read as **"no adjustment"** in-game is recorded as not adjustable (don't fabricate a
   range). There is no `Steps` / `Step size` / `Type` column — the presence of `Discrete steps`
   (vs. a numeric `Min..Max`) is what tells `build-setup` how to choose a value.
+- **Create-if-missing:** include the `Surface` select when first creating the `Parameters` DB.
+  When writing a surface-tagged row to a **pre-existing** DB that lacks the property, add the
+  `Surface` select first, then write the row. Never tag the baseline rows — leave their `Surface`
+  blank.
 
 ## `Setups` DB — one row per setup
 - **Meta:** `Name` (title), `Car`, `Stage`, `Surface`, `Game version`, `Date`,

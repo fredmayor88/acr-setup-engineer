@@ -29,8 +29,11 @@ There is nothing to review without values.
 
 ### 2. Load constraints + drivetrain
 Fetch the car's `Parameters` rows **via [notion-rest-read.md](notion-rest-read.md)** (stay within
-`Car setups → {Game} → Parameters`): `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`. Also
-read the `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page attribute.
+`Car setups → {Game} → Parameters`): `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`,
+`Surface`. Also read the `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page attribute. **Resolve
+each parameter's legal range for the setup's `Surface`** (loaded in step 1) — the surface-specific
+row if the parameter has one, else the baseline row (see
+[notion-rest-read.md](notion-rest-read.md)).
 
 ### 3. Load guideline layers
 Same precedence chain as `build-setup.md` (lowest → highest priority):
@@ -50,9 +53,9 @@ precedence over general guidelines on any point it speaks to directly.
 Evaluate across three dimensions:
 
 **a. Constraint validation**
-For every parameter that has a value in the setup row, check:
-- If the car's `Parameters` row has `Discrete steps` filled → the value must be exactly one of
-  those steps.
+For every parameter that has a value in the setup row, check against its **surface-resolved**
+range (the row for the setup's `Surface`, else the baseline — step 2):
+- If that row has `Discrete steps` filled → the value must be exactly one of those steps.
 - Otherwise → the value must be within `Min..Max` (inclusive).
 Any violation is a **hard error** — list every one found; do not suppress or soften them.
 

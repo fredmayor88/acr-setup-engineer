@@ -86,11 +86,21 @@ Say: *"Onboard the Lancia Stratos HF for Assetto Corsa Rally."*
   no screenshots needed.
 - Otherwise, take two sets of screenshots of the car's Setup screens in ACR (everything at minimum,
   then everything at maximum), attach them, and Claude reads every setting's range from the
-  images.
+  images. **Take this first set on a tarmac stage (e.g. Alsace)** — that's the baseline (see
+  *Settings that change on gravel* below).
 
 Either way, your Notion structure is created automatically on first use. Claude also looks up the
 car's **engine layout, weight bias, and approximate weight** (facts the game doesn't show) to
 personalize how it balances setups — you can edit any of these on the car's Notion page.
+
+**Settings that change on gravel.** On many cars, a few suspension settings (most often spring
+stiffness) have a *different* available range on gravel than on tarmac. So after the tarmac pass,
+Claude asks you to do a quick check: load a **gravel stage (e.g. Wales)**, open the **Suspensions**
+screen, and see whether the range differs. If it does, you take a **second full two-pass set of
+screenshots on gravel** (everything at minimum, then everything at maximum — same as the first
+time), and Claude compares the two and records the gravel-only ranges separately — then every
+setup is checked against the range that's actually legal for the stage you're driving. If nothing
+differs (or you'd rather skip it), the tarmac ranges are used everywhere — nothing else to do.
 
 **Build a setup**
 

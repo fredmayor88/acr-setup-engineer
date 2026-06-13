@@ -20,6 +20,8 @@ parameter file for a car.
   requested car **using [notion-rest-read.md](notion-rest-read.md)** (the connector can't list
   rows reliably — this is what made export slow and incomplete). Follow the same name-resolution
   rules as other workflows (resolve by name, no hardcoded IDs; stay within `Car setups` scope).
+  Read each row's optional **`Surface`** tag too — a car may have a baseline row (blank `Surface`)
+  **and** a surface-specific row (e.g. `Gravel`) for the same `Adjustment`; export **both**.
 - Read the car's `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page under `{Game}`.
 - Also read the car-level identity fields from the `{Car}` page, when present: `Engine layout`
   (front/mid/rear), `Weight bias` (front/balanced/rear), and `Weight` (approximate kerb weight,
@@ -53,7 +55,9 @@ Order rows to match the standard in-game screen order:
 7. Brakes
 8. Electronics
 
-Within each section, sort by `Adjustment` name alphabetically.
+Within each section, sort by `Adjustment` name alphabetically; when a parameter has both a
+baseline and a surface-specific row, emit the **baseline (no `surface`) first**, then the
+surface-tagged rows.
 
 ### 4. Format as YAML
 Produce a YAML block with this exact structure:
@@ -73,6 +77,7 @@ parameters:
     max: {numeric value or "—"}
     unit: "{Unit or empty string}"
     discrete_steps: "{comma-separated list or empty string}"
+    surface: "{Tarmac|Gravel|Snow — OMIT this line for baseline rows}"
 ```
 
 Rules:
@@ -81,6 +86,10 @@ Rules:
 - `discrete_steps`: use a comma-separated string for filled values (e.g.
   `"Short, Medium, Long"`); use an empty string `""` for blank entries.
 - `unit`: empty string `""` when there is no unit.
+- `surface`: **optional, per-parameter.** Emit it only for a surface-specific row (the row's
+  `Surface` is set); **omit the line entirely for baseline rows** (blank `Surface`). A parameter
+  whose range differs on gravel appears as two entries: the baseline (no `surface`) and a second
+  with `surface: "Gravel"`.
 - `engine_layout`, `weight_bias`, `weight`: **optional** car-level header fields. Emit each only
   when the `{Car}` page has a value; omit the line entirely if blank. If the page holds the
   literal `couldn't determine`, carry it through as-is. These are not parameters.
@@ -156,4 +165,6 @@ pressure:
   later, they can re-run the export to get a fresh copy.
 - Never include personal data (user name, email, Notion IDs) in the exported YAML.
 - The `version` field is always `"1"`. The optional `engine_layout` / `weight_bias` / `weight`
-  header fields are part of this same v1 format — adding them does **not** bump the version.
+  header fields and the optional per-parameter `surface` field are all part of this same v1
+  format — they are backward-compatible additions and do **not** bump the version. A template with
+  no `surface` fields imports exactly as before (all baseline rows).

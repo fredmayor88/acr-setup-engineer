@@ -21,6 +21,11 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
   - a **max** set (every setting dialed to its maximum).
   Ask the user to attach both. One pair per setup screen/tab (Gearbox, Suspensions F/R,
   Dampers F/R, Axles, Differential(s), Wheels/Tyres F/R, Brakes, Electronics, …).
+  - **For ACR, this first pass must be taken on a TARMAC stage (e.g. Alsace).** Tarmac is the
+    **baseline**: some parameters (chiefly on the Suspensions screen) expose a *different* range
+    on gravel, and the whole catalog is anchored to the tarmac values. Capturing the baseline on
+    gravel would mislabel the surface-specific ranges. The optional gravel pass comes later
+    (step 8). (For a non-ACR game without this surface behaviour, any one stage is fine.)
 
 ## Procedure
 
@@ -38,10 +43,14 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 
      - **User confirms (Yes):** Load every row from the template. Treat each entry as if it
        were an extracted row (same `Section`, `Adjustment`, `Min`, `Max`, `Unit`,
-       `Discrete steps` fields). Skip steps 2–4 (screenshot capture, extraction,
+       `Discrete steps` fields). If an entry carries an optional **`surface`** field
+       (`Tarmac`/`Gravel`/`Snow`), set that row's `Surface` accordingly and upsert on
+       `Car` + `Adjustment` + `Surface`; entries without `surface` are baseline rows (blank
+       `Surface`). A template that already includes surface-specific rows means **no gravel pass
+       is needed** (skip step 8). Skip steps 2–4 (screenshot capture, extraction,
        confirmation table) and proceed to step 5 (identity facts) → step 6 (Notion structure)
        → step 7 (write to Notion) — writing `Discrete steps` values too, unlike the screenshot
-       path. In the report (step 8), note which parameters still have a blank `Discrete steps`
+       path. In the report (step 9), note which parameters still have a blank `Discrete steps`
        despite being a `—`-type param, and call them out for user enumeration as usual.
        The `drivetrain` field in the template sets the car's drivetrain. If the template carries
        the optional `engine_layout`, `weight_bias`, or `weight` fields, use them directly for the
@@ -65,9 +74,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 
 2. **Read the attached screenshots** and pair each min shot with its max shot by the setup
    screen it shows. If a screen is missing, say so — don't guess its ranges.
-   **Before the user uploads:** remind them to include screenshots of every setup tab, even
-   tabs that show *"Not available for this car"* — those screenshots tell the skill which
-   categories to skip cleanly.
+   **Before the user uploads:** remind them (1) to take this pass on a **tarmac stage (e.g.
+   Alsace)** — it's the baseline (see step 8 for the optional gravel pass); and (2) to include
+   screenshots of every setup tab, even tabs that show *"Not available for this car"* — those
+   screenshots tell the skill which categories to skip cleanly.
 
 3. **Extract each Adjustment.** For every tunable row, capture `Section`, `Adjustment`
    (canonical name — reuse names already in the catalog), `Min` (from the min shot), `Max`
@@ -114,7 +124,7 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      shows `—` in both screenshots is it flagged as uncertain and the user asked for the range
      rather than recording `—`.
    - For **numeric** parameters (those with a real `Min..Max`), leave **`Discrete steps`
-     blank** — it is the user's to fill later (see step 8); onboarding never guesses a numeric
+     blank** — it is the user's to fill later (see step 9); onboarding never guesses a numeric
      step set. For **`—` named-selection** parameters, seed `Discrete steps` with the observed
      option names as described above (never fabricate names).
    - **ACR exception — `Tyre Type` and `Brake pads/shoe`**: pre-fill `Discrete steps` with the
@@ -172,11 +182,12 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 
 7. **Write to Notion** (via the user's Notion connection):
    - Upsert one row per `Car × Adjustment` into the `Parameters` DB (match on `Car` +
-     `Adjustment`; update if present, else create — never duplicate). Set `Min`/`Max`/`Unit`.
-     For `—` named-selection params, write the observed option names into `Discrete steps`
-     (observed values only); for numeric params leave `Discrete steps` blank. **ACR exception:**
-     set `Tyre Type` `Discrete steps` to the standard ACR tyre list and `Brake pads/shoe`
-     (front & rear) to `SOFT, MEDIUM, HARD`.
+     `Adjustment` + `Surface`; update if present, else create — never duplicate). These tarmac
+     baseline rows leave **`Surface` blank** (the gravel pass in step 8 may add `Gravel`-tagged
+     rows later). Set `Min`/`Max`/`Unit`. For `—` named-selection params, write the observed
+     option names into `Discrete steps` (observed values only); for numeric params leave
+     `Discrete steps` blank. **ACR exception:** set `Tyre Type` `Discrete steps` to the standard
+     ACR tyre list and `Brake pads/shoe` (front & rear) to `SOFT, MEDIUM, HARD`.
    - Ensure the `Setups` DB has a matching **value property** per Adjustment: **Number** for a
      numeric parameter (has a numeric `Min..Max`), **Select** for an enumerated one
      (`Min/Max = —`). Don't remove or rename existing properties.
@@ -191,9 +202,39 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      2. **H2 "Guidelines"** heading + a short stub inviting car-specific tuning preferences
         (tone per `tuning-guidelines-template.md`).
 
-8. **Report.** Rows added/updated, the recorded drivetrain, the car's identity facts
+8. **Check for surface-specific ranges (optional gravel pass).** **ACR only** — skip for games
+   without surface-dependent ranges.
+
+   The catalog written above is the **tarmac baseline**. On many cars, some **Suspensions**
+   settings (most commonly **spring stiffness**, sometimes ride height / ARB) expose a *different*
+   min/max on **gravel**. Tell the user and offer a quick check:
+   > "That's your tarmac baseline. On a lot of cars, some suspension settings have a different
+   > range on gravel. Quick check: load a **gravel stage (e.g. Wales)**, open the **Suspensions**
+   > screen, and compare the **spring stiffness** min/max to what I just captured
+   > ({tarmac spring-stiffness range}). Same, or different?"
+
+   - **Same (or the user would rather not bother):** nothing to do — the baseline covers every
+     surface. Continue to the report.
+   - **It differs:** ask for a **second full min/max pass taken on a gravel stage** (both a min
+     set and a max set — a *full* pass is safest so any other surface-dependent screen is caught,
+     not just Suspensions). Then:
+     1. **Extract** the gravel pass exactly as in steps 2–3 (reuse the same `Section` /
+        `Adjustment` names so rows line up).
+     2. **Auto-diff** against the tarmac baseline: for each `Adjustment`, compare the gravel
+        `Min`/`Max` (and, for `—` named-selection params, the observed discrete endpoints) to the
+        baseline row.
+     3. **Show the diff and confirm:** present a short list of only the parameters whose gravel
+        range differs (baseline → gravel). Proceed on the OK.
+     4. **Write a `Surface = Gravel` row only for each differing parameter** — upsert on `Car` +
+        `Adjustment` + `Surface = Gravel`, carrying the gravel `Min`/`Max`/`Unit`/`Discrete steps`.
+        **Never touch the baseline rows**, and **never** create a gravel row for a parameter whose
+        range is unchanged (it stays a single blank-`Surface` row). If the `Parameters` DB has no
+        `Surface` property yet, add it first (per `notion-structure.md` create-if-missing).
+
+9. **Report.** Rows added/updated, the recorded drivetrain, the car's identity facts
    (`Engine layout` / `Weight bias` / `Weight`, noting any stored as `couldn't determine` for the
-   user to fill in), and anything flagged uncertain.
+   user to fill in), any **surface-specific `Gravel` rows** created (list which parameters differ
+   from the tarmac baseline), and anything flagged uncertain.
    **Tell the user about `Discrete steps`:** any parameter can be pinned to an exact set of
    values by filling its `Discrete steps` cell in Notion (e.g. spring stiffness
    `42300, 50000, 57700, 65400, 73100`, or gear set `1, 2, 3`).

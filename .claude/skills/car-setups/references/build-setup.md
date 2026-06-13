@@ -18,7 +18,11 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 1. **Load the constraints + drivetrain + identity facts.** Fetch the car's `Parameters` rows
    **via [notion-rest-read.md](notion-rest-read.md)** (the connector can't list rows reliably) → for
-   each, record `Min`, `Max`, `Unit`, and the optional **`Discrete steps`** set. Determine the car's
+   each, record `Min`, `Max`, `Unit`, the optional **`Discrete steps`** set, and the optional
+   **`Surface`** tag. A parameter may have a baseline row (blank `Surface`) **and** a
+   surface-specific row (e.g. `Gravel`); keep both for now — you'll **resolve each parameter's
+   legal range for the stage's surface** (per [notion-rest-read.md](notion-rest-read.md)) once the
+   surface is known in step 3. Determine the car's
    **drivetrain** from its `Drivetrain` attribute (fallback, from the differential sections:
    front+rear or any centre diff ⇒ AWD; front-only ⇒ FWD; rear-only ⇒ RWD). This fixes the legal
    value set and which guideline tags apply. Also read the car's identity facts from the `{Car}`
@@ -50,7 +54,9 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 5. **Choose values.** First pick the **tyre type** for the surface/conditions (biggest grip
    decision). Then, per parameter, reason from tyre + surface + stage + style + the merged
-   guidelines (drivetrain-filtered), then make it legal — **no step grid, no interpolation**:
+   guidelines (drivetrain-filtered), then make it legal — **using the range resolved for the
+   stage's surface** (the surface-specific row if the parameter has one, else the baseline row;
+   see [notion-rest-read.md](notion-rest-read.md)) — **no step grid, no interpolation**:
    - **`Discrete steps` filled** → pick **one value from that exact set** (covers coarse
      numerics like spring stiffness and named options like gear set). The checklist value is
      exact.
@@ -61,9 +67,9 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    Never go outside `Min..Max` or off the `Discrete steps` set; never invent a parameter the car
    doesn't have.
 
-6. **Validate.** Re-check every chosen value against the catalog: discrete picks must be a
-   member of `Discrete steps`; continuous picks must be within `Min..Max`. Fix any violation
-   before writing.
+6. **Validate.** Re-check every chosen value against the catalog **for the stage's surface**
+   (surface-resolved range): discrete picks must be a member of `Discrete steps`; continuous
+   picks must be within `Min..Max`. Fix any violation before writing.
 
 7. **Ensure the stage exists.** Per `notion-structure.md`, make sure the `{stage}` page (with its
    filtered `Setups[Car, Stage]` view) exists under the car's `setups`; create it from the stage

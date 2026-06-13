@@ -28,8 +28,10 @@ within `Car setups` scope — no workspace-wide Notion searches.
 
 ### 2. Load constraints + drivetrain
 Fetch the car's `Parameters` rows (within `Car setups → {Game} → Parameters`):
-`Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`. Read `Drivetrain` (FWD/RWD/AWD) from
-the `{Car}` page attribute.
+`Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Surface`. Read `Drivetrain` (FWD/RWD/AWD)
+from the `{Car}` page attribute. **Resolve each parameter's legal range for the source setup's
+`Surface`** (loaded in step 1) — use the surface-specific row if the parameter has one, else the
+baseline row (see [notion-rest-read.md](notion-rest-read.md)).
 
 ### 3. Load guideline layers
 Same precedence chain as `build-setup.md` (lowest → highest):

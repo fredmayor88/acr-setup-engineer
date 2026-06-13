@@ -52,6 +52,11 @@ Bundled tools (stdlib Python, run via code execution):
   `Parameters` row: if its **`Discrete steps`** are filled, the value must be **one of them**;
   otherwise the value must be within the numeric **`Min..Max`**. Never invent a parameter a car
   doesn't have.
+- **Surface-resolved ranges.** A `Parameters` row may carry an optional **`Surface`** tag
+  (`Tarmac`/`Gravel`/`Snow`); a few parameters expose a different range per surface. The legal
+  range for a setup on surface **S** is the row tagged `S` **if one exists**, else the blank
+  (baseline) row. Resolve this before choosing/validating any value (see
+  `references/notion-rest-read.md`). Most parameters have only the baseline row.
 - **Notion scope is `Car setups` only — never search broadly.** Navigate the hierarchy
   explicitly by name starting from the `Car setups` root; do not issue workspace-wide Notion
   searches to locate setup data, guidelines, or parameters. If a Notion API call returns results
@@ -80,7 +85,8 @@ Bundled tools (stdlib Python, run via code execution):
 
 ## Choosing a value (per parameter)
 Each `Parameters` row is either constrained to an exact set or left as a free numeric range —
-there is **no step grid and no interpolation**. For every parameter:
+there is **no step grid and no interpolation**. For every parameter (using the row **resolved for
+the setup's surface** — see *Surface-resolved ranges* above):
 
 1. **`Discrete steps` filled** → choose **only** from that exact set (works for coarse numerics
    like spring stiffness *and* named options like gear set / caliper type). The checklist value
