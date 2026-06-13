@@ -24,7 +24,7 @@ zip:
 	@echo "Built dist/car-setups-skill.zip"
 
 check-zip:
-	python -m zipfile -l dist/car-setups-skill.zip
+	python check_zip.py
 
 release:
 	git tag $(TAG)
