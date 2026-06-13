@@ -438,6 +438,8 @@ Rear Toe In enhances cornering stability by creating lateral force and improving
 
 Rally setups often use slight Front Toe Out for better responsiveness and Rear Toe In for balanced cornering stability. Toe settings balance stability and agility based on driving needs.
 
+**Sign convention in ACR:** negative values = toe-out; positive values = toe-in.
+
 #### Tyre Type
 
 The compound descriptions below are copied verbatim from the ACR SELECT TYRE screens. **Soft / Medium / Hard describe the rubber compound and the text is identical for the Tarmac and Gravel variants** (e.g. "Tarmac Soft" and "Gravel Soft" share the Soft text); the remaining tyres are condition-specific.

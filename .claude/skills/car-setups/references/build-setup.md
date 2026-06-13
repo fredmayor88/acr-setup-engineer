@@ -68,8 +68,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    - **`Discrete steps` filled** → pick **one value from that exact set** (covers coarse
      numerics like spring stiffness and named options like gear set). The checklist value is
      exact.
-   - **numeric `Min..Max`, no `Discrete steps`** → pick any target within `Min..Max`; in the
-     checklist present it as **"~target (dial to nearest)"** (the in-game increment is unknown).
+   - **numeric `Min..Max`, no `Discrete steps`** → pick a target within `Min..Max`; present it
+     as **"~target (dial to nearest)"** (the in-game increment is unknown). Exception: **Gear
+     Set** (and any parameter whose `Min` and `Max` are both whole numbers with no unit) takes
+     only integer values — output an exact integer, no `~` or "dial to nearest".
    - **`Min/Max = —` with no `Discrete steps`** → the param was never captured from screenshots:
      **skip it** and note in the report (the user should re-onboard the car to fix this).
    Never go outside `Min..Max` or off the `Discrete steps` set; never invent a parameter the car
