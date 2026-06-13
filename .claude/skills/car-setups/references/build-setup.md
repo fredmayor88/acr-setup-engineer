@@ -54,7 +54,8 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 4. **Handle prior setups by mode.**
    - `learn` (default): fetch existing `Setups` rows for this car **where `Learn from this` is
      checked** (the compound-filter query in [notion-rest-read.md](notion-rest-read.md); values +
-     `Notes` + `Rating`); infer preferences, weighting by `Rating` and
+     `Notes` + `Rating`); infer preferences, weighting by `Rating` (**1–5, higher = better**;
+     treat a **blank** rating as unrated — give it neutral/no extra weight) and
      taking likes/dislikes from `Notes`. Bias toward them, adapt to this stage. If none are
      checked, proceed with **no prior-setup bias** and say so.
    - `independent`: do **not** read prior setups — reason from scratch to avoid anchoring.
