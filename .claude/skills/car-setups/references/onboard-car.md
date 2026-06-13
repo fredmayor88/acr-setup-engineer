@@ -200,7 +200,8 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      canonical defaults (`notion-structure.md`) — no re-screenshotting needed.
    - Ensure the `Setups` DB has a matching **value property** per Adjustment: **Number** for a
      numeric parameter (has a numeric `Min..Max`), **Select** for an enumerated one
-     (`Min/Max = —`). Don't remove or rename existing properties. Then **apply the column order**
+     (`Min/Max = —`). Don't remove or rename existing properties. The meta columns `Car`, `Stage`,
+     and `Surface` are **Select** (so they render as tags), per `notion-structure.md`. Then **apply the column order**
      (`notion-structure.md` → *Applying the order*): set the main `Setups` table view's `SHOW` to
      the meta columns followed by all value columns sorted by each parameter's `Order`. Creation
      order does **not** drive the rendered table — the view's `SHOW` directive does.

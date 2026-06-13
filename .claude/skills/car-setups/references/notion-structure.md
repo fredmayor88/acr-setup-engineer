@@ -111,10 +111,14 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   then write the row. Never tag the baseline rows — leave their `Surface` blank.
 
 ## `Setups` DB — one row per setup
-- **Meta:** `Name` (title), `Car`, `Stage`, `Surface`, `Game version`, `Date`,
+- **Meta:** `Name` (title), `Car` (**Select**), `Stage` (**Select**),
+  `Surface` (**Select**, options `Tarmac` / `Gravel` / `Snow`), `Game version`, `Date`,
   `Source` (`generated` | `imported`), `Mode` (`learn` | `independent`),
   `Rating` (**Select**, options `1`–`5`, higher = better; **blank = unrated**), `Notes`,
-  **`Learn from this`** (checkbox). Create `Rating` as a **Select** with five options `1` `2` `3`
+  **`Learn from this`** (checkbox). Make `Car`, `Stage`, and `Surface` **Select** (not plain text)
+  so they render as **tags/pills** in the table — `Car` mirrors the `Parameters` DB's `Car` select,
+  and `Surface` its `Tarmac`/`Gravel`/`Snow` options. When appending a setup row, **create-or-reuse**
+  the matching option (Notion adds a new option if absent). Create `Rating` as a **Select** with five options `1` `2` `3`
   `4` `5` (in that order) — the picker then shows the user the valid values and prevents
   out-of-range entries — and give the column the description *"How good was this setup? 1 = poor …
   5 = great. Leave blank until you've driven it."* It is **user-entered** after driving — the skill
