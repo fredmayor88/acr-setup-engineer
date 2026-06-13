@@ -160,7 +160,12 @@ Users often read these pages on a **phone while playing**, so:
 - **Optimise for reading a single setup**, not side-by-side comparison (comparison stays a
   desktop task on the wide table view).
 - Each generated setup's **page body contains only the per-parameter justification**, grouped
-  by section (Gearbox, Suspensions, Dampers, …), inside a **toggle** so it's collapsible.
+  by section, inside a **toggle** so it's collapsible.
+  **Canonical section order** (used for page body toggles, share snippets, and Setups DB column
+  creation order):
+  Gearbox → Suspensions → Dampers → Axles → Differentials → Wheels/Tyres → Brakes →
+  Electronics & Aerodynamics.
+  Within each section, **Front parameters appear before Rear**.
   **Never duplicate values into a page body checklist** — the database row is the single source
   of truth. A checklist would drift the moment the user edits a value in the table.
 - **No wide tables inside page bodies** (they scroll horizontally on a phone); use short

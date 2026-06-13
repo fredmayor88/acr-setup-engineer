@@ -21,8 +21,8 @@ never writes to Notion.
 
 3. **Build the snippet.** Group parameters by `Section`, in the same order they appear
    on the setup screens (Gearbox → Suspensions → Dampers → Axles → Differentials →
-   Wheels/Tyres → Brakes → Electronics & Aerodynamics). Within each section, one line
-   per parameter:
+   Wheels/Tyres → Brakes → Electronics & Aerodynamics). Within each section, list Front
+   parameters before Rear, then other parameters alphabetically. One line per parameter:
 
    ```
    Adjustment: value unit

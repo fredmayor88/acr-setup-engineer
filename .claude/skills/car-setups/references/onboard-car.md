@@ -190,7 +190,11 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      ACR tyre list and `Brake pads/shoe` (front & rear) to `SOFT, MEDIUM, HARD`.
    - Ensure the `Setups` DB has a matching **value property** per Adjustment: **Number** for a
      numeric parameter (has a numeric `Min..Max`), **Select** for an enumerated one
-     (`Min/Max = —`). Don't remove or rename existing properties.
+     (`Min/Max = —`). Don't remove or rename existing properties. When adding new value
+     properties, create them in canonical section order (Gearbox → Suspensions → Dampers →
+     Axles → Differentials → Wheels/Tyres → Brakes → Electronics & Aerodynamics), Front before
+     Rear within each section — Notion appends columns in creation order, so this determines
+     the table's column sequence.
    - **Record the car's identity facts** on the `{Car}` page: `Drivetrain`, and the
      `Engine layout` / `Weight bias` / `Weight` resolved in step 5 (write `couldn't determine`
      for any that weren't found). These live on the page next to each other — never as

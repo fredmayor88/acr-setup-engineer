@@ -59,9 +59,9 @@ Order rows to match the standard in-game screen order:
 7. Brakes
 8. Electronics
 
-Within each section, sort by `Adjustment` name alphabetically; when a parameter has both a
-baseline and a surface-specific row, emit the **baseline (no `surface`) first**, then the
-surface-tagged rows.
+Within each section, list Front parameters before Rear; otherwise sort by `Adjustment` name
+alphabetically. When a parameter has both a baseline and a surface-specific row, emit the
+**baseline (no `surface`) first**, then the surface-tagged rows.
 
 ### 4. Format as YAML
 Produce a YAML block with this exact structure:

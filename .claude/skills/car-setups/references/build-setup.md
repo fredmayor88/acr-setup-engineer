@@ -92,9 +92,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
      property. Leave **`Learn from this` unchecked** (the user opts in after vetting). **Never
      modify or delete existing rows.**
    - In the row's **page body**: the **per-parameter justification inside a toggle** — group
-     by section (Gearbox, Suspensions, Dampers, Differential, Wheels/Tyres, Brakes,
-     Electronics…), explain notable choices, and **cite which guideline drove each** (especially
-     a *user* guideline). No wide tables; short headings + bullets. **Do not** duplicate values
+     by section in game-menu order — Gearbox → Suspensions → Dampers → Axles → Differentials →
+     Wheels/Tyres → Brakes → Electronics & Aerodynamics — with **Front parameters listed before
+     Rear** within each section. Explain notable choices and **cite which guideline drove each**
+     (especially a *user* guideline). No wide tables; short headings + bullets. **Do not** duplicate values
      into a separate checklist — the database row is the single source of truth.
 
 9. **Report.** Summarise the setup (incl. tyre type), assumptions, which user guidelines were
