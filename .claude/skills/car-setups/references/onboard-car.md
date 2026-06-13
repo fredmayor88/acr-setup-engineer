@@ -210,13 +210,20 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      for any that weren't found). These live on the page next to each other — never as
      `Parameters` rows.
    - **Seed the `{Car}` page body in this order** (create sections that are missing; never
-     overwrite existing content):
-     1. **H2 "Setups"** heading + the `Setups[Car=this]` filtered linked view. Set the view's
-        `SHOW` to this car's applicable value columns in `Order` sequence (meta columns first) —
-        this orders the columns **and** hides blank ones in one step (`notion-structure.md` →
-        *Applying the order*). This must come first so it's the first thing visible on mobile.
-     2. **H2 "Guidelines"** heading + a short stub inviting car-specific tuning preferences
-        (tone per `tuning-guidelines-template.md`).
+     overwrite existing content). The linked view is **not** page markdown — create it with
+     `notion-create-view`, never as a `<linked-view />`-style placeholder (`notion-structure.md` →
+     *Creating an inline linked view*). Because that tool appends the view to the **end** of the
+     page, do these in sequence:
+     1. **H2 "Setups"** heading (markdown). This section must come first so it's the first thing
+        visible on mobile.
+     2. The `Setups[Car=this]` filtered linked view — `notion-create-view` with
+        `parent_page_id` = the `{Car}` page, `data_source_id` = the `Setups` data source
+        (`notion-fetch` it for the id), `type: "table"`, and
+        `configure: 'FILTER "Car" = "{Car}"; SHOW <meta first, then this car's value columns by Order>'`.
+        `SHOW` orders the columns **and** hides blank ones in one step (`notion-structure.md` →
+        *Applying the order*). It lands directly under the heading from step 1.
+     3. **H2 "Guidelines"** heading + a short stub inviting car-specific tuning preferences
+        (tone per `tuning-guidelines-template.md`) — appended **after** the view.
 
 8. **Check for surface-specific ranges (optional gravel pass).** **ACR only** — skip for games
    without surface-dependent ranges.

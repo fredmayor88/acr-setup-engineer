@@ -85,7 +85,12 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 7. **Ensure the stage exists.** Per `notion-structure.md`, make sure the `{stage}` page (with its
    filtered `Setups[Car, Stage]` view) exists under the car's `setups`; create it from the stage
-   description if missing.
+   description if missing. The linked view is **not** page markdown — after writing the stage
+   description, create it with `notion-create-view` (`parent_page_id` = the `{stage}` page,
+   `data_source_id` = the `Setups` data source, `type: "table"`,
+   `configure: 'FILTER "Car" = "{Car}"; FILTER "Stage" = "{stage}"; SHOW <meta first, then value columns by Order>'`).
+   Never write a `<linked-view />`-style placeholder into the page body (`notion-structure.md` →
+   *Creating an inline linked view*).
 
 8. **Write to Notion — append only** (via the user's Notion connection).
    - Create **one new row** in `Setups`: `Name`, `Car`, `Stage`, `Surface`, `Game version` (if

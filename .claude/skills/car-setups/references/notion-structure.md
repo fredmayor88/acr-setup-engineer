@@ -229,11 +229,15 @@ next run, with no migration:
    [notion-rest-read.md](notion-rest-read.md); for the **main** table's cross-car union, query the
    whole `Parameters` data source once to map every property name → `Order`).
 2. Build the ordered property-name list (meta columns first, then value columns by the comparator).
-3. Push it with the view **`SHOW`** directive (`notion-update-view`, or set it when creating a view
-   via `notion-create-view`):
+3. Push it with the view **`SHOW`** directive (`notion-update-view`, or set it via the `configure`
+   string when first creating the view):
    - **main `Setups` table view** → `SHOW` all meta + all value columns in order;
    - **per-car / per-stage linked views** → `SHOW` meta + only that car's applicable value columns in
      order — this orders the columns **and** hides the blank ones in a single step.
+
+This step re-asserts `SHOW` on a view that **already exists**. Creating the linked-view *block* in
+the first place is a separate operation — see *Creating an inline linked view* below
+(`notion-create-view` with `parent_page_id`); never express a linked view as page markdown.
 
 ## Car & stage pages
 
@@ -262,6 +266,35 @@ Setups section must appear before Guidelines so it is the first thing visible on
 
 - **`{stage}` page** — the stage description + driving style, plus a `Setups[Car, Stage]`
   filtered view. Nested under the car page's "Setups" section.
+
+### Creating an inline linked view
+A "filtered linked view" is a Notion **linked database view**, created with the
+**`notion-create-view`** tool — **not** page markdown. **There is no Markdown syntax for a linked
+view; never write a placeholder (e.g. `<linked-view />`, `[linked view]`, or a heading promising a
+table) into a page's `content`** — it is stored as literal text and no table appears.
+
+**Mechanism.** `notion-fetch` the `Setups` DB to get its **`data_source_id`** (from the
+`<data-source>` tag in the response). Then call `notion-create-view` with `parent_page_id` = the
+target page, `data_source_id` = the `Setups` data source, `type: "table"`, a `name` (e.g.
+`"Setups"`), and a `configure` DSL string (see `notion://docs/view-dsl-spec`) carrying the filter
+and column order:
+- **`{Car}` page** → `FILTER "Car" = "{Car}"; SHOW <meta columns first, then this car's value
+  columns by `Order`>` — `SHOW` both orders the columns and hides the ones it omits (blank
+  per-car columns).
+- **`{stage}` page** → `FILTER "Car" = "{Car}"; FILTER "Stage" = "{stage}"; SHOW <…>` — multiple
+  `FILTER` directives are **ANDed**.
+
+**Positioning matters.** `notion-create-view(parent_page_id=…)` **appends the linked-view block to
+the end of the page**, so sequence the operations:
+1. Write the page markdown first — identity facts + the **H2 "Setups"** heading (`{Car}` page), or
+   the stage description (`{stage}` page).
+2. **Then** `notion-create-view` — the view lands right after that heading/description.
+3. **Then** append any trailing markdown (e.g. the `{Car}` page's **H2 "Guidelines"** stub).
+   Never add the trailing section before the view, or the view ends up below it.
+
+**Idempotent.** Before creating, `notion-fetch` the page; if a linked view of the `Setups` data
+source already exists there, re-assert it with `notion-update-view` (see *Applying the order*)
+instead of appending a duplicate.
 
 ## `Tuning guidelines` page
 Global user preferences, seeded from `tuning-guidelines-template.md`
