@@ -15,7 +15,6 @@ games (built for **Assetto Corsa Rally**) and stores them in the user's **Notion
   - `references/setup-tuning-principles.md` — drivetrain-tagged tuning reasoning base.
   - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
 - [README.md](README.md) — end-user docs (claude.ai install + usage).
-- [examples/sample-setup.md](examples/sample-setup.md) — illustrative output.
 - `Makefile` — `make zip` builds `dist/car-setups-skill.zip`; cross-platform (Mac, Linux, WSL, Git Bash on Windows).
 
 The skill is **self-contained** (it bundles its own references) so it works both uploaded to

@@ -9,12 +9,12 @@ share it, and import what you already have. It was built for ACR but the approac
 > **Video walkthrough:** *(coming soon — YouTube link will go here)*
 
 **What it does**
-1. **Onboards a car** — learns a car's full parameter catalog from min/max setup screenshots (or
-   instantly from a bundled template, no screenshots needed). Stores everything in your Notion
-   `Parameters` table.
+1. **Onboards a car** — learns a car's full parameter catalog from min/max setup screenshots (or,
+   for cars that have a bundled template, instantly with no screenshots needed). Stores
+   everything in your Notion `Parameters` table.
 2. **Builds a setup for a stage** — describe the stage and how you like the car to feel; it
    writes a setup constrained to the car's legal values, with the justification stored on the
-   Notion page ([see an example](examples/sample-setup.md)).
+   Notion page.
 3. **Tweaks a setup on feedback** — describe what felt wrong after a run and it proposes a
    minimal, targeted set of changes as a new setup (the original is never touched).
 4. **Reviews an existing setup** — critiques a setup already in your Notion: checks for
@@ -41,8 +41,6 @@ be provided for non-ACR use. **Save-file import is ACR-only.**
 - A **Claude account** at [claude.ai](https://claude.ai). Works on the **Free** plan; for heavy
   use the **Pro** plan is smoother. *(The Skill is free — running Claude a lot may not be.)*
 - A **Notion account** (free is fine). All your setups live here.
-- **Assetto Corsa Rally** (to take setup-screen screenshots, unless a bundled template covers
-  your car).
 
 ## Setup (one time, ~5 minutes)
 
