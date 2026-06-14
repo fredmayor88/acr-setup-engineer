@@ -107,14 +107,8 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
      edited `Order` self-heals). It's a view update, not a row/schema rebuild — the append above
      stays a single row. If a parameter has a blank `Order`, fall back to the canonical defaults
      (`notion-structure.md`) and optionally backfill it onto the `Parameters` row.
-   - In the row's **page body**: the **per-parameter justification inside a toggle** — grouped by
-     section and ordered by each parameter's **`Order`** (the in-game screen sequence: Gearbox →
-     Suspensions → Dampers → Axles → Differentials → Wheels/Tyres → Brakes → Electronics &
-     Aerodynamics, Front before Rear). Explain notable choices and **cite which guideline drove
-     each** (especially a *user* guideline). No wide tables; short headings + bullets. **Do not**
-     duplicate values into a separate checklist — the database row is the single source of truth.
-   - After the toggle, append a **brief setup summary** directly in the page body (not inside a
-     toggle, so it's always visible without expanding anything):
+   - First, write a **brief setup summary** directly in the page body (not inside a toggle, so
+     it's always visible without expanding anything):
      - **H2 heading** with the setup name (e.g. `## alsace gpt1`).
      - **3–5 short bullets** covering:
        - Stage, surface, and key conditions (e.g. "Fast bumpy tarmac; priority: stability under braking").
@@ -124,6 +118,12 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
        - What prior `Learn from this` setups contributed, or *"no prior setups used"* if none.
      This is the same information as the step 9 chat report, stored permanently so the user can revisit
      the reasoning on their phone without expanding the detail toggle.
+   - Below it, the **per-parameter justification inside a toggle** — grouped by section and ordered by
+     each parameter's **`Order`** (the in-game screen sequence: Gearbox → Suspensions → Dampers →
+     Axles → Differentials → Wheels/Tyres → Brakes → Electronics & Aerodynamics, Front before Rear).
+     Explain notable choices and **cite which guideline drove each** (especially a *user* guideline).
+     No wide tables; short headings + bullets. **Do not** duplicate values into a separate checklist —
+     the database row is the single source of truth.
 
 9. **Report.** Summarise the setup (incl. tyre type), assumptions, which user guidelines were
    applied, and whether any checked prior setups were learned from. Link the new row; remind the
