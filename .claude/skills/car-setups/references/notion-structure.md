@@ -115,15 +115,22 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   `Surface` (**Select**, options `Tarmac` / `Gravel` / `Snow`), `Game version`, `Date`,
   `Source` (`generated` | `imported`), `Mode` (`learn` | `independent`),
   `Rating` (**Select**, options `1`–`5`, higher = better; **blank = unrated**), `Notes`,
-  **`Learn from this`** (checkbox). Make `Car`, `Stage`, and `Surface` **Select** (not plain text)
-  so they render as **tags/pills** in the table — `Car` mirrors the `Parameters` DB's `Car` select,
-  and `Surface` its `Tarmac`/`Gravel`/`Snow` options. When appending a setup row, **create-or-reuse**
-  the matching option (Notion adds a new option if absent). Create `Rating` as a **Select** with five options `1` `2` `3`
+  **`Learn from this`** (checkbox), `Model/effort` (**Select**). Make `Car`, `Stage`, and
+  `Surface` **Select** (not plain text) so they render as **tags/pills** in the table — `Car`
+  mirrors the `Parameters` DB's `Car` select, and `Surface` its `Tarmac`/`Gravel`/`Snow` options.
+  **`Model/effort`** is also a **Select** (renders as a tag) — format `{model}/{effort}`, e.g.
+  `Sonnet 4.6/normal` or `Opus 4.8/high`; give the column the description *"Which model and
+  effort level built this setup (e.g. Sonnet 4.6/normal). Blank for imported setups."* **Blank
+  for imported rows** — only `generated` setups write it. The skill self-identifies: use your
+  known model name and infer effort (`low` / `normal` / `high` / `max`; default `normal` if
+  uncertain). No predefined options — create-or-reuse (Notion adds the option if absent). When
+  appending a setup row, **create-or-reuse** all Select options (Notion adds a new option if
+  absent). Create `Rating` as a **Select** with five options `1` `2` `3`
   `4` `5` (in that order) — the picker then shows the user the valid values and prevents
   out-of-range entries — and give the column the description *"How good was this setup? 1 = poor …
   5 = great. Leave blank until you've driven it."* It is **user-entered** after driving — the skill
   never writes it, only reads it, mapping the chosen label to its integer (`"4"` → 4) for learn
-  weighting / review. 
+  weighting / review.
 - **Values:** one property per tunable parameter (canonical `Adjustment` name), union across
   the game's cars; blank where a parameter doesn't apply. **Numeric** (Min/Max are numbers,
   whether continuous or discretely-stepped) → **Number**. **Named/string** (Min/Max are string
@@ -152,7 +159,7 @@ directive (see *Applying the order* below).
 parameter has no `Order` falls back to `section_block + 990` (the end of its section), then by
 `Adjustment` name. **Meta columns always come first**, before any value column, in this order:
 `Name`, `Car`, `Stage`, `Surface`, `Date`, `Source`, `Mode`, `Rating`, `Learn from this`,
-`Game version`, `Notes`.
+`Game version`, `Notes`, `Model/effort`.
 
 **Ties are fine — never an error.** If two parameters share the same `Order` (e.g. after a manual
 edit), show the tied columns in any order; don't flag, warn, or disambiguate. Order only has to be

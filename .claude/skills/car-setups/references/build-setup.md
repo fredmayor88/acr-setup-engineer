@@ -94,9 +94,11 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 8. **Write to Notion — append only** (via the user's Notion connection).
    - Create **one new row** in `Setups`: `Name`, `Car`, `Stage`, `Surface`, `Game version` (if
-     known), `Date` (today), `Source = generated`, `Mode`, the chosen `Tyre type`, and each value
-     property. Leave **`Learn from this` unchecked** (the user opts in after vetting). **Never
-     modify or delete existing rows.**
+     known), `Date` (today), `Source = generated`, `Mode`, the chosen `Tyre type`, each value
+     property, and **`Model/effort`** (your model name + `/` + effort, e.g. `Sonnet 4.6/normal`;
+     infer effort: `low` = minimal thinking, `normal` = standard (default if uncertain), `high` /
+     `max` = extended thinking or explicitly high-effort run). Leave **`Learn from this` unchecked**
+     (the user opts in after vetting). **Never modify or delete existing rows.**
    - **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on
      the **main `Setups` table view** (meta columns + all value columns by `Order`) and on **this
      setup's stage/per-car linked view** (meta + this car's applicable value columns by `Order`,

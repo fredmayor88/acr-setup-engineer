@@ -37,7 +37,9 @@ never writes to Notion.
 
 4. **Output the snippet** inside a fenced code block so it is easy to select and copy.
    Lead with a header line: `{Car} · {Setup name}`, then a blank line, then the grouped
-   values.
+   values. After the last section, if the setup's `Model/effort` property is not blank, append
+   a blank line followed by `Built with: {Model/effort}`. Omit the line entirely for imported
+   setups (where `Model/effort` is blank).
 
 ### Example output
 
@@ -65,6 +67,8 @@ Brake balance: 58 %
 [Electronics]
 ABS: 3
 TCS: 2
+
+Built with: Sonnet 4.6/normal
 ```
 
 ## Rules

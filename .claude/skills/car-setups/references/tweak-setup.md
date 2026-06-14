@@ -87,7 +87,9 @@ Never modify the source setup row or its page body.
   - Copy every value property from the source setup.
   - Overwrite only the changed parameters with the confirmed new values.
   - Set: `Name`, `Car`, `Stage`, `Surface` (all inherited from source), `Source = generated`,
-    `Mode` (inherit source mode, default `learn`), `Date` = today.
+    `Mode` (inherit source mode, default `learn`), `Date` = today, and **`Model/effort`** (your
+    current model + effort, e.g. `Sonnet 4.6/normal` — do **not** copy from the source setup;
+    this records the model that ran *this* tweak).
   - Leave **`Learn from this` unchecked** — the user opts in after vetting.
 - **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on the
   main `Setups` table view and on this setup's stage/per-car linked view to the meta columns + value
