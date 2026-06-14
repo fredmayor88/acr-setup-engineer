@@ -4,34 +4,40 @@ A free Claude **Skill** that crafts **personalized** car setups for **Assetto Co
 tuned to *your* driving style and preferences — and saves them to **your Notion**, so you can
 read them on your phone while you play. It's not a one-off generator but a **complete system for
 the whole life of a setup**: onboard a car, build a setup, tweak it on feedback, review it,
-share it, and import what you already have. It was built for ACR but the approach is general.
+share it, and import what you already have. You can also ask questions about general setup engineering. The skill was built for ACR but the approach is general.
 
 > **Video walkthrough:** *(coming soon — YouTube link will go here)*
 
 **What it does**
-1. **Onboards a car** — learns a car's full parameter catalog from min/max setup screenshots (or,
-   for cars that have a bundled template, instantly with no screenshots needed). Stores
-   everything in your Notion `Parameters` table.
-2. **Builds a setup for a stage** — describe the stage and how you like the car to feel; it
-   writes a setup constrained to the car's legal values, with the justification stored on the
-   Notion page.
-3. **Tweaks a setup on feedback** — describe what felt wrong after a run and it proposes a
-   minimal, targeted set of changes as a new setup (the original is never touched).
-4. **Reviews an existing setup** — critiques a setup already in your Notion: checks for
-   constraint violations, guideline alignment, and internal consistency, then appends a
-   timestamped AI Review section to the setup's Notion page.
-5. **Answers your setup questions** — ask why one of your setups uses a value, what a setting
-   actually does, or how to think about ARBs, diffs, springs, and the rest. It explains from the
-   same tuning knowledge it builds with (and reads your setup from Notion when you ask about a
-   specific one). Read-only — it answers in chat and changes nothing.
-6. **Shares a setup** — produces a compact, copy-pasteable plain-text summary you can drop
-   into Discord, WhatsApp, or a forum.
-7. **Imports your existing setups** — from an ACR save file, so it can learn from what already
-   works for you.
+1. **Onboards a car** — take two sets of car param screenshots (everything at min, then max) and it
+   maps every knob and slider in seconds. Already in the bundled library? One command and you're
+   done — no screenshots needed.
+2. **Builds a setup for any stage** — describe the stage and how you like the car to feel; it
+   writes a setup constrained to what the car actually allows, with the full reasoning behind
+   every choice saved to your Notion so you can read it on your phone while you play.
+3. **Tweaks on your feedback** — describe what felt wrong after a run and it targets exactly the
+   right parameters, proposes a minimal set of changes, and creates a new setup row — the
+   original is never touched.
+4. **Reviews any setup** — checks every value against legal ranges and your guidelines, flags
+   anything misaligned, and appends a timestamped AI Review to the setup's Notion page.
+5. **Your setup engineer, on demand** — just ask. Why is the front ARB stiffer on this setup?
+   What does preload actually do? How should I think about spring vs damper rates? It pulls your
+   setups from Notion when you ask about one, compares two when you ask, and explains from the
+   same tuning knowledge it builds with. Anything setup-related goes. Read-only: nothing changes.
+6. **Shares a setup** — one command and you get a clean, copy-paste-ready block ready to drop
+   into Discord, WhatsApp, or anywhere you'd like.
+7. **Imports what you already have** — attach your ACR save file and it pulls your existing
+   setups straight into Notion, so you don't need to enter them manually. You can also import
+   only selected setups of certain cars, it's not all-or-nothing.
+8. **Exports a car template** — once you've onboarded a car from screenshots, package it as a
+   YAML file and share it with the community in one click. No command line, no tokens — just a
+   free GitHub account and a green button.
 
 Together these cover the **whole lifecycle of a setup** in one place. Every value stays within
 what the car actually allows, and the setups get **more personal the more you use it** — rate
 your setups and tick "Learn from this" on the good ones, and future setups follow your taste.
+
+![How it works](docs/flowchart.png)
 
 **Other games:** this skill was built and tested exclusively for **Assetto Corsa Rally**. You
 may be able to onboard cars and build setups for other rally/racing games, but this has not been
