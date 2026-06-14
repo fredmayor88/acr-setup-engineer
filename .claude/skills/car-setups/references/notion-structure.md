@@ -314,12 +314,17 @@ per-car → stage.
 Users often read these pages on a **phone while playing**, so:
 - **Optimise for reading a single setup**, not side-by-side comparison (comparison stays a
   desktop task on the wide table view).
-- Each generated setup's **page body contains only the per-parameter justification**, grouped
-  by section, inside a **toggle** so it's collapsible. Order the sections and the parameters within
-  them by each parameter's **`Order`** (see *Setups column order* above) — the same sequence as the
-  in-game setup screens (Gearbox → Suspensions → Dampers → Axles → Differentials → Wheels/Tyres →
-  Brakes → Electronics & Aerodynamics, Front before Rear). The same `Order` governs share snippets
-  and exported templates, so every projection matches the table.
+- Each generated setup's **page body** has two sections, in this order:
+  1. **Per-parameter justification** — grouped by section (Gearbox → Suspensions → Dampers →
+     Axles → Differentials → Wheels/Tyres → Brakes → Electronics & Aerodynamics, Front before
+     Rear), inside a **toggle** so it's collapsible. Ordered by each parameter's **`Order`** (see
+     *Setups column order* above) — the same sequence as the in-game setup screens. The same
+     `Order` governs share snippets and exported templates, so every projection matches the table.
+  2. **Brief setup summary** — always visible (not inside a toggle): an **H2 heading** with the
+     setup name, followed by 3–5 bullets covering stage/surface/conditions, tyre choice, the key
+     guidelines applied (citing user guidelines by name), and what prior setups contributed (or
+     "no prior setups used" if none). Mirrors what the chat report says, stored permanently for
+     quick on-phone reference.
   **Never duplicate values into a page body checklist** — the database row is the single source
   of truth. A checklist would drift the moment the user edits a value in the table.
 - **No wide tables inside page bodies** (they scroll horizontally on a phone); use short

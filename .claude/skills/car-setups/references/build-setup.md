@@ -113,6 +113,17 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
      Aerodynamics, Front before Rear). Explain notable choices and **cite which guideline drove
      each** (especially a *user* guideline). No wide tables; short headings + bullets. **Do not**
      duplicate values into a separate checklist — the database row is the single source of truth.
+   - After the toggle, append a **brief setup summary** directly in the page body (not inside a
+     toggle, so it's always visible without expanding anything):
+     - **H2 heading** with the setup name (e.g. `## alsace gpt1`).
+     - **3–5 short bullets** covering:
+       - Stage, surface, and key conditions (e.g. "Fast bumpy tarmac; priority: stability under braking").
+       - Tyre choice and the reason.
+       - The 1–2 most influential guidelines applied — name them; cite *"your guideline on X"* when it
+         comes from the user's Tuning guidelines or per-car Guidelines page.
+       - What prior `Learn from this` setups contributed, or *"no prior setups used"* if none.
+     This is the same information as the step 9 chat report, stored permanently so the user can revisit
+     the reasoning on their phone without expanding the detail toggle.
 
 9. **Report.** Summarise the setup (incl. tyre type), assumptions, which user guidelines were
    applied, and whether any checked prior setups were learned from. Link the new row; remind the
