@@ -287,18 +287,6 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      `42300, 50000, 57700, 65400, 73100`), but setup values will be poorly-targeted without it.
      Non-blocking — they can be used immediately — but strongly recommended.
 
-   **Invite them to share the car (screenshot onboarding only).** If this car was onboarded from
-   screenshots — i.e. it was **not** already in the bundled library (step 1) — close the report
-   with a short, no-pressure nudge to contribute it back, so future drivers can skip the
-   screenshot work:
-   > "By the way — you just built this car's whole catalog from screenshots, and it's not in the
-   > shared library yet. If you'd like, I can package it up and hand you a one-click link to
-   > share it, so the next person who drives the {Car} can onboard it instantly. Just say
-   > *'export the {Car}'* whenever you're up for it — totally optional."
-
-   Do **not** add this nudge when the car was onboarded from a bundled template (it's already in
-   the library). Keep it to a sentence or two; don't repeat it or push.
-
 ## Rules
 - Prefer canonical `Adjustment` names so `Setups` columns stay consistent across cars. If a car
   uses different wording for a familiar parameter, accept it and record it as shown — never
