@@ -1,0 +1,1 @@
+- consider creating a global unified catalogue of stage descriptions, so there is no need to repeat stage descriptions when building setups
