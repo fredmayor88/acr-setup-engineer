@@ -25,7 +25,7 @@ Pick the matching workflow and read its file before acting:
 |---|---|
 | Onboard a car / capture its tunable parameters (from min & max screenshots) | `references/onboard-car.md` |
 | Build a setup for a stage | `references/build-setup.md` |
-| Tweak / refine an existing setup based on driving feedback | `references/tweak-setup.md` |
+| Tweak / refine a setup, or describe a handling problem to work through (problem → tweak → test loop) | `references/tweak-setup.md` |
 | Review an existing setup from Notion | `references/review-setup.md` |
 | Ask a question / explain a setup or a tuning concept (read-only) | `references/ask-setups.md` |
 | Share a setup as a plain-text snippet (copy-paste) | `references/share-setup.md` |
@@ -73,6 +73,14 @@ Bundled tools (stdlib Python, run via code execution):
   never capture it during onboarding and never include it in setups.
 - **Append-only.** Never modify or delete existing setups — only add rows. (Onboarding may
   update the parameter catalog.)
+- **Refining is an in-chat loop — save only when asked.** Describing a handling problem or asking
+  for a tweak is **not** a request to build or save a setup. Work the *problem → tweak → test →
+  feedback* cycle conversationally: propose legal value changes in chat and iterate as the user
+  reports back from driving — **write nothing to Notion**. Persist a single new `Setups` row (the
+  session's final state) **only when the user explicitly asks to save** (`tweak-setup.md`). When the
+  user signals they're happy with how the car feels, **remind them once** they can ask to save it —
+  don't nag. (A fresh **build** is an explicit creation request and still writes its row per
+  `build-setup.md`.)
 - **The tool is the source of truth for validity** (Notion can't hard-enforce ranges) —
   validate every value before writing.
 - **Mobile-first output.** The user reads setups on a phone while in-game: each generated

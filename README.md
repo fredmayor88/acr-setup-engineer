@@ -16,8 +16,9 @@ share it, and import what you already have. You can also ask questions about gen
    writes a setup constrained to what the car actually allows, with the full reasoning behind
    every choice saved to your Notion so you can read it on your phone while you play.
 3. **Tweaks on your feedback** — describe what felt wrong after a run and it targets exactly the
-   right parameters, proposes a minimal set of changes, and creates a new setup row — the
-   original is never touched.
+   right parameters and proposes a minimal set of changes, right in the chat. Refine as many times
+   as you like; when you're happy, ask it to save and it writes a new setup row — the original is
+   never touched.
 4. **Reviews any setup** — checks every value against legal ranges and your guidelines, flags
    anything misaligned, and appends a timestamped AI Review to the setup's Notion page.
 5. **Your setup engineer, on demand** — just ask. Why is the front ARB stiffer on this setup?
@@ -125,9 +126,12 @@ and tick **Learn from this** if you liked it — future setups learn from the on
 **Tweak a setup**
 
 After driving, describe what felt wrong — e.g.: *"The Alsace setup understeers on entry —
-can you soften the front ARB?"* Claude maps the feedback to specific parameters, proposes a
-minimal set of changes (with a before/after diff to confirm), and creates a new setup row
-based on the original. The source setup is never modified.
+can you soften the front ARB?"* Claude maps the feedback to specific parameters and proposes a
+minimal set of changes as a before/after change list — **all in chat**, so you can go test, come
+back, and refine again as many times as you like. Nothing is written to Notion while you iterate;
+only when you're happy and **ask Claude to save** does it create a single new setup row based on
+the original (the source is never modified). Claude gently reminds you to save once you say the car
+feels right.
 
 **Review a setup**
 

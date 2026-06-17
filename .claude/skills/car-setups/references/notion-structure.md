@@ -239,8 +239,12 @@ next run, with no migration:
 3. Push it with the view **`SHOW`** directive (`notion-update-view`, or set it via the `configure`
    string when first creating the view):
    - **main `Setups` table view** → `SHOW` all meta + all value columns in order;
-   - **per-car / per-stage linked views** → `SHOW` meta + only that car's applicable value columns in
-     order — this orders the columns **and** hides the blank ones in a single step.
+   - **per-car / per-stage linked views** → `SHOW` the **full meta set (including `Model/effort`) +
+     only that car's applicable value columns** in order — this orders the columns **and** hides the
+     blank ones in a single step. The meta set is the **same** as the main table; only *value*
+     columns are filtered to the car's applicable ones. Because this is re-asserted on every append,
+     projections created before a meta column existed (e.g. `Model/effort`) **self-heal** — the
+     column appears on the car/stage page views on the next build/tweak/review.
 
 This step re-asserts `SHOW` on a view that **already exists**. Creating the linked-view *block* in
 the first place is a separate operation — see *Creating an inline linked view* below
@@ -285,9 +289,9 @@ table) into a page's `content`** — it is stored as literal text and no table a
 target page, `data_source_id` = the `Setups` data source, `type: "table"`, a `name` (e.g.
 `"Setups"`), and a `configure` DSL string (see `notion://docs/view-dsl-spec`) carrying the filter
 and column order:
-- **`{Car}` page** → `FILTER "Car" = "{Car}"; SHOW <meta columns first, then this car's value
-  columns by `Order`>` — `SHOW` both orders the columns and hides the ones it omits (blank
-  per-car columns).
+- **`{Car}` page** → `FILTER "Car" = "{Car}"; SHOW <all meta columns first (the full meta set,
+  including `Model/effort`), then this car's value columns by `Order`>` — `SHOW` both orders the
+  columns and hides the ones it omits (blank per-car columns).
 - **`{stage}` page** → `FILTER "Car" = "{Car}"; FILTER "Stage" = "{stage}"; SHOW <…>` — multiple
   `FILTER` directives are **ANDed**.
 
