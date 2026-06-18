@@ -22,6 +22,11 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
   ask briefly rather than guessing.
 - **Setup name** (e.g. `alsace gpt1`) — **≤15 chars**, the in-game limit; compact a longer
   proposed/requested name to fit (per `SKILL.md` core rules) and tell the user the name used.
+- **Reference setup** (optional) — if the user says "build like setup X" or names a setup as a
+  basis, load X's **row value properties** (per `notion-rest-read.md`) as a starting point, and
+  X's page-body **intent** if stated. **Never** read X's per-parameter justification prose for
+  values — the row is authoritative and the prose may be stale if the user has since edited the
+  row by hand (per `SKILL.md` core rules).
 - **Mode** — `learn` (default) or `independent`.
 - **Surface override** (optional) — if the user names a surface ("build a gravel setup", "use
   tarmac settings/parameters", "treat this as snow"), it **overrides the stage's stated surface for
@@ -70,8 +75,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 4. **Handle prior setups by mode.**
    - `learn` (default): fetch existing `Setups` rows for this car **where `Learn from this` is
-     checked** (the compound-filter query in [notion-rest-read.md](notion-rest-read.md); values +
-     `Notes` + `Rating`); infer preferences, weighting by `Rating` (a **1–5 Select** — read the
+     checked** (the compound-filter query in [notion-rest-read.md](notion-rest-read.md); read
+     values from each row's **value properties** — never from its page-body justification, which
+     can go stale after manual edits — plus `Notes` + `Rating`); infer preferences, weighting by
+     `Rating` (a **1–5 Select** — read the
      label as its integer, higher = better; treat a **blank** rating as unrated — neutral/no extra
      weight) and taking likes/dislikes from `Notes`. Bias toward them, adapt to this build's intent
      and stage facts. If none are checked, proceed with **no prior-setup bias** and say so.

@@ -95,6 +95,14 @@ Bundled tools (stdlib Python, run via code execution):
   `build-setup.md`.)
 - **The tool is the source of truth for validity** (Notion can't hard-enforce ranges) —
   validate every value before writing.
+- **A setup's real values are its row, not its note.** A saved setup's actual values are its
+  `Setups` **row value properties** — the single source of truth. The page-body summary/
+  justification explains *why* values were chosen **at creation time** and can be **stale**: the
+  user often edits the row's values directly in Notion afterward, leaving the prose out of date.
+  Whenever you consume a past setup — learning from it, using one as a **reference/basis** for a
+  new build, or comparing two — take each value from the **row**, never from the justification
+  prose. You **may** still use the setup's stated **intent/goal** (the page-body summary) to
+  inform a new build.
 - **Setup names ≤ 15 characters.** The in-game name field caps at 15 characters, so every
   `Setups` row `Name` must be **≤15 chars**. Keep default/generated names within the limit. When a
   proposed or user-requested name is longer, **automatically compact it** to fit — drop spaces,
