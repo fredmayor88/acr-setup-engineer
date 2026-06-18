@@ -27,6 +27,34 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
   X's page-body **intent** if stated. **Never** read X's per-parameter justification prose for
   values — the row is authoritative and the prose may be stale if the user has since edited the
   row by hand (per `SKILL.md` core rules).
+  - **Cross-car reference — transfer feel, not raw numbers.** If X is for a **different car**
+    (different weight bias / layout) or a **different surface** than this build, reproduce its
+    **character/feel on this car** — don't copy its values. First read X for its **intent/character**
+    (open & playful, rotation-friendly, planted, …); if that isn't clear (no stated intent and the
+    values alone are ambiguous), **ask the user what feel they're after before translating** rather
+    than guessing (as with intent above). Then treat **no value as automatically transferable** —
+    re-derive each parameter for this car's identity facts (step 1) and the build surface, letting
+    only car-independent *style* choices (e.g. preferred toe direction, an aid on/off) carry as-is.
+    Pay special attention to the high-impact, easy-to-mis-copy params, judged against
+    `setup-tuning-principles.md`:
+    - **Diff** (*Differential (LSD)*) — power/coast lock, **preload**, **plates**, and for AWD the
+      **centre-diff split / diff ratio**: match the lock/rotation *behaviour* X had, against this
+      car's weight bias + the **surface regime**. E.g. a light car's open/low-preload diff becomes
+      *more* lock + preload on a rear-heavy car on snow to keep the slide controllable.
+    - **Suspension feel** (*Suspension*, *Dampers*) — ride height, springs, dampers (bump/rebound
+      slow & fast), ARBs: raw rates and damper clicks **don't map 1:1 across different weights**
+      (a rate gives a different ride frequency on a heavier/lighter car). Match the resulting feel
+      (ride frequency / planted-vs-compliant, damping character), not the numbers.
+    - **Tyre pressure**, **brake bias** (and brake hardware), **engine map** — adapt to this car's
+      weight and the surface (on RWD low grip a softer map / longer gears tames snap).
+    - **Tyre type and gearing are re-derived, not translated** — tyre type follows the **build
+      surface** (step 5; never copy a different-surface reference's compound); gearing (gear set /
+      primary gear) follows this car's engine/power band and its own ratio sets.
+    **Flag** the adaptations in the report (step 9) and page body (step 8) — what changed from X and
+    why. **Escape hatch:** if the user *explicitly* asks for X's **literal values** ("use X's exact
+    diff", "copy X"), honor them verbatim **and warn** about any regime tension instead of
+    translating. A **same-car** reference is unchanged — values and feel already transfer, so it's a
+    straight starting point.
 - **Mode** — `learn` (default) or `independent`.
 - **Surface override** (optional) — if the user names a surface ("build a gravel setup", "use
   tarmac settings/parameters", "treat this as snow"), it **overrides the stage's stated surface for
@@ -168,11 +196,14 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
      each parameter's **`Order`** (the in-game screen sequence: Gearbox → Suspensions → Dampers →
      Axles → Differentials → Wheels/Tyres → Brakes → Electronics & Aerodynamics, Front before Rear).
      Explain notable choices and **cite which guideline drove each** (especially a *user* guideline).
+     If a **cross-car reference** was used, note each parameter where this build departs from the
+     reference and why (this car's weight bias / the surface regime).
      No wide tables; short headings + bullets. **Do not** duplicate values into a separate checklist —
      the database row is the single source of truth.
 
 9. **Report.** Summarise the setup (incl. tyre type), assumptions, which user guidelines were
-   applied, and whether any checked prior setups were learned from. Link the new row; remind the
+   applied, and whether any checked prior setups were learned from. If a **cross-car reference** was
+   used, call out where the build diverged from it and why (one line). Link the new row; remind the
    user to **rate it `1`–`5`** and tick `Learn from this` if they like it after driving. If the
    user comes back with how it drove and wants changes, switch to the refine loop
    (`tweak-setup.md`) and iterate **in chat** — don't rebuild from scratch.
@@ -183,4 +214,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 - Apply only guidance tagged `[All]` or the car's drivetrain; user guidelines override the base.
 - `learn` learns **only from `Learn from this`-checked** setups; new rows start unchecked.
 - Page body: justification in a toggle only — no checklist (database row is the source of truth).
+- Cross-car reference transfers **feel, not raw numbers**: treat no value as automatically
+  transferable — re-derive every value for this car + surface (re-choose tyre type, re-derive
+  gearing), translate the feel-shaping params (diff lock/preload/plates/centre-split,
+  springs/dampers/ride height/ARBs, tyre pressure, brake bias, engine map) to match the reference's
+  character, and flag the adaptations; copy literal values only when the user explicitly asks (then
+  warn). Same-car reference = straight starting point.
 - Append-only; cite user guidelines; be explicit about trade-offs and guesses.
