@@ -140,6 +140,11 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      - `Tyre Type`: `Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter,
        Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)`.
      - `Brake pads/shoe` (front & rear): `SOFT, MEDIUM, HARD`.
+   - **Tyre pressure is always per-axle.** Record `Pressure Front` and `Pressure Rear` as two
+     separate rows (orders 6020 / 6050) — **never** a single combined `Tyre Pressure` row,
+     even if the Wheels/Tyres screenshot layout looks like it shows one value. The screen
+     exposes front and rear pressure separately (alongside camber/toe); look again if only one
+     value was captured.
    - **Skip `FFB Multiplier`** — it is a display/controller preference, not a car setup parameter.
    - **Capture the easily-missed ones too**, when present: damper `Bump transition`
      / `Rebound transition`, `Centre differential` & `Front differential` (AWD), `Engine map`,

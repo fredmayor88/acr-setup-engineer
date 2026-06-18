@@ -1,5 +1,6 @@
 # Car-setups skill — common developer tasks.
 # Requires: Python 3, git. Works on Mac, Linux, WSL, and Git Bash on Windows.
+# Dev/test dependencies (PyYAML): pip install -r requirements-dev.txt
 #
 # Targets:
 #   make test        run the full test suite

@@ -143,10 +143,10 @@ parameters:
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "Dry Tarmac, Wet Tarmac, Gravel, Snow"
+    discrete_steps: "Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)"
   - section: "Wheels"
-    adjustment: "Tyre Pressure"
-    order: 6015
+    adjustment: "Pressure Front"
+    order: 6020
     min: 10.0
     max: 45.0
     unit: "psi"
@@ -157,6 +157,13 @@ parameters:
     min: -0.0010
     max: 0.0010
     unit: "m"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Pressure Rear"
+    order: 6050
+    min: 10.0
+    max: 45.0
+    unit: "psi"
     discrete_steps: ""
 
   - section: "Brakes"

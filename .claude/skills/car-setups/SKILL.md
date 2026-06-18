@@ -64,6 +64,17 @@ Bundled tools (stdlib Python, run via code execution):
   ("build a gravel setup", "use tarmac parameters") — this overrides the referenced stage's
   surface (or, with no stage, is simply the surface) for the **whole** build (range resolution,
   tyre choice, and surface-tagged guidelines) and becomes the setup row's `Surface`.
+- **ACR tyre fallback + canonical names.** For ACR, the legal `Tyre Type` set is the car's
+  stored `Discrete steps` list **when it specifies one**; only when that cell is blank or
+  missing does the legal set fall back to the standard list: `Tarmac Soft, Tarmac Medium,
+  Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel
+  Hard, Snow (Studs)`. Validate every tyre pick against this effective list. **Every tyre
+  value written into a setup must be a fully-qualified name from that list** — never a
+  bare/ambiguous value (`Snow` → `Tarmac Snow` or `Snow (Studs)`; `Gravel` →
+  `Gravel Soft/Medium/Hard`; `Dry Tarmac` → `Tarmac Soft/Medium/Hard`). For non-ACR games,
+  use the stored list as-is (no fallback).
+- **Tyre pressure is always two values.** Every setup stores `Pressure Front` and
+  `Pressure Rear` as two separate values — never a single combined tyre-pressure value.
 - **Notion scope is `Car setups` only — never search broadly.** Navigate the hierarchy
   explicitly by name starting from the `Car setups` root; do not issue workspace-wide Notion
   searches to locate setup data, guidelines, or parameters. If a Notion API call returns results

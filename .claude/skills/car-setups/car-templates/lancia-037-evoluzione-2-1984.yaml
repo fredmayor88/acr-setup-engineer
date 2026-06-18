@@ -138,6 +138,13 @@ parameters:
     discrete_steps: ""
 
   - section: "Wheels"
+    adjustment: "Tyre Type"
+    order: 6010
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)"
+  - section: "Wheels"
     adjustment: "Pressure Front"
     order: 6020
     min: 10.0

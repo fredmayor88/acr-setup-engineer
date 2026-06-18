@@ -209,8 +209,8 @@ Differentials (5000)              (per corner: LSD Power/Coast Ramp, LSD Preload
   Plates Number Rear .............. 5060
 Wheels/Tyres (6000)               (per corner: Pressure, Camber, Toe; FFB Multiplier skipped)
   Tyre Type ....................... 6010   (tyre-compound choice — leads the section)
-  Pressure Front .................. 6020
-  Camber Front .................... 6030
+  Pressure Front .................. 6020   (front/rear pressure are always two Number columns —
+  Camber Front .................... 6030    never a single combined "Tyre Pressure" column)
   Toe Front ....................... 6040
   Pressure Rear ................... 6050
   Camber Rear ..................... 6060

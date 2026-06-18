@@ -52,7 +52,10 @@ game, tell the user to onboard the car via screenshots (`onboard-car.md`) and bu
    the baseline (see [notion-rest-read.md](notion-rest-read.md)). The value should fall within that row's
    `Min..Max`, or be a member of its `Discrete steps` when filled; **flag mismatches** rather than
    dropping them (a save value outside the catalog usually means the catalog is incomplete, not
-   that the value is wrong). Then add one new
+   that the value is wrong). **`TyreType` values must be written fully-qualified** (e.g.
+   `Tarmac Snow`, `Snow (Studs)`) — if the save or catalog holds an ambiguous legacy name (bare
+   `Snow`, `Gravel`, `Dry Tarmac`), map it to its canonical ACR name before writing; if it can't
+   be disambiguated confidently, flag it for the user instead of guessing. Then add one new
    `Setups` row per setup: `Name`, `Car`, `Location`/`Stage` (if a `track` maps to one in the
    `Locations` catalogue, else leave both blank — **never fabricate a stage facts page** from an
    import), `Surface`, `Game version`, `Date`, `Source = imported`, **`Learn from this` =

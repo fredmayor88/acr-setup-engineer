@@ -77,13 +77,19 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    - `independent`: do **not** read prior setups — reason from scratch to avoid anchoring.
 
 5. **Choose values.** First pick the **tyre type** for the surface/conditions (biggest grip
-   decision). Then, per parameter, reason from tyre + surface + stage facts + driving intent + the
-   merged guidelines (drivetrain-filtered), then make it legal — **using the range resolved for the
-   build surface** (the surface-specific row if the parameter has one; for `Snow`, fall back to a
-   `Gravel` row before the baseline; see [notion-rest-read.md](notion-rest-read.md)) — **no step
-   grid, no interpolation**. If a parameter is pulled in conflicting directions by two authored
-   layers (global/surface/per-car guidelines vs. the stated intent) in a way that changes the
-   choice, **surface the conflict and ask the user** rather than silently picking one (per step 2):
+   decision) — **for ACR**, pick from the car's stored `Tyre Type` `Discrete steps` if it has
+   one, else from the standard fallback list (per `SKILL.md` → *ACR tyre fallback + canonical
+   names*); always write the fully-qualified name (never a bare/ambiguous value like `Snow`
+   or `Gravel`). Then, per parameter, reason from tyre + surface + stage facts + driving intent
+   + the merged guidelines (drivetrain-filtered), then make it legal — **using the range
+   resolved for the build surface** (the surface-specific row if the parameter has one; for
+   `Snow`, fall back to a `Gravel` row before the baseline; see
+   [notion-rest-read.md](notion-rest-read.md)) — **no step grid, no interpolation**. **Tyre
+   pressure is always two values** — choose `Pressure Front` and `Pressure Rear` separately,
+   never a single combined pressure. If a parameter is pulled in conflicting directions by two
+   authored layers (global/surface/per-car guidelines vs. the stated intent) in a way that
+   changes the choice, **surface the conflict and ask the user** rather than silently picking
+   one (per step 2):
    - **`Discrete steps` filled** → pick **one value from that exact set** (covers coarse
      numerics like spring stiffness and named options like gear set). The checklist value is
      exact.
@@ -98,7 +104,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 6. **Validate.** Re-check every chosen value against the catalog **for the build surface**
    (surface-resolved range — `Snow` falls back to `Gravel`, then baseline): discrete picks must be
-   a member of `Discrete steps`; continuous picks must be within `Min..Max`. Fix any violation
+   a member of `Discrete steps`; continuous picks must be within `Min..Max`. For **ACR**
+   `Tyre Type`, the chosen value must be a fully-qualified name from the car's stored list (or
+   the standard fallback list if blank) — never a bare/ambiguous value. Confirm
+   `Pressure Front` and `Pressure Rear` were both set as separate values. Fix any violation
    before writing.
 
 7. **Ensure the stage facts page exists in the catalogue (skip if no stage/location was given).**
