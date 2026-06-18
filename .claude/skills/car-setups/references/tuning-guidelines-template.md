@@ -15,7 +15,8 @@ and **your notes here override the shipped defaults**.
 
 These are **my** preferences. The setup generator follows them on top of its built-in
 knowledge, and prefers what's written here when they disagree. Per-car notes (on each car's
-page) and a specific stage description beat these general notes.
+page) and what I ask for on a specific build (the driving intent for that setup) beat these
+general notes.
 
 ## General driving style
 *How do you like the car to feel overall? A few plain-language lines.*

@@ -12,9 +12,11 @@ share it, and import what you already have. You can also ask questions about gen
 1. **Onboards a car** — take two sets of car param screenshots (everything at min, then max) and it
    maps every knob and slider in seconds. Already in the bundled library? One command and you're
    done — no screenshots needed.
-2. **Builds a setup for any stage** — describe the stage and how you like the car to feel; it
-   writes a setup constrained to what the car actually allows, with the full reasoning behind
-   every choice saved to your Notion so you can read it on your phone while you play.
+2. **Builds a setup for any stage** — describe the stage (or skip it for an arbitrary build) and
+   how you like the car to feel; it writes a setup constrained to what the car actually allows,
+   with the full reasoning behind every choice saved to your Notion so you can read it on your
+   phone while you play. Stages are saved once to a reusable catalogue, so the same stage backs
+   any number of setups across any cars without re-describing it each time.
 3. **Tweaks on your feedback** — describe what felt wrong after a run and it targets exactly the
    right parameters and proposes a minimal set of changes, right in the chat. Refine as many times
    as you like; when you're happy, ask it to save and it writes a new setup row — the original is
@@ -115,9 +117,13 @@ differs (or you'd rather skip it), the tarmac ranges are used everywhere — not
 
 **Build a setup**
 
-Tell Claude the car, the stage, and how you like to drive — e.g.:
+Tell Claude the car, the stage (optional — leave it out for an arbitrary setup, e.g. "a drift
+setup on tarmac"), and how you like to drive — e.g.:
 *"Build a setup for the Lancia Stratos on a fast, bumpy tarmac stage; I like gentle
 throttle-on rotation and hate a floaty car under braking."*
+The first time you mention a stage, Claude saves its facts (surface, length, key corners) once to
+a shared catalogue in Notion — any later setup, for any car, can reference the same stage without
+re-describing it.
 
 The new setup row appears in your Notion `Setups` database. Open it on your phone to see the
 values and the reasoning behind each choice. After driving: set a **Rating**, add **Notes**,

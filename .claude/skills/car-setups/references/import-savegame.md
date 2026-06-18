@@ -53,10 +53,11 @@ game, tell the user to onboard the car via screenshots (`onboard-car.md`) and bu
    `Min..Max`, or be a member of its `Discrete steps` when filled; **flag mismatches** rather than
    dropping them (a save value outside the catalog usually means the catalog is incomplete, not
    that the value is wrong). Then add one new
-   `Setups` row per setup: `Name`, `Car`, `Stage` (if a `track` maps to one, else blank),
-   `Surface`, `Game version`, `Date`, `Source = imported`, **`Learn from this` = unchecked**
-   (imported setups carry raw numbers without stage/goal context — the user checks it after
-   deciding a setup is worth learning from), plus the mapped value properties. Record values
+   `Setups` row per setup: `Name`, `Car`, `Location`/`Stage` (if a `track` maps to one in the
+   `Locations` catalogue, else leave both blank — **never fabricate a stage facts page** from an
+   import), `Surface`, `Game version`, `Date`, `Source = imported`, **`Learn from this` =
+   unchecked** (imported setups carry raw numbers without driving-intent context — the user checks
+   it after deciding a setup is worth learning from), plus the mapped value properties. Record values
    **as-is** (don't snap — they were already accepted in-game). **Never modify or delete existing
    rows.** After appending, **apply the column order** (`notion-structure.md` → *Applying the
    order*): set the `SHOW` on the main `Setups` table view and the car's linked view to the meta +

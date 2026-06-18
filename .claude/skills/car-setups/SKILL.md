@@ -33,8 +33,9 @@ Pick the matching workflow and read its file before acting:
 | Export a car's parameters as a community template file | `references/export-car-template.md` |
 
 Shared knowledge (read as needed):
-- `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions, and
-  the create-if-missing (resolve-by-name) rules.
+- `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions, the
+  create-if-missing (resolve-by-name) rules, and the shared `Locations`/`Stages` facts catalogue
+  (a stage is created once, centrally, and referenced — never duplicated — by any setup).
 - `references/notion-rest-read.md` — **the reliable way to read a car's `Parameters` rows (or a
   filtered slice of `Setups`)**; the connector can't list rows, so query the data source over
   REST. Follow this wherever a workflow says "fetch the car's rows".
@@ -60,9 +61,9 @@ Bundled tools (stdlib Python, run via code execution):
   onboarded with a gravel pass but no separate snow pass); else the blank (baseline) row. Resolve
   this before choosing/validating any value (see `references/notion-rest-read.md`). Most
   parameters have only the baseline row. **The user may set the build's surface explicitly**
-  ("build a gravel setup", "use tarmac parameters") — this overrides the stage's surface for the
-  **whole** build (range resolution, tyre choice, and surface-tagged guidelines) and becomes the
-  setup row's `Surface`.
+  ("build a gravel setup", "use tarmac parameters") — this overrides the referenced stage's
+  surface (or, with no stage, is simply the surface) for the **whole** build (range resolution,
+  tyre choice, and surface-tagged guidelines) and becomes the setup row's `Surface`.
 - **Notion scope is `Car setups` only — never search broadly.** Navigate the hierarchy
   explicitly by name starting from the `Car setups` root; do not issue workspace-wide Notion
   searches to locate setup data, guidelines, or parameters. If a Notion API call returns results
@@ -90,8 +91,11 @@ Bundled tools (stdlib Python, run via code execution):
 - **Drivetrain-aware.** Determine the car's drivetrain (FWD/RWD/AWD) and apply only guidance
   tagged `[All]` or that drivetrain (legend in `references/setup-tuning-principles.md`).
 - **Layered guidelines — the user wins.** Reasoning precedence, later wins: base principles →
-  global `Tuning guidelines` → matching surface section → per-car guidelines → the stage
-  description. Cite a user guideline when it drives a choice.
+  global `Tuning guidelines` → matching surface section (that page's "Per surface" subsection,
+  not a separate page) → per-car guidelines → the setup's own driving intent (most specific).
+  Location/stage facts are objective inputs, not a guideline layer. More specific is the
+  **default lean** — on a **material conflict between authored layers, ask the user** which to
+  follow rather than silently picking one. Cite a user guideline when it drives a choice.
 - **Notion by name.** Resolve the structure by its canonical names and create whatever is
   missing (per `references/notion-structure.md`); don't rely on stored IDs.
 - **Reading rows.** To read a car's `Parameters` rows or a filtered slice of `Setups`, follow

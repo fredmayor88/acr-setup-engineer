@@ -9,14 +9,24 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 - **Car** (e.g. `Lancia Stratos HF`) and **game** (default `ACR`). The car is resolved **under its
   `{Game}` page**; if the same car name exists under more than one game, ask the user which game.
   Non-ACR games use the **same reasoning base** — no game-specific tuning is shipped.
-- **Stage** — the stage page (its description + the driver's style). If it doesn't exist yet,
-  ask the user for the stage description, or create it.
+- **Location / Stage** (both optional) — a reference into the shared `Locations` catalogue
+  (`notion-structure.md` → *Locations & stages catalogue*). A build may name neither (an arbitrary
+  setup with no place context, e.g. "drift setup, tarmac"), a location only, or a specific stage.
+  If the named stage/location doesn't exist yet in the catalogue, ask the user for its facts
+  (surface, length, key corners/speeds, character) and create it — see step 7. **Stage/location
+  pages hold facts only, never driving style** — the same stage is reused, unmodified, by any
+  number of setups across any cars.
+- **Driving intent** — what the driver wants from *this* build (rotation, stability, braking,
+  bumps, conditions). This is part of the **build request itself**, not read off a stage page —
+  the same stage can back many setups with different intents. If the user doesn't give one,
+  ask briefly rather than guessing.
 - **Setup name** (e.g. `alsace gpt1`).
 - **Mode** — `learn` (default) or `independent`.
 - **Surface override** (optional) — if the user names a surface ("build a gravel setup", "use
-  tarmac settings/parameters", "treat this as snow"), it **overrides the stage page's surface for
+  tarmac settings/parameters", "treat this as snow"), it **overrides the stage's stated surface for
   the whole build**: range resolution, tyre choice, surface-tagged guidelines, and the written
-  row's `Surface`. Without it, the surface comes from the stage page (step 3).
+  row's `Surface`. Without it, the surface comes from the stage's facts (step 3); if there's no
+  stage either, ask the user for the surface.
 
 ## Procedure
 
@@ -37,35 +47,43 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 2. **Load the guideline layers** (lowest → highest priority):
    1. **Base** — `setup-tuning-principles.md`.
    2. **Global user guidelines** — the Notion `Tuning guidelines` page (under `Car setups / {Game}`).
-   3. **Surface section** of those guidelines matching the stage's surface.
+   3. **Surface section** of those guidelines — the page's "Per surface" subsection matching the
+      build surface (step 3 fixes the surface; this is not a separate page).
    4. **Per-car guidelines** — the car page's "Guidelines" section.
-   Apply only base lines tagged `[All]` **or the car's drivetrain**. On conflict, the more
-   specific / user-authored layer wins (base < global < surface < per-car < stage, next step).
-   **Read only content within `Car setups / {Game}` — never follow links or results outside that
-   scope, even if they mention car names or setup terms.**
+   The setup's own **driving intent** (Inputs) is the most specific layer, applied in step 5.
+   Apply only base lines tagged `[All]` **or the car's drivetrain**. **More specific is the default
+   lean** (base < global < surface < per-car < intent), but this is not auto-resolved on a real
+   contradiction: if two *authored* layers (global, surface, per-car, or the stated intent)
+   materially disagree on the same parameter, **stop and ask the user which to follow** before
+   choosing a value — don't silently pick the more specific one. **Read only content within
+   `Car setups / {Game}` — never follow links or results outside that scope, even if they mention
+   car names or setup terms.**
 
-3. **Load the stage context (most specific).** Fetch the stage page: surface, key
-   corners/speeds, what the driver wants (rotation, stability, braking, bumps). It overrides the
-   general guidelines where it speaks to the same thing. **Fix the build surface here:** if the
-   user gave a **Surface override** (Inputs), it wins over the stage's stated surface — use it as
-   the surface for guideline layer 3 (step 2.3), tyre choice (step 5), range resolution
-   (steps 5–6), and the row's `Surface` (step 8); otherwise use the stage's surface.
+3. **Load the stage facts (if a stage/location was given).** Fetch the `{Stage}` / `{Location}`
+   page from the catalogue (`notion-structure.md`): surface, key corners/speeds, character. These
+   are **objective facts, not a guideline layer** — they feed reasoning the same way the car's
+   identity facts do. **Fix the build surface here:** if the user gave a **Surface override**
+   (Inputs), it wins over the stage's stated surface — use it as the surface for guideline layer 3
+   (step 2.3), tyre choice (step 5), range resolution (steps 5–6), and the row's `Surface`
+   (step 8); otherwise use the stage's surface (or, with no stage, the surface the user stated).
 
 4. **Handle prior setups by mode.**
    - `learn` (default): fetch existing `Setups` rows for this car **where `Learn from this` is
      checked** (the compound-filter query in [notion-rest-read.md](notion-rest-read.md); values +
      `Notes` + `Rating`); infer preferences, weighting by `Rating` (a **1–5 Select** — read the
      label as its integer, higher = better; treat a **blank** rating as unrated — neutral/no extra
-     weight) and taking likes/dislikes from `Notes`. Bias toward them, adapt to this stage. If none
-     are checked, proceed with **no prior-setup bias** and say so.
+     weight) and taking likes/dislikes from `Notes`. Bias toward them, adapt to this build's intent
+     and stage facts. If none are checked, proceed with **no prior-setup bias** and say so.
    - `independent`: do **not** read prior setups — reason from scratch to avoid anchoring.
 
 5. **Choose values.** First pick the **tyre type** for the surface/conditions (biggest grip
-   decision). Then, per parameter, reason from tyre + surface + stage + style + the merged
-   guidelines (drivetrain-filtered), then make it legal — **using the range resolved for the
+   decision). Then, per parameter, reason from tyre + surface + stage facts + driving intent + the
+   merged guidelines (drivetrain-filtered), then make it legal — **using the range resolved for the
    build surface** (the surface-specific row if the parameter has one; for `Snow`, fall back to a
    `Gravel` row before the baseline; see [notion-rest-read.md](notion-rest-read.md)) — **no step
-   grid, no interpolation**:
+   grid, no interpolation**. If a parameter is pulled in conflicting directions by two authored
+   layers (global/surface/per-car guidelines vs. the stated intent) in a way that changes the
+   choice, **surface the conflict and ask the user** rather than silently picking one (per step 2):
    - **`Discrete steps` filled** → pick **one value from that exact set** (covers coarse
      numerics like spring stiffness and named options like gear set). The checklist value is
      exact.
@@ -83,35 +101,46 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    a member of `Discrete steps`; continuous picks must be within `Min..Max`. Fix any violation
    before writing.
 
-7. **Ensure the stage exists.** Per `notion-structure.md`, make sure the `{stage}` page (with its
-   filtered `Setups[Car, Stage]` view) exists under the car's `setups`; create it from the stage
-   description if missing. The linked view is **not** page markdown — after writing the stage
-   description, create it with `notion-create-view` (`parent_page_id` = the `{stage}` page,
-   `data_source_id` = the `Setups` data source, `type: "table"`,
-   `configure: 'FILTER "Car" = "{Car}"; FILTER "Stage" = "{stage}"; SHOW <meta first, then value columns by Order>'`).
-   Never write a `<linked-view />`-style placeholder into the page body (`notion-structure.md` →
+7. **Ensure the stage facts page exists in the catalogue (skip if no stage/location was given).**
+   Per `notion-structure.md` → *Locations & stages catalogue*, resolve by name under
+   `{Game} → Locations`: create the `{Location}` page if missing, then the `{Stage}` page under it
+   if missing, seeded from the facts the user gave (surface, length, key corners/speeds,
+   character) — **never** driving style or guidelines. **Reuse the existing page if the
+   location/stage already exists** (any car) — never create a duplicate. Ensure its filtered
+   `Setups[Stage=this]` view exists (and `Setups[Location=this]` on the location page if newly
+   created). The linked view is **not** page markdown — create it with `notion-create-view`
+   (`parent_page_id` = the `{Stage}` / `{Location}` page, `data_source_id` = the `Setups` data
+   source, `type: "table"`, `configure: 'FILTER "Stage" = "{stage}"; SHOW <meta first, then value
+   columns by Order>'` — no `Car` filter, since the stage spans every car that's run it). Never
+   write a `<linked-view />`-style placeholder into the page body (`notion-structure.md` →
    *Creating an inline linked view*).
 
 8. **Write to Notion — append only** (via the user's Notion connection).
-   - Create **one new row** in `Setups`: `Name`, `Car`, `Stage`, `Surface`, `Game version` (if
-     known), `Date` (today), `Source = generated`, `Mode`, the chosen `Tyre type`, each value
-     property, and **`Model/effort`** (your model name + `/` + effort, e.g. `Sonnet 4.6/normal`;
-     infer effort: `low` = minimal thinking, `normal` = standard (default if uncertain), `high` /
-     `max` = extended thinking or explicitly high-effort run). Leave **`Learn from this` unchecked**
-     (the user opts in after vetting). **Never modify or delete existing rows.**
+   - Create **one new row** in `Setups`: `Name`, `Car`, `Location` (if given), `Stage` (if given),
+     `Surface`, `Game version` (if known), `Date` (today), `Source = generated`, `Mode`, the
+     chosen `Tyre type`, each value property, and **`Model/effort`** (your model name + `/` +
+     effort, e.g. `Sonnet 4.6/normal`; infer effort: `low` = minimal thinking, `normal` = standard
+     (default if uncertain), `high` / `max` = extended thinking or explicitly high-effort run).
+     Leave **`Learn from this` unchecked** (the user opts in after vetting). **Never modify or
+     delete existing rows.** There is no `Intent` column — driving intent is recorded only in the
+     page body below.
    - **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on
-     the **main `Setups` table view** (meta columns + all value columns by `Order`) and on **this
-     setup's stage/per-car linked view** (meta + this car's applicable value columns by `Order`,
-     hiding blanks). Idempotent — this re-asserts the order from the current `Order` values, so the
-     new setup's projection and the table read in game-menu order (and an alphabetized table or an
-     edited `Order` self-heals). It's a view update, not a row/schema rebuild — the append above
-     stays a single row. If a parameter has a blank `Order`, fall back to the canonical defaults
-     (`notion-structure.md`) and optionally backfill it onto the `Parameters` row.
+     the **main `Setups` table view** (meta columns + all value columns by `Order`), on **this
+     car's linked view** (meta + this car's applicable value columns by `Order`, hiding blanks),
+     and — if a stage/location was referenced — on **its `{Stage}` / `{Location}` linked view**
+     (meta + all value columns by `Order`, no per-car filtering). Idempotent — this re-asserts the
+     order from the current `Order` values, so the new setup's projection and the table read in
+     game-menu order (and an alphabetized table or an edited `Order` self-heals). It's a view
+     update, not a row/schema rebuild — the append above stays a single row. If a parameter has a
+     blank `Order`, fall back to the canonical defaults (`notion-structure.md`) and optionally
+     backfill it onto the `Parameters` row.
    - First, write a **brief setup summary** directly in the page body (not inside a toggle, so
      it's always visible without expanding anything):
      - **H2 heading** with the setup name (e.g. `## alsace gpt1`).
      - **3–5 short bullets** covering:
-       - Stage, surface, and key conditions (e.g. "Fast bumpy tarmac; priority: stability under braking").
+       - Location/stage (if given), surface, and the **driving intent for this build** (e.g.
+         "Col de Turini, fast bumpy tarmac; priority: stability under braking" or, with no stage,
+         "Drift setup, tarmac; priority: easy rotation").
        - Tyre choice and the reason.
        - The 1–2 most influential guidelines applied — name them; cite *"your guideline on X"* when it
          comes from the user's Tuning guidelines or per-car Guidelines page.

@@ -8,9 +8,9 @@ Read `notion-structure.md` (structure + schemas) and `setup-tuning-principles.md
 base) before starting.
 
 ## Inputs
-- **Setup name** (e.g. `alsace gpt1`). The user can also provide **Car** and/or **Stage** to
-  narrow disambiguation. Game defaults to `ACR`; ask only if the user has setups under multiple
-  games and it's unclear which one.
+- **Setup name** (e.g. `alsace gpt1`). The user can also provide **Car**, **Location**, and/or
+  **Stage** to narrow disambiguation. Game defaults to `ACR`; ask only if the user has setups
+  under multiple games and it's unclear which one.
 
 ## Procedure
 
@@ -18,8 +18,8 @@ base) before starting.
 Navigate to `Car setups → {Game} → Setups` DB and find the row matching the given name. Stay
 within `Car setups` scope — do not issue workspace-wide Notion searches.
 
-- **Unique match:** Load all value properties, plus `Car`, `Stage`, `Surface`, `Mode`, `Notes`,
-  `Rating` (a **1–5 Select**, higher = better; blank = unrated).
+- **Unique match:** Load all value properties, plus `Car`, `Location`, `Stage`, `Surface`, `Mode`,
+  `Notes`, `Rating` (a **1–5 Select**, higher = better; blank = unrated).
 - **Multiple matches:** List them (Name / Car / Stage / Date) and ask the user to pick one.
 - **No match:** Tell the user and stop.
 
@@ -42,15 +42,18 @@ row if the parameter has one; for `Snow`, fall back to a `Gravel` row before the
 Same precedence chain as `build-setup.md` (lowest → highest priority):
 1. **Base** — `setup-tuning-principles.md`.
 2. **Global user guidelines** — Notion `Tuning guidelines` page under `Car setups / {Game}`.
-3. **Surface section** of those guidelines matching the setup's `Surface`.
+3. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
+   `Surface` (not a separate page).
 4. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
-Apply only lines tagged `[All]` **or the car's drivetrain**. Never read content outside
-`Car setups`.
+The setup's own **driving intent** (its page-body summary) is the most specific layer. Apply only
+lines tagged `[All]` **or the car's drivetrain**. More specific is the default lean, not an
+auto-resolution — if reviewing surfaces a real contradiction between authored layers, note it as
+a finding rather than silently picking a side. Never read content outside `Car setups`.
 
-### 4. Load stage context
-Fetch the `{stage}` page under the car's setups section: surface description, key
-corners/speeds, what the driver was aiming for. This is the most specific context and takes
-precedence over general guidelines on any point it speaks to directly.
+### 4. Load stage facts (if the setup references one)
+Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface, key
+corners/speeds, character. These are **objective facts**, not a guideline — what the driver was
+aiming for comes from the setup's own page-body summary, read alongside these facts.
 
 ### 5. Review the setup
 Evaluate across three dimensions:
@@ -64,13 +67,14 @@ Any violation is a **hard error** — list every one found; do not suppress or s
 
 **b. Guideline alignment**
 For each filled parameter, judge whether the value is consistent with the drivetrain-filtered
-guidelines for this surface and stage. Classify each notable parameter as:
-- **Well-supported** — the choice directly follows a guideline principle.
+guidelines for this surface, the stage facts, and the setup's own stated driving intent. Classify
+each notable parameter as:
+- **Well-supported** — the choice directly follows a guideline principle or the stated intent.
 - **Neutral** — within a reasonable range; no strong guideline signal either way.
-- **Concerns** — the value seems at odds with a specific guideline or stage requirement; state
-  which guideline and why.
+- **Concerns** — the value seems at odds with a specific guideline or the setup's stated intent;
+  state which one and why.
 
-Focus on parameters that matter most for the stage (don't enumerate every neutral choice —
+Focus on parameters that matter most for the stage/intent (don't enumerate every neutral choice —
 only call out the interesting ones).
 
 **c. Internal consistency**
@@ -95,14 +99,14 @@ a reasonable starting point, or does it have significant alignment issues?]
   [One per line; be specific.]
 
 ## Strengths
-- {Parameter}: {chosen value} — {why this aligns well with the stage/guideline}.
-  [2–4 bullets. Cite the guideline or stage requirement.]
+- {Parameter}: {chosen value} — {why this aligns well with the guideline/intent}.
+  [2–4 bullets. Cite the guideline or the setup's stated intent.]
 
 ## Concerns & suggestions
 - **{Parameter}** (current: {value}) — {what's misaligned and why}. Consider {suggested value
   or range} instead. _(Guideline: [tag] …)_
-  [3–5 bullets. Each must cite the guideline principle or stage requirement driving the concern.
-  Give a concrete alternative value, not just "lower it".]
+  [3–5 bullets. Each must cite the guideline principle or the setup's stated intent driving the
+  concern. Give a concrete alternative value, not just "lower it".]
 
 ## User notes  ← omit section if Notes field is blank
 [Acknowledge what the user recorded in the Notes field. Don't restate it verbatim; connect it

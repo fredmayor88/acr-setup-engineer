@@ -8,14 +8,27 @@ descriptions and several community tuning guides, critically filtered for physic
 ## How this fits together (layers & precedence)
 
 This file is the **shipped base**. The user's own preferences live in **Notion** and
-**override** this file. When `build-setup` reasons about a setup, it combines, in increasing
-priority (later wins on conflict):
+**override** this file. When `build-setup` reasons about a setup, it combines four **authored**
+layers, in increasing priority:
 
 1. **Base principles** (this file)
 2. **Global user guidelines** (Notion: `Car setups / {Game} / Tuning guidelines`)
-3. **Surface section** of those guidelines matching the stage's surface
+3. **Surface section** of that same page (its "Per surface" subsection matching the build
+   surface) — not a separate page
 4. **Per-car guidelines** (the car page's "Guidelines" section)
-5. **Stage description / driving style** (most specific — the actual stage)
+
+The **setup's own driving intent** (what the driver wants from *this* build — rotation,
+stability, braking, bumps, conditions) is the most specific layer of all, supplied with the build
+request and recorded only in the setup's page body — see `build-setup.md`.
+
+**Location/stage facts (surface, corners, length, character) are not a guideline layer** — they
+are objective inputs read from the shared `Locations` catalogue (`notion-structure.md`), the same
+way a car's identity facts (drivetrain, weight) are objective inputs. They never carry tuning
+advice.
+
+More specific is the **default lean**, not an automatic override: when two authored layers
+**materially contradict** on the same parameter, `build-setup` does not silently pick one — it
+**surfaces the conflict and asks the user** which to follow before choosing a value.
 
 ### Drivetrain tags
 Every guideline below is tagged with the drivetrain(s) it applies to. `build-setup` must know

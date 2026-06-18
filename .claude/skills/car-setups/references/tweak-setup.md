@@ -26,8 +26,8 @@ base) before starting.
 Decide what the iteration starts from — **don't immediately write anything**:
 - **One setup clearly in scope** (just built/loaded in this thread, or unambiguously named) → use
   its current in-chat values as the working setup and say which one. For a saved setup, load all
-  value properties plus `Car`, `Stage`, `Surface`, `Mode` (navigate `Car setups → {Game} →
-  Setups`; stay within `Car setups` scope — no workspace-wide searches).
+  value properties plus `Car`, `Location`, `Stage`, `Surface`, `Mode` (navigate `Car setups →
+  {Game} → Setups`; stay within `Car setups` scope — no workspace-wide searches).
 - **Multiple plausible matches** → list them (Name / Car / Stage / Date) and ask the user to pick.
 - **Nothing in scope** (the user described a problem but nothing has been built or loaded yet) →
   **ask what to start from**: which saved setup to load, or whether to build a baseline first
@@ -49,20 +49,25 @@ the new row's `Surface`. Load this once and reuse it across iterations.
 Same precedence chain as `build-setup.md` (lowest → highest):
 1. **Base** — `setup-tuning-principles.md`.
 2. **Global user guidelines** — Notion `Tuning guidelines` page under `Car setups / {Game}`.
-3. **Surface section** matching the setup's `Surface`.
+3. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
+   `Surface` (not a separate page).
 4. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
-Apply only lines tagged `[All]` **or the car's drivetrain**. Never read content outside
-`Car setups`.
+The working setup's own **driving intent/goal** (from its page body, plus the user's feedback this
+round) is the most specific layer. Apply only lines tagged `[All]` **or the car's drivetrain**.
+**More specific is the default lean**, not an auto-resolution: if an authored layer materially
+contradicts the stated intent or feedback, **ask the user** which to follow before proposing the
+change. Never read content outside `Car setups`.
 
-### 4. Load stage context
-Fetch the `{stage}` page under the car: surface description, key corners/speeds, driver goal.
-This is the most specific context and takes precedence on any point it addresses directly.
+### 4. Load stage facts (if the working setup references one)
+Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface, key
+corners/speeds, character. These are **objective facts, not a guideline** — the driver's goal for
+this setup comes from its page body and the user's feedback, not the stage page.
 
 ### 5. Refinement iteration (repeat for each round of feedback)
 Each time the user gives feedback, run one round — **all in chat, no Notion writes**:
 
 - Map the verbal feedback to specific parameters using the tuning principles, guidelines, and
-  stage context. For each parameter to change:
+  stage facts. For each parameter to change:
   - State the **current value** (from the working setup).
   - Reason about the **direction and magnitude**, citing the relevant guideline or the user's
     feedback directly.
@@ -100,17 +105,22 @@ When the user asks to save (and not before):
 - Create **one new row** in `Setups` DB (never modify or delete the source row or its page):
   - Copy every value property from the source; overwrite the parameters changed across the session
     with the final working values.
-  - Set: `Name`, `Car`, `Stage`, `Surface`, `Source = generated`, `Mode` (inherit source mode,
-    default `learn`), `Date` = today, and **`Model/effort`** (your current model + `/` + effort,
-    e.g. `Sonnet 4.6/normal` — do **not** copy from the source; this records the model that ran
-    *this* refinement). Leave **`Learn from this` unchecked** — the user opts in after vetting.
+  - Set: `Name`, `Car`, `Location` (if the source/feedback names one), `Stage` (likewise),
+    `Surface`, `Source = generated`, `Mode` (inherit source mode, default `learn`), `Date` = today,
+    and **`Model/effort`** (your current model + `/` + effort, e.g. `Sonnet 4.6/normal` — do
+    **not** copy from the source; this records the model that ran *this* refinement). Leave
+    **`Learn from this` unchecked** — the user opts in after vetting.
 - **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on the
-  main `Setups` table view and on this setup's stage/per-car linked view to the **full meta columns
-  (including `Model/effort`) + value columns** by each parameter's `Order` (linked view hides
-  blanks). Idempotent view update — the row write above stays append-only.
-- **Ensure the stage exists** (per `notion-structure.md`) if it didn't already; create its filtered
-  `Setups[Car, Stage]` linked view with `notion-create-view` (never a page-markdown placeholder).
-- **Page body** (two toggles, mobile-readable — no wide tables):
+  main `Setups` table view, on this car's linked view, and — if a stage/location is set — on its
+  `{Stage}` / `{Location}` linked view, to the **full meta columns (including `Model/effort`) +
+  value columns** by each parameter's `Order` (per-car view hides blanks; stage/location views show
+  all value columns, no per-car filtering). Idempotent view update — the row write above stays
+  append-only.
+- **Ensure the stage facts page exists in the catalogue** (per `notion-structure.md` → *Locations &
+  stages catalogue*) if a stage/location is set and didn't already exist; create its filtered
+  `Setups[Stage=this]` linked view with `notion-create-view` (never a page-markdown placeholder).
+- **Page body** (two toggles, mobile-readable — no wide tables; plus a visible **driving intent**
+  bullet above them, since intent has no DB column):
   1. Toggle **"Changes from {source name}"** — each parameter changed over the session: old value →
      new value + one-line rationale.
   2. Toggle **"Full justification"** — per-section reasoning for every parameter (same format as
@@ -133,5 +143,5 @@ user to tick `Learn from this` and set a `Rating` after driving if the result is
 - **Minimum change set** — don't re-tune uninvolved parameters; only change what the feedback
   requires (plus necessary secondary parameters for coherence).
 - **Cite the reason** — every changed parameter must reference the feedback phrase, guideline tag,
-  or stage requirement driving it.
+  or stage fact driving it.
 - **Stay within `Car setups` scope** — same name-resolution rules as every other workflow.

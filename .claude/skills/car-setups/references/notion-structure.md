@@ -13,9 +13,10 @@ across workspaces and self-healing:
 2. Under it, the game page (e.g. **`ACR`**); create if absent. Multiple `{Game}` pages may
    coexist — resolve a car under the game it was onboarded into, and ask the user if the same car
    name appears under more than one game.
-3. Under the game: the **`Parameters`** DB, the **`Setups`** DB, and the **`Tuning guidelines`**
-   page; create any that are missing (schemas below).
-4. Per car/stage: the **`{Car}`** page and **`{stage}`** page with their filtered views.
+3. Under the game: the **`Parameters`** DB, the **`Setups`** DB, the **`Tuning guidelines`**
+   page, and the **`Locations`** catalogue page; create any that are missing (schemas below).
+4. Per car: the **`{Car}`** page with its filtered view. Per location/stage referenced by a setup:
+   the **`{Location}`** page and **`{Stage}`** page (under `Locations`) with their filtered views.
 
 Never depend on stored page/database IDs — always re-resolve the structure **by name**. (You
 may reuse an ID within a single run once you've found it, but a fresh run must still work.)
@@ -49,13 +50,17 @@ Car setups (root page)
     ├── Parameters        (DB)  the catalog — one row per Car × Adjustment × Surface
     ├── Setups            (DB)  one row per setup
     ├── Tuning guidelines (page) global user preferences (seeded from the template)
+    ├── Locations         (page) catalogue parent — created on first stage/location reference
+    │   └── {Location} (page)   e.g. Monte Carlo — facts only, filtered Setups[Location] view
+    │       └── {Stage} (page)  e.g. Col de Turini — facts only (surface, length, key
+    │                            corners/speeds, character), filtered Setups[Stage] view
     └── {Car} (page)            per car: identity facts (Drivetrain, Engine layout, Weight
-        │                        bias, Weight), a "Guidelines" section, filtered views
-        └── setups (section/page)
-            └── {stage} (page)  stage description + driving style + filtered Setups view
+                                 bias, Weight), a "Guidelines" section, filtered Setups[Car] view
 ```
 
-Two DBs **per game** only — car/stage pages are **filtered linked views**, never new DBs.
+Two DBs **per game** only — car/location/stage pages are **filtered linked views**, never new
+DBs. A stage is **immutable, shared reference data** — it is created once under `Locations` and
+referenced by any number of setups (any car, any number of times), never duplicated per car.
 
 ## `Parameters` DB — one row per `Car × Adjustment` (× `Surface` when ranges differ)
 `Car`, `Section`, `Adjustment` (title), `Min`, `Max`, `Unit`, **`Discrete steps`**, **`Order`**,
@@ -111,13 +116,18 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   then write the row. Never tag the baseline rows — leave their `Surface` blank.
 
 ## `Setups` DB — one row per setup
-- **Meta:** `Name` (title), `Car` (**Select**), `Stage` (**Select**),
-  `Surface` (**Select**, options `Tarmac` / `Gravel` / `Snow`), `Game version`, `Date`,
-  `Source` (`generated` | `imported`), `Mode` (`learn` | `independent`),
+- **Meta:** `Name` (title), `Car` (**Select**), `Location` (**Select**, optional), `Stage`
+  (**Select**, optional), `Surface` (**Select**, options `Tarmac` / `Gravel` / `Snow`),
+  `Game version`, `Date`, `Source` (`generated` | `imported`), `Mode` (`learn` | `independent`),
   `Rating` (**Select**, options `1`–`5`, higher = better; **blank = unrated**), `Notes`,
-  **`Learn from this`** (checkbox), `Model/effort` (**Select**). Make `Car`, `Stage`, and
-  `Surface` **Select** (not plain text) so they render as **tags/pills** in the table — `Car`
+  **`Learn from this`** (checkbox), `Model/effort` (**Select**). Make `Car`, `Location`, `Stage`,
+  and `Surface` **Select** (not plain text) so they render as **tags/pills** in the table — `Car`
   mirrors the `Parameters` DB's `Car` select, and `Surface` its `Tarmac`/`Gravel`/`Snow` options.
+  **`Location` and `Stage` are both optional and independently blankable** — a setup may name
+  neither (an arbitrary build with no place context, e.g. "drift setup, tarmac"), a `Location`
+  only, or both. A setup's **driving intent / conditions are not a column** — they live in the
+  setup's own page-body summary (see *Mobile conventions* below); `Location`/`Stage` carry only
+  the place reference, never style or goals.
   **`Model/effort`** is also a **Select** (renders as a tag) — format `{model}/{effort}`, e.g.
   `Sonnet 4.6/normal` or `Opus 4.8/high`; give the column the description *"Which model and
   effort level built this setup (e.g. Sonnet 4.6/normal). Blank for imported setups."* **Blank
@@ -149,8 +159,8 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
 ## Setups column order — driven by the per-parameter `Order`
 
 The display order of the `Setups` DB's **value columns** — and of every setup projection (the table
-view, the per-car/per-stage linked views, the page-body justification toggle, the share snippet, and
-exported templates) — is governed by each parameter's **`Order`** number in the `Parameters` catalog,
+view, the per-car / per-location / per-stage linked views, the page-body justification toggle, the
+share snippet, and exported templates) — is governed by each parameter's **`Order`** number in the `Parameters` catalog,
 **not** by the order columns were created. Notion never reorders columns from row data, and SQL-DDL
 schema insertion order does not reliably drive the rendered table — the lever is the view's **`SHOW`**
 directive (see *Applying the order* below).
@@ -158,7 +168,7 @@ directive (see *Applying the order* below).
 **Comparator.** Sort value columns by their parameter's **`Order` ascending**. A column whose
 parameter has no `Order` falls back to `section_block + 990` (the end of its section), then by
 `Adjustment` name. **Meta columns always come first**, before any value column, in this order:
-`Name`, `Car`, `Stage`, `Surface`, `Date`, `Source`, `Mode`, `Rating`, `Learn from this`,
+`Name`, `Car`, `Location`, `Stage`, `Surface`, `Date`, `Source`, `Mode`, `Rating`, `Learn from this`,
 `Game version`, `Notes`, `Model/effort`.
 
 **Ties are fine — never an error.** If two parameters share the same `Order` (e.g. after a manual
@@ -239,18 +249,23 @@ next run, with no migration:
 3. Push it with the view **`SHOW`** directive (`notion-update-view`, or set it via the `configure`
    string when first creating the view):
    - **main `Setups` table view** → `SHOW` all meta + all value columns in order;
-   - **per-car / per-stage linked views** → `SHOW` the **full meta set (including `Model/effort`) +
-     only that car's applicable value columns** in order — this orders the columns **and** hides the
-     blank ones in a single step. The meta set is the **same** as the main table; only *value*
-     columns are filtered to the car's applicable ones. Because this is re-asserted on every append,
-     projections created before a meta column existed (e.g. `Model/effort`) **self-heal** — the
-     column appears on the car/stage page views on the next build/tweak/review.
+   - **per-car linked view** (on the `{Car}` page, filtered `Car = "{Car}"`) → `SHOW` the **full
+     meta set (including `Model/effort`) + only that car's applicable value columns** in order —
+     this orders the columns **and** hides the blank ones in a single step. The meta set is the
+     **same** as the main table; only *value* columns are filtered to the car's applicable ones.
+   - **per-location / per-stage linked views** (on `{Location}` / `{Stage}` pages, filtered by
+     `Location` / `Stage` only — **not** `Car`, since many cars can share a place) → `SHOW` the
+     **same full meta set + all value columns in order**, same as the main table (no per-car
+     filtering of value columns, since rows under one stage may span multiple cars).
+   Because this is re-asserted on every append, projections created before a meta column existed
+   (e.g. `Model/effort`) **self-heal** — the column appears on the car/location/stage page views
+   on the next build/tweak/review.
 
 This step re-asserts `SHOW` on a view that **already exists**. Creating the linked-view *block* in
 the first place is a separate operation — see *Creating an inline linked view* below
 (`notion-create-view` with `parent_page_id`); never express a linked view as page markdown.
 
-## Car & stage pages
+## Car page
 
 **`{Car}` page layout (top to bottom):**
 1. **Car identity facts** on the page (stored the same way as each other, near the top):
@@ -265,7 +280,7 @@ the first place is a separate operation — see *Creating an inline linked view*
    layout / weight bias / weight are populated during onboarding (see `onboard-car.md`); the user
    may overwrite any of them at any time.
 2. **H2 "Setups"** heading — immediately followed by the `Setups[Car=this]` filtered linked
-   view (hide blank columns). Stage sub-pages are nested here so they appear near the view.
+   view (hide blank columns).
 3. **H2 "Guidelines"** heading — free-text car-specific preferences (seeded as a stub,
    tone per `tuning-guidelines-template.md`).
 
@@ -275,8 +290,39 @@ it is **not** inlined on the car page body to keep the page short.
 **Always create content in this order** when seeding or updating the `{Car}` page — the
 Setups section must appear before Guidelines so it is the first thing visible on mobile.
 
-- **`{stage}` page** — the stage description + driving style, plus a `Setups[Car, Stage]`
-  filtered view. Nested under the car page's "Setups" section.
+**The car page never holds stage sub-pages.** Stage and location facts live in the shared
+catalogue below, not nested under any one car — a stage is referenced by `Stage` (and `Location`)
+tags on `Setups` rows, never duplicated per car.
+
+## Locations & stages catalogue — shared, immutable facts
+
+A **stage is reference data, not per-car content**: its road, surface, length, and corners don't
+change depending on which car drives it. So locations and stages live **once**, centrally, under
+the game page, and any number of `Setups` rows (any car) reference them by name via the `Location`
+/ `Stage` select tags. **Stage/location pages hold objective facts only — never guidelines,
+driving style, or per-build conditions** (those live on the setup itself; see `build-setup.md`
+and *Mobile conventions* below).
+
+```
+Locations (page)            catalogue parent — created on first reference, under {Game}
+└── {Location} (page)       e.g. Monte Carlo — region/character facts
+    └── {Stage} (page)      e.g. Col de Turini — surface, length, key corners/speeds, character
+```
+
+- **`{Location}` page** — free-text facts about the place (region, typical conditions/character),
+  plus a `Setups[Location=this]` filtered linked view (no `Car` filter — shows every car's setups
+  at this location).
+- **`{Stage}` page** — free-text facts about the specific stage: **surface** (Tarmac/Gravel/Snow),
+  approximate length, key corners/speeds, and general character (fast/flowing, tight/technical,
+  rough/smooth). Plus a `Setups[Stage=this]` filtered linked view (no `Car` filter).
+- **Create-if-missing, resolve by name:** when a setup names a location/stage that doesn't exist
+  yet, create the `{Location}` page (if missing) under `Locations`, then the `{Stage}` page (if
+  missing) under it, from the facts the user gives (or asks for) — see `build-setup.md` step 7.
+  When the same stage is referenced again (any car), reuse the existing page — **never create a
+  second stage page for the same name.**
+- **A setup may reference a `Location` and/or `Stage`, or neither** — both are optional, blankable
+  tags. An arbitrary build with no place context (e.g. "drift setup for the Stratos, tarmac") is
+  valid and leaves both blank.
 
 ### Creating an inline linked view
 A "filtered linked view" is a Notion **linked database view**, created with the
@@ -292,13 +338,15 @@ and column order:
 - **`{Car}` page** → `FILTER "Car" = "{Car}"; SHOW <all meta columns first (the full meta set,
   including `Model/effort`), then this car's value columns by `Order`>` — `SHOW` both orders the
   columns and hides the ones it omits (blank per-car columns).
-- **`{stage}` page** → `FILTER "Car" = "{Car}"; FILTER "Stage" = "{stage}"; SHOW <…>` — multiple
-  `FILTER` directives are **ANDed**.
+- **`{Location}` page** → `FILTER "Location" = "{location}"; SHOW <full meta + all value columns
+  by Order>` — no `Car` filter, since many cars may share a location.
+- **`{Stage}` page** → `FILTER "Stage" = "{stage}"; SHOW <full meta + all value columns by
+  Order>` — no `Car` filter, same reasoning.
 
 **Positioning matters.** `notion-create-view(parent_page_id=…)` **appends the linked-view block to
 the end of the page**, so sequence the operations:
 1. Write the page markdown first — identity facts + the **H2 "Setups"** heading (`{Car}` page), or
-   the stage description (`{stage}` page).
+   the facts (`{Location}` / `{Stage}` page).
 2. **Then** `notion-create-view` — the view lands right after that heading/description.
 3. **Then** append any trailing markdown (e.g. the `{Car}` page's **H2 "Guidelines"** stub).
    Never add the trailing section before the view, or the view ends up below it.
@@ -309,9 +357,13 @@ instead of appending a duplicate.
 
 ## `Tuning guidelines` page
 Global user preferences, seeded from `tuning-guidelines-template.md`
-(General style / Likes-Dislikes / Per surface). Part of the layered model in
-[setup-tuning-principles.md](setup-tuning-principles.md): base (repo) → global → surface →
-per-car → stage.
+(General style / Likes-Dislikes / Per surface). The page's **"Per surface" section** *is* the
+**surface** layer of the model below — there is no separate per-surface store. Part of the
+layered model in [setup-tuning-principles.md](setup-tuning-principles.md): base (repo) → global →
+surface → per-car → **the setup's own driving intent** (most specific). Location/stage facts are
+**not** a guideline layer — they're objective inputs (surface, corners) read from the catalogue
+above. More-specific is the default lean; a **material conflict between authored layers (global,
+surface, per-car, intent) is surfaced to the user to resolve, not auto-picked.**
 
 ## Mobile conventions (pages are read on a phone, in-game)
 
@@ -320,10 +372,11 @@ Users often read these pages on a **phone while playing**, so:
   desktop task on the wide table view).
 - Each generated setup's **page body** has two sections, in this order:
   1. **Brief setup summary** — always visible (not inside a toggle): an **H2 heading** with the
-     setup name, followed by 3–5 bullets covering stage/surface/conditions, tyre choice, the key
-     guidelines applied (citing user guidelines by name), and what prior setups contributed (or
-     "no prior setups used" if none). Mirrors what the chat report says, stored permanently for
-     quick on-phone reference.
+     setup name, followed by 3–5 bullets covering location/stage/surface, **the driving
+     intent/conditions for this build** (its only home — there's no `Setups` column for it), tyre
+     choice, the key guidelines applied (citing user guidelines by name), and what prior setups
+     contributed (or "no prior setups used" if none). Mirrors what the chat report says, stored
+     permanently for quick on-phone reference.
   2. **Per-parameter justification** — grouped by section (Gearbox → Suspensions → Dampers →
      Axles → Differentials → Wheels/Tyres → Brakes → Electronics & Aerodynamics, Front before
      Rear), inside a **toggle** so it's collapsible. Ordered by each parameter's **`Order`** (see
