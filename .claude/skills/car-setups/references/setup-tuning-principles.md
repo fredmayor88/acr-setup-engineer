@@ -233,12 +233,13 @@ the car skippy. Tune ARBs **last**, for fine rotation, after springs/dampers are
 
 ### Differential (LSD)
 
-ACR uses a **ramp** system. `[All]` **Lower ramp angle = more lock.** The **power ramp** acts
-under acceleration (exit), the **coast ramp** under deceleration/lift (entry). More lock = more
-traction and stability but less turn-in (it forces both wheels toward the same speed); more
-open = better cornering but less drive on low grip. **Preload** = a baseline lock present before
-any wheel-speed difference (proactive traction on loose patches). **Plates** scale the locking
-strength (more plates = stronger lock).
+ACR uses a **ramp** system. `[All]` **Lower ramp angle = more lock** — so a **30°** ramp locks
+more than a **45°** ramp; the lower number is the more aggressive/locked setting. The **power
+ramp** acts under acceleration (exit), the **coast ramp** under deceleration/lift (entry). More
+lock = more traction and stability but less turn-in (it forces both wheels toward the same
+speed); more open = better cornering but less drive on low grip. **Preload** = a baseline lock
+present before any wheel-speed difference (proactive traction on loose patches). **Plates** scale
+the locking strength (more plates = stronger lock).
 
 Drivetrain:
 - `[RWD]` a locked rear on power → spin/oversteer; tune power ramp/preload for traction vs snap.

@@ -26,7 +26,8 @@ you need to load data.
 Decide what to load **before** answering:
 
 - **Conceptual** ("what does X do?", "basic rules for ARBs/diffs?", "why would I run more
-  preload?") → no Notion needed. Go to §2.
+  preload?", "which of these two values is more locked — 45/45 or 30/30?") → no Notion needed. Go
+  to §2.
 - **Setup-specific** ("why is X set like that in setup S?") → load the one setup from Notion. Go
   to §3.
 - **Comparison** ("why is X stiffer in setup A than setup B?", "what's different between A and
@@ -42,6 +43,14 @@ Answer from `setup-tuning-principles.md`:
   from the relevant *Parameters* subsection (e.g. *Axles — anti-roll bars* for ARBs, *Differential
   (LSD)* for diffs). When the user asks specifically what a setting *does in the game*, quote or
   paraphrase the verbatim **In-game parameter definitions** section (authoritative ACR text).
+- **Factual claims about ACR game mechanics — verify, don't recall.** Any question that resolves
+  to a concrete fact about what a setting does or which direction it pushes (e.g. "which is more
+  locked, a 45/45 or 30/30 LSD ramp?", "does a higher master-cylinder value brake harder or
+  softer?", "is positive toe toe-in or toe-out?") must be answered by **checking the relevant line
+  in `setup-tuning-principles.md` / its In-game parameter definitions**, not from memory — these
+  conventions vary between games and are easy to invert. Example: for the LSD ramp question, the
+  base states **"Lower ramp angle = more lock"** — so a **30/30** ramp is more locked than a
+  **45/45** one; answer by citing that line, not by asserting it unsourced.
 - **"Basic rules for X?"** → give the heuristics: the *Balance cheat-sheet (which way to push)*,
   the *General rule* ("stiffer where you want less grip/more response; softer where you want more
   grip/compliance"), and the *Workflow / methodology* ordering (tyre first → survival before
