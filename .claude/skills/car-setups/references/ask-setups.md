@@ -57,7 +57,9 @@ Answer from `setup-tuning-principles.md`:
   balance → start soft → change a few things at a time → diff + brake bias give the most change).
 - **Drivetrain filter** — apply it **only if the question names a car or drivetrain**. Otherwise
   explain the universal `[All]` effect and then note where FWD/RWD/AWD diverge (e.g. a locked
-  front diff means understeer on FWD; a locked rear means power-oversteer on RWD). Don't hide the
+  front diff means understeer on FWD; a locked rear means power-oversteer on RWD **on grip**, but
+  steadies a loose/wandering rear at/over the limit on low grip — the direction flips with grip
+  regime, see *Differential (LSD)* in `setup-tuning-principles.md`). Don't hide the
   drivetrain-specific nuance just because no car was named.
 - **User guidelines** — if the question is about *how to tune* and the user has a global
   `Tuning guidelines` page that speaks to it, fold that in and flag that their own preference

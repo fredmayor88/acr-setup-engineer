@@ -229,9 +229,10 @@ or not in the mood? No worries — skip it; everything still works.
 
 - **Assetto Corsa Rally is in early access** — tyre compounds and some settings change between
   builds. Treat the guidance as a strong starting point and verify in-game.
-- Tuning advice is distilled from community guides and physics; it's not guaranteed to be the
-  fastest for you — your own ratings and notes are what make it personal. Sources include (among
-  others): [SETUPS para Assetto Corsa Rally (ACR) EXPLICADO](https://www.youtube.com/watch?v=0aseHRowyVs),
+- Tuning advice is distilled from community guides, physics, and the author's own in-game and
+  real-life experience; it's not guaranteed to be the fastest for you — your own
+  ratings and notes are what make it personal. Sources include (among others):
+  [SETUPS para Assetto Corsa Rally (ACR) EXPLICADO](https://www.youtube.com/watch?v=0aseHRowyVs),
   [The ULTIMATE Setup Guide for EA SPORTS WRC | Every Setting Explained](https://www.youtube.com/watch?v=dIEXCHuT72U),
   [Assetto Corsa Rally SETUP GUIDE - SUSPENSIONS Explained](https://www.youtube.com/watch?v=N0W4iptyQVo).
 

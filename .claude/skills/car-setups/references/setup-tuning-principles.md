@@ -68,8 +68,9 @@ tagged lines.
 | More stability / less oversteer | stiffer spring, stiffer ARB | softer spring, softer ARB, more toe-in |
 | More braking rotation | — | shift brake bias rearward |
 | More braking stability | shift brake bias forward | — |
-| More on-power traction `[RWD/AWD]` | — | more LSD lock (lower power-ramp angle / more plates / more preload) |
-| More on-power rotation `[RWD/AWD]` | — | less LSD lock |
+| More on-power traction, on grip `[RWD/AWD]` | — | more LSD lock (lower power-ramp angle / more plates / more preload) |
+| More on-power rotation, on grip `[RWD/AWD]` | — | less LSD lock (higher power-ramp angle) |
+| Rear feels loose/wandering through throttle modulation at/over the limit (e.g. drifting on low grip) `[RWD/AWD]` | — | more LSD lock — **preload first** (raise preload), then more power-ramp lock if still loose. Do not reduce lock — see *Differential (LSD)* below |
 | More corner-entry rotation | — | higher coast-ramp angle / less preload |
 
 General rule `[All]`: **stiffer where you want less grip/more response; softer where you want
@@ -241,8 +242,40 @@ speed); more open = better cornering but less drive on low grip. **Preload** = a
 present before any wheel-speed difference (proactive traction on loose patches). **Plates** scale
 the locking strength (more plates = stronger lock).
 
+`[RWD/AWD]` **On-power lock vs. rotation flips with grip regime — don't apply one rule blind.**
+- **On grip (tarmac, good traction):** more rear power lock ties the wheels into one unit and
+  raises total rear thrust, so it's easier to break the whole rear loose → **more lock = more
+  power-oversteer / snap**; less lock = calmer, more controllable power delivery. This is the
+  regime the in-game **Plates** description and the RWD note below speak to.
+- **At or beyond the limit (low grip — snow/ice, drifting, throttle modulation past peak grip):**
+  the wheels are already slipping, so locking them ties them into one **predictable, catchable**
+  slide; an **open** diff lets one rear wheel spin/grip independently of the other, which is what
+  makes the rear feel loose and prone to swinging past the front. Here → **more lock = more
+  stability**, less lock = more freedom/unpredictability. Don't reach for "less lock" just because
+  the rear feels too free — check which regime you're in first.
+
+**Preload vs. power ramp — match the lever to the throttle regime.** Preload is the lock present
+at **low/zero torque**, so it governs **throttle transitions, on/off modulation, trailing
+throttle, and proactive traction on loose patches**; the power ramp governs **sustained
+acceleration**. A rear that wanders or steps out **during drift-style throttle modulation on loose
+surfaces** is a **preload** problem first — raise preload before touching the power ramp. A rear
+that only breaks loose under **hard, sustained** power is a power-ramp problem. If it's unclear
+from the driver's description which regime applies, **ask** (modulating through a slide on snow,
+or a sudden snap when the throttle is pinned on grippy tarmac?) rather than guessing a lock
+direction — the correct move is opposite in each case.
+
+**Diagnostic — "rear swings around / overtakes the front on throttle":**
+- Drift-style / low grip, happens while **modulating** throttle → **raise preload** first; if
+  still loose under power, **add lock** (lower the power-ramp angle). Do **not** reduce lock —
+  that adds the freedom that caused the swing.
+- High grip, the rear **snaps** when it suddenly bites under **hard** power → **reduce lock**
+  (raise the power-ramp angle) — the opposite move.
+- If the report doesn't make the regime clear, ask before recommending a direction.
+
 Drivetrain:
-- `[RWD]` a locked rear on power → spin/oversteer; tune power ramp/preload for traction vs snap.
+- `[RWD]` a locked rear on power, **on grip** → spin/oversteer; tune power ramp/preload for
+  traction vs snap. **On low grip**, more lock instead steadies a loose/wandering rear — see the
+  grip-regime note above.
 - `[FWD]` a heavily locked **front** diff → understeer, but it's safe to lock for traction.
 - `[AWD]` the **centre diff** splits torque front/rear: rearward bias → more rotation / less
   understeer, forward → stability. Keep the **front diff** freer for rotation; tune the **rear**
