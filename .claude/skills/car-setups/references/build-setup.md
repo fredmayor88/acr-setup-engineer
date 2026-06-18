@@ -20,7 +20,8 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
   bumps, conditions). This is part of the **build request itself**, not read off a stage page —
   the same stage can back many setups with different intents. If the user doesn't give one,
   ask briefly rather than guessing.
-- **Setup name** (e.g. `alsace gpt1`).
+- **Setup name** (e.g. `alsace gpt1`) — **≤15 chars**, the in-game limit; compact a longer
+  proposed/requested name to fit (per `SKILL.md` core rules) and tell the user the name used.
 - **Mode** — `learn` (default) or `independent`.
 - **Surface override** (optional) — if the user names a surface ("build a gravel setup", "use
   tarmac settings/parameters", "treat this as snow"), it **overrides the stage's stated surface for

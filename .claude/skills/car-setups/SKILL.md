@@ -95,6 +95,13 @@ Bundled tools (stdlib Python, run via code execution):
   `build-setup.md`.)
 - **The tool is the source of truth for validity** (Notion can't hard-enforce ranges) —
   validate every value before writing.
+- **Setup names ≤ 15 characters.** The in-game name field caps at 15 characters, so every
+  `Setups` row `Name` must be **≤15 chars**. Keep default/generated names within the limit. When a
+  proposed or user-requested name is longer, **automatically compact it** to fit — drop spaces,
+  abbreviate words, trim filler — keeping it recognizable (e.g. `Alsace tarmac GPT v1` →
+  `Alsace tar v1`), and **state the name you used** in one line so the user can object. Only write
+  a name longer than 15 chars if the user, after seeing the compacted version, **explicitly
+  insists** on the longer one.
 - **Mobile-first output.** The user reads setups on a phone while in-game: each generated
   setup's Notion page leads with an **"Enter in-game" checklist** (values grouped by setup
   screen), with the justification in a **toggle** below. No wide tables in page bodies; short

@@ -18,7 +18,9 @@ base) before starting.
   on entry"*, *"too stiff on bumps"*, *"needs more mid-corner rotation"*, or even a direct
   request like *"soften the front ARB by one step"*.
 - **New setup name** — only needed **at save time** (step 7). Defaults to `{source name} v2`
-  (increment if v2 already exists, etc.).
+  (increment if v2 already exists, etc.) — the full name including the `vN` suffix must stay
+  **≤15 chars** (the in-game limit); compact the base name first if the suffix would overflow it
+  (per `SKILL.md` core rules).
 
 ## Procedure
 
@@ -101,7 +103,8 @@ When the user asks to save (and not before):
 - **Validate** every value in the working setup against the catalog for the build surface
   (surface-resolved range — `Snow` falls back to `Gravel`, then baseline): discrete picks must be
   in `Discrete steps`; continuous picks within `Min..Max`. Fix any violation before writing.
-- Confirm/derive the **new setup name** (default `{source} v2`, increment if taken).
+- Confirm/derive the **new setup name** (default `{source} v2`, increment if taken) — **≤15
+  chars** including the suffix; compact the base name first if needed.
 - Create **one new row** in `Setups` DB (never modify or delete the source row or its page):
   - Copy every value property from the source; overwrite the parameters changed across the session
     with the final working values.

@@ -55,7 +55,9 @@ game, tell the user to onboard the car via screenshots (`onboard-car.md`) and bu
    that the value is wrong). **`TyreType` values must be written fully-qualified** (e.g.
    `Tarmac Snow`, `Snow (Studs)`) — if the save or catalog holds an ambiguous legacy name (bare
    `Snow`, `Gravel`, `Dry Tarmac`), map it to its canonical ACR name before writing; if it can't
-   be disambiguated confidently, flag it for the user instead of guessing. Then add one new
+   be disambiguated confidently, flag it for the user instead of guessing. Parsed names come from
+   the in-game field and are already **≤15 chars**; if one somehow exceeds it, compact it before
+   writing (per `SKILL.md` core rules). Then add one new
    `Setups` row per setup: `Name`, `Car`, `Location`/`Stage` (if a `track` maps to one in the
    `Locations` catalogue, else leave both blank — **never fabricate a stage facts page** from an
    import), `Surface`, `Game version`, `Date`, `Source = imported`, **`Learn from this` =
