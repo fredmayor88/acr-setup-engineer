@@ -1,0 +1,344 @@
+car: "Citroen Xsara WRC 2003"
+game: "ACR"
+drivetrain: "AWD"
+engine_layout: "front transverse turbocharged inline-4 (2.0L), ahead of the front axle"
+weight_bias: "~60% front / ~40% rear"
+weight: "~1,230 kg"
+version: "0.4"
+parameters:
+  - section: "Gearbox"
+    adjustment: "Gear Set"
+    order: 1010
+    min: 1
+    max: 5
+    unit: ""
+    discrete_steps: ""
+
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Front"
+    order: 2010
+    min: 0.0000
+    max: 0.2500
+    unit: "m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Front"
+    order: 2020
+    min: 27500
+    max: 62500
+    unit: "N/m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Adjuster Ring Rear"
+    order: 2030
+    min: 0.0000
+    max: 0.2500
+    unit: "m"
+    discrete_steps: ""
+  - section: "Suspensions"
+    adjustment: "Spring Stiffness Rear"
+    order: 2040
+    min: 30000
+    max: 60000
+    unit: "N/m"
+    discrete_steps: ""
+
+  - section: "Dampers"
+    adjustment: "Slow Bump Front"
+    order: 3010
+    min: 2500
+    max: 6750
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Rebound Front"
+    order: 3020
+    min: 3000
+    max: 12750
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Bump Front"
+    order: 3030
+    min: 2250
+    max: 6250
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Rebound Front"
+    order: 3040
+    min: 2500
+    max: 12250
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Bump Rear"
+    order: 3050
+    min: 2250
+    max: 6500
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Slow Rebound Rear"
+    order: 3060
+    min: 2750
+    max: 10250
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Bump Rear"
+    order: 3070
+    min: 2000
+    max: 6250
+    unit: "Ns/m"
+    discrete_steps: ""
+  - section: "Dampers"
+    adjustment: "Fast Rebound Rear"
+    order: 3080
+    min: 2000
+    max: 9750
+    unit: "Ns/m"
+    discrete_steps: ""
+
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Front"
+    order: 4010
+    min: 6500
+    max: 27500
+    unit: "N/m"
+    discrete_steps: ""
+  - section: "Axles"
+    adjustment: "Anti-roll Bar Stiffness Rear"
+    order: 4020
+    min: 2500
+    max: 22500
+    unit: "N/m"
+    discrete_steps: ""
+
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Front"
+    order: 5010
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "60/70, 45/55"
+  - section: "Differentials"
+    adjustment: "LSD Preload Front"
+    order: 5020
+    min: 0.0
+    max: 200.0
+    unit: "Nm"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Plates Number Front"
+    order: 5030
+    min: 2
+    max: 6
+    unit: ""
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Center Ratio to Rear"
+    order: 5034
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "39//24, 35//28"
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Center"
+    order: 5036
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "50/60, 35/50"
+  - section: "Differentials"
+    adjustment: "LSD Preload Center"
+    order: 5037
+    min: 0.0
+    max: 500.0
+    unit: "Nm"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Plates Number Center"
+    order: 5038
+    min: 2
+    max: 8
+    unit: ""
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Rear"
+    order: 5040
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "55/90, 45/55"
+  - section: "Differentials"
+    adjustment: "LSD Preload Rear"
+    order: 5050
+    min: 0.0
+    max: 250.0
+    unit: "Nm"
+    discrete_steps: ""
+  - section: "Differentials"
+    adjustment: "Plates Number Rear"
+    order: 5060
+    min: 2
+    max: 6
+    unit: ""
+    discrete_steps: ""
+
+  - section: "Wheels"
+    adjustment: "Tyre Type"
+    order: 6010
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)"
+  - section: "Wheels"
+    adjustment: "Pressure Front"
+    order: 6020
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Camber Front"
+    order: 6030
+    min: -4.5
+    max: 1.0
+    unit: "°"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Toe Front"
+    order: 6040
+    min: -0.0100
+    max: 0.0100
+    unit: "m"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Pressure Rear"
+    order: 6050
+    min: 10.0
+    max: 45.0
+    unit: "psi"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Camber Rear"
+    order: 6060
+    min: -4.5
+    max: 1.0
+    unit: "°"
+    discrete_steps: ""
+  - section: "Wheels"
+    adjustment: "Toe Rear"
+    order: 6070
+    min: -0.0100
+    max: 0.0100
+    unit: "m"
+    discrete_steps: ""
+
+  - section: "Brakes"
+    adjustment: "Brake Discs Front"
+    order: 7010
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "310/206X30 B TYPE1, 310/206X32 B TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Calipers Front"
+    order: 7020
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "4X41.3 TYPE1, 4X38.1/44.4 TYPE3"
+  - section: "Brakes"
+    adjustment: "Brake Pads Front"
+    order: 7030
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
+    adjustment: "Front Bias"
+    order: 7040
+    min: 0.250
+    max: 0.750
+    unit: "ratio"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Front Cylinder"
+    order: 7050
+    min: 15.88
+    max: 25.4
+    unit: "mm"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Rear Cylinder"
+    order: 7060
+    min: 15.88
+    max: 25.4
+    unit: "mm"
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Handbrake Force"
+    order: 7070
+    min: 0.50
+    max: 1.50
+    unit: ""
+    discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Brake Discs Rear"
+    order: 7080
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "310/206X26 B TYPE1, 310/218X30 B TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Calipers Rear"
+    order: 7090
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "4X31.8 TYPE1, 4X31.8/34.9 TYPE1"
+  - section: "Brakes"
+    adjustment: "Brake Pads Rear"
+    order: 7100
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+
+  - section: "Electronics"
+    adjustment: "Additional Lights"
+    order: 8005
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "ON"
+  - section: "Electronics"
+    adjustment: "ABS Map"
+    order: 8010
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "TCS Map"
+    order: 8020
+    min: 1
+    max: 3
+    unit: ""
+    discrete_steps: ""
+  - section: "Electronics"
+    adjustment: "Engine Map"
+    order: 8030
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "0, 1"
+  - section: "Electronics"
+    adjustment: "Throttle Map"
+    order: 8040
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "1, 2"
