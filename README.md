@@ -207,6 +207,17 @@ project and opens the contribution for you. No command line, no tokens, nothing 
 just needs a **free GitHub account**. Already have one? It'd be a great way to give back. Don't,
 or not in the mood? No worries — skip it; everything still works.
 
+
+## Building locally
+
+```
+git clone https://github.com/fredmayor88/car-setups.git
+make test
+make zip 
+make check-zip
+```
+
+
 ## Troubleshooting
 
 - **Claude doesn't use the skill** → start a fresh chat; make sure **Skills** and **Code
