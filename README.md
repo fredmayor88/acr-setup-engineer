@@ -16,7 +16,9 @@ share it, and import what you already have. You can also ask questions about gen
    how you like the car to feel; it writes a setup constrained to what the car actually allows,
    with the full reasoning behind every choice saved to your Notion so you can read it on your
    phone while you play. Stages are saved once to a reusable catalogue, so the same stage backs
-   any number of setups across any cars without re-describing it each time.
+   any number of setups across any cars without re-describing it each time. You can also point it
+   at an existing setup to use as a starting point — even one from a different car, where it
+   transfers the *feel* rather than the raw numbers and re-derives every value for the new car.
 3. **Tweaks on your feedback** — describe what felt wrong after a run and it targets exactly the
    right parameters and proposes a minimal set of changes, right in the chat. Refine as many times
    as you like; when you're happy, ask it to save and it writes a new setup row — the original is
