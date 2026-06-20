@@ -27,7 +27,7 @@ parameters:
     min: 27500
     max: 62500
     unit: "N/m"
-    discrete_steps: ""
+    discrete_steps: "27500, 32500, 37500, 42500, 47500, 52500, 57500, 62500"
   - section: "Suspensions"
     adjustment: "Adjuster Ring Rear"
     order: 2030
@@ -41,7 +41,7 @@ parameters:
     min: 30000
     max: 60000
     unit: "N/m"
-    discrete_steps: ""
+    discrete_steps: "30000, 35000, 40000, 45000, 50000, 55000, 60000"
 
   - section: "Dampers"
     adjustment: "Slow Bump Front"
@@ -121,7 +121,7 @@ parameters:
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "60/70, 45/55"
+    discrete_steps: "60/70, 55/60, 45/55"
   - section: "Differentials"
     adjustment: "LSD Preload Front"
     order: 5020
@@ -142,14 +142,14 @@ parameters:
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "39//24, 35//28"
+    discrete_steps: "39//24, 39//25, 38//25, 38//26, 37//26, 36//26, 35//26, 35//27, 34//27, 35//28"
   - section: "Differentials"
     adjustment: "LSD Power/Coast Ramp Center"
     order: 5036
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "50/60, 35/50"
+    discrete_steps: "50/60, 40/55, 35/50"
   - section: "Differentials"
     adjustment: "LSD Preload Center"
     order: 5037
@@ -170,7 +170,7 @@ parameters:
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "55/90, 45/55"
+    discrete_steps: "55/90, 55/75, 45/55"
   - section: "Differentials"
     adjustment: "LSD Preload Rear"
     order: 5050

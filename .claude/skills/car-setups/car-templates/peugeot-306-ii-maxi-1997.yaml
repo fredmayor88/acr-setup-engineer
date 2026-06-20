@@ -27,14 +27,14 @@ parameters:
     min: 40000
     max: 120000
     unit: "N/m"
-    discrete_steps: ""
+    discrete_steps: "40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000"
   - section: "Suspensions"
     adjustment: "Spring Stiffness Front"
     order: 2020
     min: 25000
     max: 60000
     unit: "N/m"
-    discrete_steps: ""
+    discrete_steps: "25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000"
     surface: "Gravel"
   - section: "Suspensions"
     adjustment: "Adjuster Ring Rear"
@@ -49,14 +49,14 @@ parameters:
     min: 40000
     max: 120000
     unit: "N/m"
-    discrete_steps: ""
+    discrete_steps: "40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000"
   - section: "Suspensions"
     adjustment: "Spring Stiffness Rear"
     order: 2040
     min: 25000
     max: 60000
     unit: "N/m"
-    discrete_steps: ""
+    discrete_steps: "25000, 30000, 35000, 40000, 45000, 50000, 55000, 60000"
     surface: "Gravel"
 
   - section: "Dampers"
@@ -137,14 +137,14 @@ parameters:
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "68//12, 65//19"
+    discrete_steps: "68//12, 67//12, 66//12, 65//12, 70//13, 69//13, 68//13, 61//12, 59//12, 53//11, 67//14, 57//12, 52//11, 51//11, 69//15, 55//12, 50//11, 67//15, 49//11, 62//14, 48//11, 64//15, 68//16, 67//16, 50//12, 61//15, 65//16, 77//19, 67//17, 63//16, 61//16, 49//13, 59//16, 66/18, 61//17, 59//17, 48//14, 65//19"
   - section: "Differentials"
     adjustment: "LSD Power/Coast Ramp Front"
     order: 5010
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "45/45, 30/90"
+    discrete_steps: "45/45, 45/90, 30/45, 30/90"
   - section: "Differentials"
     adjustment: "LSD Preload Front"
     order: 5020
