@@ -198,6 +198,28 @@ The skill ships with community-contributed parameter templates in `car-templates
 onboarding a car that has a template, all parameters (including pre-filled `Discrete steps`)
 are loaded from the template — no screenshots needed.
 
+**Pre-bundled cars.** Parameter templates are bundled for the cars below, so you can onboard any of
+them in one command — no screenshots — and then build **Assetto Corsa Rally (ACR) setups** for
+them tuned to your style. Want to build an *ACR setup for* a specific car, or generate *Assetto
+Corsa Rally setups* in general? Start here:
+
+- **Alfa Romeo GTA 1300 Junior** (1972) — RWD
+- **Alpine A110 1.8** (1973) — RWD
+- **Citroën Xsara WRC** (2003) — AWD
+- **Fiat 124 Abarth Rally 16V** (1974) — RWD
+- **Hyundai i20 Rally2** (2021) — AWD
+- **Lancia 037 Evoluzione 2** (1984) — RWD
+- **Lancia Delta Integrale Evoluzione** (1992) — AWD
+- **Lancia Fulvia Coupé HF** (1970) — FWD
+- **Lancia Stratos HF** (1976) — RWD
+- **Mini Cooper S** (1964) — FWD
+- **Peugeot 306 II Maxi** (1997) — FWD
+- **Skoda Fabia RS Rally2** (2022) — AWD
+- **Subaru Impreza 555 (S3)** (1993) — AWD
+
+Don't see your car? Onboard it from screenshots (see [Quick start](#quick-start)) and — if you
+like — contribute the template back so the next driver gets it for free.
+
 **Contribute your car (optional, but lovely).** If you onboarded a car from screenshots, it's
 not in the shared library yet — sharing it saves the next driver the whole screenshot process.
 Once onboarded, say *"Export a template for the Lancia Stratos"* and Claude formats the car's
