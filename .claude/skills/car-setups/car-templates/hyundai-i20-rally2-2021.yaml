@@ -122,14 +122,14 @@ parameters:
     min: 1500
     max: 6000
     unit: "N/m"
-    discrete_steps: ""
+    discrete_steps: "1500, 2000, 2500, 3000, 3500, 4000, 4500, 5000, 5500, 6000"
   - section: "Axles"
     adjustment: "Anti-roll Bar Stiffness Rear"
     order: 4020
     min: 8000
     max: 25000
     unit: "N/m"
-    discrete_steps: ""
+    discrete_steps: "8000, 10000, 12500, 15000, 17500, 20000, 22500, 25000"
 
   - section: "Differentials"
     adjustment: "LSD Power/Coast Ramp Front"
