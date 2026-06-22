@@ -110,13 +110,15 @@ When the user asks to save (and not before):
     with the final working values.
   - Set: `Name`, `Car`, `Location` (if the source/feedback names one), `Stage` (likewise),
     `Surface`, `Source = generated`, `Mode` (inherit source mode, default `learn`), `Date` = today,
-    and **`Model/effort`** (your current model + `/` + effort, e.g. `Sonnet 4.6/normal` — do
-    **not** copy from the source; this records the model that ran *this* refinement). Leave
+    **`Model/effort`** (your current model + `/` + effort, e.g. `Sonnet 4.6/normal` — do
+    **not** copy from the source; this records the model that ran *this* refinement), and
+    **`Skill version`** (per `SKILL.md` → *Skill version* — do not copy from the source; this
+    records the skill version that ran *this* refinement). Leave
     **`Learn from this` unchecked** — the user opts in after vetting.
 - **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on the
   main `Setups` table view, on this car's linked view, and — if a stage/location is set — on its
-  `{Stage}` / `{Location}` linked view, to the **full meta columns (including `Model/effort`) +
-  value columns** by each parameter's `Order` (per-car view hides blanks; stage/location views show
+  `{Stage}` / `{Location}` linked view, to the **full meta columns (including `Model/effort` and
+  `Skill version`) + value columns** by each parameter's `Order` (per-car view hides blanks; stage/location views show
   all value columns, no per-car filtering). Idempotent view update — the row write above stays
   append-only.
 - **Ensure the stage facts page exists in the catalogue** (per `notion-structure.md` → *Locations &

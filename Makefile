@@ -10,8 +10,9 @@
 #   make all         test + zip (default)
 
 TAG ?= v0.1.0
+VERSION_FILE := .claude/skills/car-setups/VERSION
 
-.PHONY: all test zip check-zip release
+.PHONY: all test zip check-zip release stamp-version
 
 all: test zip
 
@@ -27,9 +28,16 @@ zip:
 check-zip:
 	python check_zip.py
 
-release:
+# Stamps the release tag into VERSION and commits it, so the archived ZIP (built from HEAD's
+# committed tree, not from a tag ref) self-reports the released version instead of "dev".
+stamp-version:
+	echo $(TAG) > $(VERSION_FILE)
+	git add $(VERSION_FILE)
+	git commit -m "release: stamp VERSION to $(TAG)"
+
+release: stamp-version test zip
 	git tag $(TAG)
-	git push origin $(TAG)
+	git push origin main $(TAG)
 	gh release create $(TAG) dist/car-setups-skill.zip \
 	  --title "$(TAG)" \
 	  --notes-file RELEASE_NOTES.md \

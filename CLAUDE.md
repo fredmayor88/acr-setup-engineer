@@ -38,14 +38,18 @@ For each release:
 1. **Commit everything** you want in the release.
 2. Write `RELEASE_NOTES.md` in the repo root (not committed — gitignored). One brief paragraph
    describing what changed; it becomes the GitHub release body.
-3. `make test` — all tests must pass.
-4. `make zip` — rebuilds `dist/car-setups-skill.zip` from the committed tree.
-5. `make check-zip` — verify entries use forward slashes and `SKILL.md` is at the top.
-6. **Manual smoke test on claude.ai**: upload the ZIP (Settings → Customize → Skills → Create
+3. `make check-zip` — verify entries use forward slashes and `SKILL.md` is at the top (run after
+   step 4 below produces a ZIP, or rerun once `make release` has).
+4. `make release TAG=vX.Y.Z` — stamps `VERSION` to the tag and commits it (so the archived skill
+   self-reports its release version — see *Skill version* in `SKILL.md`), runs `make test`,
+   rebuilds `dist/car-setups-skill.zip` from that committed tree, tags, pushes, and creates a
+   draft GitHub release with the ZIP attached.
+5. **Manual smoke test on claude.ai**: upload the ZIP (Settings → Customize → Skills → Create
    skill), attach min/max screenshots, say "onboard my car" — confirm Notion structure is
-   created; then build a setup and check the mobile checklist; attach a `.sav` and import.
-7. `make release TAG=vX.Y.Z` — creates a draft GitHub release with the ZIP attached.
-   Open the draft on GitHub, verify the asset downloads cleanly, then **Publish**.
+   created; then build a setup and check the mobile checklist and that the `Setups` row's
+   `Skill version` matches the tag; attach a `.sav` and import (confirm `Skill version` is set
+   there too).
+6. Open the draft on GitHub, verify the asset downloads cleanly, then **Publish**.
 
 `RELEASE_NOTES.md` and `dist/` are gitignored (binary churn; notes are ephemeral).
 

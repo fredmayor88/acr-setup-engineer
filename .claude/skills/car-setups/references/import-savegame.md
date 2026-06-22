@@ -60,8 +60,10 @@ game, tell the user to onboard the car via screenshots (`onboard-car.md`) and bu
    writing (per `SKILL.md` core rules). Then add one new
    `Setups` row per setup: `Name`, `Car`, `Location`/`Stage` (if a `track` maps to one in the
    `Locations` catalogue, else leave both blank — **never fabricate a stage facts page** from an
-   import), `Surface`, `Game version`, `Date`, `Source = imported`, **`Learn from this` =
-   unchecked** (imported setups carry raw numbers without driving-intent context — the user checks
+   import), `Surface`, `Game version`, `Date`, `Source = imported`, **`Skill version`** (per
+   `SKILL.md` → *Skill version* — written for imported rows too, since it identifies the import
+   logic that produced the row, unlike `Model/effort` which stays blank here), **`Learn from this`
+   = unchecked** (imported setups carry raw numbers without driving-intent context — the user checks
    it after deciding a setup is worth learning from), plus the mapped value properties. Record values
    **as-is** (don't snap — they were already accepted in-game). **Never modify or delete existing
    rows.** After appending, **apply the column order** (`notion-structure.md` → *Applying the

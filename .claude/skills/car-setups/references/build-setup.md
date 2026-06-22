@@ -163,9 +163,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 8. **Write to Notion — append only** (via the user's Notion connection).
    - Create **one new row** in `Setups`: `Name`, `Car`, `Location` (if given), `Stage` (if given),
      `Surface`, `Game version` (if known), `Date` (today), `Source = generated`, `Mode`, the
-     chosen `Tyre type`, each value property, and **`Model/effort`** (your model name + `/` +
+     chosen `Tyre type`, each value property, **`Model/effort`** (your model name + `/` +
      effort, e.g. `Sonnet 4.6/normal`; infer effort: `low` = minimal thinking, `normal` = standard
-     (default if uncertain), `high` / `max` = extended thinking or explicitly high-effort run).
+     (default if uncertain), `high` / `max` = extended thinking or explicitly high-effort run), and
+     **`Skill version`** (per `SKILL.md` → *Skill version*).
      Leave **`Learn from this` unchecked** (the user opts in after vetting). **Never modify or
      delete existing rows.** There is no `Intent` column — driving intent is recorded only in the
      page body below.

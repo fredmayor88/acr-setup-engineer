@@ -43,6 +43,7 @@ Shared knowledge (read as needed):
 - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
 - `car-templates/` — bundled YAML parameter templates, one file per car (see
   `references/export-car-template.md` for the file format).
+- `VERSION` — the skill's own version (or `dev` for a source checkout); see *Skill version* below.
 
 Bundled tools (stdlib Python, run via code execution):
 - `scripts/parse_acr_save.py` — import workflow: parse ACR `.sav` files into JSON.
@@ -83,6 +84,12 @@ Bundled tools (stdlib Python, run via code execution):
   names or setup terms.
 - **Skip `FFB Multiplier`.** It is a controller/display preference, not a car setup parameter —
   never capture it during onboarding and never include it in setups.
+- **Skill version.** Determine once per run and record it on every `Setups` row you create
+  (generated, tweaked, **and imported**). Read the bundled `VERSION` file at the skill root:
+  - If it holds a concrete version (e.g. `v0.3.0`), that **is** your skill version.
+  - If it holds `dev` (an unreleased source checkout): if you can run `git` in the skill's repo,
+    use `git describe --tags --always --dirty` (e.g. `v0.2.0-3-gdbc15b1`, or a bare short hash if
+    there are no tags); otherwise record `dev`.
 - **Append-only.** Never modify or delete existing setups — only add rows. (Onboarding may
   update the parameter catalog.)
 - **Refining is an in-chat loop — save only when asked.** Describing a handling problem or asking

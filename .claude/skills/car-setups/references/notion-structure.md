@@ -120,7 +120,8 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   (**Select**, optional), `Surface` (**Select**, options `Tarmac` / `Gravel` / `Snow`),
   `Game version`, `Date`, `Source` (`generated` | `imported`), `Mode` (`learn` | `independent`),
   `Rating` (**Select**, options `1`–`5`, higher = better; **blank = unrated**), `Notes`,
-  **`Learn from this`** (checkbox), `Model/effort` (**Select**). Make `Car`, `Location`, `Stage`,
+  **`Learn from this`** (checkbox), `Model/effort` (**Select**), `Skill version` (**Text**).
+  Make `Car`, `Location`, `Stage`,
   and `Surface` **Select** (not plain text) so they render as **tags/pills** in the table — `Car`
   mirrors the `Parameters` DB's `Car` select, and `Surface` its `Tarmac`/`Gravel`/`Snow` options.
   **`Location` and `Stage` are both optional and independently blankable** — a setup may name
@@ -133,7 +134,15 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   effort level built this setup (e.g. Sonnet 4.6/normal). Blank for imported setups."* **Blank
   for imported rows** — only `generated` setups write it. The skill self-identifies: use your
   known model name and infer effort (`low` / `normal` / `high` / `max`; default `normal` if
-  uncertain). No predefined options — create-or-reuse (Notion adds the option if absent). When
+  uncertain). No predefined options — create-or-reuse (Notion adds the option if absent).
+  **`Skill version`** is plain **Text** (not Select — it's a free-form string, not a small fixed
+  set) recording **which version of the car-setups skill created this row**: the skill's
+  `VERSION` file when released, or a `git describe` string for an unreleased source checkout (see
+  `SKILL.md` → *Skill version*). Give the column the description *"Which version of the
+  car-setups skill created this row (e.g. v0.3.0, or a git-describe string for source builds)."*
+  Unlike `Model/effort`, it is written on **every** skill-created row — generated, tweaked, **and
+  imported** — since it identifies the tool/logic that produced the row, not the model that
+  authored values. When
   appending a setup row, **create-or-reuse** all Select options (Notion adds a new option if
   absent). Create `Rating` as a **Select** with five options `1` `2` `3`
   `4` `5` (in that order) — the picker then shows the user the valid values and prevents
@@ -169,7 +178,7 @@ directive (see *Applying the order* below).
 parameter has no `Order` falls back to `section_block + 990` (the end of its section), then by
 `Adjustment` name. **Meta columns always come first**, before any value column, in this order:
 `Name`, `Car`, `Location`, `Stage`, `Surface`, `Date`, `Source`, `Mode`, `Rating`, `Learn from this`,
-`Game version`, `Notes`, `Model/effort`.
+`Game version`, `Notes`, `Model/effort`, `Skill version`.
 
 **Ties are fine — never an error.** If two parameters share the same `Order` (e.g. after a manual
 edit), show the tied columns in any order; don't flag, warn, or disambiguate. Order only has to be
@@ -250,16 +259,17 @@ next run, with no migration:
    string when first creating the view):
    - **main `Setups` table view** → `SHOW` all meta + all value columns in order;
    - **per-car linked view** (on the `{Car}` page, filtered `Car = "{Car}"`) → `SHOW` the **full
-     meta set (including `Model/effort`) + only that car's applicable value columns** in order —
-     this orders the columns **and** hides the blank ones in a single step. The meta set is the
-     **same** as the main table; only *value* columns are filtered to the car's applicable ones.
+     meta set (including `Model/effort` and `Skill version`) + only that car's applicable value
+     columns** in order — this orders the columns **and** hides the blank ones in a single step.
+     The meta set is the **same** as the main table; only *value* columns are filtered to the
+     car's applicable ones.
    - **per-location / per-stage linked views** (on `{Location}` / `{Stage}` pages, filtered by
      `Location` / `Stage` only — **not** `Car`, since many cars can share a place) → `SHOW` the
      **same full meta set + all value columns in order**, same as the main table (no per-car
      filtering of value columns, since rows under one stage may span multiple cars).
    Because this is re-asserted on every append, projections created before a meta column existed
-   (e.g. `Model/effort`) **self-heal** — the column appears on the car/location/stage page views
-   on the next build/tweak/review.
+   (e.g. `Model/effort`, `Skill version`) **self-heal** — the column appears on the
+   car/location/stage page views on the next build/tweak/review.
 
 This step re-asserts `SHOW` on a view that **already exists**. Creating the linked-view *block* in
 the first place is a separate operation — see *Creating an inline linked view* below
@@ -336,7 +346,8 @@ target page, `data_source_id` = the `Setups` data source, `type: "table"`, a `na
 `"Setups"`), and a `configure` DSL string (see `notion://docs/view-dsl-spec`) carrying the filter
 and column order:
 - **`{Car}` page** → `FILTER "Car" = "{Car}"; SHOW <all meta columns first (the full meta set,
-  including `Model/effort`), then this car's value columns by `Order`>` — `SHOW` both orders the
+  including `Model/effort` and `Skill version`), then this car's value columns by `Order`>` —
+  `SHOW` both orders the
   columns and hides the ones it omits (blank per-car columns).
 - **`{Location}` page** → `FILTER "Location" = "{location}"; SHOW <full meta + all value columns
   by Order>` — no `Car` filter, since many cars may share a location.
