@@ -103,6 +103,11 @@ When the user asks to save (and not before):
 - **Validate** every value in the working setup against the catalog for the build surface
   (surface-resolved range — `Snow` falls back to `Gravel`, then baseline): discrete picks must be
   in `Discrete steps`; continuous picks within `Min..Max`. Fix any violation before writing.
+- **Completeness:** confirm the row about to be saved carries an explicit value for **every**
+  parameter the car has (except `FFB Multiplier`) — there is no "use the default" / leave-it-
+  blank option (`SKILL.md` → *Core rules*). Since saving copies the source row's values
+  (below), if the **source** row was itself incomplete, derive and fill the missing parameters
+  now (as in `build-setup.md` → *Choose values*) rather than carrying the blank forward.
 - Confirm/derive the **new setup name** (default `{source} v2`, increment if taken) — **≤15
   chars** including the suffix; compact the base name first if needed.
 - Create **one new row** in `Setups` DB (never modify or delete the source row or its page):

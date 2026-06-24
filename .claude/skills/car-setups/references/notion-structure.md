@@ -151,7 +151,9 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   never writes it, only reads it, mapping the chosen label to its integer (`"4"` → 4) for learn
   weighting / review.
 - **Values:** one property per tunable parameter (canonical `Adjustment` name), union across
-  the game's cars; blank where a parameter doesn't apply. **Numeric** (Min/Max are numbers,
+  the game's cars; blank where a parameter doesn't apply **to this car** (or for the documented
+  `FFB Multiplier` exception) — never as a "default" for a parameter the car has; a setup must
+  give every applicable parameter an explicit value (`SKILL.md` → *Core rules*). **Numeric** (Min/Max are numbers,
   whether continuous or discretely-stepped) → **Number**. **Named/string** (Min/Max are string
   labels, or `Discrete steps` contains named string options such as tyre compound) → **Select**,
   whose options are the union of every car's values for that Adjustment. Use `Text` as an

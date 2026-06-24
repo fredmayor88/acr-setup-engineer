@@ -55,6 +55,12 @@ Bundled tools (stdlib Python, run via code execution):
   `Parameters` row: if its **`Discrete steps`** are filled, the value must be **one of them**;
   otherwise the value must be within the numeric **`Min..Max`**. Never invent a parameter a car
   doesn't have.
+- **Every parameter the car has gets a value.** A complete setup specifies an **explicit value
+  for every tunable parameter the car actually has** — there is no "use the default" / leave-it-
+  blank option. A setup-row value column may be blank **only** when (a) the car does not have
+  that parameter at all (the column is a union across the game's cars), or (b) it is the
+  documented `FFB Multiplier` exception below. Never leave an applicable parameter blank because
+  a default "would be fine."
 - **Surface-resolved ranges.** A `Parameters` row may carry an optional **`Surface`** tag
   (`Tarmac`/`Gravel`/`Snow`); a few parameters expose a different range per surface. The legal
   range for a setup on surface **S** is the row tagged `S` **if one exists**; else if `S` is
@@ -151,8 +157,10 @@ the setup's surface** — see *Surface-resolved ranges* above):
 2. **No `Discrete steps`, numeric `Min..Max`** → choose any target within `Min..Max`; report it
    and tell the user to **dial to the nearest available position in-game** (the in-game
    increment is unknown, so the exact target may be a hair off — that's expected).
-3. **No `Discrete steps` and `Min/Max = —`** (param was never captured — no screenshot data) →
-   **skip it** and tell the user to re-onboard the car so the values are captured.
+3. **No `Discrete steps` and `Min/Max = —`** (the car *has* this parameter, but it was never
+   captured — no screenshot data) → **do not leave it blank** and do not treat it as a default:
+   surface the gap, ask the user to enumerate the range (or re-onboard the car), then fill an
+   explicit value once the range is known.
 
 `Discrete steps` for **numeric** params is **optional and user-owned**: onboarding leaves it
 blank and the user adds values in Notion when they want to constrain the parameter. For **`—`

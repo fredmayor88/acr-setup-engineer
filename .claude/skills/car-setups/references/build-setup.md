@@ -133,8 +133,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
      as **"~target (dial to nearest)"** (the in-game increment is unknown). Exception: **Gear
      Set** (and any parameter whose `Min` and `Max` are both whole numbers with no unit) takes
      only integer values — output an exact integer, no `~` or "dial to nearest".
-   - **`Min/Max = —` with no `Discrete steps`** → the param was never captured from screenshots:
-     **skip it** and note in the report (the user should re-onboard the car to fix this).
+   - **`Min/Max = —` with no `Discrete steps`** → the car *has* this parameter but its range was
+     never captured during onboarding. **Do not leave it blank** and do not treat it as a
+     default: surface the gap to the user and ask them to enumerate the range (or re-onboard the
+     car). Once the range is known, fill an explicit value like any other parameter.
    Never go outside `Min..Max` or off the `Discrete steps` set; never invent a parameter the car
    doesn't have.
 
@@ -144,7 +146,10 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    `Tyre Type`, the chosen value must be a fully-qualified name from the car's stored list (or
    the standard fallback list if blank) — never a bare/ambiguous value. Confirm
    `Pressure Front` and `Pressure Rear` were both set as separate values. Fix any violation
-   before writing.
+   before writing. **Completeness:** confirm **every parameter the car has** (every applicable
+   `Parameters` row for this car, except `FFB Multiplier`) received an explicit value — no
+   applicable parameter is left blank. Any gap from an uncaptured range (step 5) must be
+   resolved with the user before writing.
 
 7. **Ensure the stage facts page exists in the catalogue (skip if no stage/location was given).**
    Per `notion-structure.md` → *Locations & stages catalogue*, resolve by name under
@@ -163,7 +168,7 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 8. **Write to Notion — append only** (via the user's Notion connection).
    - Create **one new row** in `Setups`: `Name`, `Car`, `Location` (if given), `Stage` (if given),
      `Surface`, `Game version` (if known), `Date` (today), `Source = generated`, `Mode`, the
-     chosen `Tyre type`, each value property, **`Model/effort`** (your model name + `/` +
+     chosen `Tyre type`, a value for **every** parameter the car has, **`Model/effort`** (your model name + `/` +
      effort, e.g. `Sonnet 4.6/normal`; infer effort: `low` = minimal thinking, `normal` = standard
      (default if uncertain), `high` / `max` = extended thinking or explicitly high-effort run), and
      **`Skill version`** (per `SKILL.md` → *Skill version*).
