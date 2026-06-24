@@ -161,8 +161,9 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   car-specific params (transitions, centre/front diff, electronics, brake hardware) as they're
   discovered. Per-car legality is enforced by the **skill** against that car's `Parameters` row
   (range or `Discrete steps`) — Notion's column type is just storage. **Column display order**
-  follows each parameter's `Order` (see *Setups column order* below), applied through the view's
-  `SHOW` directive — never creation order.
+  puts the value columns (by each parameter's `Order`) right after `Name`, with the rest of the
+  meta columns last (see *Setups column order* below), applied through the view's `SHOW`
+  directive — never creation order.
 - **`Learn from this`** gates the learning pool: `build-setup` `learn` mode learns only from
   checked rows. Default **unchecked for both** `generated` and `imported` — the user checks it
   after reviewing and deciding a setup is worth learning from.
@@ -176,11 +177,13 @@ share snippet, and exported templates) — is governed by each parameter's **`Or
 schema insertion order does not reliably drive the rendered table — the lever is the view's **`SHOW`**
 directive (see *Applying the order* below).
 
-**Comparator.** Sort value columns by their parameter's **`Order` ascending**. A column whose
-parameter has no `Order` falls back to `section_block + 990` (the end of its section), then by
-`Adjustment` name. **Meta columns always come first**, before any value column, in this order:
-`Name`, `Car`, `Location`, `Stage`, `Surface`, `Date`, `Source`, `Mode`, `Rating`, `Learn from this`,
-`Game version`, `Notes`, `Model/effort`, `Skill version`.
+**Comparator.** `Name` (the title column) is always first — Notion forces the title column
+leftmost regardless of `SHOW` order. Next come the **value columns**, sorted by their parameter's
+**`Order` ascending**. A column whose parameter has no `Order` falls back to `section_block + 990`
+(the end of its section), then by `Adjustment` name. **The rest of the meta columns come last**,
+after every value column, in this order: `Car`, `Location`, `Stage`, `Surface`, `Date`, `Source`,
+`Mode`, `Rating`, `Learn from this`, `Game version`, `Notes`, `Model/effort`, `Skill version`. This
+puts the setup's tunable values first for fast on-phone reading, with bookkeeping metadata trailing.
 
 **Ties are fine — never an error.** If two parameters share the same `Order` (e.g. after a manual
 edit), show the tied columns in any order; don't flag, warn, or disambiguate. Order only has to be
@@ -190,6 +193,14 @@ right at the section / `Order` granularity.
 Numbering is **section-blocked** (`section×1000 + within×10`): the number encodes the section (so the
 cross-car column union always groups correctly) and the ×10 gaps leave room to insert or renumber by
 hand. Onboarding assigns these from the setup screens; the bundled templates carry them as `order:`.
+
+**This is the common per-corner sequence, not a guarantee for every car.** The list below (e.g.
+Dampers: Slow Bump, Slow Rebound, Fast Bump, Fast Rebound) reflects how most cars lay out their
+setup screens, but **the in-game screen order for the car being onboarded is always authoritative**
+— some cars group their corner sub-parameters differently (e.g. all bump settings before all
+rebound settings). Never carry over another car's layout, or this default list's sequence, when it
+conflicts with what the current car's screenshots (or its bundled template) actually show; apply
+this numbering scheme **to the observed order**, not the other way around.
 
 ```
 Gearbox (1000)
@@ -256,19 +267,22 @@ next run, with no migration:
 1. Read `Order` per `Adjustment` from the `Parameters` catalog (workflows already read these rows via
    [notion-rest-read.md](notion-rest-read.md); for the **main** table's cross-car union, query the
    whole `Parameters` data source once to map every property name → `Order`).
-2. Build the ordered property-name list (meta columns first, then value columns by the comparator).
+2. Build the ordered property-name list (`Name`, then value columns by the comparator, then the
+   rest of the meta columns last).
 3. Push it with the view **`SHOW`** directive (`notion-update-view`, or set it via the `configure`
    string when first creating the view):
-   - **main `Setups` table view** → `SHOW` all meta + all value columns in order;
-   - **per-car linked view** (on the `{Car}` page, filtered `Car = "{Car}"`) → `SHOW` the **full
-     meta set (including `Model/effort` and `Skill version`) + only that car's applicable value
-     columns** in order — this orders the columns **and** hides the blank ones in a single step.
-     The meta set is the **same** as the main table; only *value* columns are filtered to the
-     car's applicable ones.
+   - **main `Setups` table view** → `SHOW` `Name`, then all value columns in order, then all
+     remaining meta columns;
+   - **per-car linked view** (on the `{Car}` page, filtered `Car = "{Car}"`) → `SHOW` `Name`, then
+     **only that car's applicable value columns** in order, then the **full remaining meta set**
+     (including `Model/effort` and `Skill version`) — this orders the columns **and** hides the
+     blank ones in a single step. The meta set is the **same** as the main table; only *value*
+     columns are filtered to the car's applicable ones.
    - **per-location / per-stage linked views** (on `{Location}` / `{Stage}` pages, filtered by
-     `Location` / `Stage` only — **not** `Car`, since many cars can share a place) → `SHOW` the
-     **same full meta set + all value columns in order**, same as the main table (no per-car
-     filtering of value columns, since rows under one stage may span multiple cars).
+     `Location` / `Stage` only — **not** `Car`, since many cars can share a place) → `SHOW` `Name`,
+     then **all value columns in order**, then the **same full remaining meta set**, same as the
+     main table (no per-car filtering of value columns, since rows under one stage may span
+     multiple cars).
    Because this is re-asserted on every append, projections created before a meta column existed
    (e.g. `Model/effort`, `Skill version`) **self-heal** — the column appears on the
    car/location/stage page views on the next build/tweak/review.
@@ -347,14 +361,13 @@ table) into a page's `content`** — it is stored as literal text and no table a
 target page, `data_source_id` = the `Setups` data source, `type: "table"`, a `name` (e.g.
 `"Setups"`), and a `configure` DSL string (see `notion://docs/view-dsl-spec`) carrying the filter
 and column order:
-- **`{Car}` page** → `FILTER "Car" = "{Car}"; SHOW <all meta columns first (the full meta set,
-  including `Model/effort` and `Skill version`), then this car's value columns by `Order`>` —
-  `SHOW` both orders the
-  columns and hides the ones it omits (blank per-car columns).
-- **`{Location}` page** → `FILTER "Location" = "{location}"; SHOW <full meta + all value columns
-  by Order>` — no `Car` filter, since many cars may share a location.
-- **`{Stage}` page** → `FILTER "Stage" = "{stage}"; SHOW <full meta + all value columns by
-  Order>` — no `Car` filter, same reasoning.
+- **`{Car}` page** → `FILTER "Car" = "{Car}"; SHOW <Name, then this car's value columns by Order,
+  then the full remaining meta set (including `Model/effort` and `Skill version`)>` — `SHOW` both
+  orders the columns and hides the ones it omits (blank per-car columns).
+- **`{Location}` page** → `FILTER "Location" = "{location}"; SHOW <Name, then all value columns by
+  Order, then the remaining meta columns>` — no `Car` filter, since many cars may share a location.
+- **`{Stage}` page** → `FILTER "Stage" = "{stage}"; SHOW <Name, then all value columns by Order,
+  then the remaining meta columns>` — no `Car` filter, same reasoning.
 
 **Positioning matters.** `notion-create-view(parent_page_id=…)` **appends the linked-view block to
 the end of the page**, so sequence the operations:

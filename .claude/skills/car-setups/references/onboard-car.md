@@ -86,12 +86,18 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
    row that appears on screen** — if a parameter shows `—` in both screenshots, still create
    the row with Min=`—`, Max=`—` and flag it for user enumeration; only omit a row if it is
    absent from the screenshots entirely.
-   - **Also assign each parameter's `Order`** — its display position, from where it appears
-     top-to-bottom (Front side before Rear) on the setup screens. Use the **canonical ACR
-     defaults + section-blocked numbering** in `notion-structure.md` (*Setups column order*);
-     for any car-specific parameter not in that list, give it a number **inside its section's
-     block** matching its screenshot position (exact slot needn't be perfect — the block keeps
-     it grouped). A surface-tagged row shares its baseline row's `Order`.
+   - **Also assign each parameter's `Order`** — its display position, from where it **actually
+     appears top-to-bottom (Front side before Rear) on *this car's* setup screens** (or, when
+     onboarding from a bundled template, the `order:` values already in that template). The
+     screenshots/template are the source of truth for **sequence** — apply the **canonical ACR
+     section-blocked numbering** in `notion-structure.md` (*Setups column order*) **to that observed
+     order**, never the reverse. **Do not infer a parameter's position from how another
+     already-onboarded car is ordered, or from the canonical list's default sequence** — some cars
+     group corner sub-parameters differently (e.g. all bump settings before all rebound settings)
+     and must be captured exactly as shown. For any car-specific parameter not in the canonical
+     list, give it a number **inside its section's block** matching its screenshot position (exact
+     slot needn't be perfect — the block keeps it grouped). A surface-tagged row shares its baseline
+     row's `Order`.
    - **Always record the actual values shown in the screenshots**, including for discretely-stepped
      parameters: if the min screenshot shows `1` and the max shows `3` for gear set, record
      Min=1, Max=3.
@@ -209,8 +215,8 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      `Location`, `Stage`, and `Surface` are **Select** (so they render as tags), per
      `notion-structure.md`. Then **apply the column order**
      (`notion-structure.md` → *Applying the order*): set the main `Setups` table view's `SHOW` to
-     the meta columns followed by all value columns sorted by each parameter's `Order`. Creation
-     order does **not** drive the rendered table — the view's `SHOW` directive does.
+     `Name`, then all value columns sorted by each parameter's `Order`, then the remaining meta
+     columns. Creation order does **not** drive the rendered table — the view's `SHOW` directive does.
    - **Record the car's identity facts** on the `{Car}` page: `Drivetrain`, and the
      `Engine layout` / `Weight bias` / `Weight` resolved in step 5 (write `couldn't determine`
      for any that weren't found). These live on the page next to each other — never as
@@ -225,7 +231,7 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      2. The `Setups[Car=this]` filtered linked view — `notion-create-view` with
         `parent_page_id` = the `{Car}` page, `data_source_id` = the `Setups` data source
         (`notion-fetch` it for the id), `type: "table"`, and
-        `configure: 'FILTER "Car" = "{Car}"; SHOW <meta first, then this car's value columns by Order>'`.
+        `configure: 'FILTER "Car" = "{Car}"; SHOW <Name, then this car's value columns by Order, then the remaining meta columns>'`.
         `SHOW` orders the columns **and** hides blank ones in one step (`notion-structure.md` →
         *Applying the order*). It lands directly under the heading from step 1.
      3. **H2 "Guidelines"** heading + a short stub inviting car-specific tuning preferences

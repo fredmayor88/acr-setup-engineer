@@ -122,10 +122,10 @@ When the user asks to save (and not before):
     **`Learn from this` unchecked** — the user opts in after vetting.
 - **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on the
   main `Setups` table view, on this car's linked view, and — if a stage/location is set — on its
-  `{Stage}` / `{Location}` linked view, to the **full meta columns (including `Model/effort` and
-  `Skill version`) + value columns** by each parameter's `Order` (per-car view hides blanks; stage/location views show
-  all value columns, no per-car filtering). Idempotent view update — the row write above stays
-  append-only.
+  `{Stage}` / `{Location}` linked view, to **`Name`, then value columns** by each parameter's `Order`
+  (per-car view hides blanks; stage/location views show all value columns, no per-car filtering),
+  **then the full remaining meta columns (including `Model/effort` and `Skill version`)**.
+  Idempotent view update — the row write above stays append-only.
 - **Ensure the stage facts page exists in the catalogue** (per `notion-structure.md` → *Locations &
   stages catalogue*) if a stage/location is set and didn't already exist; create its filtered
   `Setups[Stage=this]` linked view with `notion-create-view` (never a page-markdown placeholder).

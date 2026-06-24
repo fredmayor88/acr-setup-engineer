@@ -160,8 +160,9 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    `Setups[Stage=this]` view exists (and `Setups[Location=this]` on the location page if newly
    created). The linked view is **not** page markdown — create it with `notion-create-view`
    (`parent_page_id` = the `{Stage}` / `{Location}` page, `data_source_id` = the `Setups` data
-   source, `type: "table"`, `configure: 'FILTER "Stage" = "{stage}"; SHOW <meta first, then value
-   columns by Order>'` — no `Car` filter, since the stage spans every car that's run it). Never
+   source, `type: "table"`, `configure: 'FILTER "Stage" = "{stage}"; SHOW <Name, then value
+   columns by Order, then the remaining meta columns>'` — no `Car` filter, since the stage spans
+   every car that's run it). Never
    write a `<linked-view />`-style placeholder into the page body (`notion-structure.md` →
    *Creating an inline linked view*).
 
@@ -176,10 +177,11 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
      delete existing rows.** There is no `Intent` column — driving intent is recorded only in the
      page body below.
    - **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on
-     the **main `Setups` table view** (meta columns + all value columns by `Order`), on **this
-     car's linked view** (meta + this car's applicable value columns by `Order`, hiding blanks),
-     and — if a stage/location was referenced — on **its `{Stage}` / `{Location}` linked view**
-     (meta + all value columns by `Order`, no per-car filtering). Idempotent — this re-asserts the
+     the **main `Setups` table view** (`Name` + all value columns by `Order` + the remaining meta
+     columns), on **this car's linked view** (`Name` + this car's applicable value columns by
+     `Order`, hiding blanks, + the remaining meta columns), and — if a stage/location was
+     referenced — on **its `{Stage}` / `{Location}` linked view** (`Name` + all value columns by
+     `Order` + the remaining meta columns, no per-car filtering). Idempotent — this re-asserts the
      order from the current `Order` values, so the new setup's projection and the table read in
      game-menu order (and an alphabetized table or an edited `Order` self-heals). It's a view
      update, not a row/schema rebuild — the append above stays a single row. If a parameter has a
