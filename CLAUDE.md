@@ -36,8 +36,11 @@ git push -u origin main
 For each release:
 
 1. **Commit everything** you want in the release.
-2. Write `RELEASE_NOTES.md` in the repo root (not committed — gitignored). One brief paragraph
-   describing what changed; it becomes the GitHub release body.
+2. Write `RELEASE_NOTES.md` in the repo root (not committed — gitignored); it becomes the GitHub
+   release body. **Always format it as a bullet-point list of the user-facing changes** (one
+   bullet per change, optionally under a `What's new in vX.Y.Z:` line) — first review the full
+   `git log`/`git diff` since the previous tag so no change is missed. Exclude maintainer-only
+   churn (e.g. CLAUDE.md working notes, the VERSION stamp).
 3. `make check-zip` — verify entries use forward slashes and `SKILL.md` is at the top (run after
    step 4 below produces a ZIP, or rerun once `make release` has).
 4. `make release TAG=vX.Y.Z` — stamps `VERSION` to the tag and commits it (so the archived skill
