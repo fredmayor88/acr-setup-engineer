@@ -143,7 +143,7 @@ feels right.
 
 **Review a setup**
 
-Say: *"Review my alsace gpt1 setup."*
+Say: *"Review my alsace dry fast setup."*
 
 Claude checks every value against the car's legal ranges and the tuning guidelines, flags
 anything misaligned, and suggests specific alternatives with reasoning. The review is printed in

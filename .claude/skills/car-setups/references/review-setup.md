@@ -8,7 +8,7 @@ Read `notion-structure.md` (structure + schemas) and `setup-tuning-principles.md
 base) before starting.
 
 ## Inputs
-- **Setup name** (e.g. `alsace gpt1`). The user can also provide **Car**, **Location**, and/or
+- **Setup name** (e.g. `alsace dry fast`). The user can also provide **Car**, **Location**, and/or
   **Stage** to narrow disambiguation. Game defaults to `ACR`; ask only if the user has setups
   under multiple games and it's unclear which one.
 

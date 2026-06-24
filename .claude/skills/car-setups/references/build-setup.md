@@ -20,7 +20,7 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
   bumps, conditions). This is part of the **build request itself**, not read off a stage page —
   the same stage can back many setups with different intents. If the user doesn't give one,
   ask briefly rather than guessing.
-- **Setup name** (e.g. `alsace gpt1`) — **≤15 chars**, the in-game limit; compact a longer
+- **Setup name** (e.g. `alsace dry fast`) — **≤15 chars**, the in-game limit; compact a longer
   proposed/requested name to fit (per `SKILL.md` core rules) and tell the user the name used.
 - **Reference setup** (optional) — if the user says "build like setup X" or names a setup as a
   basis, load X's **row value properties** (per `notion-rest-read.md`) as a starting point, and
@@ -182,7 +182,7 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
      backfill it onto the `Parameters` row.
    - First, write a **brief setup summary** directly in the page body (not inside a toggle, so
      it's always visible without expanding anything):
-     - **H2 heading** with the setup name (e.g. `## alsace gpt1`).
+     - **H2 heading** with the setup name (e.g. `## alsace dry fast`).
      - **3–5 short bullets** covering:
        - Location/stage (if given), surface, and the **driving intent for this build** (e.g.
          "Col de Turini, fast bumpy tarmac; priority: stability under braking" or, with no stage,

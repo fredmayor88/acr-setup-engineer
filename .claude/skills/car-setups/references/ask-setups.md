@@ -8,8 +8,8 @@ and model knowledge, with a disclosed web-search fallback. This workflow is **re
 Examples it handles:
 - *"What's the impact of a stiffer vs softer ARB?"* (conceptual)
 - *"What are the basic rules for setting up ARBs and diffs?"* (conceptual)
-- *"Why does my `alsace gpt1` setup have the ride height set like that?"* (setup-specific)
-- *"Why is the front ARB stiffer in `alsace gpt1` than in `wales r2`?"* (comparison)
+- *"Why does my `alsace dry fast` setup have the ride height set like that?"* (setup-specific)
+- *"Why is the front ARB stiffer in `alsace dry fast` than in `wales wet grip`?"* (comparison)
 
 Read `setup-tuning-principles.md` (the reasoning base) before answering. Read
 `notion-structure.md` and `notion-rest-read.md` only when the question is **setup-specific** and
@@ -18,7 +18,7 @@ you need to load data.
 ## Inputs
 - **The question** — free-form. May be conceptual, or about a named setup, or a comparison of
   two setups.
-- **Optional anchors** — a setup name (e.g. `alsace gpt1`), a car, a location/stage, a surface, a
+- **Optional anchors** — a setup name (e.g. `alsace dry fast`), a car, a location/stage, a surface, a
   drivetrain. Use them to scope and to apply the right drivetrain filter. Game defaults to `ACR`;
   ask only if the user has data under multiple games and it's unclear which one.
 

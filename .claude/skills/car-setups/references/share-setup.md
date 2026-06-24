@@ -45,7 +45,7 @@ never writes to Notion.
 ### Example output
 
 ```
-Lancia Stratos HF · alsace gpt1
+Lancia Stratos HF · alsace dry fast
 
 [Gearbox]
 Gear set: 2
