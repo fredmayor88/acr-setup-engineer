@@ -184,6 +184,10 @@ tyre compounds and brake pads (`SOFT, MEDIUM, HARD`) come fully pre-filled and r
 During onboarding, Claude flags the settings most likely to need this: spring stiffness, ARBs,
 and all damper channels (these typically have just a handful of in-game click positions).
 
+> **Brake parameters.** A created setup may not include values for every brake parameter — some
+> aren't always captured during onboarding. If you really need them, open the car's `Parameters`
+> table in Notion and add them manually.
+
 ## Make it tune to your taste
 
 The tool reasons from built-in tuning knowledge **plus your own preferences**, and **your
