@@ -44,6 +44,8 @@ your setups and tick "Learn from this" on the good ones, and future setups follo
 
 ![How it works](docs/flowchart.png)
 
+![Make a setup flow](docs/makeSetupFlow.png)
+
 **Other games:** this skill was built and tested exclusively for **Assetto Corsa Rally**. You
 may be able to onboard cars and build setups for other rally/racing games, but this has not been
 tested and is not supported. Use it for other games entirely at your own risk — no support will
