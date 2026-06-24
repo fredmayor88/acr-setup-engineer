@@ -61,3 +61,8 @@ For each release:
   `references/setup-tuning-principles.md`.
 - Target platform is the **claude.ai web app** (Notion connector + Skills); a later move to
   Claude Code desktop is cheap since all data lives in Notion.
+
+## Working guidelines for Claude
+- After finishing a feature or request, **do not run `make test` or build the ZIP
+  (`make zip` / `make release`) by default** — only do so when explicitly instructed. These are
+  part of the release procedure above, not a routine post-task check.
