@@ -20,8 +20,8 @@ game, tell the user to onboard the car via screenshots (`onboard-car.md`) and bu
 ### 1. Run the bundled parser
 Run on the attached file via code execution: `python scripts/parse_acr_save.py <file> --pretty`
 (human summary) or without `--pretty` for JSON. It returns
-`{ok, setup_count, recognized_fraction, game_versions, save_format, nul_count, handler_used,
-notes, setups[]}`. Each setup has `name, car, track, surface, game_version, drivetrain`
+`{ok, setup_count, game_versions, save_format, nul_count, handler_used, notes, setups[]}`. Each
+setup has `name, car, track, surface, game_version, drivetrain`
 (FWD/RWD/AWD, from the diff sections), `warnings`, and `params: [{key, label, value}]` where `key`
 is the raw game key (e.g. `Suspensions.Front.AdjusterRing`) with symmetric left/right already
 collapsed, `(Key:Value)` wrappers stripped, and decimals tidied. The parser is **schema-agnostic** —
@@ -60,6 +60,24 @@ If the parsed setups span **more than one car, or more than one setup**, list th
 (name · track · surface · game version) and **ask the user whether to import all of them, only
 specific cars, or only specific setups.** Carry only the selected subset through the rest of the
 workflow. (A single setup → skip the prompt.) Show any `warnings` so the user can weigh them.
+
+Then, for the selected subset, **show the full parsed values for approval** using the
+**copy-pasteable convention** below — this is the user's confirmation before anything is written to
+Notion (Rules: always get approval before writing), and it doubles as the final output for the
+no-Notion path (step 7).
+
+### Presenting setups in chat (copy-pasteable)
+Whenever you print a setup's **parameter values** — for the approval step above, or as the
+no-Notion output in step 7 — put them in a **fenced code block, one per car**. Never present
+values as a rendered (pipe-syntax) markdown table outside a code block — those don't
+select/copy cleanly. Inside each car's block:
+- a header line: `{Car} — {distinct game version(s)}`;
+- an aligned **monospace table**: first column = parameter label (parser's emitted order; you may
+  add `[Section]` sub-headers from the key prefix for readability, per `share-setup.md`), then one
+  column per selected setup of that car (column header = setup name, plus `· {surface}` when
+  known); pad every column so values line up.
+
+List any parser `warnings` for that car **below** the block (outside the fences), not inside it.
 
 ### 4. Notion available, or chat-only?
 Try to resolve the **`Car setups`** root via the Notion connector (per `notion-structure.md`).
@@ -134,17 +152,10 @@ that imported setups start **unrated** and **unchecked** — they can **rate eac
 `Learn from this` once they've vetted it.
 
 ### 7. Chat-table output (no-Notion path)
-For each selected **car**, print a short header line — `{Car}` and the distinct game version(s) —
-then a **wide markdown table** comparing that car's selected setups:
-- first column = **parameter label** (in the parser's emitted order; you may add `Section`
-  sub-headers from the key prefix for readability),
-- one column per selected setup, header = `{setup name} · {surface}`,
-- cells = the parsed `value`.
-
-Below the table, list any parser `warnings` (e.g. symmetric-corner mismatches) for that car. Remind
-the user these are **raw in-game values** (not range-validated, no reasoning attached), and that
-connecting Notion later lets them save, build, tweak, and review setups. Do **not** write anything
-to Notion in this path.
+Present the selected setups using the **copy-pasteable convention** above (one fenced code block
+per car). Remind the user these are **raw in-game values** (not range-validated, no reasoning
+attached), and that connecting Notion later lets them save, build, tweak, and review setups. Do
+**not** write anything to Notion in this path.
 
 ## Save format clues (for the AI fallback)
 - The file is an **Unreal Engine 5 GVAS** save (`/Script/dmengine.SaveGameSlot` ·

@@ -369,7 +369,7 @@ def main():
               f"handler {res['handler_used']}"
               f"{' (NUL-recovered)' if res['handler_used'] == 'parse_nul_tolerant' else ''}")
         print(f"CONFIDENCE: {'ok' if res['ok'] else 'LOW — consider AI fallback'} | "
-              f"{res['setup_count']} setups | {res['recognized_fraction']:.0%} keys recognized")
+              f"{res['setup_count']} setups")
         for n in res['notes']:
             print(f"  note: {n}")
     else:
