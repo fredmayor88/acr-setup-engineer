@@ -13,6 +13,15 @@ Unknown keys pass through; the per-car Notion catalog is the source of truth for
 names (the import workflow maps these raw keys onto it). Confidence is judged structurally
 (did we find real setups), not by recognising names. stdlib only.
 
+**Version-aware dispatch.** Save formats can vary between ACR builds. The parser detects the
+save-format fingerprint (GVAS engine/custom versions) and the per-setup game version(s), then
+picks a handler from a small registry. Today there are two handlers, both schema-agnostic:
+`parse_structural` (strict FString reads — v0.4 and any same-format build) and
+`parse_nul_tolerant` (for saves whose NUL terminators are gone — every `0x00` is `0x20` —
+seen on v0.2/v0.3 samples). When a future build genuinely re-serializes the body, add a new
+handler keyed on its fingerprint; until then an unrecognised format yields low confidence and
+the caller falls back to AI extraction.
+
 Usage:
   python parse_acr_save.py CarSetupsDataSaveSlot.sav            # JSON to stdout
   python parse_acr_save.py CarSetupsDataSaveSlot.sav --pretty   # human summary
@@ -25,6 +34,8 @@ VERSION_RE = re.compile(r'^\d+(?:\.\d+){2,3}$')
 SURFACES = {'tarmac', 'asphalt', 'gravel', 'snow', 'dirt', 'wet', 'ice', 'mud'}
 IGNORE_META = {'None', 'CarSetupsSaveGameData', ''}
 MIN_PARAMS = 6  # a real setup has many params; fewer ⇒ probably misparsed
+# major.minor game-version families this parser has been validated against (informational).
+TESTED_VERSIONS = {'0.2', '0.3', '0.4'}
 
 # Optional nice labels (hints only — never used to judge success or drop data).
 LEAF_LABEL = {
@@ -69,29 +80,73 @@ def read_fstring(d, off):
     return None
 
 
-def body_start(d):
-    """Best-effort: skip the GVAS header. On any doubt return 0 and scan the whole file
-    (header text can't form param key/value pairs, so it is harmless)."""
+def read_fstring_tolerant(d, off):
+    """Like read_fstring but for saves whose NUL bytes were turned into spaces (0x20).
+
+    The strict reader fails on such files: the FString length prefix `len 00 00 00` arrives as
+    `len 20 20 20` and the terminating `0x00` is now `0x20`. We can't even trust the length
+    byte itself — in observed v0.2/v0.3 samples a value whose real length is `0x0d` is mangled
+    to `0x0a`, which would truncate it. But because every NUL became a space, the *content* of
+    a key/value (dotted identifiers, numbers, `(Type:Value)` wrappers) never contains a `0x20`,
+    so each string is delimited by spaces. We therefore require the would-be-NUL high length
+    bytes (`off+1..off+3 == 20 20 20`) and read the content as the printable run up to the next
+    `0x20`.
+
+    Free-text metadata (a setup name like "drift snow") legitimately contains a space, so a
+    printable-run-only read would split it. We don't trust the length byte to fix this — the same
+    corruption that mangles values also hits length bytes (a `0x0d` → `0x0a`). Instead we resolve
+    each `0x20` by look-ahead: it's an *internal* space if the next byte is printable and is **not**
+    the start of the next FString's `[len][20][20][20]` prefix; otherwise it's the was-NUL
+    terminator. Parameter keys/values never contain spaces, so the very next `0x20` ends them — they
+    are unaffected; only multi-word free text is rejoined."""
+    if off + 4 > len(d) or d[off + 1:off + 4] != b'\x20\x20\x20':
+        return None
+    i = off + 4
+    end = i
+    while end < len(d):
+        b = d[end]
+        if 0x21 <= b < 0x7f:                              # printable content byte
+            end += 1
+        elif b == 0x20 and end > i and end + 4 < len(d) and 0x21 <= d[end + 1] < 0x7f \
+                and d[end + 2:end + 5] != b'\x20\x20\x20':  # internal space, not a leading/next one
+            end += 1
+        else:
+            break                                         # was-NUL terminator (or padding/binary)
+    if end == i or end >= len(d) or d[end] != 0x20:       # non-empty, space-terminated
+        return None
+    return d[i:end].decode('utf-8', 'replace'), end + 1
+
+
+def read_header(d):
+    """Skip the GVAS header and fingerprint the save format. Returns (body_start, save_format).
+
+    `save_format` is the dispatch key for format changes: ACR bumps these when the body
+    serialization changes. On any doubt body_start is 0 (scan the whole file — header text
+    can't form param key/value pairs, so it is harmless)."""
+    if d[:4] != b'GVAS':
+        return 0, {'gvas': False}
+    fmt = {'gvas': True}
     try:
-        if d[:4] != b'GVAS':
-            return 0
+        engine = struct.unpack_from('<3H', d, 16 + 6)  # 3×u16 engine version (major,minor,patch)
+        fmt['engine_version'] = '.'.join(str(x) for x in engine)
         off = 16 + 6 + 4           # versions + engine ver (3×u16) + changelist
         r = read_fstring(d, off)   # engine branch
         off = r[1] if r else off + 4
         off += 4                   # custom version format
         n = struct.unpack_from('<i', d, off)[0]; off += 4
+        fmt['custom_version_count'] = n if 0 <= n <= 1000 else None
         off += n * 20              # custom versions: guid(16) + int32
         r = read_fstring(d, off)   # save game class name
-        return r[1] if r else off
+        return (r[1] if r else off), fmt
     except Exception:
-        return 0
+        return 0, fmt
 
 
-def scan_strings(d, start):
+def scan_strings(d, start, reader=read_fstring):
     out, pos = [], start
     while pos < len(d):
-        r = read_fstring(d, pos)
-        if r:
+        r = reader(d, pos)
+        if r and r[0] != '':
             out.append(r[0]); pos = r[1]
         else:
             pos += 1
@@ -206,31 +261,89 @@ def build(setup):
     }
 
 
-def parse(path):
-    """Return {ok, setup_count, recognized_fraction, notes, setups}.
+def _scan_to_setups(d, start, reader):
+    """Run one reader over the body; header-independent retry from offset 0."""
+    setups = [build(s) for s in group_setups(scan_strings(d, start, reader))]
+    if not setups and start != 0:
+        setups = [build(s) for s in group_setups(scan_strings(d, 0, reader))]
+    return setups
 
-    `ok=False` (low confidence) signals the workflow to fall back to AI extraction."""
-    with open(path, 'rb') as fh:
-        d = fh.read()
-    start = body_start(d)
-    setups = [build(s) for s in group_setups(scan_strings(d, start))]
-    if not setups and start != 0:               # header-independent fallback
-        setups = [build(s) for s in group_setups(scan_strings(d, 0))]
 
-    notes = []
+def parse_structural(d, start):
+    """Strict FString reads — v0.4 and any same-format build."""
+    return _scan_to_setups(d, start, read_fstring)
+
+
+def parse_nul_tolerant(d, start):
+    """For saves whose NUL terminators are gone (every 0x00 is 0x20) — seen on v0.2/v0.3."""
+    return _scan_to_setups(d, start, read_fstring_tolerant)
+
+
+# Dispatch registry: first handler whose predicate(save_format, nul_count) matches is tried first;
+# if it is low-confidence the others are tried as a fallback and the best result is kept. Add a new
+# (predicate, handler) entry — keyed on the save_format fingerprint — when a future build genuinely
+# re-serializes the body. The structural handler is the universal default.
+HANDLERS = [
+    (lambda fmt, nuls: nuls == 0, parse_nul_tolerant),   # NUL-stripped saves
+    (lambda fmt, nuls: True,      parse_structural),     # default
+]
+
+
+def _confidence(setups):
+    """(ok, num_good): a real setup has many params; few ⇒ probably misparsed."""
     good = [s for s in setups if s['param_count'] >= MIN_PARAMS]
     ok = bool(setups) and len(good) >= max(1, (len(setups) + 1) // 2)
+    return ok, len(good)
+
+
+def parse(path):
+    """Return {ok, setup_count, recognized_fraction, game_versions, save_format, nul_count,
+    handler_used, notes, setups}.
+
+    `ok=False` (low confidence after every handler) signals the workflow to fall back to AI
+    extraction."""
+    with open(path, 'rb') as fh:
+        d = fh.read()
+    start, save_format = read_header(d)
+    nul_count = d.count(0)
+
+    # Try predicate-matching handlers first (registry order), then the rest as a fallback. Stop at
+    # the first confident result; otherwise keep the best (most-confident, then most setups).
+    matching = [fn for pred, fn in HANDLERS if pred(save_format, nul_count)]
+    rest = [fn for pred, fn in HANDLERS if not pred(save_format, nul_count)]
+    setups, handler_used, best = [], None, None
+    for fn in matching + rest:
+        cand = fn(d, start)
+        ok, num_good = _confidence(cand)
+        score = (ok, num_good, len(cand))
+        if best is None or score > best[0]:
+            best = (score, cand, fn.__name__)
+        if ok:
+            setups, handler_used = cand, fn.__name__
+            break
+    else:
+        _, setups, handler_used = best
+
+    notes = []
+    ok, _ = _confidence(setups)
     if not setups:
         notes.append('no setups found — not a recognizable ACR save')
     elif not ok:
         notes.append(f'setups have very few parameters (<{MIN_PARAMS}) — likely misparsed')
+    game_versions = sorted({s['game_version'] for s in setups if s['game_version']})
+    # flag any version whose major.minor family (e.g. '0.5' from '0.5.1.123') isn't tested
+    untested = [v for v in game_versions
+                if '.'.join(v.split('.')[:2]) not in TESTED_VERSIONS]
+    for v in untested:
+        notes.append(f"game version {v} not in the tested set — parsed structurally, verify values")
     total = sum(s['param_count'] for s in setups)
     rec = sum(s['recognized_count'] for s in setups)
     frac = round((rec / total), 2) if total else 0.0  # informational only
     for s in setups:
         notes.extend(f"{s['name']}: {w}" for w in s['warnings'])
-    return {'ok': ok, 'setup_count': len(setups),
-            'recognized_fraction': frac, 'notes': notes, 'setups': setups}
+    return {'ok': ok, 'setup_count': len(setups), 'recognized_fraction': frac,
+            'game_versions': game_versions, 'save_format': save_format, 'nul_count': nul_count,
+            'handler_used': handler_used, 'notes': notes, 'setups': setups}
 
 
 def main():
@@ -248,7 +361,14 @@ def main():
                 print(f"  {p['label']}  [{p['key']}]: {p['value']}")
             for w in s['warnings']:
                 print(f"  ! {w}")
-        print(f"\nCONFIDENCE: {'ok' if res['ok'] else 'LOW — consider AI fallback'} | "
+        fmt = res['save_format']
+        fmt_str = (f"GVAS engine {fmt.get('engine_version', '?')} · "
+                   f"{fmt.get('custom_version_count', '?')} custom versions"
+                   if fmt.get('gvas') else 'not GVAS')
+        print(f"\nFORMAT: {fmt_str} | game versions {res['game_versions'] or '—'} | "
+              f"handler {res['handler_used']}"
+              f"{' (NUL-recovered)' if res['handler_used'] == 'parse_nul_tolerant' else ''}")
+        print(f"CONFIDENCE: {'ok' if res['ok'] else 'LOW — consider AI fallback'} | "
               f"{res['setup_count']} setups | {res['recognized_fraction']:.0%} keys recognized")
         for n in res['notes']:
             print(f"  note: {n}")

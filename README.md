@@ -32,8 +32,11 @@ share it, and import what you already have. You can also ask questions about gen
 6. **Shares a setup** — one command and you get a clean, copy-paste-ready block ready to drop
    into Discord, WhatsApp, or anywhere you'd like.
 7. **Imports what you already have** — attach your ACR save file and it pulls your existing
-   setups straight into Notion, so you don't need to enter them manually. You can also import
-   only selected setups of certain cars, it's not all-or-nothing.
+   setups straight into Notion, so you don't need to enter them manually. You can import only
+   selected setups of certain cars — it's not all-or-nothing. It even works **without Notion**
+   (you get a clean copy-paste table in chat instead) and **without onboarding the car first**
+   (it imports anyway; onboard later for the full experience). It reads older save versions too,
+   not just the latest.
 8. **Exports a car template** — once you've onboarded a car from screenshots, package it as a
    YAML file and share it with the community in one click. No command line, no tokens — just a
    free GitHub account and a green button.
@@ -165,7 +168,10 @@ explains in chat and never changes your Notion.
 
 Attach your `CarSetupsDataSaveSlot.sav` (Windows: `%LOCALAPPDATA%\acr\Saved\SaveGames\`) and
 say *"Import my setups from this save."* Claude reads the file, shows you what it found, and
-— once you confirm — adds the setups to Notion.
+— once you confirm — adds the setups to Notion. If the file has setups for several cars, Claude
+asks which ones you want; cars that aren't onboarded yet are imported anyway (onboard them later
+for the full experience). **No Notion yet?** Claude offers to either set it up with you or just
+print your setups as a copy-paste table in the chat. Older save versions work too.
 
 ## Pin a setting to specific values (optional)
 

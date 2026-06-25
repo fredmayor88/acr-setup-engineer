@@ -46,7 +46,11 @@ Shared knowledge (read as needed):
 - `VERSION` — the skill's own version (or `dev` for a source checkout); see *Skill version* below.
 
 Bundled tools (stdlib Python, run via code execution):
-- `scripts/parse_acr_save.py` — import workflow: parse ACR `.sav` files into JSON.
+- `scripts/parse_acr_save.py` — import workflow: parse ACR `.sav` files into JSON. **Version-aware**:
+  reports the save-format fingerprint (`save_format`), the per-setup game version(s)
+  (`game_versions`), and which handler ran (`handler_used` — a small registry dispatches by format;
+  `parse_structural` for v0.4-style saves, `parse_nul_tolerant` for saves delivered without NUL
+  terminators). `ok: false` ⇒ caller falls back to AI extraction.
 - `scripts/query_notion_parameters.py` — all read workflows: fetch a car's rows from a Notion
   data source via the REST API. Call as `python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>"` (add `--learn-only` for the Setups learn pool). See `references/notion-rest-read.md`.
 

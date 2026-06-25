@@ -92,6 +92,16 @@ class TestParser(unittest.TestCase):
         self.assertEqual(s['surface'], 'Gravel')
         self.assertEqual(s['game_version'], '0.4.0.1')
 
+    def test_dispatch_fields(self):
+        # version-aware dispatch metadata is always present
+        self.assertEqual(self.res['handler_used'], 'parse_structural')
+        self.assertEqual(self.res['game_versions'], ['0.4.0.1'])
+        self.assertIn('save_format', self.res)
+        self.assertFalse(self.res['save_format']['gvas'])   # synthetic save has no GVAS header
+        self.assertGreater(self.res['nul_count'], 0)
+        # 0.4 is a tested family → no untested-version note
+        self.assertFalse(any('not in the tested set' in n for n in self.res['notes']))
+
     def _vals(self, setup):
         return {p['key']: p['value'] for p in setup['params']}
 
@@ -123,7 +133,48 @@ class TestParser(unittest.TestCase):
         self.assertEqual(res['setup_count'], 0)
 
 
-FIXTURE = os.path.join(os.path.dirname(__file__), 'fixtures', 'CarSetupsDataSaveSlot.sav')
+class TestNulStripped(unittest.TestCase):
+    """A save whose NUL bytes were turned into spaces (0x00 → 0x20) — seen on v0.2/v0.3
+    samples — must still be recovered, via the NUL-tolerant dispatch handler."""
+
+    def setUp(self):
+        raw = make_save([SETUP_ONE, SETUP_TWO])
+        self.res = parse_bytes(raw.replace(b'\x00', b'\x20'))
+
+    def test_recovered_via_nul_tolerant_handler(self):
+        self.assertEqual(self.res['nul_count'], 0)
+        self.assertEqual(self.res['handler_used'], 'parse_nul_tolerant')
+        self.assertTrue(self.res['ok'])
+        self.assertEqual(self.res['setup_count'], 2)
+
+    def test_param_values_intact(self):
+        # the collapsed corner value survives the length-agnostic content read
+        v = {p['key']: p['value'] for p in self.res['setups'][0]['params']}
+        self.assertEqual(v.get('Suspensions.Front.AdjusterRing'), '0.05')
+        self.assertEqual(v.get('Differentials.Rear.LSDRamps'), '60_70')
+
+    def test_multiword_name_rejoined(self):
+        # a setup name with an internal space ("test one") is recovered, not split
+        self.assertEqual(self.res['setups'][0]['name'], 'test one')
+
+
+class TestUntestedVersion(unittest.TestCase):
+    """A confidently-parsed save from a version outside TESTED_VERSIONS is flagged, not failed."""
+
+    def setUp(self):
+        future = (['future setup', '9.9.0.1', 'TestCarFWD', 'OtherTrack', 'Tarmac'],
+                  SETUP_TWO[1])
+        self.res = parse_bytes(make_save([future]))
+
+    def test_parsed_but_flagged(self):
+        self.assertTrue(self.res['ok'])
+        self.assertEqual(self.res['game_versions'], ['9.9.0.1'])
+        self.assertTrue(any('9.9.0.1' in n and 'not in the tested set' in n
+                            for n in self.res['notes']), self.res['notes'])
+
+
+FIXTURE = os.path.join(os.path.dirname(__file__), 'fixtures', 'save_v0.4_multicar.sav')
+OLD_FIXTURE = os.path.join(os.path.dirname(__file__), 'fixtures', 'save_v0.2-0.3_nonul.sav')
 
 
 @unittest.skipUnless(os.path.exists(FIXTURE), 'sample save fixture not present')
@@ -138,6 +189,11 @@ class TestRealFixture(unittest.TestCase):
         self.assertTrue(self.res['ok'])
         self.assertEqual(self.res['setup_count'], 10)
         self.assertGreaterEqual(self.res['recognized_fraction'], 0.99)
+
+    def test_dispatch_metadata(self):
+        self.assertEqual(self.res['handler_used'], 'parse_structural')
+        self.assertTrue(self.res['game_versions'])
+        self.assertTrue(self.res['save_format']['gvas'])
 
     def test_expected_cars_and_drivetrains(self):
         dt = {}
@@ -162,6 +218,48 @@ class TestRealFixture(unittest.TestCase):
         self.assertTrue(any(k.startswith('Differentials.Front') for k in keys))
         self.assertFalse(any(k.startswith('Differentials.Rear') for k in keys))
         self.assertFalse(any(k.startswith('Differentials.Centre') for k in keys))
+
+
+@unittest.skipUnless(os.path.exists(OLD_FIXTURE), 'old v0.2/0.3 fixture not present')
+class TestOldNulStrippedFixture(unittest.TestCase):
+    """Regression test against a real v0.2.3/v0.3.0 save delivered without NUL terminators —
+    recovered deterministically by the NUL-tolerant handler (PII-checked: Stratos setups +
+    track names only)."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.res = P.parse(OLD_FIXTURE)
+
+    def test_recovered_confidently_via_nul_tolerant(self):
+        self.assertTrue(self.res['ok'])
+        self.assertEqual(self.res['setup_count'], 6)
+        self.assertEqual(self.res['handler_used'], 'parse_nul_tolerant')
+        self.assertEqual(self.res['nul_count'], 0)
+
+    def test_versions_span_v02_v03(self):
+        fams = sorted({'.'.join(v.split('.')[:2]) for v in self.res['game_versions']})
+        self.assertEqual(fams, ['0.2', '0.3'])
+
+    def test_known_param_value_recovered(self):
+        s = self.res['setups'][0]
+        v = {p['key']: p['value'] for p in s['params']}
+        self.assertEqual(s['car'], 'LanciaStratosHF')
+        # a front adjuster-ring value from the first setup
+        self.assertEqual(v.get('Suspensions.Front.AdjusterRing'), '0.041')
+        # large spring-stiffness value survives the corrupted length byte (printable-run read)
+        self.assertEqual(v.get('Suspensions.Rear.SpringStiffness'), '32660')
+
+    def test_multiword_names_recovered(self):
+        # internal-space names are rejoined despite the NUL stripping
+        names = {s['name'] for s in self.res['setups']}
+        self.assertIn('wales down pins', names)
+        self.assertIn('monte carlo up', names)
+
+    def test_surface_recovered_where_present(self):
+        # surfaces are recovered for setups that stored one (older saves don't always)
+        by_name = {s['name']: s['surface'] for s in self.res['setups']}
+        self.assertEqual(by_name.get('drift snow'), 'Snow')
+        self.assertEqual(by_name.get('wales down pins'), 'Gravel')
 
 
 if __name__ == '__main__':
