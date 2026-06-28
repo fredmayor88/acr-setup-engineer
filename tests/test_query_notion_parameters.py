@@ -109,7 +109,65 @@ class TestBuildFilter(unittest.TestCase):
         self.assertIn('Learn from this', props)
 
 
+class TestBuildShowOrder(unittest.TestCase):
+    def test_orders_value_columns_by_order(self):
+        rows = [
+            {'Adjustment': 'Spring Stiffness Front', 'Order': 2020},
+            {'Adjustment': 'Gear Set', 'Order': 1010},
+            {'Adjustment': 'Adjuster Ring Front', 'Order': 2010},
+        ]
+        show = Q.build_show_order(rows)
+        # Name first, then value columns ascending by Order
+        self.assertTrue(show.startswith('"Name", "Gear Set", "Adjuster Ring Front", '
+                                        '"Spring Stiffness Front", '))
+
+    def test_appends_fixed_meta_list(self):
+        show = Q.build_show_order([{'Adjustment': 'Gear Set', 'Order': 1010}])
+        self.assertEqual(
+            show,
+            '"Name", "Gear Set", "Car", "Location", "Stage", "Surface", "Date", '
+            '"Source", "Mode", "Rating", "Learn from this", "Game version", '
+            '"Notes", "Model", "Skill version"',
+        )
+
+    def test_dedupes_baseline_and_surface_rows(self):
+        rows = [
+            {'Adjustment': 'Spring Stiffness Front', 'Order': 2020},               # baseline
+            {'Adjustment': 'Spring Stiffness Front', 'Order': 2020, 'Surface': 'Gravel'},
+        ]
+        show = Q.build_show_order(rows)
+        self.assertEqual(show.count('"Spring Stiffness Front"'), 1)
+
+    def test_missing_order_sorts_last_by_name(self):
+        rows = [
+            {'Adjustment': 'Zeta', 'Order': 1010},
+            {'Adjustment': 'No Order B'},   # no Order
+            {'Adjustment': 'No Order A'},   # no Order
+        ]
+        show = Q.build_show_order(rows)
+        # numbered first, then un-numbered alphabetically, all before the meta list
+        self.assertTrue(show.startswith('"Name", "Zeta", "No Order A", "No Order B", "Car"'))
+
+    def test_skips_rows_without_adjustment(self):
+        rows = [{'Order': 1010}, {'Adjustment': 'Gear Set', 'Order': 1010}]
+        show = Q.build_show_order(rows)
+        self.assertIn('"Gear Set"', show)
+
+
 class TestQuery(unittest.TestCase):
+    def test_all_skips_car_filter(self):
+        resp = make_response([make_page(PARAM_ROW)])
+        captured = []
+
+        def fake_urlopen(req):
+            captured.append(json.loads(req.data.decode()))
+            return resp
+
+        with patch('urllib.request.urlopen', side_effect=fake_urlopen):
+            Q.query('fake-id', 'fake-token', None)  # car_name=None == --all
+
+        self.assertNotIn('filter', captured[0])
+
     def test_single_page(self):
         resp = make_response([make_page(PARAM_ROW)])
         with patch('urllib.request.urlopen', return_value=resp):

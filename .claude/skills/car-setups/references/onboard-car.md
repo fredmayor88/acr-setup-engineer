@@ -214,9 +214,9 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      (`Min/Max = —`). Don't remove or rename existing properties. The meta columns `Car`,
      `Location`, `Stage`, and `Surface` are **Select** (so they render as tags), per
      `notion-structure.md`. Then **apply the column order**
-     (`notion-structure.md` → *Applying the order*): set the main `Setups` table view's `SHOW` to
-     `Name`, then all value columns sorted by each parameter's `Order`, then the remaining meta
-     columns. Creation order does **not** drive the rendered table — the view's `SHOW` directive does.
+     (`notion-structure.md` → *Applying the order*): get the main table's `SHOW` list from the
+     bundled script (`… --all --show-order`) and set the main `Setups` table view's `SHOW` to it.
+     Creation order does **not** drive the rendered table — the view's `SHOW` directive does.
    - **Record the car's identity facts** on the `{Car}` page: `Drivetrain`, and the
      `Engine layout` / `Weight bias` / `Weight` resolved in step 5 (write `couldn't determine`
      for any that weren't found). These live on the page next to each other — never as
@@ -231,9 +231,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      2. The `Setups[Car=this]` filtered linked view — `notion-create-view` with
         `parent_page_id` = the `{Car}` page, `data_source_id` = the `Setups` data source
         (`notion-fetch` it for the id), `type: "table"`, and
-        `configure: 'FILTER "Car" = "{Car}"; SHOW <Name, then this car's value columns by Order, then the remaining meta columns>'`.
-        `SHOW` orders the columns **and** hides blank ones in one step (`notion-structure.md` →
-        *Applying the order*). It lands directly under the heading from step 1.
+        `configure: 'FILTER "Car" = "{Car}"; SHOW <output of `… "{Car}" --show-order`>'` (get the
+        `SHOW` list from the bundled script, per `notion-structure.md` → *Applying the order*).
+        `SHOW` orders the columns **and** hides blank ones in one step. It lands directly under the
+        heading from step 1.
      3. **H2 "Guidelines"** heading + a short stub inviting car-specific tuning preferences
         (tone per `tuning-guidelines-template.md`) — appended **after** the view.
 

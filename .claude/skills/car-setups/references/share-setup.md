@@ -38,9 +38,9 @@ never writes to Notion.
 4. **Output the snippet** inside a fenced code block so it is easy to select and copy.
    Lead with a header line: `{Car} · {Setup name}`, or `{Car} · {Stage} · {Setup name}` when the
    setup's `Stage` property is not blank, then a blank line, then the grouped values. After the
-   last section, if the setup's `Model/effort` property is not blank, append a blank line
-   followed by `Built with: {Model/effort}`. Omit the line entirely for imported setups (where
-   `Model/effort` is blank).
+   last section, if the setup's `Model` property is not blank, append a blank line
+   followed by `Built with: {Model}`. Omit the line entirely for imported setups (where
+   `Model` is blank).
 
 ### Example output
 

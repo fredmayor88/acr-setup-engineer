@@ -160,33 +160,33 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    `Setups[Stage=this]` view exists (and `Setups[Location=this]` on the location page if newly
    created). The linked view is **not** page markdown — create it with `notion-create-view`
    (`parent_page_id` = the `{Stage}` / `{Location}` page, `data_source_id` = the `Setups` data
-   source, `type: "table"`, `configure: 'FILTER "Stage" = "{stage}"; SHOW <Name, then value
-   columns by Order, then the remaining meta columns>'` — no `Car` filter, since the stage spans
-   every car that's run it). Never
+   source, `type: "table"`, `configure: 'FILTER "Stage" = "{stage}"; SHOW <output of `… --all
+   --show-order`>'` — get the `SHOW` list from the script per `notion-structure.md` → *Applying the
+   order*; no `Car` filter, since the stage spans every car that's run it). Never
    write a `<linked-view />`-style placeholder into the page body (`notion-structure.md` →
    *Creating an inline linked view*).
 
 8. **Write to Notion — append only** (via the user's Notion connection).
    - Create **one new row** in `Setups`: `Name`, `Car`, `Location` (if given), `Stage` (if given),
      `Surface`, `Game version` (if known), `Date` (today), `Source = generated`, `Mode`, the
-     chosen `Tyre type`, a value for **every** parameter the car has, **`Model/effort`** (your model name + `/` +
-     effort, e.g. `Sonnet 4.6/normal`; infer effort: `low` = minimal thinking, `normal` = standard
-     (default if uncertain), `high` / `max` = extended thinking or explicitly high-effort run), and
+     chosen `Tyre type`, a value for **every** parameter the car has, **`Model`** (just your model
+     name + version, e.g. `Opus 4.8`), and
      **`Skill version`** (per `SKILL.md` → *Skill version*).
      Leave **`Learn from this` unchecked** (the user opts in after vetting). **Never modify or
      delete existing rows.** There is no `Intent` column — driving intent is recorded only in the
      page body below.
-   - **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on
-     the **main `Setups` table view** (`Name` + all value columns by `Order` + the remaining meta
-     columns), on **this car's linked view** (`Name` + this car's applicable value columns by
-     `Order`, hiding blanks, + the remaining meta columns), and — if a stage/location was
-     referenced — on **its `{Stage}` / `{Location}` linked view** (`Name` + all value columns by
-     `Order` + the remaining meta columns, no per-car filtering). Idempotent — this re-asserts the
-     order from the current `Order` values, so the new setup's projection and the table read in
-     game-menu order (and an alphabetized table or an edited `Order` self-heals). It's a view
-     update, not a row/schema rebuild — the append above stays a single row. If a parameter has a
-     blank `Order`, fall back to the canonical defaults (`notion-structure.md`) and optionally
-     backfill it onto the `Parameters` row.
+   - **Apply the column order** (`notion-structure.md` → *Applying the order*) **after the row is
+     written**. Get the `SHOW` list from the bundled script (don't build it by hand), then set
+     `SHOW` (`notion-update-view`) on every projection:
+     - **main `Setups` table view** → `… --all --show-order`;
+     - **this car's linked view** (on the `{Car}` page) → `… "{Car}" --show-order` (lists only this
+       car's value columns, hiding blanks);
+     - **its `{Stage}` / `{Location}` linked view**, if a stage/location was referenced → `… --all
+       --show-order` (no per-car filtering).
+     Idempotent — re-asserting `SHOW` makes the new setup's projection and the table read in
+     game-menu order (an alphabetized table or an edited `Order` self-heals). It's a view update,
+     not a row/schema rebuild — the append above stays a single row. (The script handles the
+     blank-`Order` fallback; you may still backfill a blank `Order` onto the `Parameters` row.)
    - First, write a **brief setup summary** directly in the page body (not inside a toggle, so
      it's always visible without expanding anything):
      - **H2 heading** with the setup name (e.g. `## alsace dry fast`).

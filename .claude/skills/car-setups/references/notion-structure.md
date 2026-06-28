@@ -120,7 +120,7 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   (**Select**, optional), `Surface` (**Select**, options `Tarmac` / `Gravel` / `Snow`),
   `Game version`, `Date`, `Source` (`generated` | `imported`), `Mode` (`learn` | `independent`),
   `Rating` (**Select**, options `1`–`5`, higher = better; **blank = unrated**), `Notes`,
-  **`Learn from this`** (checkbox), `Model/effort` (**Select**), `Skill version` (**Text**).
+  **`Learn from this`** (checkbox), `Model` (**Select**), `Skill version` (**Text**).
   Make `Car`, `Location`, `Stage`,
   and `Surface` **Select** (not plain text) so they render as **tags/pills** in the table — `Car`
   mirrors the `Parameters` DB's `Car` select, and `Surface` its `Tarmac`/`Gravel`/`Snow` options.
@@ -129,18 +129,17 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   only, or both. A setup's **driving intent / conditions are not a column** — they live in the
   setup's own page-body summary (see *Mobile conventions* below); `Location`/`Stage` carry only
   the place reference, never style or goals.
-  **`Model/effort`** is also a **Select** (renders as a tag) — format `{model}/{effort}`, e.g.
-  `Sonnet 4.6/normal` or `Opus 4.8/high`; give the column the description *"Which model and
-  effort level built this setup (e.g. Sonnet 4.6/normal). Blank for imported setups."* **Blank
-  for imported rows** — only `generated` setups write it. The skill self-identifies: use your
-  known model name and infer effort (`low` / `normal` / `high` / `max`; default `normal` if
-  uncertain). No predefined options — create-or-reuse (Notion adds the option if absent).
+  **`Model`** is also a **Select** (renders as a tag) holding **just the model name + version**,
+  e.g. `Opus 4.8` or `Sonnet 4.6`; give the column the description *"Which model+version built this
+  setup (e.g. Opus 4.8). Blank for imported setups."* **Blank for imported rows** — only `generated`
+  setups write it. The skill self-identifies with its known model name. No predefined options —
+  create-or-reuse (Notion adds the option if absent).
   **`Skill version`** is plain **Text** (not Select — it's a free-form string, not a small fixed
   set) recording **which version of the car-setups skill created this row**: the skill's
   `VERSION` file when released, or a `git describe` string for an unreleased source checkout (see
   `SKILL.md` → *Skill version*). Give the column the description *"Which version of the
   car-setups skill created this row (e.g. v0.3.0, or a git-describe string for source builds)."*
-  Unlike `Model/effort`, it is written on **every** skill-created row — generated, tweaked, **and
+  Unlike `Model`, it is written on **every** skill-created row — generated, tweaked, **and
   imported** — since it identifies the tool/logic that produced the row, not the model that
   authored values. When
   appending a setup row, **create-or-reuse** all Select options (Notion adds a new option if
@@ -182,7 +181,7 @@ leftmost regardless of `SHOW` order. Next come the **value columns**, sorted by 
 **`Order` ascending**. A column whose parameter has no `Order` falls back to `section_block + 990`
 (the end of its section), then by `Adjustment` name. **The rest of the meta columns come last**,
 after every value column, in this order: `Car`, `Location`, `Stage`, `Surface`, `Date`, `Source`,
-`Mode`, `Rating`, `Learn from this`, `Game version`, `Notes`, `Model/effort`, `Skill version`. This
+`Mode`, `Rating`, `Learn from this`, `Game version`, `Notes`, `Model`, `Skill version`. This
 puts the setup's tunable values first for fast on-phone reading, with bookkeeping metadata trailing.
 
 **Ties are fine — never an error.** If two parameters share the same `Order` (e.g. after a manual
@@ -262,30 +261,43 @@ parameter set differs from the list).
 
 ### Applying the order (the `SHOW` operation)
 Whenever a workflow creates/updates the `Setups` schema **or appends a setup row**, **(re)assert the
-column order** — it is idempotent, so an alphabetized table or an edited `Order` self-heals on the
-next run, with no migration:
-1. Read `Order` per `Adjustment` from the `Parameters` catalog (workflows already read these rows via
-   [notion-rest-read.md](notion-rest-read.md); for the **main** table's cross-car union, query the
-   whole `Parameters` data source once to map every property name → `Order`).
-2. Build the ordered property-name list (`Name`, then value columns by the comparator, then the
-   rest of the meta columns last).
-3. Push it with the view **`SHOW`** directive (`notion-update-view`, or set it via the `configure`
-   string when first creating the view):
-   - **main `Setups` table view** → `SHOW` `Name`, then all value columns in order, then all
-     remaining meta columns;
-   - **per-car linked view** (on the `{Car}` page, filtered `Car = "{Car}"`) → `SHOW` `Name`, then
-     **only that car's applicable value columns** in order, then the **full remaining meta set**
-     (including `Model/effort` and `Skill version`) — this orders the columns **and** hides the
-     blank ones in a single step. The meta set is the **same** as the main table; only *value*
-     columns are filtered to the car's applicable ones.
-   - **per-location / per-stage linked views** (on `{Location}` / `{Stage}` pages, filtered by
-     `Location` / `Stage` only — **not** `Car`, since many cars can share a place) → `SHOW` `Name`,
-     then **all value columns in order**, then the **same full remaining meta set**, same as the
-     main table (no per-car filtering of value columns, since rows under one stage may span
-     multiple cars).
-   Because this is re-asserted on every append, projections created before a meta column existed
-   (e.g. `Model/effort`, `Skill version`) **self-heal** — the column appears on the
-   car/location/stage page views on the next build/tweak/review.
+column order**. It is idempotent, so an alphabetized table or an edited `Order` self-heals on the
+next run, with no migration.
+
+**A new linked view shows its columns alphabetically until you assert `SHOW`.** So you must always
+push `SHOW`, both when first creating a view and on every later write — and push it **after** the
+value columns exist (i.e. after the schema/rows are written), or it can't order columns that
+aren't there yet.
+
+**Get the `SHOW` list from the bundled script — don't assemble it by hand.** Run, against the
+**`Parameters`** data source (using the read token from `notion-rest-read.md`):
+
+```
+# per-car view (lists only that car's value columns, then the meta columns):
+python scripts/query_notion_parameters.py <params_data_source_id> <token> "{Car}" --show-order
+# main table / per-location / per-stage views (union of all value columns):
+python scripts/query_notion_parameters.py <params_data_source_id> <token> --all --show-order
+```
+
+It prints the exact, ready-to-paste property list: `"Name"`, then value columns by `Order`, then
+the fixed meta columns (`Car` … `Model`, `Skill version`). Use it verbatim as the `SHOW` value:
+
+- **main `Setups` table view** → `--all --show-order`; `SHOW <script output>`;
+- **per-car linked view** (on the `{Car}` page, filtered `Car = "{Car}"`) → `"{Car}" --show-order`;
+  `SHOW <script output>` — this orders the columns **and** hides the blank ones in one step (the
+  script lists only that car's value columns);
+- **per-location / per-stage linked views** (on `{Location}` / `{Stage}` pages, filtered by
+  `Location` / `Stage` only — **not** `Car`, since many cars can share a place) → `--all
+  --show-order`; `SHOW <script output>`.
+
+Push it with the view **`SHOW`** directive — `notion-update-view` for an existing view, or the
+`configure` string when first creating the view (*Creating an inline linked view* below). Because
+this is re-asserted on every append, projections created before a meta column existed (e.g.
+`Model`, `Skill version`) **self-heal** on the next build/tweak/review.
+
+(Background — what the script encodes: `Name` first, value columns by `Order` ascending — a
+parameter with no `Order` sorts last by name — then the fixed meta order from *Setups column order*
+above. You don't compute this yourself; the script does.)
 
 This step re-asserts `SHOW` on a view that **already exists**. Creating the linked-view *block* in
 the first place is a separate operation — see *Creating an inline linked view* below
@@ -357,17 +369,20 @@ view; never write a placeholder (e.g. `<linked-view />`, `[linked view]`, or a h
 table) into a page's `content`** — it is stored as literal text and no table appears.
 
 **Mechanism.** `notion-fetch` the `Setups` DB to get its **`data_source_id`** (from the
-`<data-source>` tag in the response). Then call `notion-create-view` with `parent_page_id` = the
-target page, `data_source_id` = the `Setups` data source, `type: "table"`, a `name` (e.g.
-`"Setups"`), and a `configure` DSL string (see `notion://docs/view-dsl-spec`) carrying the filter
-and column order:
-- **`{Car}` page** → `FILTER "Car" = "{Car}"; SHOW <Name, then this car's value columns by Order,
-  then the full remaining meta set (including `Model/effort` and `Skill version`)>` — `SHOW` both
-  orders the columns and hides the ones it omits (blank per-car columns).
-- **`{Location}` page** → `FILTER "Location" = "{location}"; SHOW <Name, then all value columns by
-  Order, then the remaining meta columns>` — no `Car` filter, since many cars may share a location.
-- **`{Stage}` page** → `FILTER "Stage" = "{stage}"; SHOW <Name, then all value columns by Order,
-  then the remaining meta columns>` — no `Car` filter, same reasoning.
+`<data-source>` tag in the response). Get the **`SHOW` list from the script** (*Applying the order*
+above — `--show-order`, with `--all` for location/stage). Then call `notion-create-view` with
+`parent_page_id` = the target page, `data_source_id` = the `Setups` data source, `type: "table"`, a
+`name` (e.g. `"Setups"`), and a `configure` DSL string (see `notion://docs/view-dsl-spec`) carrying
+the filter and the script's `SHOW` list:
+- **`{Car}` page** → `FILTER "Car" = "{Car}"; SHOW <output of `… "{Car}" --show-order`>` — `SHOW`
+  both orders the columns and hides the ones it omits (blank per-car columns).
+- **`{Location}` page** → `FILTER "Location" = "{location}"; SHOW <output of `… --all --show-order`>`
+  — no `Car` filter, since many cars may share a location.
+- **`{Stage}` page** → `FILTER "Stage" = "{stage}"; SHOW <output of `… --all --show-order`>` — no
+  `Car` filter, same reasoning.
+Because the value columns must already exist for `SHOW` to order them, if you create the view before
+writing the setup's value columns, **re-assert `SHOW`** (*Applying the order*) right after the
+columns/rows are written.
 
 **Positioning matters.** `notion-create-view(parent_page_id=…)` **appends the linked-view block to
 the end of the page**, so sequence the operations:

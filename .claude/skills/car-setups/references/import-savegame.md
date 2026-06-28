@@ -206,20 +206,27 @@ somehow exceeds it, compact it before writing (per `SKILL.md` core rules). Then 
 - `Location`/`Stage` if a `track` maps to one in the `Locations` catalogue, else leave both blank —
   **never fabricate a stage facts page** from an import;
 - **`Skill version`** (per `SKILL.md` → *Skill version* — written for imported rows too, since it
-  identifies the import logic that produced the row, unlike `Model/effort` which stays blank here);
+  identifies the import logic that produced the row, unlike `Model` which stays blank here);
 - **`Learn from this` = unchecked** (imported setups carry raw numbers without driving-intent
   context — the user checks it after deciding a setup is worth learning from);
 - plus the mapped (onboarded) or raw (un-onboarded) value properties.
 
 Record each value **per its treatment above**: **snapped to the catalog** for official-parse
 (version-matched) setups, **as-is** for the rest (older version / no template / `unknown`). **Never
-modify or delete existing rows.** After appending, **apply the column order** (`notion-structure.md` → *Applying the
-order*): set the `SHOW` on the main `Setups` table view and the car's linked view to `Name`, then
-value columns (by each parameter's `Order` when the catalog has it; otherwise in the parser's
-emitted order for raw columns), then the remaining meta columns — an idempotent view update, not a
-rebuild. This step **re-asserts `SHOW` on views that already exist**, so the car's linked Setups
-view must have been created earlier in this step (see *Ensure the `{Car}` page has its Setups
-view* above) — applying the order does **not** create a missing view.
+modify or delete existing rows.** **After the rows (and their value columns) exist, apply the column
+order** (`notion-structure.md` → *Applying the order*) — set `SHOW` on the main `Setups` table view
+and the car's linked view:
+- **Car with a `Parameters` catalog** (onboarded, or auto-onboarded from a template) → get the
+  `SHOW` list from the bundled script (`… "{Car}" --show-order` for the car view, `… --all
+  --show-order` for the main table) and use it verbatim.
+- **Raw-columns car** (un-onboarded, no template — the catalog doesn't exist, so the script has no
+  `Order` to read) → build `SHOW` by hand instead: `Name`, then the raw value columns **in the
+  parser's emitted order**, then the meta columns.
+
+This step **re-asserts `SHOW` on views that already exist** (an idempotent view update, not a
+rebuild), so the car's linked Setups view must have been created earlier in this step (see *Ensure
+the `{Car}` page has its Setups view* above) — applying the order does **not** create a missing
+view. A newly created view is alphabetical until this `SHOW` is asserted, so don't skip it.
 
 ### 6. Report (Notion path)
 Cover, in order:

@@ -115,16 +115,17 @@ When the user asks to save (and not before):
     with the final working values.
   - Set: `Name`, `Car`, `Location` (if the source/feedback names one), `Stage` (likewise),
     `Surface`, `Source = generated`, `Mode` (inherit source mode, default `learn`), `Date` = today,
-    **`Model/effort`** (your current model + `/` + effort, e.g. `Sonnet 4.6/normal` — do
+    **`Model`** (just your current model name + version, e.g. `Opus 4.8`; do
     **not** copy from the source; this records the model that ran *this* refinement), and
     **`Skill version`** (per `SKILL.md` → *Skill version* — do not copy from the source; this
     records the skill version that ran *this* refinement). Leave
     **`Learn from this` unchecked** — the user opts in after vetting.
-- **Apply the column order** (`notion-structure.md` → *Applying the order*): set the `SHOW` on the
-  main `Setups` table view, on this car's linked view, and — if a stage/location is set — on its
-  `{Stage}` / `{Location}` linked view, to **`Name`, then value columns** by each parameter's `Order`
-  (per-car view hides blanks; stage/location views show all value columns, no per-car filtering),
-  **then the full remaining meta columns (including `Model/effort` and `Skill version`)**.
+- **Apply the column order** (`notion-structure.md` → *Applying the order*) **after the row is
+  written**. Get the `SHOW` list from the bundled script (don't build it by hand) and set `SHOW`
+  (`notion-update-view`) on the main `Setups` table view (`… --all --show-order`), this car's linked
+  view (`… "{Car}" --show-order`, hides blanks), and — if a stage/location is set — its `{Stage}` /
+  `{Location}` linked view (`… --all --show-order`, no per-car filtering). The script lists `Name`,
+  value columns by `Order`, then the full meta columns (including `Model` and `Skill version`).
   Idempotent view update — the row write above stays append-only.
 - **Ensure the stage facts page exists in the catalogue** (per `notion-structure.md` → *Locations &
   stages catalogue*) if a stage/location is set and didn't already exist; create its filtered
