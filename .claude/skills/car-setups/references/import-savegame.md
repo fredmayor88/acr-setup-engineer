@@ -76,6 +76,13 @@ select/copy cleanly. Inside each car's block:
   add `[Section]` sub-headers from the key prefix for readability, per `share-setup.md`), then one
   column per selected setup of that car (column header = setup name, plus `· {surface}` when
   known); pad every column so values line up.
+- **Tag each setup column with the treatment it will get** (step 5): `· official parse v{maj.min}`
+  when the setup's game version **matches** the car's bundled-template `version` (run the
+  *Version-match check* from step 5 — it only needs the template file's `version` and the parser's
+  `game_version`, so it works here without Notion), otherwise `· as-is` (and `as-is (older)` when
+  the version is simply lower). For `official parse` setups, note in one line that the stored
+  values may be **snapped to the catalog's clean steps** in step 5 (the table here shows the raw
+  parsed values); the exact stored values appear in the step 6 report.
 
 List any parser `warnings` for that car **below** the block (outside the fences), not inside it.
 
@@ -131,22 +138,53 @@ Then, depending on whether the car has a `Parameters` catalog:
   source of truth for column names: match each parsed `key`/`label` to that car's `Adjustment`
   (the raw keys are descriptive, e.g. `Suspensions.Front.AdjusterRing` → "Adjuster ring" in section
   "Suspensions — Front"). **Flag any key you can't confidently map** to the user rather than
-  dropping it. **Do not range-enforce the values** — a save is usually from an **older game
-  version**, so a value outside the current catalog is expected and legitimate, not an error.
-  Resolve the surface row only to pick the right column: map the parsed `surface` to the catalog's
-  `Tarmac`/`Gravel`/`Snow` (asphalt → Tarmac; dirt/mud → Gravel; ice → Snow; anything else →
-  baseline), then use the surface-specific row if the parameter has one; for `Snow`, fall back to a
-  `Gravel` row before the baseline (see [notion-rest-read.md](notion-rest-read.md)). **Write every
-  value exactly as the save had it — never clamp it to the range or drop it.** When a value falls
-  outside its resolved row's `Min..Max` (or isn't in its `Discrete steps` when filled), don't flag
-  it one-by-one; instead **collect them all into one short, non-blocking note** for the report
-  (step 6), framed as a likely version difference — e.g. *"2 values are outside the current catalog
-  range, written as-is (likely an older game version): Spring Stiffness Front 41000 (catalog
-  42300–73100); Rear ARB 9 (catalog 1–8)."* (This is informational, not something the user must
-  fix.) **`TyreType` values must be written fully-qualified** (e.g. `Tarmac Snow`,
-  `Snow (Studs)`) — if the save or catalog holds an ambiguous legacy name (bare `Snow`, `Gravel`,
-  `Dry Tarmac`), map it to its canonical ACR name before writing; if it can't be disambiguated
-  confidently, flag it for the user instead of guessing.
+  dropping it.
+
+  **Resolve each value's surface row (common to both treatments below).** Map the parsed `surface`
+  to the catalog's `Tarmac`/`Gravel`/`Snow` (asphalt → Tarmac; dirt/mud → Gravel; ice → Snow;
+  anything else → baseline), then use the surface-specific row if the parameter has one; for
+  `Snow`, fall back to a `Gravel` row before the baseline (see
+  [notion-rest-read.md](notion-rest-read.md)).
+
+  **Then choose each setup's value treatment by its game version — decide this _per setup_** (one
+  save can hold setups from several versions):
+
+  1. **Version-match check.** Look in `car-templates/` for this car's bundled template (**same
+     match rule as the auto-onboard branch above**). The setup is a **version match** only when
+     **all** of these are true: a template exists, its `version` is **not** `"unknown"`, and the
+     setup's parser `game_version` reduced to its **major.minor** family (first two dotted parts —
+     e.g. `0.4.1.123` → `0.4`) **equals** that template `version` (e.g. `0.4`). Otherwise it is
+     **not** a match.
+
+  2. **If it matches → official-parse this setup (validate + snap to the catalog).** The save and
+     catalog are the same game version, so store **clean, catalog-conformant values**:
+     - When the resolved row has **`Discrete steps`**, store the **matching step** (snap the raw
+       value to it) — but only when the raw value is **unambiguously** that step: an exact match
+       after tidying decimals, or within a tiny tolerance for float noise (e.g. `0.087000` → the
+       `0.087` step). For **named/paired** selections (tyre type, brake pads, LSD power/coast ramp,
+       differential ratios) store the **canonical catalog option** the raw value maps to.
+     - For **continuous** `Min..Max` params (no `Discrete steps`) there is no grid — keep the value
+       exact.
+     - **Validate** against the resolved row. Because the versions match, a value outside `Min..Max`
+       (or a discrete value matching **no** step — not just float noise) is a **genuine anomaly** —
+       **flag it clearly** (e.g. *"Rear ARB 9 is outside the catalog 1–8 at the matching version
+       0.4 — please check"*) but **still write it** (never clamp or drop). Do **not** use the soft
+       "older version" note here — at a matching version it isn't an older-version difference.
+
+  3. **If it does NOT match** (older save, no template, or template `version` is `"unknown"`) **→
+     as-is (the unchanged v0.6.0 path).** Write every value **exactly as the save had it — never
+     clamp or drop**. When a value falls outside its resolved row's `Min..Max` (or isn't in its
+     `Discrete steps` when filled), don't flag it one-by-one; instead **collect them all into one
+     short, non-blocking note** for the report (step 6), framed as a likely version difference —
+     e.g. *"2 values are outside the current catalog range, written as-is (likely an older game
+     version): Spring Stiffness Front 41000 (catalog 42300–73100); Rear ARB 9 (catalog 1–8)."*
+     (Informational, not something the user must fix.)
+
+  In **both** treatments: keep the **key-mapping flag** above, and write **`TyreType` values
+  fully-qualified** (e.g. `Tarmac Snow`, `Snow (Studs)`) — if the save or catalog holds an
+  ambiguous legacy name (bare `Snow`, `Gravel`, `Dry Tarmac`), map it to its canonical ACR name
+  before writing; if it can't be disambiguated confidently, flag it for the user instead of
+  guessing.
 
 - **Un-onboarded car — no catalog *and* no matching template — do not block.** (Only reach this
   case after the template check above found nothing.) Import anyway. Create the `Setups` **value
@@ -173,8 +211,9 @@ somehow exceeds it, compact it before writing (per `SKILL.md` core rules). Then 
   context — the user checks it after deciding a setup is worth learning from);
 - plus the mapped (onboarded) or raw (un-onboarded) value properties.
 
-Record values **as-is** (don't snap — they were already accepted in-game). **Never modify or delete
-existing rows.** After appending, **apply the column order** (`notion-structure.md` → *Applying the
+Record each value **per its treatment above**: **snapped to the catalog** for official-parse
+(version-matched) setups, **as-is** for the rest (older version / no template / `unknown`). **Never
+modify or delete existing rows.** After appending, **apply the column order** (`notion-structure.md` → *Applying the
 order*): set the `SHOW` on the main `Setups` table view and the car's linked view to `Name`, then
 value columns (by each parameter's `Order` when the catalog has it; otherwise in the parser's
 emitted order for raw columns), then the remaining meta columns — an idempotent view update, not a
@@ -188,11 +227,17 @@ Cover, in order:
 - the setups imported and which car each landed under;
 - for any car you **auto-onboarded from a bundled template**, say so (the catalog/columns came
   from the template, not screenshots);
+- which setups were **officially parsed** (game version matched the car's template version — values
+  validated and **snapped to the catalog**) vs imported **as-is** (version differed / no template /
+  `unknown`); name the matched version (e.g. *"3 setups official-parsed against the v0.4 template"*);
 - any **un-mappable keys** you couldn't confidently match to a column (these are still flagged for
   the user);
-- **out-of-range values as a single informational note** — *"written as-is, likely an older game
-  version"* (see the onboarded-car branch in step 5). This is **not** a warning and **not**
-  something the user must fix;
+- **same-version anomalies** — for official-parse setups, any value that still fell **outside** the
+  catalog at the matching version — listed separately as real *"please check"* items (these are
+  genuine, not an older-version difference);
+- **out-of-range values from as-is setups as a single informational note** — *"written as-is,
+  likely an older game version"* (the v0.6.0 path). This is **not** a warning and **not** something
+  the user must fix;
 - for an **un-onboarded car with no template** (raw-columns path), that its columns were created
   raw/unvalidated, with the suggestion to onboard it (screenshots or a template) for the full
   build/tweak/review experience.
@@ -230,6 +275,12 @@ attached), and that connecting Notion later lets them save, build, tweak, and re
   the rows don't show on the car page (create-if-missing, re-assert-if-present; step 5).
 - **If the car isn't onboarded but a bundled template matches it, auto-onboard from the template
   first** (step 5), then import onto that catalog.
-- **Never range-enforce imported values** — write them exactly as the save had them; report
-  out-of-range values as a single informational note (likely an older game version), never an error.
+- **Decide each setup's value treatment by its game version (step 5), per setup.** When the setup's
+  game version **matches** the car's bundled-template `version` (major.minor) → **official-parse**:
+  validate and **snap** values to the catalog. Otherwise → **as-is**: write values exactly as the
+  save had them and report out-of-range values as a single informational note (likely an older game
+  version), never an error.
+- **Never clamp or drop a value** in either treatment. As-is writes raw; official-parse snaps only
+  unambiguous discrete values and **flags** (doesn't force) genuine same-version out-of-range
+  anomalies.
 - When Python parsing returns 0 setups, **always** fall back to AI extraction and tell the user.

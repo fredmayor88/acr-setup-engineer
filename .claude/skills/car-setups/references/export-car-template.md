@@ -165,7 +165,10 @@ pressure:
 - Never include personal data (user name, email, Notion IDs) in the exported YAML.
 - The `version` field records the **game version the parameters were captured for** (e.g. `0.4`),
   taken from the user's answer to the Game version input; write `"unknown"` if they don't know.
-  It is informational metadata — nothing validates it on import. The `engine_layout` /
+  **Save-file import uses it** (`import-savegame.md` step 5): when a setup's game version matches
+  this `version` (major.minor), import validates and snaps that setup's values to the catalog
+  ("official parse") instead of writing them as-is; an `"unknown"` version simply skips that check
+  (import falls back to the as-is path). The `engine_layout` /
   `weight_bias` / `weight` header fields, the per-parameter `surface` field, and the per-parameter
   `order` field remain **optional and backward-compatible**: a template missing any of them imports
   exactly as before (a missing `order` falls back to the canonical defaults in
