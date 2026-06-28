@@ -120,7 +120,8 @@ When the user asks to save (and not before):
     **`Skill version`** (per `SKILL.md` → *Skill version* — do not copy from the source; this
     records the skill version that ran *this* refinement). Leave
     **`Learn from this` unchecked** — the user opts in after vetting.
-- **Apply the column order** (`notion-structure.md` → *Applying the order*) **after the row is
+- **Apply the column order — MANDATORY, never skip (even on a quick / low-effort run); the save is
+  not done until you've done it** (`notion-structure.md` → *Applying the order*), **after the row is
   written**. Get the `SHOW` list from the bundled script (don't build it by hand) and set `SHOW`
   (`notion-update-view`) on the main `Setups` table view (`… --all --show-order`), this car's linked
   view (`… "{Car}" --show-order`, hides blanks), and — if a stage/location is set — its `{Stage}` /

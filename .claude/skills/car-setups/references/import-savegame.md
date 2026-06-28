@@ -213,9 +213,10 @@ somehow exceeds it, compact it before writing (per `SKILL.md` core rules). Then 
 
 Record each value **per its treatment above**: **snapped to the catalog** for official-parse
 (version-matched) setups, **as-is** for the rest (older version / no template / `unknown`). **Never
-modify or delete existing rows.** **After the rows (and their value columns) exist, apply the column
-order** (`notion-structure.md` → *Applying the order*) — set `SHOW` on the main `Setups` table view
-and the car's linked view:
+modify or delete existing rows.** **Apply the column order — MANDATORY, never skip (even on a quick
+/ low-effort run); the import is not done until you've done it.** After the rows (and their value
+columns) exist, apply the column order (`notion-structure.md` → *Applying the order*) — set `SHOW`
+on the main `Setups` table view and the car's linked view:
 - **Car with a `Parameters` catalog** (onboarded, or auto-onboarded from a template) → get the
   `SHOW` list from the bundled script (`… "{Car}" --show-order` for the car view, `… --all
   --show-order` for the main table) and use it verbatim.
@@ -247,7 +248,9 @@ Cover, in order:
   the user must fix;
 - for an **un-onboarded car with no template** (raw-columns path), that its columns were created
   raw/unvalidated, with the suggestion to onboard it (screenshots or a template) for the full
-  build/tweak/review experience.
+  build/tweak/review experience;
+- **confirm in one line that you asserted the column order** on the affected views (step 5) — if you
+  can't, you skipped a required step: go back and do it before finishing.
 
 Remind the user that imported setups start **unrated** and **unchecked** — they can **rate each
 `1`–`5`** and tick `Learn from this` once they've vetted it.

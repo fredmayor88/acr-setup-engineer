@@ -213,9 +213,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      numeric parameter (has a numeric `Min..Max`), **Select** for an enumerated one
      (`Min/Max = —`). Don't remove or rename existing properties. The meta columns `Car`,
      `Location`, `Stage`, and `Surface` are **Select** (so they render as tags), per
-     `notion-structure.md`. Then **apply the column order**
-     (`notion-structure.md` → *Applying the order*): get the main table's `SHOW` list from the
-     bundled script (`… --all --show-order`) and set the main `Setups` table view's `SHOW` to it.
+     `notion-structure.md`. Then **apply the column order — MANDATORY, never skip (even on a quick /
+     low-effort run)** (`notion-structure.md` → *Applying the order*): get the main table's `SHOW`
+     list from the bundled script (`… --all --show-order`) and set the main `Setups` table view's
+     `SHOW` to it.
      Creation order does **not** drive the rendered table — the view's `SHOW` directive does.
    - **Record the car's identity facts** on the `{Car}` page: `Drivetrain`, and the
      `Engine layout` / `Weight bias` / `Weight` resolved in step 5 (write `couldn't determine`

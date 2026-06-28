@@ -149,6 +149,14 @@ Bundled tools (stdlib Python, run via code execution):
   missing (per `references/notion-structure.md`); don't rely on stored IDs.
 - **Reading rows.** To read a car's `Parameters` rows or a filtered slice of `Setups`, follow
   `references/notion-rest-read.md` — the connector can't list database rows reliably.
+- **Assert column order on every `Setups` write — MANDATORY, never skip.** Any time you create a
+  `Setups` linked view **or** append/update a `Setups` row, you **must**, in the same action, set
+  the column order: run `scripts/query_notion_parameters.py … --show-order` and apply the result as
+  the view `SHOW` on **every** affected projection (the main `Setups` table, the car's page view,
+  and any stage/location view). A Setups write is **not finished** until this is done — skip it and
+  columns render alphabetically. This applies on **every** run, including quick / low-effort ones;
+  it is a required step, never an optional polish. How-to: `references/notion-structure.md` →
+  *Applying the order*.
 
 ## Choosing a value (per parameter)
 Each `Parameters` row is either constrained to an exact set or left as a free numeric range —
