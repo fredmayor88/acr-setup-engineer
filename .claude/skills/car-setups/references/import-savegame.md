@@ -97,26 +97,59 @@ Read `notion-structure.md` before writing. Per selected car:
 → the `Parameters`/`Setups` DBs → the `{Car}` page. Set the car page's **`Drivetrain`** from the
 parser's `drivetrain` field (derived deterministically from the diff sections) if not already set.
 
+**Ensure the `{Car}` page has its Setups view** (this is what makes imported rows show up on the
+car page — without it the rows exist only in the main `Setups` table). Seed the page body the
+**same way onboarding does** (`onboard-car.md` step 7, sub-steps 1–3): H2 "Setups" heading → the
+`Setups[Car=this]` filtered linked view → H2 "Guidelines" stub. The linked view is **not** page
+markdown — create it with `notion-create-view` per `notion-structure.md` → *Creating an inline
+linked view*, which is **idempotent**: `notion-fetch` the page first; if a `Setups` linked view
+already exists, re-assert it (don't append a duplicate); if it's missing, create it. This applies
+to **every** car you import into — onboarded or not (an un-onboarded car still gets a car page
+with a Setups view; only its Guidelines stub / identity facts are sparse).
+
 Then, depending on whether the car has a `Parameters` catalog:
+
+- **No catalog yet, but a bundled template matches this car → onboard it first.** Before treating
+  the car as un-onboarded, look in `car-templates/` for a file whose `car:` matches the parsed car
+  name — **same match rule as `onboard-car.md` step 1** (case-insensitive; ignore punctuation,
+  hyphens, apostrophes). If one matches, **auto-onboard the car from that template** by running
+  `onboard-car.md`'s bundled-template path: load every template row into the `Parameters` catalog
+  (with `Order` / `Discrete steps` / `Surface`), set the car's `Drivetrain` and identity facts
+  (`Engine layout` / `Weight bias` / `Weight`) from the template, and seed the `{Car}` page body
+  (the H2 "Setups" → linked view → H2 "Guidelines" sequence above). **Don't** show onboarding's
+  interactive "Use this template? (Yes/No)" prompt — instead fold it into this import's existing
+  approval (step 3): tell the user *"{Car} isn't onboarded yet but a bundled template exists — I'll
+  onboard it from the template and import these N setups,"* and proceed on the same OK. If the
+  parser's `drivetrain` disagrees with the template's, **prefer the template** (it's the curated
+  catalog) and note the discrepancy. **Skip onboarding's optional gravel pass** (`onboard-car.md`
+  step 8) — an import has no screenshots to compare, so use the template's rows as-is (templates
+  that ship `Surface` rows already cover gravel). After onboarding, the car **has a catalog** —
+  proceed as the onboarded-car case below.
 
 - **Onboarded car (catalog present).** Load the car's Notion `Parameters` catalog **via
   [notion-rest-read.md](notion-rest-read.md)** (the connector can't list rows reliably). It is the
   source of truth for column names: match each parsed `key`/`label` to that car's `Adjustment`
   (the raw keys are descriptive, e.g. `Suspensions.Front.AdjusterRing` → "Adjuster ring" in section
   "Suspensions — Front"). **Flag any key you can't confidently map** to the user rather than
-  dropping it. **Validate each value against the catalog row resolved for that setup's surface** —
-  map the parsed `surface` to the catalog's `Tarmac`/`Gravel`/`Snow` (asphalt → Tarmac; dirt/mud →
-  Gravel; ice → Snow; anything else → baseline), then use the surface-specific row if the parameter
-  has one; for `Snow`, fall back to a `Gravel` row before the baseline (see
-  [notion-rest-read.md](notion-rest-read.md)). The value should fall within that row's `Min..Max`,
-  or be a member of its `Discrete steps` when filled; **flag mismatches** rather than dropping them
-  (a save value outside the catalog usually means the catalog is incomplete, not that the value is
-  wrong). **`TyreType` values must be written fully-qualified** (e.g. `Tarmac Snow`,
+  dropping it. **Do not range-enforce the values** — a save is usually from an **older game
+  version**, so a value outside the current catalog is expected and legitimate, not an error.
+  Resolve the surface row only to pick the right column: map the parsed `surface` to the catalog's
+  `Tarmac`/`Gravel`/`Snow` (asphalt → Tarmac; dirt/mud → Gravel; ice → Snow; anything else →
+  baseline), then use the surface-specific row if the parameter has one; for `Snow`, fall back to a
+  `Gravel` row before the baseline (see [notion-rest-read.md](notion-rest-read.md)). **Write every
+  value exactly as the save had it — never clamp it to the range or drop it.** When a value falls
+  outside its resolved row's `Min..Max` (or isn't in its `Discrete steps` when filled), don't flag
+  it one-by-one; instead **collect them all into one short, non-blocking note** for the report
+  (step 6), framed as a likely version difference — e.g. *"2 values are outside the current catalog
+  range, written as-is (likely an older game version): Spring Stiffness Front 41000 (catalog
+  42300–73100); Rear ARB 9 (catalog 1–8)."* (This is informational, not something the user must
+  fix.) **`TyreType` values must be written fully-qualified** (e.g. `Tarmac Snow`,
   `Snow (Studs)`) — if the save or catalog holds an ambiguous legacy name (bare `Snow`, `Gravel`,
   `Dry Tarmac`), map it to its canonical ACR name before writing; if it can't be disambiguated
   confidently, flag it for the user instead of guessing.
 
-- **Un-onboarded car (no catalog) — do not block.** Import anyway. Create the `Setups` **value
+- **Un-onboarded car — no catalog *and* no matching template — do not block.** (Only reach this
+  case after the template check above found nothing.) Import anyway. Create the `Setups` **value
   columns directly from the parsed keys** — use each param's humanized `label` as the column name,
   typed **Number** when the value is numeric and **Select** otherwise. Write the values **as-is,
   unvalidated** (there's no catalog to range-check against). In the report (step 6) state plainly
@@ -128,7 +161,10 @@ Then, depending on whether the car has a `Parameters` catalog:
 **In both cases**, parsed names come from the in-game field and are already **≤15 chars**; if one
 somehow exceeds it, compact it before writing (per `SKILL.md` core rules). Then add one new
 `Setups` row per setup:
-- `Name`, `Car`, `Surface`, `Game version`, `Date`, `Source = imported`;
+- `Name`, `Car`, `Surface`, `Game version`, `Date`, `Source = imported`. Write `Car` as the
+  **exact same `Car` Select value** the car page's linked view filters on (`FILTER "Car" =
+  "{Car}"`), via create-or-reuse — a casing or spacing mismatch would make the rows vanish from the
+  per-car view even though they're in the table;
 - `Location`/`Stage` if a `track` maps to one in the `Locations` catalogue, else leave both blank —
   **never fabricate a stage facts page** from an import;
 - **`Skill version`** (per `SKILL.md` → *Skill version* — written for imported rows too, since it
@@ -142,14 +178,27 @@ existing rows.** After appending, **apply the column order** (`notion-structure.
 order*): set the `SHOW` on the main `Setups` table view and the car's linked view to `Name`, then
 value columns (by each parameter's `Order` when the catalog has it; otherwise in the parser's
 emitted order for raw columns), then the remaining meta columns — an idempotent view update, not a
-rebuild.
+rebuild. This step **re-asserts `SHOW` on views that already exist**, so the car's linked Setups
+view must have been created earlier in this step (see *Ensure the `{Car}` page has its Setups
+view* above) — applying the order does **not** create a missing view.
 
 ### 6. Report (Notion path)
-Which handler/version was used (or that the AI fallback was used), setups imported and which car
-each landed under, anything flagged outside a catalog or un-mappable, and — for any un-onboarded
-car — that its columns were created raw/unvalidated with the onboarding suggestion. Remind the user
-that imported setups start **unrated** and **unchecked** — they can **rate each `1`–`5`** and tick
-`Learn from this` once they've vetted it.
+Cover, in order:
+- which handler/version was used (or that the AI fallback was used);
+- the setups imported and which car each landed under;
+- for any car you **auto-onboarded from a bundled template**, say so (the catalog/columns came
+  from the template, not screenshots);
+- any **un-mappable keys** you couldn't confidently match to a column (these are still flagged for
+  the user);
+- **out-of-range values as a single informational note** — *"written as-is, likely an older game
+  version"* (see the onboarded-car branch in step 5). This is **not** a warning and **not**
+  something the user must fix;
+- for an **un-onboarded car with no template** (raw-columns path), that its columns were created
+  raw/unvalidated, with the suggestion to onboard it (screenshots or a template) for the full
+  build/tweak/review experience.
+
+Remind the user that imported setups start **unrated** and **unchecked** — they can **rate each
+`1`–`5`** and tick `Learn from this` once they've vetted it.
 
 ### 7. Chat-table output (no-Notion path)
 Present the selected setups using the **copy-pasteable convention** above (one fenced code block
@@ -177,4 +226,10 @@ attached), and that connecting Notion later lets them save, build, tweak, and re
 - Always get user approval of the parsed output before writing.
 - Import works **without Notion** (chat table) and **without onboarding** (raw columns) — never
   block recovery on either.
+- **Every car imported into Notion gets a `{Car}` page with a `Setups` linked view** — without it
+  the rows don't show on the car page (create-if-missing, re-assert-if-present; step 5).
+- **If the car isn't onboarded but a bundled template matches it, auto-onboard from the template
+  first** (step 5), then import onto that catalog.
+- **Never range-enforce imported values** — write them exactly as the save had them; report
+  out-of-range values as a single informational note (likely an older game version), never an error.
 - When Python parsing returns 0 setups, **always** fall back to AI extraction and tell the user.
