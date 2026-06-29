@@ -29,9 +29,10 @@ under **Installable in**, then click **Create connection**.
 
 ## 2. Make it read-only and copy the token
 On the connection's **Configuration** tab, under **Capabilities → Content capabilities**, leave
-**only "Read content"** checked (uncheck *Update content* and *Insert content*), then **Save
-connection**. Now copy the **Access token** from the **Integration token** section — use the eye
-icon to reveal it and the copy icon to grab it. It starts with `secret_` or `ntn_`.
+**only "Read content"** checked (uncheck *Update content* and *Insert content*). Click **Save
+connection** at the bottom to apply the change. Then copy the **Access token** from the
+**Integration token** section — use the eye icon to reveal it and the copy icon to grab it. It
+starts with `secret_` or `ntn_`.
 
 ![Leave only Read content checked under Capabilities](https://raw.githubusercontent.com/fredmayor88/car-setups/main/docs/notionConnectionSetup2.png)
 
