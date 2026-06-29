@@ -98,63 +98,78 @@ Try to resolve the **`Car setups`** root via the Notion connector (per `notion-s
      (step 7). Mention they can re-run the import later once Notion is set up.
 
 ### 5. Write to Notion — onboarding is optional
-Read `notion-structure.md` before writing. Per selected car:
+Read `notion-structure.md` before writing. **Order matters: per car, write the `Parameters` catalog
+(onboarding) BEFORE writing any setups or computing any view's column order.** Snapping, value
+validation, and column order all depend on the catalog — and the `Setups` value columns it creates —
+already existing. Do these sub-steps **in this order**, per selected car:
 
-**Ensure the structure exists** (per `notion-structure.md`): the `Car setups` root → `{Game}` page
-→ the `Parameters`/`Setups` DBs → the `{Car}` page. Set the car page's **`Drivetrain`** from the
-parser's `drivetrain` field (derived deterministically from the diff sections) if not already set.
+**5.1 — Ensure the base structure exists** (per `notion-structure.md`): the `Car setups` root →
+`{Game}` page → the `Parameters`/`Setups` DBs → the `{Car}` page. Set the car page's
+**`Drivetrain`** from the parser's `drivetrain` field (derived deterministically from the diff
+sections) if not already set. **Don't create the Setups linked view yet** — that's step 5.3, after
+the catalog exists.
 
-**Ensure the `{Car}` page has its Setups view** (this is what makes imported rows show up on the
-car page — without it the rows exist only in the main `Setups` table). Seed the page body the
+**5.2 — Resolve/populate the `Parameters` catalog FIRST (onboarding).** This must finish before any
+setup row is written. Pick the case:
+
+- **Already onboarded (catalog present).** Load the car's Notion `Parameters` catalog **via
+  [notion-rest-read.md](notion-rest-read.md)** (the connector can't list rows reliably) — the
+  source of truth for column names and `Order`.
+
+- **Not onboarded, but a bundled template matches this car → auto-onboard it now.** Look in
+  `car-templates/` for a file whose `car:` matches the parsed car name — **same match rule as
+  `onboard-car.md` step 1** (case-insensitive; ignore punctuation, hyphens, apostrophes). If one
+  matches, **auto-onboard from that template by running `onboard-car.md`'s bundled-template path**:
+  write every template row into the `Parameters` catalog (with `Order` / `Discrete steps` /
+  `Surface`) — **all rows in one `notion-create-pages` call**, and all the `Setups` value columns in
+  **one `notion-update-data-source` call** (`SKILL.md` → *Batch Notion writes*) — and set the car's
+  `Drivetrain` and identity facts (`Engine layout` / `Weight bias` / `Weight`) from the template.
+  **Don't** show onboarding's interactive "Use this template? (Yes/No)" prompt — fold it into this
+  import's approval (step 3): tell the user *"{Car} isn't onboarded yet but a bundled template
+  exists — I'll onboard it from the template and import these N setups,"* and proceed on the same
+  OK. If the parser's `drivetrain` disagrees with the template's, **prefer the template** (the
+  curated catalog) and note the discrepancy. **Skip onboarding's optional gravel pass**
+  (`onboard-car.md` step 8) — an import has no screenshots to compare; the template's rows already
+  cover gravel where it ships `Surface` rows. After this the car **has a catalog** — treat it as the
+  onboarded case from here on.
+
+- **No catalog and no matching template → raw path (do not block).** There is **no** catalog. The
+  `Setups` **value columns are created directly from the parsed keys** when the rows are written
+  (5.5) — each param's humanized `label` as the column name, typed **Number** when the value is
+  numeric and **Select** otherwise. Values are written **as-is, unvalidated** (no catalog to
+  range-check against). In the report (step 6) state plainly that columns were created from the save
+  and **ranges were not validated**, and **suggest onboarding** the car (screenshots or a bundled
+  template, `onboard-car.md`) for the full build/tweak/review experience. Don't fabricate ranges or
+  a `Parameters` catalog here — onboarding owns that. (Skip 5.4 for this path; values go in as-is.)
+
+**5.3 — Ensure the `{Car}` page has its Setups view** (this is what makes imported rows show up on
+the car page — without it the rows exist only in the main `Setups` table). Seed the page body the
 **same way onboarding does** (`onboard-car.md` step 7, sub-steps 1–3): H2 "Setups" heading → the
 `Setups[Car=this]` filtered linked view → H2 "Guidelines" stub. The linked view is **not** page
 markdown — create it with `notion-create-view` per `notion-structure.md` → *Creating an inline
 linked view*, which is **idempotent**: `notion-fetch` the page first; if a `Setups` linked view
-already exists, re-assert it (don't append a duplicate); if it's missing, create it. This applies
-to **every** car you import into — onboarded or not (an un-onboarded car still gets a car page
-with a Setups view; only its Guidelines stub / identity facts are sparse).
+already exists, re-assert it (don't append a duplicate); if it's missing, create it. The catalog now
+exists (5.2), so the view's `SHOW` order is computable via the script; raw-path cars have no
+catalog, so their view's order is asserted in 5.6 once the value columns exist. This applies to
+**every** car you import into.
 
-Then, depending on whether the car has a `Parameters` catalog:
+**5.4 — Map / snap / validate each setup's values against the catalog** (catalog cars only — the raw
+path writes as-is). Match each parsed `key`/`label` to the catalog's `Adjustment` (the raw keys are
+descriptive, e.g. `Suspensions.Front.AdjusterRing` → "Adjuster ring" in section "Suspensions —
+Front"). **Flag any key you can't confidently map** rather than dropping it. **Resolve each value's
+surface row:** map the parsed `surface` to the catalog's `Tarmac`/`Gravel`/`Snow` (asphalt → Tarmac;
+dirt/mud → Gravel; ice → Snow; anything else → baseline), then use the surface-specific row if the
+parameter has one; for `Snow`, fall back to a `Gravel` row before the baseline (see
+[notion-rest-read.md](notion-rest-read.md)).
 
-- **No catalog yet, but a bundled template matches this car → onboard it first.** Before treating
-  the car as un-onboarded, look in `car-templates/` for a file whose `car:` matches the parsed car
-  name — **same match rule as `onboard-car.md` step 1** (case-insensitive; ignore punctuation,
-  hyphens, apostrophes). If one matches, **auto-onboard the car from that template** by running
-  `onboard-car.md`'s bundled-template path: load every template row into the `Parameters` catalog
-  (with `Order` / `Discrete steps` / `Surface`), set the car's `Drivetrain` and identity facts
-  (`Engine layout` / `Weight bias` / `Weight`) from the template, and seed the `{Car}` page body
-  (the H2 "Setups" → linked view → H2 "Guidelines" sequence above). **Don't** show onboarding's
-  interactive "Use this template? (Yes/No)" prompt — instead fold it into this import's existing
-  approval (step 3): tell the user *"{Car} isn't onboarded yet but a bundled template exists — I'll
-  onboard it from the template and import these N setups,"* and proceed on the same OK. If the
-  parser's `drivetrain` disagrees with the template's, **prefer the template** (it's the curated
-  catalog) and note the discrepancy. **Skip onboarding's optional gravel pass** (`onboard-car.md`
-  step 8) — an import has no screenshots to compare, so use the template's rows as-is (templates
-  that ship `Surface` rows already cover gravel). After onboarding, the car **has a catalog** —
-  proceed as the onboarded-car case below.
-
-- **Onboarded car (catalog present).** Load the car's Notion `Parameters` catalog **via
-  [notion-rest-read.md](notion-rest-read.md)** (the connector can't list rows reliably). It is the
-  source of truth for column names: match each parsed `key`/`label` to that car's `Adjustment`
-  (the raw keys are descriptive, e.g. `Suspensions.Front.AdjusterRing` → "Adjuster ring" in section
-  "Suspensions — Front"). **Flag any key you can't confidently map** to the user rather than
-  dropping it.
-
-  **Resolve each value's surface row (common to both treatments below).** Map the parsed `surface`
-  to the catalog's `Tarmac`/`Gravel`/`Snow` (asphalt → Tarmac; dirt/mud → Gravel; ice → Snow;
-  anything else → baseline), then use the surface-specific row if the parameter has one; for
-  `Snow`, fall back to a `Gravel` row before the baseline (see
-  [notion-rest-read.md](notion-rest-read.md)).
-
-  **Then choose each setup's value treatment by its game version — decide this _per setup_** (one
-  save can hold setups from several versions):
+Then **choose each setup's value treatment by its game version — decide this _per setup_** (one save
+can hold setups from several versions):
 
   1. **Version-match check.** Look in `car-templates/` for this car's bundled template (**same
-     match rule as the auto-onboard branch above**). The setup is a **version match** only when
-     **all** of these are true: a template exists, its `version` is **not** `"unknown"`, and the
-     setup's parser `game_version` reduced to its **major.minor** family (first two dotted parts —
-     e.g. `0.4.1.123` → `0.4`) **equals** that template `version` (e.g. `0.4`). Otherwise it is
-     **not** a match.
+     match rule as 5.2**). The setup is a **version match** only when **all** of these are true: a
+     template exists, its `version` is **not** `"unknown"`, and the setup's parser `game_version`
+     reduced to its **major.minor** family (first two dotted parts — e.g. `0.4.1.123` → `0.4`)
+     **equals** that template `version` (e.g. `0.4`). Otherwise it is **not** a match.
 
   2. **If it matches → official-parse this setup (validate + snap to the catalog).** The save and
      catalog are the same game version, so store **clean, catalog-conformant values**:
@@ -181,24 +196,14 @@ Then, depending on whether the car has a `Parameters` catalog:
      (Informational, not something the user must fix.)
 
   In **both** treatments: keep the **key-mapping flag** above, and write **`TyreType` values
-  fully-qualified** (e.g. `Tarmac Snow`, `Snow (Studs)`) — if the save or catalog holds an
-  ambiguous legacy name (bare `Snow`, `Gravel`, `Dry Tarmac`), map it to its canonical ACR name
-  before writing; if it can't be disambiguated confidently, flag it for the user instead of
-  guessing.
+  fully-qualified** (e.g. `Tarmac Snow`, `Snow (Studs)`) — if the save or catalog holds an ambiguous
+  legacy name (bare `Snow`, `Gravel`, `Dry Tarmac`), map it to its canonical ACR name before
+  writing; if it can't be disambiguated confidently, flag it for the user instead of guessing.
 
-- **Un-onboarded car — no catalog *and* no matching template — do not block.** (Only reach this
-  case after the template check above found nothing.) Import anyway. Create the `Setups` **value
-  columns directly from the parsed keys** — use each param's humanized `label` as the column name,
-  typed **Number** when the value is numeric and **Select** otherwise. Write the values **as-is,
-  unvalidated** (there's no catalog to range-check against). In the report (step 6) state plainly
-  that columns were created from the save and **ranges were not validated**, and **suggest
-  onboarding** the car (screenshots or a bundled template, `onboard-car.md`) so values get
-  validated and the full build/tweak/review experience is unlocked. Don't fabricate ranges or a
-  `Parameters` catalog here — onboarding owns that.
-
-**In both cases**, parsed names come from the in-game field and are already **≤15 chars**; if one
-somehow exceeds it, compact it before writing (per `SKILL.md` core rules). Then add one new
-`Setups` row per setup:
+**5.5 — Write the `Setups` rows — all in one `notion-create-pages` call** (≤100; `SKILL.md` →
+*Batch Notion writes*), one page per setup. Parsed names come from the in-game field and are already
+**≤15 chars**; if one somehow exceeds it, compact it before writing (per `SKILL.md` core rules).
+Each row:
 - `Name`, `Car`, `Surface`, `Game version`, `Date`, `Source = imported`. Write `Car` as the
   **exact same `Car` Select value** the car page's linked view filters on (`FILTER "Car" =
   "{Car}"`), via create-or-reuse — a casing or spacing mismatch would make the rows vanish from the
@@ -209,25 +214,27 @@ somehow exceeds it, compact it before writing (per `SKILL.md` core rules). Then 
   identifies the import logic that produced the row, unlike `Model` which stays blank here);
 - **`Learn from this` = unchecked** (imported setups carry raw numbers without driving-intent
   context — the user checks it after deciding a setup is worth learning from);
-- plus the mapped (onboarded) or raw (un-onboarded) value properties.
+- plus the mapped (catalog) or raw value properties.
 
-Record each value **per its treatment above**: **snapped to the catalog** for official-parse
-(version-matched) setups, **as-is** for the rest (older version / no template / `unknown`). **Never
-modify or delete existing rows.** **Apply the column order — MANDATORY, never skip (even on a quick
-/ low-effort run); the import is not done until you've done it.** After the rows (and their value
-columns) exist, apply the column order (`notion-structure.md` → *Applying the order*) — set `SHOW`
-on the main `Setups` table view and the car's linked view:
+Record each value **per its treatment in 5.4**: **snapped to the catalog** for official-parse
+(version-matched) setups, **as-is** for the rest (older version / no template / `unknown` / raw
+path). **Never modify or delete existing rows.**
+
+**5.6 — Apply the column order — MANDATORY, never skip (even on a quick / low-effort run); the
+import is not done until you've done it.** After the rows (and their value columns) exist, apply the
+column order (`notion-structure.md` → *Applying the order*) — set `SHOW` on the main `Setups` table
+view and the car's linked view:
 - **Car with a `Parameters` catalog** (onboarded, or auto-onboarded from a template) → get the
   `SHOW` list from the bundled script (`… "{Car}" --show-order` for the car view, `… --all
   --show-order` for the main table) and use it verbatim.
-- **Raw-columns car** (un-onboarded, no template — the catalog doesn't exist, so the script has no
-  `Order` to read) → build `SHOW` by hand instead: `Name`, then the raw value columns **in the
-  parser's emitted order**, then the meta columns.
+- **Raw-columns car** (no catalog, so the script has no `Order` to read) → build `SHOW` by hand
+  instead: `Name`, then the raw value columns **in the parser's emitted order**, then the meta
+  columns.
 
 This step **re-asserts `SHOW` on views that already exist** (an idempotent view update, not a
-rebuild), so the car's linked Setups view must have been created earlier in this step (see *Ensure
-the `{Car}` page has its Setups view* above) — applying the order does **not** create a missing
-view. A newly created view is alphabetical until this `SHOW` is asserted, so don't skip it.
+rebuild), so the car's linked Setups view must have been created in 5.3 — applying the order does
+**not** create a missing view. A newly created view is alphabetical until this `SHOW` is asserted,
+so don't skip it.
 
 ### 6. Report (Notion path)
 Cover, in order:

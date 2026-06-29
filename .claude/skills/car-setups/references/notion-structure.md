@@ -62,6 +62,13 @@ Two DBs **per game** only — car/location/stage pages are **filtered linked vie
 DBs. A stage is **immutable, shared reference data** — it is created once under `Locations` and
 referenced by any number of setups (any car, any number of times), never duplicated per car.
 
+**Batch every write (`SKILL.md` → *Batch Notion writes*).** Create a DB with its **full column set
+in one `notion-create-database` `CREATE TABLE`**; when adding columns to an existing DB, combine
+**all** `ADD COLUMN`s into **one** `notion-update-data-source` call. Create many rows (a car's whole
+`Parameters` catalog, all imported setup rows) in **one** `notion-create-pages` call (≤100 rows;
+batch in 100s only if more). Never add columns or rows one call at a time — it's slow and
+token-heavy.
+
 ## `Parameters` DB — one row per `Car × Adjustment` (× `Surface` when ranges differ)
 `Car`, `Section`, `Adjustment` (title), `Min`, `Max`, `Unit`, **`Discrete steps`**, **`Order`**,
 and an optional **`Surface`**. The authoritative legal-value catalog. Parameter availability is

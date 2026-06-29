@@ -149,6 +149,13 @@ Bundled tools (stdlib Python, run via code execution):
   missing (per `references/notion-structure.md`); don't rely on stored IDs.
 - **Reading rows.** To read a car's `Parameters` rows or a filtered slice of `Setups`, follow
   `references/notion-rest-read.md` — the connector can't list database rows reliably.
+- **Batch Notion writes — never loop one row / one column per call** (it's slow and token-heavy).
+  Create many database rows in a **single `notion-create-pages` call** (its `pages[]` takes up to
+  100; split into 100-row batches only if there are more). Create or extend a DB's columns in one
+  call too: a single `notion-create-database` `CREATE TABLE` for a new DB, or a single
+  `notion-update-data-source` with **all** `ADD COLUMN`s combined (semicolon-separated). So a car's
+  whole `Parameters` catalog, all its `Setups` value columns, and all imported setup rows each go in
+  **one** call, not dozens.
 - **Assert column order on every `Setups` write — MANDATORY, never skip.** Any time you create a
   `Setups` linked view **or** append/update a `Setups` row, you **must**, in the same action, set
   the column order: run `scripts/query_notion_parameters.py … --show-order` and apply the result as

@@ -200,7 +200,11 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 
 7. **Write to Notion** (via the user's Notion connection):
    - Upsert one row per `Car × Adjustment` into the `Parameters` DB (match on `Car` +
-     `Adjustment` + `Surface`; update if present, else create — never duplicate). These tarmac
+     `Adjustment` + `Surface`; update if present, else create — never duplicate). **Batch the
+     writes** (`SKILL.md` → *Batch Notion writes*): write **all** the car's rows in a **single
+     `notion-create-pages` call** (a car has well under 100 params) — on a first onboard that's
+     every row; on a refresh, batch the creates in one call and issue updates only for rows whose
+     values changed. These tarmac
      baseline rows leave **`Surface` blank** (the gravel pass in step 8 may add `Gravel`-tagged
      rows later). Set `Min`/`Max`/`Unit` **and `Order`** (step 3; a surface-tagged row mirrors its
      baseline row's `Order`). For `—` named-selection params, write the observed
@@ -211,12 +215,15 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      canonical defaults (`notion-structure.md`) — no re-screenshotting needed.
    - Ensure the `Setups` DB has a matching **value property** per Adjustment: **Number** for a
      numeric parameter (has a numeric `Min..Max`), **Select** for an enumerated one
-     (`Min/Max = —`). Don't remove or rename existing properties. The meta columns `Car`,
-     `Location`, `Stage`, and `Surface` are **Select** (so they render as tags), per
-     `notion-structure.md`. Then **apply the column order — MANDATORY, never skip (even on a quick /
-     low-effort run)** (`notion-structure.md` → *Applying the order*): get the main table's `SHOW`
-     list from the bundled script (`… --all --show-order`) and set the main `Setups` table view's
-     `SHOW` to it.
+     (`Min/Max = —`). **Add them in one call** (`SKILL.md` → *Batch Notion writes*): include every
+     value column in the `CREATE TABLE` when the `Setups` DB is first created, or combine **all**
+     the new columns into a **single `notion-update-data-source`** call (semicolon-separated
+     `ADD COLUMN`s) — never one column per call. Don't remove or rename existing properties. The
+     meta columns `Car`, `Location`, `Stage`, and `Surface` are **Select** (so they render as tags),
+     per `notion-structure.md`. Then **apply the column order — MANDATORY, never skip (even on a
+     quick / low-effort run)** (`notion-structure.md` → *Applying the order*): get the main table's
+     `SHOW` list from the bundled script (`… --all --show-order`) and set the main `Setups` table
+     view's `SHOW` to it.
      Creation order does **not** drive the rendered table — the view's `SHOW` directive does.
    - **Record the car's identity facts** on the `{Car}` page: `Drivetrain`, and the
      `Engine layout` / `Weight bias` / `Weight` resolved in step 5 (write `couldn't determine`
