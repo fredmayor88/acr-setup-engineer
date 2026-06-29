@@ -84,14 +84,16 @@ be provided for non-ACR use. **Save-file import is ACR-only.**
 5. **Give the skill read access to Notion** *(takes ~3 minutes).* The skill reads your tables
    through Notion's **API** so every read is fast, exact, and cheap.
 
-   1. **Create a read-only integration.** Go to
-      [notion.so/my-integrations](https://www.notion.so/my-integrations) → **New integration** →
-      **Internal**, in your workspace. Under **Capabilities**, leave **only "Read content"**
-      checked (uncheck Update and Insert). Copy the **Internal Integration Secret**
+   1. **Create a read-only connection.** Go to
+      [notion.so/profile/integrations](https://www.notion.so/profile/integrations) →
+      **Connections** → **+ New connection**. Name it (e.g. `myCarSetupConnection`), leave
+      **Authentication method** on **Access token**, pick your workspace, and **Create
+      connection**. On its **Configuration** tab, under **Capabilities**, leave **only "Read
+      content"** checked (uncheck Update and Insert) and **Save**. Copy the **Access token**
       (`secret_…` / `ntn_…`).
    2. **Connect it to only your data.** Open your **Car setups** page in Notion → **•••** →
-      **Connections** → add your integration. Access cascades to everything under it (your
-      Parameters/Setups) — **and nothing else** in your workspace. The token is read-only and
+      **Connections** → add the connection you just made. Access cascades to everything under it
+      (your Parameters/Setups) — **and nothing else** in your workspace. The token is read-only and
       can't see anything you didn't connect.
    3. **Give the skill the token** (pick one):
       - **Store it (recommended):** the skill **auto-creates a `Config` page** under **Car setups**

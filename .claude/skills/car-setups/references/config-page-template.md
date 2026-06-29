@@ -5,9 +5,10 @@ This is the friendly template used to create the **`Config`** page in Notion (di
 skill fast, exact read access to your setups and gives you a place to paste the token. It's
 written for a non-technical user: plain language, numbered steps.
 
-> When seeding the Notion page, copy everything below the line **verbatim**. **Never overwrite an
-> existing `Config` page** — if one is already there, leave it (it may already hold the user's
-> token). Leave the token line empty; the user pastes their own secret onto it later.
+> When seeding the Notion page, copy everything below the line **verbatim** (including the
+> `![…](…)` image lines — render them as embedded images so the screenshots show on the page).
+> **Never overwrite an existing `Config` page** — if one is already there, leave it (it may already
+> hold the user's token). Leave the token line empty; the user pastes their own secret onto it later.
 
 ---
 
@@ -18,20 +19,32 @@ recommended — without it, reading your setups is slower and less reliable.
 
 You only do this **once**, and it takes about 3 minutes.
 
-## 1. Create a read-only integration
-Go to **[notion.so/my-integrations](https://www.notion.so/my-integrations)** → **New integration**
-→ **Internal**, in this workspace. Under **Capabilities**, leave **only "Read content"** checked
-(uncheck *Update* and *Insert*). Copy the **Internal Integration Secret** — it starts with
-`secret_` or `ntn_`.
+## 1. Create a connection
+Go to **[notion.so/profile/integrations](https://www.notion.so/profile/integrations)** → in the
+left sidebar pick **Connections** → **+ New connection**. Give it a name (e.g.
+`myCarSetupConnection`), leave **Authentication method** on **Access token**, pick your workspace
+under **Installable in**, then click **Create connection**.
 
-## 2. Connect it to only your Car setups
-Open your **Car setups** page → **•••** menu → **Connections** → add the integration you just made.
-Access cascades to everything under `Car setups` (your Parameters/Setups) — **and nothing else** in
-your workspace.
+![Create a new connection with the Access token method](https://raw.githubusercontent.com/fredmayor88/car-setups/main/docs/notionConnectionSetup.png)
 
-## 3. Paste your token below
-Paste the secret on the line below. It's safe here: the token is **read-only** and can only see the
-data you connected it to. **Keep it private** — don't share this page.
+## 2. Make it read-only and copy the token
+On the connection's **Configuration** tab, under **Capabilities → Content capabilities**, leave
+**only "Read content"** checked (uncheck *Update content* and *Insert content*), then **Save
+connection**. Now copy the **Access token** from the **Integration token** section — use the eye
+icon to reveal it and the copy icon to grab it. It starts with `secret_` or `ntn_`.
+
+![Leave only Read content checked under Capabilities](https://raw.githubusercontent.com/fredmayor88/car-setups/main/docs/notionConnectionSetup2.png)
+
+## 3. Connect it to only your Car setups
+Open your **Car setups** page → **•••** menu (top-right) → **Connections** → find and add the
+connection you just made (e.g. `myCarSetupConnection`). Access cascades to everything under
+`Car setups` (your Parameters/Setups) — **and nothing else** in your workspace.
+
+![Add the connection to the Car setups page via the ••• menu](https://raw.githubusercontent.com/fredmayor88/car-setups/main/docs/notionConnectionSetup3.png)
+
+## 4. Paste your token below
+Paste the access token on the line below. It's safe here: the token is **read-only** and can only
+see the data you connected it to. **Keep it private** — don't share this page.
 
 **Token:** _(paste your `secret_…` / `ntn_…` here)_
 
