@@ -26,6 +26,17 @@ the database directly through Notion's REST API, which supports an exact filter 
      have one yet, **walk them through the one-time setup** (point to the README section) — don't
      try to read rows without it (see "No token" below).
 
+## Do the reads in one pass (don't seed context one round-trip at a time)
+Resolve the structure **once**, then collapse the rest (`SKILL.md` → *Read efficiently*):
+- Fire the independent reads **together in a single step (parallel tool calls)** — the
+  `Parameters`/`Setups` DB `notion-fetch`es (for their `data_source_id`s), the `{Car}` page, the
+  `Tuning guidelines` page, and any `{Stage}`/`{Location}` page. `notion-fetch` is one entity per
+  call, so issue them in parallel rather than sequentially.
+- Run **all** the REST queries below (e.g. the car's `Parameters` **and** a `Setups` slice) in **one
+  code-execution block**, not a separate block each.
+- **Fetch each page once** (the `{Car}` page has both identity facts and Guidelines), reuse the
+  `data_source_id`s within the run, and skip anything already loaded in the thread.
+
 ## The query — run the bundled script
 Run this in **code execution** (the sandbox must allow outbound HTTPS to `api.notion.com`):
 

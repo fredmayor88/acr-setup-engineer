@@ -64,6 +64,11 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 ## Procedure
 
+> **Load steps 1–3 as one batched read** (`SKILL.md` → *Read efficiently*): after resolving the
+> structure, issue the independent reads together (parallel tool calls) and run the REST queries in
+> one code-execution block — and fetch the `{Car}` page **once** for both its identity facts (step 1)
+> and its Guidelines section (step 2), not twice.
+
 1. **Load the constraints + drivetrain + identity facts.** Fetch the car's `Parameters` rows
    **via [notion-rest-read.md](notion-rest-read.md)** (the connector can't list rows reliably) → for
    each, record `Min`, `Max`, `Unit`, the optional **`Discrete steps`** set, the **`Order`** (drives

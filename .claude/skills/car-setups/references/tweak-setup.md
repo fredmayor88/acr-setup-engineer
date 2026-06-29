@@ -36,6 +36,11 @@ Decide what the iteration starts from — **don't immediately write anything**:
   (`build-setup.md`). Don't guess a base.
 
 ### 2. Load constraints + the car's identity facts
+> **Load steps 2–4 as one batched read** (`SKILL.md` → *Read efficiently*): once the structure is
+> resolved, issue the independent reads together (parallel tool calls) and run the REST queries in
+> one code-execution block, fetching the `{Car}` page **once** for both its identity facts (this
+> step) and its Guidelines section (step 3). Skip any read whose data is already in the thread.
+
 Fetch the car's `Parameters` rows (within `Car setups → {Game} → Parameters`):
 `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Order`, `Surface`. Read the car's identity
 facts from the `{Car}` page — `Drivetrain` (FWD/RWD/AWD), `Engine layout`, `Weight bias`, `Weight`

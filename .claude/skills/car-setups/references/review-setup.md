@@ -14,6 +14,11 @@ base) before starting.
 
 ## Procedure
 
+> **Load steps 1–3 as one batched read** (`SKILL.md` → *Read efficiently*): after resolving the
+> structure, issue the independent reads together (parallel tool calls) and run the REST queries in
+> one code-execution block — fetching the `{Car}` page **once** for both its `Drivetrain`/identity
+> facts (step 2) and its Guidelines section (step 3).
+
 ### 1. Identify the setup
 Navigate to `Car setups → {Game} → Setups` DB and find the row matching the given name. Stay
 within `Car setups` scope — do not issue workspace-wide Notion searches.

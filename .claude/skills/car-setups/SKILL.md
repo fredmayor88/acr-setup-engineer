@@ -149,6 +149,15 @@ Bundled tools (stdlib Python, run via code execution):
   missing (per `references/notion-structure.md`); don't rely on stored IDs.
 - **Reading rows.** To read a car's `Parameters` rows or a filtered slice of `Setups`, follow
   `references/notion-rest-read.md` — the connector can't list database rows reliably.
+- **Read efficiently — collapse round-trips.** Seeding context is slow when reads are done one at a
+  time. After resolving the structure once, the remaining reads are **independent**: issue them
+  **together in a single step (parallel tool calls)** — e.g. the `Parameters`/`Setups` DB fetches
+  (for their `data_source_id`s), the `{Car}` page, the `Tuning guidelines` page, and any `{Stage}`/
+  `{Location}` page — rather than one-by-one. Run **all** REST queries
+  (`scripts/query_notion_parameters.py`) in **one code-execution block**. **Fetch each page once**
+  (the `{Car}` page carries *both* identity facts and the Guidelines section — one fetch), **reuse
+  resolved IDs / `data_source_id`s** within the run, and **don't read anything already in the
+  thread**.
 - **Batch Notion writes — never loop one row / one column per call** (it's slow and token-heavy).
   Create many database rows in a **single `notion-create-pages` call** (its `pages[]` takes up to
   100; split into 100-row batches only if there are more). Create or extend a DB's columns in one
