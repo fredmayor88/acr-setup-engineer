@@ -8,7 +8,9 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 ## Inputs
 - **Car** (e.g. `Lancia Stratos HF`) and **game** (default `ACR`). The car is resolved **under its
   `{Game}` page**; if the same car name exists under more than one game, ask the user which game.
-  Non-ACR games use the **same reasoning base** — no game-specific tuning is shipped.
+  Non-ACR games use the **same reasoning base** — no game-specific tuning is shipped. If the car
+  **isn't onboarded yet**, step 0 onboards it first — automatically from a bundled template when one
+  exists, otherwise by asking you to onboard via screenshots before the build proceeds.
 - **Location / Stage** (both optional) — a reference into the shared `Locations` catalogue
   (`notion-structure.md` → *Locations & stages catalogue*). A build may name neither (an arbitrary
   setup with no place context, e.g. "drift setup, tarmac"), a location only, or a specific stage.
@@ -64,10 +66,35 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 ## Procedure
 
+0. **Ensure the car is onboarded — auto-onboard from a bundled template if needed.** A build is
+   *legal by construction* only against the car's `Parameters` catalog, so the catalog must exist
+   before anything else. Determine whether the car is onboarded by fetching its `Parameters` rows
+   (via [notion-rest-read.md](notion-rest-read.md)) — **this is the same fetch step 1 needs, so
+   don't repeat it**. Then, exactly as in [import-savegame.md](import-savegame.md) §5.2:
+   - **Catalog present (already onboarded)** → carry the rows into step 1 and continue.
+   - **No catalog, but a bundled template matches this car** → **auto-onboard now**, before
+     building. Match `car-templates/` by `car:` using the **same rule as `onboard-car.md` step 1**
+     (case-insensitive; ignore punctuation, hyphens, apostrophes), then run **`onboard-car.md`'s
+     bundled-template path**: write every template row into `Parameters` (with `Order` /
+     `Discrete steps` / `Surface`) in **one `notion-create-pages` call**, add all the `Setups`
+     value columns in **one `notion-update-data-source` call** (`SKILL.md` → *Batch Notion
+     writes*), and set the car's `Drivetrain` + identity facts (`Engine layout` / `Weight bias` /
+     `Weight`) from the template. **Skip** onboarding's interactive "Use this template? (Yes/No)"
+     prompt **and** its optional gravel pass (the template already carries any `Surface` rows).
+     **Don't add a separate Yes/No gate** — announce it in one line (*"{Car} isn't onboarded yet,
+     but I have a bundled template — I'll onboard it from the template first, then build your
+     setup."*) and **proceed within the build's natural flow**. The car now **has a catalog**;
+     treat it as the onboarded case from here on.
+   - **No catalog and no matching template** → a legal build is impossible without a catalog, and
+     onboarding owns range capture, so **don't fabricate ranges**. Tell the user the car needs
+     onboarding first, point them to `onboard-car.md` (screenshots), and offer to switch to that
+     workflow. **Stop** the build here.
+
 > **Load steps 1–3 as one batched read** (`SKILL.md` → *Read efficiently*): after resolving the
 > structure, issue the independent reads together (parallel tool calls) and run the REST queries in
 > one code-execution block — and fetch the `{Car}` page **once** for both its identity facts (step 1)
-> and its Guidelines section (step 2), not twice.
+> and its Guidelines section (step 2), not twice. (When step 0 just auto-onboarded the car from a
+> template, you already hold its catalog — don't re-fetch the `Parameters` rows.)
 
 1. **Load the constraints + drivetrain + identity facts.** Fetch the car's `Parameters` rows
    **via [notion-rest-read.md](notion-rest-read.md)** (the connector can't list rows reliably) → for
@@ -225,6 +252,9 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    (`tweak-setup.md`) and iterate **in chat** — don't rebuild from scratch.
 
 ## Rules
+- **Onboard first (step 0).** If the car has no `Parameters` catalog: a matching bundled template ⇒
+  auto-onboard from it (announce, no Yes/No gate) before building; no template ⇒ ask the user to
+  onboard via screenshots (`onboard-car.md`) and don't build until the catalog exists.
 - Legal by construction: pick from `Discrete steps` when set, else a target within `Min..Max`
   ("dial to nearest"); validate before writing.
 - Apply only guidance tagged `[All]` or the car's drivetrain; user guidelines override the base.

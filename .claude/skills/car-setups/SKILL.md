@@ -17,7 +17,9 @@ for **all** games — no game-specific knowledge is shipped.
 A **community template library** lives in `car-templates/` — one YAML file per car with all
 tunable parameters, Min/Max ranges, and Discrete steps pre-filled. When onboarding a car that
 has a bundled template, the skill offers to auto-populate Notion from it (skipping screenshots).
-Users can export their own onboarded car's parameters as a template to contribute back.
+When the user asks to **build** (or **import**) a setup for a car that isn't onboarded yet, a
+matching template **auto-onboards it first** — no screenshots, no separate step. Users can export
+their own onboarded car's parameters as a template to contribute back.
 
 Pick the matching workflow and read its file before acting:
 
