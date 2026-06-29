@@ -1,5 +1,6 @@
 car: "Fiat 124 Abarth Rally 16V 1974"
 game: "ACR"
+save_ids: ["Fiat124Abarth"]
 drivetrain: "RWD"
 engine_layout: "front-mounted longitudinal DOHC inline-4 (1.8 L / 1756 cc, 16-valve competition head)"
 weight_bias: "~55% front / ~45% rear (estimated — no published figure for the classic car)"

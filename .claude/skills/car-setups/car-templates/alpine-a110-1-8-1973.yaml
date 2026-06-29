@@ -1,5 +1,6 @@
 car: "Alpine A110 1.8 1973"
 game: "ACR"
+save_ids: ["AlpineA110"]
 drivetrain: "RWD"
 engine_layout: "rear-mounted longitudinal inline-4 (1.8L), behind the cockpit, ahead of the rear axle"
 weight_bias: "~36% front / ~64% rear"

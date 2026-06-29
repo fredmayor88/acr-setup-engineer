@@ -1,5 +1,6 @@
 car: "Citroen Xsara WRC 2003"
 game: "ACR"
+save_ids: ["CitroenXsaraWRC"]
 drivetrain: "AWD"
 engine_layout: "front transverse turbocharged inline-4 (2.0L), ahead of the front axle"
 weight_bias: "~60% front / ~40% rear"

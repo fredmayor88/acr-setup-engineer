@@ -1,5 +1,6 @@
 car: "Lancia Delta Integrale Evoluzione 1992"
 game: "ACR"
+save_ids: ["LanciaDeltaIntegraleEvo"]
 drivetrain: "AWD"
 engine_layout: "front transverse inline-4 turbo (2.0L 16v)"
 weight_bias: "~63% front / ~37% rear"

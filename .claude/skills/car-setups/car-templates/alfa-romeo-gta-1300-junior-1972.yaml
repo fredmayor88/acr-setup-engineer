@@ -1,5 +1,6 @@
 car: "Alfa Romeo GTA 1300 Junior 1972"
 game: "ACR"
+save_ids: ["AlfaRomeoGTA1300"]
 drivetrain: "RWD"
 engine_layout: "front longitudinal inline-4 (1290 cc DOHC), driving the rear wheels"
 weight_bias: "~56% front / ~44% rear (approx. — model knowledge, verify if you have a better figure)"

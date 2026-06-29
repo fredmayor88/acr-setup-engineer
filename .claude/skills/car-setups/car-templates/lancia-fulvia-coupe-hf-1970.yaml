@@ -1,5 +1,6 @@
 car: "Lancia Fulvia Coupé HF 1970"
 game: "ACR"
+save_ids: ["LanciaFulviaHF"]
 drivetrain: "FWD"
 engine_layout: "front-mounted longitudinal narrow-angle V4, front-wheel drive"
 weight_bias: "~63% front / ~37% rear"
