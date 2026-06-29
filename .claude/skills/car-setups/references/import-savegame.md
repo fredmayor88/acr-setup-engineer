@@ -236,7 +236,8 @@ can hold setups from several versions):
 *Batch Notion writes*), one page per setup. Parsed names come from the in-game field and are already
 **≤15 chars**; if one somehow exceeds it, compact it before writing (per `SKILL.md` core rules).
 Each row:
-- `Name`, `Car`, `Surface`, `Game version`, `Date`, `Source = imported`. Write `Car` as the
+- `Name`, `Car`, `Surface`, `Game version`, `Date` (current date/time — per `notion-structure.md`
+  → `Date`: run the Python one-liner, don't guess the time), `Source = imported`. Write `Car` as the
   **exact same `Car` Select value** the car page's linked view filters on (`FILTER "Car" =
   "{Car}"`), via create-or-reuse — a casing or spacing mismatch would make the rows vanish from the
   per-car view even though they're in the table;

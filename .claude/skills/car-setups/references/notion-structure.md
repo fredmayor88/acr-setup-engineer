@@ -125,7 +125,8 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
 ## `Setups` DB — one row per setup
 - **Meta:** `Name` (title), `Car` (**Select**), `Location` (**Select**, optional), `Stage`
   (**Select**, optional), `Surface` (**Select**, options `Tarmac` / `Gravel` / `Snow`),
-  `Game version`, `Date`, `Source` (`generated` | `imported`), `Mode` (`learn` | `independent`),
+  `Game version`, `Date` (**Date**, stores date *and* time), `Source` (`generated` | `imported`),
+  `Mode` (`learn` | `independent`),
   `Rating` (**Select**, options `1`–`5`, higher = better; **blank = unrated**), `Notes`,
   **`Learn from this`** (checkbox), `Model` (**Select**), `Skill version` (**Text**).
   Make `Car`, `Location`, `Stage`,
@@ -156,6 +157,14 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   5 = great. Leave blank until you've driven it."* It is **user-entered** after driving — the skill
   never writes it, only reads it, mapping the chosen label to its integer (`"4"` → 4) for learn
   weighting / review.
+  **`Date`** is a **Date** property that stores **date *and* time** (Notion renders the time
+  whenever the stored value carries one — no special column type needed). Write it on **every**
+  skill-created row — generated, tweaked, **and imported** — as the current local date/time, and
+  get that value **deterministically by running Python**, never by typing the model's guess at the
+  wall-clock time:
+  `python -c "import datetime; print(datetime.datetime.now().astimezone().isoformat(timespec='minutes'))"`
+  (prints e.g. `2026-06-29T14:32+02:00`; write that string into `Date`). Give the column the
+  description *"When this row was created (local date + time), set deterministically by the skill."*
 - **Values:** one property per tunable parameter (canonical `Adjustment` name), union across
   the game's cars; blank where a parameter doesn't apply **to this car** (or for the documented
   `FFB Multiplier` exception) — never as a "default" for a parameter the car has; a setup must

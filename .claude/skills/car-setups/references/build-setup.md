@@ -200,7 +200,8 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 8. **Write to Notion — append only** (via the user's Notion connection).
    - Create **one new row** in `Setups`: `Name`, `Car`, `Location` (if given), `Stage` (if given),
-     `Surface`, `Game version` (if known), `Date` (today), `Source = generated`, `Mode`, the
+     `Surface`, `Game version` (if known), `Date` (current date/time — per `notion-structure.md`
+     → `Date`: run the Python one-liner; don't guess the time), `Source = generated`, `Mode`, the
      chosen `Tyre type`, a value for **every** parameter the car has, **`Model`** (just your model
      name + version, e.g. `Opus 4.8`), and
      **`Skill version`** (per `SKILL.md` → *Skill version*).

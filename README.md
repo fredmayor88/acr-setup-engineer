@@ -172,7 +172,7 @@ explains in chat and never changes your Notion.
 
 **Import setups you already made**
 
-Attach your `CarSetupsDataSaveSlot.sav` (Windows: `%LOCALAPPDATA%\acr\Saved\SaveGames\`) and
+Attach your `CarSetupsDataSaveSlot.sav` (Windows: `%LOCALAPPDATA%\acr\Saved\SaveGames\CarSetupsDataSaveSlot.sav`) and
 say *"Import my setups from this save."* Claude reads the file, shows you what it found, and
 — once you confirm — adds the setups to Notion. If the file has setups for several cars, Claude
 asks which ones you want; cars that aren't onboarded yet are imported anyway (onboard them later

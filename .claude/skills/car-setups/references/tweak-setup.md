@@ -119,7 +119,8 @@ When the user asks to save (and not before):
   - Copy every value property from the source; overwrite the parameters changed across the session
     with the final working values.
   - Set: `Name`, `Car`, `Location` (if the source/feedback names one), `Stage` (likewise),
-    `Surface`, `Source = generated`, `Mode` (inherit source mode, default `learn`), `Date` = today,
+    `Surface`, `Source = generated`, `Mode` (inherit source mode, default `learn`), `Date`
+    (current date/time — per `notion-structure.md` → `Date`: run the Python one-liner, don't guess),
     **`Model`** (just your current model name + version, e.g. `Opus 4.8`; do
     **not** copy from the source; this records the model that ran *this* refinement), and
     **`Skill version`** (per `SKILL.md` → *Skill version* — do not copy from the source; this
