@@ -94,10 +94,10 @@ be provided for non-ACR use. **Save-file import is ACR-only.**
       Parameters/Setups) — **and nothing else** in your workspace. The token is read-only and
       can't see anything you didn't connect.
    3. **Give the skill the token** (pick one):
-      - **Store it (recommended):** make a page named **`Config`** under **Car setups** and
-        paste the token onto it. The skill reads it automatically — set once, works in every
-        chat. (It's safe here: the token is read-only and only unlocks the data it sits next
-        to.)
+      - **Store it (recommended):** the skill **auto-creates a `Config` page** under **Car setups**
+        (with these same steps already on it) the first time it builds your structure — just open
+        it and paste the token onto it. The skill reads it automatically — set once, works in every
+        chat. (It's safe here: the token is read-only and only unlocks the data it sits next to.)
       - **Paste per chat:** don't store it; paste it when the skill asks. Nothing is saved.
 
    The skill detects the token and reads your setups in one exact call.

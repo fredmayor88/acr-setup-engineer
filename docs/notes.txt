@@ -1,0 +1,6 @@
+import of 4 cars with 11 setup + full onboarding on Sonnet4.6 Low:
+- took roughly 40% of the 5h session window and 12min
+- creating the full notion structure was most time consuming
+- just to read the setups from the save file and show text tables: 1min and not even 1% on the session marker
+
+

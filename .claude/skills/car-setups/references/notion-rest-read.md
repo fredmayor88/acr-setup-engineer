@@ -21,10 +21,13 @@ the database directly through Notion's REST API, which supports an exact filter 
 2. **A read-only integration token** (`secret_…` / `ntn_…`). See "Give the skill read access to
    Notion" in `README.md` for the one-time setup. Obtain the token at read time:
    - **Primary:** `notion-fetch` the **`Config`** page under `Car setups` and read the token from
-     it (it persists across chats).
-   - If there is no `Config` page, ask the user to paste the token for this chat. If they don't
-     have one yet, **walk them through the one-time setup** (point to the README section) — don't
-     try to read rows without it (see "No token" below).
+     it (it persists across chats). The page is auto-created with the structure, so it normally
+     exists.
+   - **Page exists but no token pasted yet** (just the seeded instructions): the one-time setup
+     steps are right there on the page — point the user to them, or have them paste a token for
+     this chat. Don't read rows without a token (see "No token" below).
+   - **No `Config` page at all** (unusual): ask the user to paste the token for this chat, or walk
+     them through the one-time setup (the README section / the `Config` page instructions).
 
 ## Do the reads in one pass (don't seed context one round-trip at a time)
 Resolve the structure **once**, then collapse the rest (`SKILL.md` → *Read efficiently*):
@@ -81,8 +84,9 @@ only the baseline row and resolve to it on every surface.
 ## No token (or the query fails)
 This REST query **is** the read path — don't substitute the connector's row-listing, which is
 unreliable (capped, semantic, mixes cars) and produces silently wrong setups.
-- **No token available:** stop and walk the user through the one-time setup ("Give the skill read
-  access to Notion" in `README.md`), or have them paste a token for this chat. Then read.
+- **No token available:** the `Config` page (auto-created with the structure) already carries the
+  one-time setup steps — point the user there (or to "Give the skill read access to Notion" in
+  `README.md`), or have them paste a token for this chat. Then read.
 - **Query errors / times out:** the most common cause is the code sandbox not being allowed
   outbound network to `api.notion.com` (egress is restricted by default). Tell the user reads need
   outbound access enabled (or a pasted token) — surface the problem; don't fall back to a degraded

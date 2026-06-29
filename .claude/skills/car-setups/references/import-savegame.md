@@ -124,7 +124,8 @@ already existing. Do these sub-steps **in this order**, per selected car:
 > read back a catalog for a car that was **already onboarded** before this run.
 
 **5.1 — Ensure the base structure exists** (per `notion-structure.md`): the `Car setups` root →
-`{Game}` page → the `Parameters`/`Setups` DBs → the `{Car}` page. Set the car page's
+the `Config` page (seed from `config-page-template.md` if missing — token blank; **never overwrite
+an existing one**) → `{Game}` page → the `Parameters`/`Setups` DBs → the `{Car}` page. Set the car page's
 **`Drivetrain`** from the parser's `drivetrain` field (derived deterministically from the diff
 sections) if not already set. **Don't create the Setups linked view yet** — that's step 5.3, after
 the catalog exists.

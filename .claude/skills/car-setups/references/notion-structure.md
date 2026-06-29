@@ -10,12 +10,16 @@ Skills locate the structure **by its canonical names**, not by hardcoded IDs, so
 across workspaces and self-healing:
 
 1. Search for the root page **`Car setups`**; create it if absent.
-2. Under it, the game page (e.g. **`ACR`**); create if absent. Multiple `{Game}` pages may
+2. Directly under the root, the **`Config`** page (holds the read-only Notion API token). **Create
+   it if absent, seeded from [config-page-template.md](config-page-template.md)** (the integration
+   setup instructions + an empty token line). **Never overwrite an existing `Config` page** — it
+   may already hold the user's pasted token; leave its contents untouched.
+3. Under the root, the game page (e.g. **`ACR`**); create if absent. Multiple `{Game}` pages may
    coexist — resolve a car under the game it was onboarded into, and ask the user if the same car
    name appears under more than one game.
-3. Under the game: the **`Parameters`** DB, the **`Setups`** DB, the **`Tuning guidelines`**
+4. Under the game: the **`Parameters`** DB, the **`Setups`** DB, the **`Tuning guidelines`**
    page, and the **`Locations`** catalogue page; create any that are missing (schemas below).
-4. Per car: the **`{Car}`** page with its filtered view. Per location/stage referenced by a setup:
+5. Per car: the **`{Car}`** page with its filtered view. Per location/stage referenced by a setup:
    the **`{Location}`** page and **`{Stage}`** page (under `Locations`) with their filtered views.
 
 Never depend on stored page/database IDs — always re-resolve the structure **by name**. (You
@@ -36,16 +40,20 @@ with an exact `Car` filter and pagination (reliable, complete, one call). If the
 prompt the user through the one-time setup rather than substituting an unreliable connector read.
 
 That read path uses a **read-only API token** the user sets up once (see *Give the skill read
-access to Notion* in `README.md`). When present, the token lives on a **`Config`** page
-directly under the `Car setups` root; the skill `notion-fetch`es that page to read it. The `Config`
-page is **not** auto-created — only the user adds it. Treat its contents as a secret: never echo
+access to Notion* in `README.md`). The token lives on a **`Config`** page directly under the
+`Car setups` root; the skill `notion-fetch`es that page to read it. The `Config` page is
+**auto-created** as part of the structure (create-if-missing, seeded from
+[config-page-template.md](config-page-template.md)) carrying the integration-setup instructions and
+an **empty token line** — so the page is normally present even before the user has pasted a token;
+the user only has to follow the on-page steps and paste. Treat its contents as a secret: never echo
 the token back, copy it into other pages, or include it in exports.
 
 ## Hierarchy
 
 ```
 Car setups (root page)
-├── Config (page, optional)     holds the read-only Notion API token (see "Reading rows" below)
+├── Config (page)               holds the read-only Notion API token; auto-created with setup
+│                                instructions, token blank until the user pastes it (see "Reading rows")
 └── {Game}                      e.g. ACR
     ├── Parameters        (DB)  the catalog — one row per Car × Adjustment × Surface
     ├── Setups            (DB)  one row per setup

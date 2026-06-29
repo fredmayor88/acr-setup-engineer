@@ -43,6 +43,8 @@ Shared knowledge (read as needed):
   REST. Follow this wherever a workflow says "fetch the car's rows".
 - `references/setup-tuning-principles.md` — the tuning reasoning base (drivetrain-tagged).
 - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
+- `references/config-page-template.md` — seed for the auto-created `Config` page (integration
+  setup instructions + a blank token line for the read-only Notion token).
 - `car-templates/` — bundled YAML parameter templates, one file per car (see
   `references/export-car-template.md` for the file format).
 - `VERSION` — the skill's own version (or `dev` for a source checkout); see *Skill version* below.

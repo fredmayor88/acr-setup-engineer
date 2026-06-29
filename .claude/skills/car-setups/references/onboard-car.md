@@ -196,10 +196,11 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      `couldn't determine`) and continue.
 
 6. **Ensure the Notion structure exists (create-if-missing).** Per `notion-structure.md`,
-   resolve **by name** and create whatever is missing: the `Car setups` root → `{Game}` page →
-   the `Parameters` and `Setups` DBs → the global `Tuning guidelines` page (seed it from
-   `tuning-guidelines-template.md`). Then ensure the `{Car}` page exists with its filtered
-   `Parameters` / `Setups` views.
+   resolve **by name** and create whatever is missing: the `Car setups` root → the `Config` page
+   (seed from `config-page-template.md` if missing — token blank; **never overwrite an existing
+   one**) → `{Game}` page → the `Parameters` and `Setups` DBs → the global `Tuning guidelines` page
+   (seed it from `tuning-guidelines-template.md`). Then ensure the `{Car}` page exists with its
+   filtered `Parameters` / `Setups` views.
 
 7. **Write to Notion** (via the user's Notion connection):
    - Upsert one row per `Car × Adjustment` into the `Parameters` DB (match on `Car` +
