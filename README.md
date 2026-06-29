@@ -45,9 +45,15 @@ Together these cover the **whole lifecycle of a setup** in one place. Every valu
 what the car actually allows, and the setups get **more personal the more you use it** — rate
 your setups and tick "Learn from this" on the good ones, and future setups follow your taste.
 
-![How it works](docs/flowchart.png)
+![New setup flow](docs/new_setup_flow.png)
 
-![Make a setup flow](docs/makeSetupFlow.png)
+![Import setups flow](docs/import_setups_flow.png)
+
+![Tweak/ask flow](docs/tweak_ask_flow.png)
+
+![Car onboarding flow](docs/onboard_flow.png)
+
+![Knowledge structure](docs/knowledgeFlow.png)
 
 **Other games:** this skill was built and tested exclusively for **Assetto Corsa Rally**. You
 may be able to onboard cars and build setups for other rally/racing games, but this has not been
