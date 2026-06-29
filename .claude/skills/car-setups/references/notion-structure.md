@@ -286,8 +286,23 @@ python scripts/query_notion_parameters.py <params_data_source_id> <token> "{Car}
 python scripts/query_notion_parameters.py <params_data_source_id> <token> --all --show-order
 ```
 
-It prints the exact, ready-to-paste property list: `"Name"`, then value columns by `Order`, then
-the fixed meta columns (`Car` … `Model`, `Skill version`). Use it verbatim as the `SHOW` value:
+**Token-free path — when the car's catalog was just created from a bundled template this run** (e.g.
+an import auto-onboard, `import-savegame.md` step 5): you already hold every `Order` locally, so there
+is **no reason to read it back from Notion**. Get the same list from the template file(s) — **no
+token, no `Config` page, no network**:
+
+```
+# per-car view — the just-onboarded car's template:
+python scripts/query_notion_parameters.py --show-order --from-template car-templates/<car>.yaml
+# main table — the union, one --from-template per imported car:
+python scripts/query_notion_parameters.py --show-order --from-template <c1>.yaml --from-template <c2>.yaml …
+```
+
+This still goes **through the script** (the same `Order`-driven comparator below) — it is **not**
+hand-assembly, so the "don't assemble it by hand" rule holds. Use the **token** form above only for
+cars whose catalog you read back from Notion (already onboarded before this run). Either form prints
+the exact, ready-to-paste property list: `"Name"`, then value columns by `Order`, then the fixed meta
+columns (`Car` … `Model`, `Skill version`). Use it verbatim as the `SHOW` value:
 
 - **main `Setups` table view** → `--all --show-order`; `SHOW <script output>`;
 - **per-car linked view** (on the `{Car}` page, filtered `Car = "{Car}"`) → `"{Car}" --show-order`;

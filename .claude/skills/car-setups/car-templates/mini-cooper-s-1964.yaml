@@ -1,5 +1,6 @@
 car: "Mini Cooper S 1964"
 game: "ACR"
+save_ids: ["MiniCooperS1275"]
 drivetrain: "FWD"
 engine_layout: "front-mounted transverse inline-4, front-wheel drive"
 weight_bias: "~63% front / ~37% rear"

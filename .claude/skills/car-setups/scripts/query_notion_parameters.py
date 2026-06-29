@@ -15,11 +15,17 @@ Usage:
   python query_notion_parameters.py <params_data_source_id> <token> <car_name> --show-order
   python query_notion_parameters.py <params_data_source_id> <token> --all --show-order
 
+  # Same SHOW list, computed locally from bundled template YAML(s) — no token/network.
+  # Use when a car's catalog was just created from a template this run (e.g. import auto-onboard):
+  python query_notion_parameters.py --show-order --from-template car-templates/<car>.yaml
+  python query_notion_parameters.py --show-order --from-template a.yaml --from-template b.yaml
+
 Arguments:
   data_source_id   UUID from notion-fetch (strip the "collection://" prefix).
   token            Notion read-only integration token (secret_... / ntn_...).
   car_name         Exact value of the "Car" select property to filter on.
                    Optional (omit) when --all is given.
+  (data_source_id, token, car_name are all omitted when --from-template is used.)
 
 Options:
   --learn-only   Also filter "Learn from this" checkbox = true (Setups learn pool).
@@ -28,6 +34,12 @@ Options:
                  `Order`, then the fixed meta columns. Run against the Parameters
                  data source. Output is ready to paste after `SHOW ` in a view's
                  configure DSL.
+  --from-template <path>
+                 Compute the --show-order list locally from one or more bundled
+                 template YAML files instead of querying Notion — no data_source_id,
+                 token, or network. Repeatable: pass one file for a per-car view, or
+                 several to get the deduped union for the main Setups table. Requires
+                 --show-order; ignores any positional args.
   --all          Query every row (no "Car" filter) — the union of value columns, for
                  the main Setups table and the {Location}/{Stage} views. With
                  --show-order, omit <car_name>. For a per-car view, pass <car_name>
@@ -42,6 +54,7 @@ Output: JSON array — one object per row, property names as keys, values extrac
 Exit codes: 0 success, 1 HTTP/network error, 2 usage error. stdlib only.
 """
 import json
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -121,6 +134,50 @@ def build_show_order(rows):
     return ', '.join(f'"{name}"' for name in names)
 
 
+def read_template_rows(path):
+    """Extract [{'Adjustment', 'Order'}] from a bundled template YAML's `parameters:` list.
+
+    Deliberately minimal (stdlib only — no PyYAML, matching the skill's convention): the
+    template files are flat and export-enforced (references/export-car-template.md). Reads only
+    what build_show_order needs — each parameter's `adjustment` and optional `order` — so the
+    local SHOW order is identical to the Notion --show-order path without a token or network.
+    Header fields (incl. a block-list `save_ids:`) are ignored: collection starts at
+    `parameters:` and items without an `adjustment` are skipped.
+    """
+    rows, cur, in_params = [], None, False
+    with open(path, encoding='utf-8') as fh:
+        for line in fh:
+            stripped = line.strip()
+            if not in_params:
+                if stripped == 'parameters:':
+                    in_params = True
+                continue
+            # a non-indented, non-list line ends the parameters block (next top-level key)
+            if line[:1].strip() and not stripped.startswith('-'):
+                break
+            if stripped.startswith('- '):                 # new list item → new parameter row
+                if cur and cur.get('Adjustment'):
+                    rows.append(cur)
+                cur = {}
+                stripped = stripped[2:].strip()           # a key may sit on the `- ` line too
+            if cur is None:
+                continue
+            m = re.match(r'([\w ]+?):\s*(.*)$', stripped)
+            if not m:
+                continue
+            key, val = m.group(1), m.group(2).strip().strip('"\'')
+            if key == 'adjustment':
+                cur['Adjustment'] = val
+            elif key == 'order':
+                try:
+                    cur['Order'] = int(val)
+                except ValueError:
+                    pass
+    if cur and cur.get('Adjustment'):
+        rows.append(cur)
+    return rows
+
+
 def query(data_source_id, token, car_name, learn_only=False):
     """Return all rows matching car_name as a list of property dicts."""
     url = f'{BASE_URL}/{data_source_id}/query'
@@ -172,16 +229,40 @@ def query(data_source_id, token, car_name, learn_only=False):
 
 
 def main():
-    positional = [a for a in sys.argv[1:] if not a.startswith('--')]
-    flags = {a for a in sys.argv[1:] if a.startswith('--')}
+    args = sys.argv[1:]
+    positional, flags, templates = [], set(), []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a == '--from-template':
+            if i + 1 >= len(args):
+                print('--from-template requires a path', file=sys.stderr)
+                sys.exit(2)
+            templates.append(args[i + 1])
+            i += 2
+            continue
+        (flags.add(a) if a.startswith('--') else positional.append(a))
+        i += 1
     learn_only = '--learn-only' in flags
     pretty = '--pretty' in flags
     show_order = '--show-order' in flags
     all_cars = '--all' in flags
 
+    # Local SHOW order from bundled template YAML(s) — no Notion, no token.
+    if templates:
+        if not show_order:
+            print('--from-template requires --show-order', file=sys.stderr)
+            sys.exit(2)
+        rows = []
+        for path in templates:
+            rows.extend(read_template_rows(path))
+        print(build_show_order(rows))
+        sys.exit(0)
+
     usage = ('usage: query_notion_parameters.py <data_source_id> <token> <car_name>'
              ' [--learn-only] [--show-order] [--pretty]\n'
-             '       query_notion_parameters.py <data_source_id> <token> --all --show-order')
+             '       query_notion_parameters.py <data_source_id> <token> --all --show-order\n'
+             '       query_notion_parameters.py --show-order --from-template <template.yaml> ...')
     # Need data_source_id + token always; car_name too unless --all.
     if len(positional) < 2 or (len(positional) < 3 and not all_cars):
         print(usage, file=sys.stderr)

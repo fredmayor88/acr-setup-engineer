@@ -236,5 +236,70 @@ class TestQuery(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 1)
 
 
+class TestReadTemplateRows(unittest.TestCase):
+    """The token-free --from-template path: read {Adjustment, Order} from template YAML."""
+
+    TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), '..', '.claude', 'skills',
+                                 'car-setups', 'car-templates')
+
+    def _write(self, text):
+        import tempfile
+        fd, path = tempfile.mkstemp(suffix='.yaml')
+        os.close(fd)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(text)
+        self.addCleanup(os.remove, path)
+        return path
+
+    def test_reads_real_template_adjustment_and_order(self):
+        path = os.path.join(self.TEMPLATES_DIR, 'alfa-romeo-gta-1300-junior-1972.yaml')
+        rows = Q.read_template_rows(path)
+        by_adj = {r['Adjustment']: r.get('Order') for r in rows}
+        self.assertEqual(by_adj['Gear Set'], 1010)
+        self.assertEqual(by_adj['ABS Map'], 8010)
+        # value-first/meta-last is then guaranteed by build_show_order (covered above)
+        show = Q.build_show_order(rows)
+        self.assertTrue(show.startswith('"Name", "Gear Set", '))
+        self.assertTrue(show.endswith('"Skill version"'))
+
+    def test_ignores_save_ids_and_header_fields(self):
+        # save_ids is a header field (and could be a block list); it must not become a row.
+        path = self._write(
+            'car: "X"\n'
+            'game: "ACR"\n'
+            'save_ids:\n'
+            '  - "SomeSaveId"\n'
+            'drivetrain: "RWD"\n'
+            'parameters:\n'
+            '  - section: "Gearbox"\n'
+            '    adjustment: "Gear Set"\n'
+            '    order: 1010\n'
+        )
+        rows = Q.read_template_rows(path)
+        self.assertEqual(rows, [{'Adjustment': 'Gear Set', 'Order': 1010}])
+
+    def test_tolerates_missing_order(self):
+        path = self._write(
+            'parameters:\n'
+            '  - adjustment: "No Order Param"\n'
+            '  - adjustment: "Has Order"\n'
+            '    order: 2020\n'
+        )
+        rows = Q.read_template_rows(path)
+        self.assertEqual({r['Adjustment'] for r in rows}, {'No Order Param', 'Has Order'})
+        self.assertNotIn('Order', next(r for r in rows if r['Adjustment'] == 'No Order Param'))
+
+    def test_stops_at_next_top_level_key(self):
+        # a top-level key after parameters: must not swallow following content as params
+        path = self._write(
+            'parameters:\n'
+            '  - adjustment: "Gear Set"\n'
+            '    order: 1010\n'
+            'trailing_key: "ignored"\n'
+        )
+        rows = Q.read_template_rows(path)
+        self.assertEqual(rows, [{'Adjustment': 'Gear Set', 'Order': 1010}])
+
+
 if __name__ == '__main__':
     unittest.main()

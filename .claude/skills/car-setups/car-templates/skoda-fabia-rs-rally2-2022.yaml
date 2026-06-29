@@ -1,5 +1,6 @@
 car: "Skoda Fabia RS Rally2 2022"
 game: "ACR"
+save_ids: ["SkodaFabiaRSRally2"]
 drivetrain: "AWD"
 engine_layout: "transverse front-mounted turbocharged inline-4"
 weight_bias: "~60% front / ~40% rear"

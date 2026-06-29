@@ -55,7 +55,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
        despite being a `—`-type param, and call them out for user enumeration as usual.
        The `drivetrain` field in the template sets the car's drivetrain. If the template carries
        the optional `engine_layout`, `weight_bias`, or `weight` fields, use them directly for the
-       car identity facts in step 5 — no lookup needed (see the determination step below).
+       car identity facts in step 5 — no lookup needed (see the determination step below). An
+       optional `save_ids` field (the exact in-save car string, used only by save-file import to
+       match the car) needs no action here — it doesn't affect the screenshot/template catalog;
+       carry it through untouched.
      - **User declines (No):** Fall through to the screenshot path below.
 
    - **No match:** Proceed to the screenshot path below (no announcement needed).

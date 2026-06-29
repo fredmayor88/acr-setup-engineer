@@ -62,6 +62,7 @@ Produce a YAML block with this exact structure:
 ```yaml
 car: "{Car Name}"
 game: "{Game}"
+save_ids: ["{exact in-save car string}"]   # OPTIONAL — see rules; omit if unknown
 drivetrain: "{FWD|RWD|AWD}"
 engine_layout: "{descriptive engine placement, e.g. mid-rear transverse V6 behind the driver}"
 weight_bias: "{front/rear percentages, e.g. ~44% front / ~56% rear}"
@@ -95,6 +96,14 @@ Rules:
 - `engine_layout`, `weight_bias`, `weight`: **optional** car-level header fields. Emit each only
   when the `{Car}` page has a value; omit the line entirely if blank. If the page holds the
   literal `couldn't determine`, carry it through as-is. These are not parameters.
+- `save_ids`: **optional** list of the exact in-save car string(s) ACR writes for this car (the
+  `car` field the save-file parser emits, e.g. `"MiniCooperS1275"`, `"LanciaRally037Evo2"`). It lets
+  **save-file import** (`import-savegame.md` step 5.2) match a save to this template **reliably** —
+  these compact IDs often drop the year or add tokens, so the human `car:` name can't be fuzzy-matched
+  to them. **Export can't populate it** (Notion doesn't store the save string), so **omit the line on
+  a normal export**; it's filled in only when an observed save reveals the string (the import
+  confirm-match fallback prompts the user to contribute it). A template without `save_ids` imports
+  exactly as before — fully backward-compatible.
 - Use double quotes around all string values; no quotes around numbers.
 - Produce clean YAML — no trailing spaces, consistent 2-space indentation.
 
@@ -168,8 +177,9 @@ pressure:
   **Save-file import uses it** (`import-savegame.md` step 5): when a setup's game version matches
   this `version` (major.minor), import validates and snaps that setup's values to the catalog
   ("official parse") instead of writing them as-is; an `"unknown"` version simply skips that check
-  (import falls back to the as-is path). The `engine_layout` /
+  (import falls back to the as-is path). The `save_ids` and `engine_layout` /
   `weight_bias` / `weight` header fields, the per-parameter `surface` field, and the per-parameter
   `order` field remain **optional and backward-compatible**: a template missing any of them imports
   exactly as before (a missing `order` falls back to the canonical defaults in
-  `notion-structure.md`), regardless of the `version` value.
+  `notion-structure.md`; a missing `save_ids` just means import matches by name only), regardless of
+  the `version` value.

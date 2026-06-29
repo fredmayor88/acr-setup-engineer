@@ -1,5 +1,6 @@
 car: "Peugeot 306 II Maxi 1997"
 game: "ACR"
+save_ids: ["Peugeot306IIMaxiKitCar"]
 drivetrain: "FWD"
 engine_layout: "front transverse naturally-aspirated inline-4 (2.0L), ahead of the front axle"
 weight_bias: "~63% front / ~37% rear"

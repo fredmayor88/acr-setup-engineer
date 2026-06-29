@@ -66,6 +66,20 @@ Then, for the selected subset, **show the full parsed values for approval** usin
 Notion (Rules: always get approval before writing), and it doubles as the final output for the
 no-Notion path (step 7).
 
+**Confirm-match fallback (un-matched car).** If a selected car matches **no** bundled template by the
+import match rule (5.2: neither `save_ids` nor name) but a template **looks like the same car** by
+name resemblance, don't silently fall to the raw path — **ask once, folded into this approval:**
+> "The save calls this car `LanciaRally037Evo2`. The bundled **Lancia 037 Evoluzione 2 1984** template
+> looks like the same car — onboard from it and import these setups onto its catalog? (Yes / No,
+> import raw without ranges.)"
+
+- **Yes** → treat it as a template match: auto-onboard from that template (5.2) and import onto the
+  catalog. Also **offer to record the save string** in that template's `save_ids` so it auto-matches
+  next time — point the user to `export-car-template.md`'s share flow (add `save_ids: ["{parser car}"]`
+  to the template and contribute it back). Don't block the import on this.
+- **No** (or no plausible template at all) → the **raw path** (5.2, third case): create value columns
+  from the parsed keys, write as-is.
+
 ### Presenting setups in chat (copy-pasteable)
 Whenever you print a setup's **parameter values** — for the approval step above, or as the
 no-Notion output in step 7 — put them in a **fenced code block, one per car**. Never present
@@ -103,6 +117,12 @@ Read `notion-structure.md` before writing. **Order matters: per car, write the `
 validation, and column order all depend on the catalog — and the `Setups` value columns it creates —
 already existing. Do these sub-steps **in this order**, per selected car:
 
+> **No token needed for an all-template import.** When every selected car is auto-onboarded from a
+> bundled template this run (the common fresh-workspace case), the whole write path is **token-free**:
+> 5.4 maps/snaps against the template you already hold in context, and 5.6 orders columns with
+> `--show-order --from-template` (no `Config` page, no REST). The read-only token is only required to
+> read back a catalog for a car that was **already onboarded** before this run.
+
 **5.1 — Ensure the base structure exists** (per `notion-structure.md`): the `Car setups` root →
 `{Game}` page → the `Parameters`/`Setups` DBs → the `{Car}` page. Set the car page's
 **`Drivetrain`** from the parser's `drivetrain` field (derived deterministically from the diff
@@ -117,9 +137,21 @@ setup row is written. Pick the case:
   source of truth for column names and `Order`.
 
 - **Not onboarded, but a bundled template matches this car → auto-onboard it now.** Look in
-  `car-templates/` for a file whose `car:` matches the parsed car name — **same match rule as
-  `onboard-car.md` step 1** (case-insensitive; ignore punctuation, hyphens, apostrophes). If one
-  matches, **auto-onboard from that template by running `onboard-car.md`'s bundled-template path**:
+  `car-templates/` for a matching file using the **import match rule** (the parser's `car` is the raw
+  in-save string, e.g. `MiniCooperS1275`, `LanciaRally037Evo2` — a compact ID that often won't fuzzy-
+  match the template's human `car:` name, so check the alias first), in order:
+    1. **`save_ids` exact match** — the parser's `car` equals any entry in a template's optional
+       top-level `save_ids:` list (exact, after trimming whitespace). This is the reliable path.
+    2. **else name match** — the parser's `car` matches a template's `car:` by the `onboard-car.md`
+       step 1 rule (case-insensitive; ignore punctuation, hyphens, apostrophes). Note this **fails for
+       many cars** whose save string drops the year or adds tokens (`Mini Cooper S 1964` ↔
+       `MiniCooperS1275`; `Peugeot 306 II Maxi 1997` ↔ `Peugeot306IIMaxiKitCar`) — that's expected;
+       rely on `save_ids` for those.
+    3. **else no auto-match** → do **not** silently raw-path the car; run the **confirm-match
+       fallback** in step 3 instead.
+
+  If one matches (via 1 or 2), **auto-onboard from that template by running `onboard-car.md`'s
+  bundled-template path**:
   write every template row into the `Parameters` catalog (with `Order` / `Discrete steps` /
   `Surface`) — **all rows in one `notion-create-pages` call**, and all the `Setups` value columns in
   **one `notion-update-data-source` call** (`SKILL.md` → *Batch Notion writes*) — and set the car's
@@ -224,9 +256,14 @@ path). **Never modify or delete existing rows.**
 import is not done until you've done it.** After the rows (and their value columns) exist, apply the
 column order (`notion-structure.md` → *Applying the order*) — set `SHOW` on the main `Setups` table
 view and the car's linked view:
-- **Car with a `Parameters` catalog** (onboarded, or auto-onboarded from a template) → get the
-  `SHOW` list from the bundled script (`… "{Car}" --show-order` for the car view, `… --all
-  --show-order` for the main table) and use it verbatim.
+- **Auto-onboarded from a bundled template this run** → get the `SHOW` list from the script's
+  **token-free** mode — `… --show-order --from-template car-templates/{car}.yaml` for the car view,
+  and one `--from-template` per imported car for the main table (`notion-structure.md` → *Applying the
+  order* → token-free path). You already hold every `Order` locally, so **no token / `Config` page /
+  REST is needed**. Use the output verbatim.
+- **Already onboarded before this run** (catalog read from Notion in 5.2) → get the `SHOW` list from
+  the script's **token** mode (`… "{Car}" --show-order` for the car view, `… --all --show-order` for
+  the main table) and use it verbatim.
 - **Raw-columns car** (no catalog, so the script has no `Order` to read) → build `SHOW` by hand
   instead: `Name`, then the raw value columns **in the parser's emitted order**, then the meta
   columns.

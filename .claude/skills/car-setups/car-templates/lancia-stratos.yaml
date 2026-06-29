@@ -1,5 +1,6 @@
 car: "Lancia Stratos HF 1976"
 game: "ACR"
+save_ids: ["LanciaStratosHF"]
 drivetrain: "RWD"
 engine_layout: "mid-rear transverse V6 behind the driver"
 weight_bias: "~44% front / ~56% rear"

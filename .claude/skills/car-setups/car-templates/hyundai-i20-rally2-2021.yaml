@@ -1,5 +1,6 @@
 car: "Hyundai i20 Rally2 2021"
 game: "ACR"
+save_ids: ["HyundaiI20NRally2"]
 drivetrain: "AWD"
 engine_layout: "front transverse turbocharged inline-4 (1.6L), ahead of the front axle"
 weight_bias: "~58% front / ~42% rear"
