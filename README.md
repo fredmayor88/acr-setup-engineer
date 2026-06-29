@@ -280,6 +280,26 @@ make check-zip
 - **Where's my data?** → entirely in **your** Notion. Screenshots and save files you attach go
   to Claude to read; nothing is stored by this project.
 
+## How it reads & writes Notion
+
+The skill uses **two distinct channels** to talk to Notion, on purpose:
+
+- **Writing** (creating your Car setups structure, adding setups, updating rows) goes through the
+  **Notion connector** — the OAuth connection you authorize in claude.ai. It already has write
+  access, handles Notion's block/property formatting from plain markdown, and is the more forgiving
+  path for the model to drive.
+- **Reading** rows goes through Notion's **REST API** with the **read-only token** (the Config-page
+  setup above). This exists because the connector *can't* reliably list a database's rows
+  (`notion-fetch` returns a table's schema but no rows; search is capped and mixes cars). The REST
+  API gives one exact, paginated read instead.
+
+Why the read token stays **read-only**: it lives in plaintext on your Config page, so keeping it
+read-only means even if it leaked it could only *read* the data you connected it to — never modify
+or delete anything. A direct REST *write* would be marginally faster per call, but writes are rare
+and small (you read every workflow; you write a handful of rows when saving), and granting the
+stored token write access would trade that safety for a speedup on the path that needs it least. So
+writes stay on the connector and reads stay on the read-only token.
+
 ## Notes
 
 - **Assetto Corsa Rally is in early access** — tyre compounds and some settings change between
