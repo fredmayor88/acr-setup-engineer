@@ -42,12 +42,14 @@ Answer from `setup-tuning-principles.md`:
 - **"What does parameter X do / what's the impact of more vs less?"** → explain the physics effect
   from the relevant *Parameters* subsection (e.g. *Axles — anti-roll bars* for ARBs, *Differential
   (LSD)* for diffs). When the user asks specifically what a setting *does in the game*, quote or
-  paraphrase the verbatim **In-game parameter definitions** section (authoritative ACR text).
+  paraphrase the authoritative ACR text in **`parameter-reference-template.md`** (the verbatim
+  in-game parameter definitions, also the seed for the user's Notion `Parameter reference` page).
 - **Factual claims about ACR game mechanics — verify, don't recall.** Any question that resolves
   to a concrete fact about what a setting does or which direction it pushes (e.g. "which is more
   locked, a 45/45 or 30/30 LSD ramp?", "does a higher master-cylinder value brake harder or
   softer?", "is positive toe toe-in or toe-out?") must be answered by **checking the relevant line
-  in `setup-tuning-principles.md` / its In-game parameter definitions**, not from memory — these
+  in `setup-tuning-principles.md` (reasoning base) or the verbatim in-game text in
+  `parameter-reference-template.md`**, not from memory — these
   conventions vary between games and are easy to invert. Example: for the LSD ramp question, the
   base states **"Lower ramp angle = more lock"** — so a **30/30** ramp is more locked than a
   **45/45** one; answer by citing that line, not by asserting it unsourced.

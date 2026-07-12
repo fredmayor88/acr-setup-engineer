@@ -206,8 +206,12 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
    resolve **by name** and create whatever is missing: the `Car setups` root → the `Config` page
    (seed from `config-page-template.md` if missing — token blank; **never overwrite an existing
    one**) → `{Game}` page → the `Parameters` and `Setups` DBs → the global `Tuning guidelines` page
-   (seed it from `tuning-guidelines-template.md`). Then ensure the `{Car}` page exists with its
-   filtered `Parameters` / `Setups` views.
+   (seed it from `tuning-guidelines-template.md`) → the global `Parameter reference` page (seed its
+   body from `parameter-reference-template.md`; **this page is auto-maintained — if it already
+   exists, refresh its body by replacing it, don't append**, unlike the never-overwrite
+   `Config`/`Tuning guidelines` pages — see the *`Parameter reference` page* create/refresh steps in
+   `notion-structure.md`). Then ensure the `{Car}` page exists with its filtered
+   `Parameters` / `Setups` views.
 
 7. **Write to Notion** (via the user's Notion connection):
    - Upsert one row per `Car × Adjustment` into the `Parameters` DB (match on `Car` +

@@ -18,7 +18,10 @@ across workspaces and self-healing:
    coexist — resolve a car under the game it was onboarded into, and ask the user if the same car
    name appears under more than one game.
 4. Under the game: the **`Parameters`** DB, the **`Setups`** DB, the **`Tuning guidelines`**
-   page, and the **`Locations`** catalogue page; create any that are missing (schemas below).
+   page, the **`Parameter reference`** page, and the **`Locations`** catalogue page; create any
+   that are missing (schemas below). Unlike the other pages, **`Parameter reference` is
+   auto-maintained**: (re-)seed its body from `parameter-reference-template.md` on first create
+   **and refresh it on skill updates** — it is not a user-editable layer (see its section below).
 5. Per car: the **`{Car}`** page with its filtered view. Per location/stage referenced by a setup:
    the **`{Location}`** page and **`{Stage}`** page (under `Locations`) with their filtered views.
 
@@ -58,6 +61,8 @@ Car setups (root page)
     ├── Parameters        (DB)  the catalog — one row per Car × Adjustment × Surface
     ├── Setups            (DB)  one row per setup
     ├── Tuning guidelines (page) global user preferences (seeded from the template)
+    ├── Parameter reference (page) game parameter glossary — verbatim in-game descriptions of every
+    │                            tunable parameter; seeded AND refreshed from the template; read-only
     ├── Locations         (page) catalogue parent — created on first stage/location reference
     │   └── {Location} (page)   e.g. Monte Carlo — facts only, filtered Setups[Location] view
     │       └── {Stage} (page)  e.g. Col de Turini — facts only (surface, length, key
@@ -449,6 +454,31 @@ surface → per-car → **the setup's own driving intent** (most specific). Loca
 **not** a guideline layer — they're objective inputs (surface, corners) read from the catalogue
 above. More-specific is the default lean; a **material conflict between authored layers (global,
 surface, per-car, intent) is surfaced to the user to resolve, not auto-picked.**
+
+## `Parameter reference` page
+A global, per-game **glossary**: the **verbatim in-game descriptions of every tunable parameter**
+(what each setting does, grouped by setup screen — Gearbox → Suspension → Dampers → Axles → Wheels →
+Brakes → Differentials → Electronics & Aerodynamics), so the user can read them on a phone without
+opening the game. Seeded from [parameter-reference-template.md](parameter-reference-template.md).
+
+**Unlike `Config` and `Tuning guidelines`, this page is auto-maintained and is NOT a
+create-if-missing-then-never-touch page and NOT a user-editable guideline layer.** (Re-)seed it from
+the template on first create **and refresh its body on skill updates** so the game text stays
+current. The seeded body opens with a **read-only banner** telling the user not to add notes here
+(they'd be overwritten) — personal tuning preferences belong on `Tuning guidelines` instead. It is
+purely reference and plays no part in the layered tuning model above.
+
+**How to create / refresh (do this exactly):** copy **everything below the `---` line** in
+`parameter-reference-template.md` (the banner + all parameter sections) as the page body.
+- **Create (page absent):** create the page under `{Game}` titled exactly `Parameter reference` and
+  write that content as its body.
+- **Refresh (page already exists):** **replace** the body — first **delete every existing block on
+  the page**, then write the current template content fresh. **Do not append** (appending
+  duplicates the whole glossary). If you can't cleanly clear the blocks, it's safe to skip the
+  refresh and leave the existing page as-is rather than append.
+- This is a **whole-page overwrite**, so the "never overwrite" caution that applies to `Config` and
+  `Tuning guidelines` **does not apply here** — the page holds only shipped game text, never user
+  input, so there's nothing of the user's to lose.
 
 ## Mobile conventions (pages are read on a phone, in-game)
 

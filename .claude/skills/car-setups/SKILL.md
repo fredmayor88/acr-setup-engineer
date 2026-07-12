@@ -43,6 +43,9 @@ Shared knowledge (read as needed):
   REST. Follow this wherever a workflow says "fetch the car's rows".
 - `references/setup-tuning-principles.md` — the tuning reasoning base (drivetrain-tagged).
 - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
+- `references/parameter-reference-template.md` — seed for the auto-maintained, read-only
+  `Parameter reference` Notion page (verbatim in-game descriptions of every tuning parameter; also
+  the single source of that game text — `setup-tuning-principles.md` links here).
 - `references/config-page-template.md` — seed for the auto-created `Config` page (integration
   setup instructions + a blank token line for the read-only Notion token).
 - `car-templates/` — bundled YAML parameter templates, one file per car (see
