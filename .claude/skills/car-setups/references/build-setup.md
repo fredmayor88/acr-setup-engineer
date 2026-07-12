@@ -159,7 +159,8 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    `Snow`, fall back to a `Gravel` row before the baseline; see
    [notion-rest-read.md](notion-rest-read.md)) — **no step grid, no interpolation**. **Tyre
    pressure is always two values** — choose `Pressure Front` and `Pressure Rear` separately,
-   never a single combined pressure. If a parameter is pulled in conflicting directions by two
+   never a single combined pressure, each per the *Tyre pressure* section of
+   [setup-tuning-principles.md](setup-tuning-principles.md) (note its **ACR pressure rule**). If a parameter is pulled in conflicting directions by two
    authored layers (global/surface/per-car guidelines vs. the stated intent) in a way that
    changes the choice, **surface the conflict and ask the user** rather than silently picking
    one (per step 2):

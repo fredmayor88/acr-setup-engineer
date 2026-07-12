@@ -41,6 +41,12 @@ general notes.
 ### Snow / ice
 - *e.g. "Maximum stability and traction; I'd rather be safe than fast."*
 
+## Tyre pressures
+*If generated pressures consistently feel off in your game version, write what actually works —
+these notes override the built-in guidance.*
+- *e.g. "Gravel: 26–28 psi front / 27–29 psi rear works best for me."*
+- *e.g. "Generated pressures feel too low in the current build — go a few psi higher."*
+
 ## Anything else
 *Constraints, habits, or notes that don't fit above.*
 - *e.g. "I don't use the handbrake much.", "Keep ABS off on everything."*

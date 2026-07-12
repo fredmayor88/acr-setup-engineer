@@ -158,9 +158,14 @@ reduce float; wider tyres give more contact on firm ground and better straight-l
 
 **Tyre pressure.** Lower pressure → bigger contact patch → more grip, and on gravel it lets the
 tyre absorb rocks rather than skip; too low → excessive deformation/slip-angle (especially
-rear). Higher pressure → smaller contact patch (front high pressure adds understeer). Run low
-in general, balance by feel. *(Build caveat: if a build doesn't model tyre heating, the tyre
-won't reach its optimal hot pressure — start a few psi higher and revisit after updates.)*
+rear). Higher pressure → smaller contact patch (front high pressure adds understeer) but a more
+precise, stable response. Pick per surface and per axle from these trade-offs, then balance by
+feel — there is no default direction. **Do not default to low pressures.**
+
+**ACR pressure rule (early access).** Current ACR builds do not appear to reward low pressures
+the way real-world logic suggests (the tyre heating/pressure model is still maturing, so tyres
+may never reach their optimal hot pressure). **For ACR: when unsure, start in the upper half of
+the surface's legal range and adjust from feedback.** Revisit this rule as game builds update.
 
 ### Gearbox
 
