@@ -5,6 +5,8 @@ drivetrain: "AWD"
 engine_layout: "transverse front-mounted turbocharged inline-4"
 weight_bias: "~60% front / ~40% rear"
 weight: "~1230 kg (FIA Rally2 minimum)"
+max_power: "289 hp at 6000 rpm"
+max_torque: "430 Nm at 4500 rpm"
 version: "0.4"
 parameters:
   - section: "Gearbox"

@@ -5,6 +5,8 @@ drivetrain: "AWD"
 engine_layout: "front transverse inline-4 turbo (2.0L 16v)"
 weight_bias: "~63% front / ~37% rear"
 weight: "~1,300 kg"
+max_power: "365 hp at 7000 rpm"
+max_torque: "535 Nm at 4000 rpm"
 version: "0.4"
 parameters:
   - section: "Gearbox"

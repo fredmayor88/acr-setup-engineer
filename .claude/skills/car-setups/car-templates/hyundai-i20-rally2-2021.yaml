@@ -5,6 +5,8 @@ drivetrain: "AWD"
 engine_layout: "front transverse turbocharged inline-4 (1.6L), ahead of the front axle"
 weight_bias: "~58% front / ~42% rear"
 weight: "~1,230 kg"
+max_power: "290 hp at 5000 rpm"
+max_torque: "420 Nm at 4000 rpm"
 version: "0.4"
 parameters:
   - section: "Gearbox"

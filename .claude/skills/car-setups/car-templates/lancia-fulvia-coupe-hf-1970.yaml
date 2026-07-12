@@ -5,6 +5,8 @@ drivetrain: "FWD"
 engine_layout: "front-mounted longitudinal narrow-angle V4, front-wheel drive"
 weight_bias: "~63% front / ~37% rear"
 weight: "~830 kg"
+max_power: "165 hp at 7200 rpm"
+max_torque: "172 Nm at 6000 rpm"
 version: "0.4"
 parameters:
   - section: "Gearbox"

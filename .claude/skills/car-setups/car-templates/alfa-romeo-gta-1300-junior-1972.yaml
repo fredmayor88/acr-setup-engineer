@@ -5,6 +5,8 @@ drivetrain: "RWD"
 engine_layout: "front longitudinal inline-4 (1290 cc DOHC), driving the rear wheels"
 weight_bias: "~56% front / ~44% rear (approx. — model knowledge, verify if you have a better figure)"
 weight: "~760–790 kg (lightened aluminium-panel GTA; ~760 kg race evolution, ~790 kg homologation)"
+max_power: "163 hp at 8400 rpm"
+max_torque: "148 Nm at 6500 rpm"
 version: "0.4"
 parameters:
   - section: "Gearbox"

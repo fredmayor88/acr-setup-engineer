@@ -5,6 +5,8 @@ drivetrain: "RWD"
 engine_layout: "front-mounted longitudinal DOHC inline-4 (1.8 L / 1756 cc, 16-valve competition head)"
 weight_bias: "~55% front / ~45% rear (estimated — no published figure for the classic car)"
 weight: "~938 kg"
+max_power: "200 hp at 8000 rpm"
+max_torque: "190 Nm at 6000 rpm"
 version: "0.4"
 parameters:
   - section: "Gearbox"
@@ -180,14 +182,14 @@ parameters:
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "227/135X10 P TYPE1, 256/145X20 P TYPE1"
+    discrete_steps: "227/135X10 P TYPE1, 256/145X12.4 P TYPE1, 256/145X20 P TYPE1"
   - section: "Brakes"
     adjustment: "Brake Calipers Front"
     order: 7020
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "1X48 TYPE1, 2X48 TYPE2"
+    discrete_steps: "1X48 TYPE1, 2X48 TYPE5, 2X48 TYPE2"
   - section: "Brakes"
     adjustment: "Brake Pads Front"
     order: 7030
@@ -208,7 +210,7 @@ parameters:
     min: 0.85
     max: 2.10
     unit: "MPa"
-    discrete_steps: ""
+    discrete_steps: "0.85, 1.10, 1.35, 1.60, 1.85, 2.10"
   - section: "Brakes"
     adjustment: "Handbrake Force"
     order: 7070

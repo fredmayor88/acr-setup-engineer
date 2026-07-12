@@ -5,6 +5,8 @@ drivetrain: "RWD"
 engine_layout: "rear-mounted longitudinal inline-4 (1.8L), behind the cockpit, ahead of the rear axle"
 weight_bias: "~36% front / ~64% rear"
 weight: "~700 kg"
+max_power: "185 hp at 7000 rpm"
+max_torque: "195 Nm at 5000 rpm"
 version: "0.4"
 parameters:
   - section: "Gearbox"
