@@ -581,7 +581,16 @@ In rally cars, it can come as a single unit with two internal cylinders for the 
 
 Alternatively, some setups use two separate Master Cylinders, one for each axle. This allows for direct brake bias control through a lever mechanism, which adjusts how much the brake pedal pushes on each cylinder, giving the driver fine-tuned braking balance between front and rear wheels.
 
-Increasing the Master Cylinders value will reduce the line pressure, decreasing braking power, making it harder to lock by requiring heavier braking inputs. This is ideal for more loose or low grip surface. Decreasing the Master Cylinder will increase the line pressure, increasing braking power to the point that the brakes lock, which is better suited for higher grip tarmac stages.
+Cylinder diameter has **two combined effects**, so treat it as a modulation/feel lever, not a
+one-way "power" knob. A **smaller** cylinder gains more leverage (it can build higher line pressure
+for a given pedal force) **and** spreads a given pressure rise over **more pedal travel** — which
+gives **finer modulation** and a more progressive ramp, so the brakes are less likely to snatch into
+an early lock. A **larger** cylinder does the opposite: it packs the pressure range into a shorter,
+twitchier bit of travel. So on loose / low-grip surfaces where locking early is the problem, the
+usual answer is a **smaller** cylinder for controllable, progressive braking; a larger cylinder can
+suit high-grip tarmac where you want a shorter, firmer pedal. Move front and rear together to keep
+brake bias put. **A car-specific troubleshooting file, where one exists, takes precedence over this
+general guidance** for the concrete symptom it names (see `car-troubleshooting/`).
 
 #### Proportioning Preload
 

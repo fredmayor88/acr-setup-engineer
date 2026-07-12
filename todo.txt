@@ -1,3 +1,2 @@
-- 037 problem with brake modulation
 - general problem with tire pressure, the way it suggests is too low
 - add the hardcoded list of parameter descriptions to notion, so I car read them without starting up the game 

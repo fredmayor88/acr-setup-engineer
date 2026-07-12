@@ -95,9 +95,14 @@ to a `Gravel` row before the baseline (see `notion-rest-read.md`).
 ### 3c. Load the guideline layers
 Same precedence chain as `build-setup.md` / `review-setup.md` (lowest → highest):
 1. **Base** — `setup-tuning-principles.md`.
-2. **Global user guidelines** — `Tuning guidelines` page under `Car setups / {Game}`.
-3. **Surface section** — that page's "Per surface" subsection matching the setup's `Surface`.
-4. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
+2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
+   matches this car (same match rule as a bundled template: `car:` field, case-insensitive, ignoring
+   punctuation — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
+   it and apply its symptom→fix entries — they override the base principles** for the symptoms they
+   name. If no file matches, skip this layer.
+3. **Global user guidelines** — `Tuning guidelines` page under `Car setups / {Game}`.
+4. **Surface section** — that page's "Per surface" subsection matching the setup's `Surface`.
+5. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
 The setup's own **driving intent** (its page-body summary) is the most specific layer. Apply only
 lines tagged `[All]` **or the car's drivetrain**.
 

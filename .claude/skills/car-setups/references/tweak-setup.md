@@ -55,10 +55,16 @@ the new row's `Surface`. Load this once and reuse it across iterations.
 ### 3. Load guideline layers
 Same precedence chain as `build-setup.md` (lowest → highest):
 1. **Base** — `setup-tuning-principles.md`.
-2. **Global user guidelines** — Notion `Tuning guidelines` page under `Car setups / {Game}`.
-3. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
+2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
+   matches this car (same match rule as a bundled template: `car:` field, case-insensitive, ignoring
+   punctuation — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
+   it and apply its symptom→fix entries — they override the base principles** for the symptoms they
+   name. This is the main path for handling problems like "the brakes lock as soon as I touch them".
+   If no file matches, skip this layer.
+3. **Global user guidelines** — Notion `Tuning guidelines` page under `Car setups / {Game}`.
+4. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
    `Surface` (not a separate page).
-4. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
+5. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
 The working setup's own **driving intent/goal** (from its page body, plus the user's feedback this
 round) is the most specific layer. Apply only lines tagged `[All]` **or the car's drivetrain**.
 **More specific is the default lean**, not an auto-resolution: if an authored layer materially

@@ -47,6 +47,12 @@ Shared knowledge (read as needed):
   setup instructions + a blank token line for the read-only Notion token).
 - `car-templates/` — bundled YAML parameter templates, one file per car (see
   `references/export-car-template.md` for the file format).
+- `car-troubleshooting/` — bundled per-car **symptom→fix** knowledge, one markdown file per car
+  (e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`), matched to the car the same way as a
+  template (filename from the `car:` name, case-insensitive, ignoring punctuation). Whenever a
+  workflow loads its guideline layers, **check this folder and, if a file matches the car, read it**;
+  it is a **guideline layer that overrides the base principles** for the symptoms it names (see the
+  *Layered guidelines* core rule).
 - `VERSION` — the skill's own version (or `dev` for a source checkout); see *Skill version* below.
 
 Bundled tools (stdlib Python, run via code execution):
@@ -144,8 +150,11 @@ Bundled tools (stdlib Python, run via code execution):
 - **Drivetrain-aware.** Determine the car's drivetrain (FWD/RWD/AWD) and apply only guidance
   tagged `[All]` or that drivetrain (legend in `references/setup-tuning-principles.md`).
 - **Layered guidelines — the user wins.** Reasoning precedence, later wins: base principles →
-  global `Tuning guidelines` → matching surface section (that page's "Per surface" subsection,
-  not a separate page) → per-car guidelines → the setup's own driving intent (most specific).
+  bundled car troubleshooting (the matching file in `car-troubleshooting/`, if one exists —
+  overrides the base for the symptoms it names) → global `Tuning guidelines` → matching surface
+  section (that page's
+  "Per surface" subsection, not a separate page) → per-car guidelines → the setup's own driving
+  intent (most specific).
   Location/stage facts are objective inputs, not a guideline layer. More specific is the
   **default lean** — on a **material conflict between authored layers, ask the user** which to
   follow rather than silently picking one. Cite a user guideline when it drives a choice.

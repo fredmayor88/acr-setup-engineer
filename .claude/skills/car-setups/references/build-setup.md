@@ -112,13 +112,18 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 2. **Load the guideline layers** (lowest → highest priority):
    1. **Base** — `setup-tuning-principles.md`.
-   2. **Global user guidelines** — the Notion `Tuning guidelines` page (under `Car setups / {Game}`).
-   3. **Surface section** of those guidelines — the page's "Per surface" subsection matching the
+   2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose
+      name matches this car (same match rule as a bundled template: `car:` field, case-insensitive,
+      ignoring punctuation — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one
+      exists, read it and apply its symptom→fix entries — they override the base principles** for the
+      symptoms they name. If no file matches, skip this layer.
+   3. **Global user guidelines** — the Notion `Tuning guidelines` page (under `Car setups / {Game}`).
+   4. **Surface section** of those guidelines — the page's "Per surface" subsection matching the
       build surface (step 3 fixes the surface; this is not a separate page).
-   4. **Per-car guidelines** — the car page's "Guidelines" section.
+   5. **Per-car guidelines** — the car page's "Guidelines" section.
    The setup's own **driving intent** (Inputs) is the most specific layer, applied in step 5.
    Apply only base lines tagged `[All]` **or the car's drivetrain**. **More specific is the default
-   lean** (base < global < surface < per-car < intent), but this is not auto-resolved on a real
+   lean** (base < troubleshooting < global < surface < per-car < intent), but this is not auto-resolved on a real
    contradiction: if two *authored* layers (global, surface, per-car, or the stated intent)
    materially disagree on the same parameter, **stop and ask the user which to follow** before
    choosing a value — don't silently pick the more specific one. **Read only content within
