@@ -124,7 +124,7 @@ parameters:
     min: 0.75
     max: 2.25
     unit: "MPa"
-    discrete_steps: ""
+    discrete_steps: "0.75, 1.00, 1.25, 1.50, 1.75, 2.00, 2.25"
   - section: "Brakes"
     adjustment: "Handbrake Force"
     order: 7070
