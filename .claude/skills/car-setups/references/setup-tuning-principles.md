@@ -625,6 +625,14 @@ A larger piston area generally means greater braking force and better cooling ef
 
 However, keep in mind that each caliper uses its own set of brake pad compounds, so the actual wheel torque may vary depending on the caliper chosen.
 
+**Caliper is the higher-impact lever — choose it first.** Piston area has a large effect on brake
+force (e.g. a 4-piston vs a 2-piston caliper changes the achievable braking sharply), so pick the
+caliper that best suits the braking demand for the surface and intent, then choose the disc size for
+brake torque / cooling / modulation. Because the game gates the **available** calipers by the
+**selected disc**, the disc+caliper pair you recommend may not be co-selectable in-game. When that
+happens, **keep the recommended caliper and use the closest available disc size** — the caliper
+carries the bigger braking effect, so it's the one to preserve.
+
 #### Pads/Shoe (templates also call it "Brake Pads")
 
 You can select from various compounds for your brake pads or shoes, each suited to different driving conditions.

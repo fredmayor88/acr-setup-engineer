@@ -171,13 +171,23 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
      car). Once the range is known, fill an explicit value like any other parameter.
    Never go outside `Min..Max` or off the `Discrete steps` set; never invent a parameter the car
    doesn't have.
+   - **Brake hardware (`Brake Discs` / `Brake Calipers`, front & rear — when the car has them):**
+     choose these on their **braking merit**, not left at stock. Caliper piston area drives brake
+     force (a 4-piston vs 2-piston caliper is a real tuning lever) and disc size drives brake torque
+     / cooling / modulation for the surface — pick both for the surface grip and driving intent (see
+     `setup-tuning-principles.md` *Discs* / *Calipers*). Choose the **caliper first** (bigger
+     effect), then the disc size. Pick each from its own `Discrete steps` set as usual — the exact
+     disc+caliper pair may not be co-selectable in-game, which the step 9 caveat handles.
 
 6. **Validate.** Re-check every chosen value against the catalog **for the build surface**
    (surface-resolved range — `Snow` falls back to `Gravel`, then baseline): discrete picks must be
    a member of `Discrete steps`; continuous picks must be within `Min..Max`. For **ACR**
    `Tyre Type`, the chosen value must be a fully-qualified name from the car's stored list (or
    the standard fallback list if blank) — never a bare/ambiguous value. Confirm
-   `Pressure Front` and `Pressure Rear` were both set as separate values. Fix any violation
+   `Pressure Front` and `Pressure Rear` were both set as separate values. For brakes, validate each
+   of `Brake Discs` and `Brake Calipers` is a member of **its own** `Discrete steps` — **do not**
+   enforce disc+caliper *pair* compatibility (the catalog doesn't encode it; the step 9 caveat
+   covers a pair that isn't co-selectable in-game). Fix any violation
    before writing. **Completeness:** confirm **every parameter the car has** (every applicable
    `Parameters` row for this car, except `FFB Multiplier`) received an explicit value — no
    applicable parameter is left blank. Any gap from an uncaptured range (step 5) must be
@@ -251,6 +261,12 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    user to **rate it `1`–`5`** and tick `Learn from this` if they like it after driving. If the
    user comes back with how it drove and wants changes, switch to the refine loop
    (`tweak-setup.md`) and iterate **in chat** — don't rebuild from scratch.
+   - **Brake disc/caliper availability caveat.** If the setup includes **both** a `Brake Discs`
+     and a `Brake Calipers` selection (front and/or rear), add this one-line note to the chat
+     report: *"Note: the in-game **calipers available depend on the selected brake disc**, so this
+     exact disc+caliper combination may not be selectable. If so, keep the recommended calipers and
+     pick the closest available disc size — the caliper carries the bigger braking effect."* Omit it
+     when the car has no brake disc/caliper params.
 
 ## Rules
 - **Onboard first (step 0).** If the car has no `Parameters` catalog: a matching bundled template ⇒

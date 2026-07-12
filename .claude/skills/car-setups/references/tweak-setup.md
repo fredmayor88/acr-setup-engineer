@@ -149,6 +149,12 @@ When the user asks to save (and not before):
 In chat: summarise what changed over the session and why, link the new Notion row, and remind the
 user to tick `Learn from this` and set a `Rating` after driving if the result is an improvement.
 
+If the working setup includes **both** a `Brake Discs` and a `Brake Calipers` selection (front
+and/or rear), add this one-line caveat: *"Note: the in-game **calipers available depend on the
+selected brake disc**, so this exact disc+caliper combination may not be selectable. If so, keep
+the recommended calipers and pick the closest available disc size — the caliper carries the bigger
+braking effect."* Omit it when the car has no brake disc/caliper params.
+
 ## Rules
 - **Iterate in chat — no Notion writes per round.** Refinement rounds (step 5) update only the
   in-chat working setup; nothing is written to Notion until the user explicitly asks to save.
