@@ -156,7 +156,8 @@ setup row is written. Pick the case:
   write every template row into the `Parameters` catalog (with `Order` / `Discrete steps` /
   `Surface`) — **all rows in one `notion-create-pages` call**, and all the `Setups` value columns in
   **one `notion-update-data-source` call** (`SKILL.md` → *Batch Notion writes*) — and set the car's
-  `Drivetrain` and identity facts (`Engine layout` / `Weight bias` / `Weight`) from the template.
+  `Drivetrain` and identity facts (`Engine layout` / `Weight bias` / `Weight` / `Max power` /
+  `Max torque`) from the template.
   **Don't** show onboarding's interactive "Use this template? (Yes/No)" prompt — fold it into this
   import's approval (step 3): tell the user *"{Car} isn't onboarded yet but a bundled template
   exists — I'll onboard it from the template and import these N setups,"* and proceed on the same

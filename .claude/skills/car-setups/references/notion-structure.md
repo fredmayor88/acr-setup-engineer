@@ -63,7 +63,8 @@ Car setups (root page)
     │       └── {Stage} (page)  e.g. Col de Turini — facts only (surface, length, key
     │                            corners/speeds, character), filtered Setups[Stage] view
     └── {Car} (page)            per car: identity facts (Drivetrain, Engine layout, Weight
-                                 bias, Weight), a "Guidelines" section, filtered Setups[Car] view
+                                 bias, Weight, Max power, Max torque), a "Guidelines" section,
+                                 filtered Setups[Car] view
 ```
 
 Two DBs **per game** only — car/location/stage pages are **filtered linked views**, never new
@@ -350,12 +351,16 @@ the first place is a separate operation — see *Creating an inline linked view*
    - **`Engine layout`** (descriptive placement, e.g. `mid-rear transverse V6 behind the driver`).
    - **`Weight bias`** (front/rear percentages, e.g. `~44% front / ~56% rear`).
    - **`Weight`** (approximate kerb weight, e.g. `~950 kg`).
+   - **`Max power`** (peak power with rpm, e.g. `250 hp at 7700 rpm`).
+   - **`Max torque`** (peak torque with rpm, e.g. `260 Nm at 6000 rpm`).
 
    These are **car facts that inform tuning reasoning — not tunable parameters**; they never go in
    the `Parameters` DB. Any field the skill can't determine confidently is stored as the literal
    **`couldn't determine`** so the user knows it was attempted and can edit it by hand. Engine
-   layout / weight bias / weight are populated during onboarding (see `onboard-car.md`); the user
-   may overwrite any of them at any time.
+   layout / weight bias / weight / max power / max torque are populated during onboarding (see
+   `onboard-car.md`); the user may overwrite any of them at any time. **Max power / max torque may be
+   left blank** — unlike the others they aren't web-looked-up on the screenshot path (the user is
+   only asked for them optionally), so a blank field is normal rather than `couldn't determine`.
 2. **H2 "Setups"** heading — immediately followed by the `Setups[Car=this]` filtered linked
    view (hide blank columns).
 3. **H2 "Guidelines"** heading — free-text car-specific preferences (seeded as a stub,

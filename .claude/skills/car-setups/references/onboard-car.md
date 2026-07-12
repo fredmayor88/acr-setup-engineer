@@ -54,8 +54,9 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
        path. In the report (step 9), note which parameters still have a blank `Discrete steps`
        despite being a `—`-type param, and call them out for user enumeration as usual.
        The `drivetrain` field in the template sets the car's drivetrain. If the template carries
-       the optional `engine_layout`, `weight_bias`, or `weight` fields, use them directly for the
-       car identity facts in step 5 — no lookup needed (see the determination step below). An
+       the optional `engine_layout`, `weight_bias`, `weight`, `max_power`, or `max_torque` fields,
+       use them directly for the car identity facts in step 5 — no lookup needed (see the
+       determination step below). An
        optional `save_ids` field (the exact in-save car string, used only by save-file import to
        match the car) needs no action here — it doesn't affect the screenshot/template catalog;
        carry it through untouched.
@@ -172,13 +173,13 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 4. **Confirm before writing.** Show the assembled table (`Section`, `Adjustment`, `Min`, `Max`,
    `Unit`) and **flag any uncertain reads**. Proceed on the OK.
 
-5. **Determine the car's identity facts (engine layout, weight bias, weight).** These are
-   **real-world facts about the physical car** — the game does not expose them — and they inform
-   tuning balance (see `setup-tuning-principles.md`). They are **car facts, not tunable
-   parameters**, and are stored on the `{Car}` page (next to `Drivetrain`), never in `Parameters`.
-   Resolve each in this order, stopping at the first confident source:
+5. **Determine the car's identity facts (engine layout, weight bias, weight, max power, max
+   torque).** These are **real-world facts about the physical car** — the game does not expose them —
+   and they inform tuning balance (see `setup-tuning-principles.md`). They are **car facts, not
+   tunable parameters**, and are stored on the `{Car}` page (next to `Drivetrain`), never in
+   `Parameters`. Resolve each in this order, stopping at the first confident source:
    1. **Template** — if onboarding from a bundled template that carries `engine_layout`,
-      `weight_bias`, or `weight`, use those values directly; no lookup.
+      `weight_bias`, `weight`, `max_power`, or `max_torque`, use those values directly; no lookup.
    2. **Model knowledge** — for a well-known car, state the facts directly (e.g. *"Lancia Stratos —
       mid-rear transverse V6 behind the driver, ~44% front / ~56% rear, ~950 kg"*).
    3. **Web lookup (optional)** — if web search/fetch is available in this session and the car is
@@ -189,9 +190,15 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
    - This is a factual *car* lookup — it is **distinct** from the "Notion scope only / never search
      broadly" rule, which governs *setup-data* search, not real-world research. The lookup never
      produces a setup value.
+   - **Max power / max torque** are the exception: they come **directly from the template** when one
+     is used. On the **screenshot path**, don't web-look them up — just **optionally ask** the user
+     for peak power and torque (*"Optionally, what's this car's max power and torque? Helps context —
+     skip it if you don't know."*). They're **not crucial**: if the user skips or doesn't know,
+     **leave the field blank** (not `couldn't determine`).
    - **Confirm with the user** before storing: show each value with its **source and confidence**,
      and let them correct it. For any value not found confidently, record the literal
-     **`couldn't determine`** so the user can fill it in by hand later.
+     **`couldn't determine`** so the user can fill it in by hand later — **except max power / max
+     torque, which are left blank when not provided** (see the bullet above).
    - **Never block onboarding** over a missing identity fact — record what you have (or
      `couldn't determine`) and continue.
 
@@ -230,9 +237,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      view's `SHOW` to it.
      Creation order does **not** drive the rendered table — the view's `SHOW` directive does.
    - **Record the car's identity facts** on the `{Car}` page: `Drivetrain`, and the
-     `Engine layout` / `Weight bias` / `Weight` resolved in step 5 (write `couldn't determine`
-     for any that weren't found). These live on the page next to each other — never as
-     `Parameters` rows.
+     `Engine layout` / `Weight bias` / `Weight` / `Max power` / `Max torque` resolved in step 5
+     (write `couldn't determine` for any of engine layout / weight bias / weight that weren't found;
+     leave `Max power` / `Max torque` **blank** when not provided). These live on the page next to
+     each other — never as `Parameters` rows.
    - **Seed the `{Car}` page body in this order** (create sections that are missing; never
      overwrite existing content). The linked view is **not** page markdown — create it with
      `notion-create-view`, never as a `<linked-view />`-style placeholder (`notion-structure.md` →
@@ -284,8 +292,9 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
         `Surface` property yet, add it first (per `notion-structure.md` create-if-missing).
 
 9. **Report.** Rows added/updated, the recorded drivetrain, the car's identity facts
-   (`Engine layout` / `Weight bias` / `Weight`, noting any stored as `couldn't determine` for the
-   user to fill in), any **surface-specific `Gravel` rows** created (list which parameters differ
+   (`Engine layout` / `Weight bias` / `Weight` / `Max power` / `Max torque`, noting any stored as
+   `couldn't determine` — or, for max power / max torque, left blank — for the user to fill in), any
+   **surface-specific `Gravel` rows** created (list which parameters differ
    from the tarmac baseline), and anything flagged uncertain.
    **Tell the user about `Discrete steps`:** any parameter can be pinned to an exact set of
    values by filling its `Discrete steps` cell in Notion (e.g. spring stiffness

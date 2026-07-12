@@ -29,9 +29,10 @@ parameter file for a car.
   Read each row's **`Order`** too (the display position — emitted as `order:` in the YAML).
 - Read the car's `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page under `{Game}`.
 - Also read the car-level identity fields from the `{Car}` page, when present: `Engine layout`
-  (front/mid/rear), `Weight bias` (front/balanced/rear), and `Weight` (approximate kerb weight,
-  e.g. `~950 kg`). These may be blank or hold the literal `couldn't determine` — carry whatever
-  is there. They are car facts, **not** rows in the `Parameters` DB.
+  (front/mid/rear), `Weight bias` (front/balanced/rear), `Weight` (approximate kerb weight,
+  e.g. `~950 kg`), `Max power` (e.g. `250 hp at 7700 rpm`), and `Max torque` (e.g.
+  `260 Nm at 6000 rpm`). These may be blank or hold the literal `couldn't determine` — carry
+  whatever is there. They are car facts, **not** rows in the `Parameters` DB.
 - If no rows are found, tell the user the car hasn't been onboarded yet and stop.
 
 ### 2. Completeness check
@@ -67,6 +68,8 @@ drivetrain: "{FWD|RWD|AWD}"
 engine_layout: "{descriptive engine placement, e.g. mid-rear transverse V6 behind the driver}"
 weight_bias: "{front/rear percentages, e.g. ~44% front / ~56% rear}"
 weight: "{approx kerb weight, e.g. ~950 kg}"
+max_power: "{peak power with rpm, e.g. 250 hp at 7700 rpm}"
+max_torque: "{peak torque with rpm, e.g. 260 Nm at 6000 rpm}"
 version: "{game version the parameters were captured in, e.g. 0.4 — or unknown}"
 parameters:
   - section: "{Section}"
@@ -93,9 +96,10 @@ Rules:
   `Surface` is set); **omit the line entirely for baseline rows** (blank `Surface`). A parameter
   whose range differs on gravel appears as two entries: the baseline (no `surface`) and a second
   with `surface: "Gravel"`.
-- `engine_layout`, `weight_bias`, `weight`: **optional** car-level header fields. Emit each only
-  when the `{Car}` page has a value; omit the line entirely if blank. If the page holds the
-  literal `couldn't determine`, carry it through as-is. These are not parameters.
+- `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`: **optional** car-level
+  header fields. Emit each only when the `{Car}` page has a value; omit the line entirely if blank.
+  If the page holds the literal `couldn't determine`, carry it through as-is. These are not
+  parameters.
 - `save_ids`: **optional** list of the exact in-save car string(s) ACR writes for this car (the
   `car` field the save-file parser emits, e.g. `"MiniCooperS1275"`, `"LanciaRally037Evo2"`). It lets
   **save-file import** (`import-savegame.md` step 5.2) match a save to this template **reliably** —
@@ -178,8 +182,9 @@ pressure:
   this `version` (major.minor), import validates and snaps that setup's values to the catalog
   ("official parse") instead of writing them as-is; an `"unknown"` version simply skips that check
   (import falls back to the as-is path). The `save_ids` and `engine_layout` /
-  `weight_bias` / `weight` header fields, the per-parameter `surface` field, and the per-parameter
-  `order` field remain **optional and backward-compatible**: a template missing any of them imports
+  `weight_bias` / `weight` / `max_power` / `max_torque` header fields, the per-parameter `surface`
+  field, and the per-parameter `order` field remain **optional and backward-compatible**: a template
+  missing any of them imports
   exactly as before (a missing `order` falls back to the canonical defaults in
   `notion-structure.md`; a missing `save_ids` just means import matches by name only), regardless of
   the `version` value.
