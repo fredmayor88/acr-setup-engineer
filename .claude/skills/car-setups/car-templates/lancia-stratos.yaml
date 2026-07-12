@@ -208,7 +208,7 @@ parameters:
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "4X44.4 TYPE1, 2X48 TYPE4"
+    discrete_steps: "4X44.4 TYPE1, 2X48 TYPE 2, 2X48 TYPE4"
   - section: "Brakes"
     adjustment: "Pads/Shoe Front"
     order: 7030

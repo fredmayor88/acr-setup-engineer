@@ -194,14 +194,14 @@ parameters:
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "300/190x11 P Type1, 300/190x30 B&D Type1"
+    discrete_steps: "300/190x11 P Type1, 300/190x20 P Type2, 300/190x20 B Typ1, 300/190x25.4 B Type1, 300/190x30 B Type1,  300/190x30 B&D Type1"
   - section: "Brakes"
     adjustment: "Brake Calipers Front"
     order: 7020
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "2x48 Type3, 4x40/42 Type1"
+    discrete_steps: "2x48 Type3, 4x38 Type1, 4x42 Type1, 4x36/44 Type1, 4x40/42 Type1"
   - section: "Brakes"
     adjustment: "Brake Pads Front"
     order: 7030
@@ -222,14 +222,14 @@ parameters:
     min: 15.88
     max: 22.23
     unit: ""
-    discrete_steps: ""
+    discrete_steps: "15.88, 17.46, 17.78, 19.05, 22.23"
   - section: "Brakes"
     adjustment: "Rear Cylinder"
     order: 7060
     min: 15.88
     max: 22.23
     unit: ""
-    discrete_steps: ""
+    discrete_steps: "15.88, 17.46, 17.78, 19.05, 22.23"
   - section: "Brakes"
     adjustment: "Handbrake Force"
     order: 7070
@@ -243,7 +243,7 @@ parameters:
     min: "—"
     max: "—"
     unit: ""
-    discrete_steps: "300/190x11 P Type2, 300/190x25.4 B&D Type1"
+    discrete_steps: "300/190x11 P Type2, 300/190x20 B Type2, 300/190x20 P Type3, 300/190x20 B&D Type1, 300/190x25.4 B&D Type1"
   - section: "Brakes"
     adjustment: "Brake Calipers Rear"
     order: 7090

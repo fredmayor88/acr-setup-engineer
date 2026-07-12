@@ -1,1 +1,4 @@
-- consider creating a global unified catalogue of stage descriptions, so there is no need to repeat stage descriptions when building setups
+- 037 problem with brake modulation
+- general problem with tire pressure, the way it suggests is too low
+- add the hardcoded list of parameter descriptions to notion, so I car read them without starting up the game 
+- the issue with brake setup - not all caliper types are available with all disk types. How can we solve it without complicating too much?
