@@ -264,7 +264,11 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    used, call out where the build diverged from it and why (one line). **Confirm in one line that
    you asserted the column order** (step 8) on the affected views — if you can't, you skipped a
    required step: go back and do it before finishing. Link the new row; remind the
-   user to **rate it `1`–`5`** and tick `Learn from this` if they like it after driving. If the
+   user to **rate it `1`–`5`** and tick `Learn from this` if they like it after driving.
+   **Also ask for tyre-pressure feedback**: one line inviting the user to say, after driving,
+   whether the pressures felt too low, too high, or right — the in-game pressure model is still
+   being calibrated, and their answer should be recorded (in the setup's `Notes` and, if it's a
+   general preference, their `Tuning guidelines` page) so future builds improve. If the
    user comes back with how it drove and wants changes, switch to the refine loop
    (`tweak-setup.md`) and iterate **in chat** — don't rebuild from scratch.
    - **Brake disc/caliper availability caveat.** If the setup includes **both** a `Brake Discs`
