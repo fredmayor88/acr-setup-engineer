@@ -72,8 +72,11 @@ For each release:
   go stale silently the way a PNG does. The hand-drawn `docs/*_flow.png` / `docs/knowledgeFlow.png`
   files are **superseded and no longer referenced**; don't re-add them. When a workflow changes,
   update the matching Mermaid block under *Flows*.
-- `docs/notionConnectionSetup{,2}.png` **are** referenced (the token setup). `…Setup3.png` is
-  deliberately **not** — it shows the author's email address in a Notion tooltip.
+- `docs/notionConnectionSetup{,2,3}.png` are referenced from the token-setup steps. `…Setup3.png`
+  **had** the author's email visible in a Notion tooltip; it is now redacted with an opaque fill,
+  and the pre-redaction blobs were purged from git history (`git filter-repo`, force-pushed).
+  Before adding any new screenshot, check it for personal data — and make redactions **opaque**,
+  never a translucent brush stroke (the first attempt was recoverable by raising the contrast).
 - Target platform is the **claude.ai web app** (Notion connector + Skills); a later move to
   Claude Code desktop is cheap since all data lives in Notion.
 

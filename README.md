@@ -52,7 +52,7 @@ steps out on every hairpin"* into the two settings actually responsible.
 
 ```mermaid
 flowchart LR
-    A["Pick your car<br/>— one sentence"] --> B["Drive the game's own<br/>setup once"]
+    A["Name your car and stage<br/>— one sentence"] --> B["Drive the default<br/>setup once"]
     B --> C["Say how it felt<br/>in your own words"]
     C --> D["Get a setup + the reason<br/>for every number, in Notion"]
     D --> E["Drive it.<br/>Report back."]
@@ -70,8 +70,8 @@ as you turned, or once you were already round?"* *"Did one wheel spin up out of 
 did the whole back end step out?"* Every term gets explained the moment it comes up, and **"not
 sure" is always allowed.**
 
-**It starts from the game's own setup — not from nowhere.**
-Before it builds anything, it tells you to drive the stock setup once, and tells you *what to pay
+**It starts from the default setup — not from nowhere.**
+Before it builds anything, it tells you to drive the default setup once, and tells you *what to pay
 attention to before you go* so you know what you're feeling for. Then it reads the game's numbers
 off a screenshot. Every change after that is a deliberate move away from a known reference —
 not a guess dressed up as engineering.
@@ -179,7 +179,7 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
    execution** and **Skills**. Then set **Network egress** to **All domains** — the skill calls
    Notion's API from the code sandbox and can't reach it otherwise.
 3. **Add the skill.** Download **`acr-setup-engineer-skill.zip`** from
-   [Releases](../../releases). claude.ai → Settings → **Customize → Skills → Create skill** →
+   [Releases](../../releases). claude.ai → Settings → **Customize → Skills → Add skill** →
    upload the ZIP.
 4. **Onboard your first car.** New chat: *"Onboard the Lancia Stratos HF for Assetto Corsa
    Rally."* This creates the whole Notion structure on first use.
@@ -204,6 +204,10 @@ list a database's rows. That needs a token.
 2. **Connect it to only your data.** Open your **ACR Setup Engineer** page in Notion → **•••** →
    **Connections** → add the connection you just made. Access cascades to everything under it —
    **and nothing else** in your workspace.
+
+   ![Adding the connection to the ACR Setup Engineer page via ••• → Connections](docs/notionConnectionSetup3.png)
+
+   *(The screenshot predates a rename — your root page is called **ACR Setup Engineer**.)*
 
 3. **Give the skill the token** (pick one):
    - **Store it (recommended).** The skill auto-creates a **`Config`** page under **ACR Setup
@@ -243,7 +247,13 @@ The first time you mention a stage, its facts (surface, length, key corners) are
 shared catalogue — every later setup, for any car, references the same stage without re-describing
 it.
 
-**The first run on a new car/stage starts with the game's own setup** — see the flow below. It's a
+**Name the real stage and you can have it researched for you.** If you give it the actual stage
+name rather than a vague description, you can ask it to **look the stage up online** — surface,
+length, elevation change, how tight or flowing it is, what the corners are like. Those facts land
+in the catalogue once and sharpen every setup built for that stage afterwards. Don't know the
+name, or would rather not bother? Describe it in a sentence; that works fine too.
+
+**The first run on a new car/stage starts with the default setup** — see the flow below. It's a
 strong recommendation, never a gate: say *"just build me one"* and it will, noting that no baseline
 anchor was used.
 
@@ -314,7 +324,7 @@ flowchart TD
     Onb -->|"no, no template"| Stop["Onboard from screenshots first<br/>build stops here"]
     Auto --> Ctx
 
-    Ctx["Load: legal ranges, drivetrain + car facts,<br/>your guidelines, stage facts,<br/>surface and conditions"] --> Base{"Captured stock baseline<br/>for this car, stage<br/>and conditions?"}
+    Ctx["Load: legal ranges, drivetrain + car facts,<br/>your guidelines, stage facts,<br/>surface and conditions"] --> Base{"Captured default setup<br/>for this car, stage<br/>and conditions?"}
 
     Base -->|"exact match"| Anchor
     Base -->|"different context"| Ask["Show the stored values and the context<br/>'does the game give you these here?'"]
@@ -323,14 +333,14 @@ flowchart TD
     Ask -->|"confirmed"| Anchor
     Ask -->|"different"| Capture
 
-    Brief --> Drive["You drive the game's stock setup"]
+    Brief --> Drive["You drive the default setup"]
     Drive --> Capture["Screenshot the setup screen<br/>saved as a Source=default row"]
     Capture --> Interview["Guided interview:<br/>what did the car actually do?"]
     Interview --> Anchor
 
     Brief -.->|"or: just build me one"| Choose
 
-    Anchor["Anchor on the game's own numbers"] --> Choose["Move only what the symptoms and<br/>the build intent justify, in fix order:<br/>tyre, diff, ride height and springs,<br/>ARBs, dampers, alignment, brakes"]
+    Anchor["Anchor on the default setup's numbers"] --> Choose["Move only what the symptoms and<br/>the build intent justify, in fix order:<br/>tyre, diff, ride height and springs,<br/>ARBs, dampers, alignment, brakes"]
 
     Choose --> Valid{"Every value legal<br/>for this surface?"}
     Valid -->|"no"| Choose
