@@ -239,7 +239,9 @@ can hold setups from several versions):
 **≤15 chars**; if one somehow exceeds it, compact it before writing (per `SKILL.md` core rules).
 Each row:
 - `Name`, `Car`, `Surface`, `Game version`, `Date` (current date/time — per `notion-structure.md`
-  → `Date`: run the Python one-liner, don't guess the time), `Source = imported`. Write `Car` as the
+  → `Date`: run the Python one-liner, don't guess the time), `Source = imported`. Leave
+  **`Conditions` blank** — the save file doesn't record it, and it must never be guessed (the user
+  can fill it in later if they care; often the setup name already says it). Write `Car` as the
   **exact same `Car` Select value** the car page's linked view filters on (`FILTER "Car" =
   "{Car}"`), via create-or-reuse — a casing or spacing mismatch would make the rows vanish from the
   per-car view even though they're in the table;

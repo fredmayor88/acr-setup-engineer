@@ -103,10 +103,35 @@ class TestBuildFilter(unittest.TestCase):
     def test_learn_only(self):
         f = Q.build_filter('Alpine A110 1.8 1973', learn_only=True)
         self.assertIn('and', f)
-        self.assertEqual(len(f['and']), 2)
         props = {clause['property'] for clause in f['and']}
         self.assertIn('Car', props)
         self.assertIn('Learn from this', props)
+
+    def test_learn_only_excludes_default_source(self):
+        # Captured stock baselines are the build anchor, never a learning example.
+        f = Q.build_filter('Alpine A110 1.8 1973', learn_only=True)
+        excludes = [c for c in f['and']
+                    if c['property'] == 'Source'
+                    and c['select'].get('does_not_equal') == Q.DEFAULT_SOURCE]
+        self.assertEqual(len(excludes), 1)
+
+    def test_source_filter(self):
+        f = Q.build_filter('Alpine A110 1.8 1973', learn_only=False, source='default')
+        self.assertIn('and', f)
+        self.assertEqual(len(f['and']), 2)
+        by_prop = {c['property']: c for c in f['and']}
+        self.assertEqual(by_prop['Car']['select']['equals'], 'Alpine A110 1.8 1973')
+        self.assertEqual(by_prop['Source']['select']['equals'], 'default')
+
+    def test_source_filter_without_car(self):
+        f = Q.build_filter(None, learn_only=False, source='default')
+        self.assertEqual(f['property'], 'Source')
+        self.assertEqual(f['select']['equals'], 'default')
+
+    def test_source_defaults_to_none(self):
+        # Existing callers that pass only (car, learn_only) are unaffected.
+        f = Q.build_filter('Alpine A110 1.8 1973', learn_only=False)
+        self.assertEqual(f['property'], 'Car')
 
 
 class TestBuildShowOrder(unittest.TestCase):
@@ -125,7 +150,8 @@ class TestBuildShowOrder(unittest.TestCase):
         show = Q.build_show_order([{'Adjustment': 'Gear Set', 'Order': 1010}])
         self.assertEqual(
             show,
-            '"Name", "Gear Set", "Car", "Location", "Stage", "Surface", "Date", '
+            '"Name", "Gear Set", "Car", "Location", "Stage", "Surface", '
+            '"Conditions", "Date", '
             '"Source", "Mode", "Rating", "Learn from this", "Game version", '
             '"Notes", "Model", "Skill version"',
         )
@@ -200,6 +226,20 @@ class TestQuery(unittest.TestCase):
 
         sent_filter = captured[0]['filter']
         self.assertIn('and', sent_filter)
+
+    def test_source_filter_sent(self):
+        resp = make_response([make_page(SETUP_ROW)])
+        captured = []
+
+        def fake_urlopen(req):
+            captured.append(json.loads(req.data.decode()))
+            return resp
+
+        with patch('urllib.request.urlopen', side_effect=fake_urlopen):
+            Q.query('fake-id', 'fake-token', 'Alpine A110 1.8 1973', source='default')
+
+        clauses = captured[0]['filter']['and']
+        self.assertIn({'property': 'Source', 'select': {'equals': 'default'}}, clauses)
 
     def test_blank_rich_text_included(self):
         row_with_blank = dict(PARAM_ROW)

@@ -52,9 +52,15 @@ tagged lines.
 3. `[All]` **Set up for *survival* before *balance*** — first make the car safely handle the
    surface (no bottoming out, no floatiness over bumps), *then* tune the under/oversteer balance.
 4. `[All]` **Start soft** — a softer car is more predictable; stiffen toward responsiveness.
-5. `[All]` **Change a few things at a time** — differential + brake bias give the most change
-   for the least effort; get those right, then suspension (height → springs → dampers), then
-   alignment. Tuning everything at once hides cause and effect.
+5. `[All]` **Change a few things at a time, biggest lever first** — work the fix-order ladder:
+   **tyre type → differential (preload → ramps → plates) → suspension (ride height → springs) →
+   ARBs → dampers → alignment (camber, toe) → brake bias** (and brake hardware when braking is
+   the complaint). Tuning everything at once hides cause and effect, and fine-tuning alignment
+   while the diff is wrong wastes the run. **Tyre pressure sits outside the ladder** (see *Tyre
+   pressure* below) and **gearing is a parallel track**. The full ladder, with the diagnostic
+   questions that feed it, lives in
+   [driving-feedback-interview.md](driving-feedback-interview.md) — and **what the driver actually
+   reports always takes priority over this default order**.
 6. `[All]` **Step size by surface** — on gravel/snow (soft setups) small clicks are barely
    felt, so move in bigger steps; on tarmac, small changes matter, so move precisely.
 7. `[All]` **Learn by repetition** — running the same stretch repeatedly teaches how each
@@ -164,8 +170,19 @@ feel — there is no default direction. **Do not default to low pressures.**
 
 **ACR pressure rule (early access).** Current ACR builds do not appear to reward low pressures
 the way real-world logic suggests (the tyre heating/pressure model is still maturing, so tyres
-may never reach their optimal hot pressure). **For ACR: when unsure, start in the upper half of
-the surface's legal range and adjust from feedback.** Revisit this rule as game builds update.
+may never reach their optimal hot pressure). Because the model isn't physically sensible, **the
+skill's own pressure reasoning is the weakest tool available** — prefer a measured reference over
+it:
+
+1. **A captured default (stock) setup exists for this car** → **hold its pressures.** They are the
+   game's own numbers, which beats anything derived from first principles here. Move them **only**
+   when the driver reports a pressure-related symptom (grip missing from turn-in, a darty/nervous
+   car, fading grip) or says outright that the pressures felt too low or too high. **Never** adjust
+   pressure as part of routine balance tuning — use the balance levers instead.
+2. **No captured default** → fall back to: when unsure, **start in the upper half of the surface's
+   legal range** and adjust from feedback.
+
+Revisit this rule as game builds update.
 
 ### Gearbox
 
@@ -179,6 +196,14 @@ wheelspin risk; longer = higher top speed, gentler delivery. Aim so that **after
 revs land near the car's torque peak** — chasing redline misses the torque. It doesn't matter
 if you never reach top gear; what matters is staying in the power band. Make gears long enough
 not to sit on the limiter down long straights.
+
+**Low grip inverts the goal** `[All]` — on loose, wet, or icy surfaces the aim is often the
+*opposite* of the dry-tarmac one: deliberately **longer** gears so the engine sits at **lower revs**
+and delivers torque gently, instead of optimising to sit in the power band. Wheelspin costs more
+than the torque gained. Pair with a softer engine map. Don't let a "redlining on the straight"
+answer drag a slippery-stage setup toward shorter gears — resolve the two separately (the gearing
+sub-interview in [driving-feedback-interview.md](driving-feedback-interview.md) asks about them
+separately for exactly this reason).
 
 Drivetrain notes: `[RWD]` on low grip, **longer gears** soften torque delivery and tame
 snap-oversteer for less countersteering. `[FWD]` the extra front pull just adds mild,
@@ -236,7 +261,9 @@ An ARB ties the two wheels on an axle and twists to resist body roll. Stiffer re
 keeps camber but increases lateral load transfer (less grip on that axle). Stiffer **front** →
 understeer; stiffer **rear** → oversteer. On loose/rough surfaces keep ARBs **soft** so each
 wheel can follow the terrain independently (more contact, more traction); too stiff there makes
-the car skippy. Tune ARBs **last**, for fine rotation, after springs/dampers are settled.
+the car skippy. Tune ARBs **after ride height and springs are settled, before the dampers** — they
+are a fine-rotation lever, not a survival one (see the fix-order ladder under *Workflow /
+methodology*).
 
 ### Differential (LSD)
 
@@ -277,6 +304,28 @@ direction — the correct move is opposite in each case.
 - High grip, the rear **snaps** when it suddenly bites under **hard** power → **reduce lock**
   (raise the power-ramp angle) — the opposite move.
 - If the report doesn't make the regime clear, ask before recommending a direction.
+
+**Symptoms of preload set too low** `[All]` — preload is the lock present at *zero* torque, so it
+shows up wherever the wheels are barely driven:
+- **Losing the rear on a hairpin exit**, especially while feathering the throttle back on — with no
+  base lock the inside wheel simply spins up and the axle has nothing tying it together.
+- **Rear instability in long, hard braking** — under decel the wheels need the same base lock to
+  stay tied; without it the rear wanders and can try to overtake the front.
+- **Wandering rear through throttle transitions** — on/off/on modulation, trailing throttle.
+- **No proactive traction over loose patches** — the car scrabbles rather than pulling away.
+In each case raise **preload** before touching the ramp angles. Preload set **too high**, by
+contrast, makes the car reluctant to turn at low speed and gives a lock that feels binary — it
+grips, then lets go, with little in between.
+
+**Symptoms of the wrong plate count** `[All]` — plates scale how *strong* the lock is, so they set
+the authority of every other diff adjustment:
+- **Ramp/preload changes barely register** ("I couldn't feel any difference") → likely **too few
+  plates** — there isn't enough clamping force for the ramp geometry to act on. Add plates before
+  chasing ever-lower ramp angles.
+- **The lock feels abrupt / binary**, grabbing and releasing with no progression → likely **too many
+  plates** (often together with high preload). Reduce plates for a more progressive handover.
+Rule out a step size that's simply too small for the surface first — on gravel and snow small clicks
+are barely felt.
 
 Drivetrain:
 - `[RWD]` a locked rear on power, **on grip** → spin/oversteer; tune power ramp/preload for

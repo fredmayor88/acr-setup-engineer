@@ -11,6 +11,9 @@ Usage:
   # Setups the user marked "Learn from this" (pass the Setups data_source_id):
   python query_notion_parameters.py <data_source_id> <token> <car_name> --learn-only
 
+  # The car's captured game-default (stock) baseline rows, for the build anchor:
+  python query_notion_parameters.py <data_source_id> <token> <car_name> --source default
+
   # The ordered SHOW property list for a view (paste into a view's SHOW directive):
   python query_notion_parameters.py <params_data_source_id> <token> <car_name> --show-order
   python query_notion_parameters.py <params_data_source_id> <token> --all --show-order
@@ -29,6 +32,12 @@ Arguments:
 
 Options:
   --learn-only   Also filter "Learn from this" checkbox = true (Setups learn pool).
+                 Additionally EXCLUDES Source=default rows: captured stock baselines
+                 hold the game's values, not the user's taste, so they are consumed
+                 as the build anchor and never as a learning example.
+  --source <v>   Also filter the "Source" select = <v> (Setups). Use
+                 `--source default` to fetch a car's captured game-default (stock)
+                 baseline rows for the build anchor.
   --show-order   Print the ordered SHOW property list for a Setups view (see below)
                  instead of the rows: Name, then value columns by their Parameters
                  `Order`, then the fixed meta columns. Run against the Parameters
@@ -65,9 +74,12 @@ BASE_URL = 'https://api.notion.com/v1/data_sources'
 # Fixed trailing meta-column order for a Setups view's SHOW directive, after the
 # value columns. Keep in sync with notion-structure.md ("Setups column order").
 META_ORDER = [
-    'Car', 'Location', 'Stage', 'Surface', 'Date', 'Source', 'Mode', 'Rating',
-    'Learn from this', 'Game version', 'Notes', 'Model', 'Skill version',
+    'Car', 'Location', 'Stage', 'Surface', 'Conditions', 'Date', 'Source', 'Mode',
+    'Rating', 'Learn from this', 'Game version', 'Notes', 'Model', 'Skill version',
 ]
+
+# The "Source" value marking a captured game-default (stock) baseline row.
+DEFAULT_SOURCE = 'default'
 
 
 def extract_value(prop):
@@ -89,13 +101,23 @@ def extract_value(prop):
     return None
 
 
-def build_filter(car_name, learn_only):
-    """Build the Notion query filter. car_name=None means no Car filter (--all)."""
+def build_filter(car_name, learn_only, source=None):
+    """Build the Notion query filter. car_name=None means no Car filter (--all).
+
+    `source` filters Setups rows on the "Source" select (e.g. "default" for the
+    captured stock baselines). `learn_only` additionally excludes Source=default
+    rows: those hold the game's own values, not the user's taste, so they are
+    consumed as the build anchor and never as a learning example
+    (notion-structure.md -> "Default (stock) baseline rows").
+    """
     clauses = []
     if car_name is not None:
         clauses.append({'property': 'Car', 'select': {'equals': car_name}})
+    if source is not None:
+        clauses.append({'property': 'Source', 'select': {'equals': source}})
     if learn_only:
         clauses.append({'property': 'Learn from this', 'checkbox': {'equals': True}})
+        clauses.append({'property': 'Source', 'select': {'does_not_equal': DEFAULT_SOURCE}})
     if not clauses:
         return None
     if len(clauses) == 1:
@@ -178,7 +200,7 @@ def read_template_rows(path):
     return rows
 
 
-def query(data_source_id, token, car_name, learn_only=False):
+def query(data_source_id, token, car_name, learn_only=False, source=None):
     """Return all rows matching car_name as a list of property dicts."""
     url = f'{BASE_URL}/{data_source_id}/query'
     headers = {
@@ -186,7 +208,7 @@ def query(data_source_id, token, car_name, learn_only=False):
         'Notion-Version': NOTION_VERSION,
         'Content-Type': 'application/json',
     }
-    filt = build_filter(car_name, learn_only)
+    filt = build_filter(car_name, learn_only, source)
     rows = []
     cursor = None
 
@@ -231,6 +253,7 @@ def query(data_source_id, token, car_name, learn_only=False):
 def main():
     args = sys.argv[1:]
     positional, flags, templates = [], set(), []
+    source = None
     i = 0
     while i < len(args):
         a = args[i]
@@ -239,6 +262,13 @@ def main():
                 print('--from-template requires a path', file=sys.stderr)
                 sys.exit(2)
             templates.append(args[i + 1])
+            i += 2
+            continue
+        if a == '--source':
+            if i + 1 >= len(args):
+                print('--source requires a value (e.g. default)', file=sys.stderr)
+                sys.exit(2)
+            source = args[i + 1]
             i += 2
             continue
         (flags.add(a) if a.startswith('--') else positional.append(a))
@@ -260,7 +290,7 @@ def main():
         sys.exit(0)
 
     usage = ('usage: query_notion_parameters.py <data_source_id> <token> <car_name>'
-             ' [--learn-only] [--show-order] [--pretty]\n'
+             ' [--learn-only] [--source <value>] [--show-order] [--pretty]\n'
              '       query_notion_parameters.py <data_source_id> <token> --all --show-order\n'
              '       query_notion_parameters.py --show-order --from-template <template.yaml> ...')
     # Need data_source_id + token always; car_name too unless --all.
@@ -270,14 +300,19 @@ def main():
 
     data_source_id, token = positional[0], positional[1]
     car_name = None if all_cars else positional[2]
-    rows = query(data_source_id, token, car_name, learn_only=learn_only)
+    rows = query(data_source_id, token, car_name, learn_only=learn_only, source=source)
 
     if show_order:
         print(build_show_order(rows))
         sys.exit(0)
 
     if pretty:
-        learn_tag = ' (learn-only)' if learn_only else ''
+        tags = []
+        if learn_only:
+            tags.append('learn-only')
+        if source is not None:
+            tags.append(f'source={source}')
+        learn_tag = f' ({", ".join(tags)})' if tags else ''
         print(f'{len(rows)} rows for "{car_name}"{learn_tag}:')
         for row in rows:
             label = row.get('Adjustment') or row.get('Name', '?')

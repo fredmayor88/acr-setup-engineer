@@ -227,8 +227,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      value column in the `CREATE TABLE` when the `Setups` DB is first created, or combine **all**
      the new columns into a **single `notion-update-data-source`** call (semicolon-separated
      `ADD COLUMN`s) — never one column per call. Don't remove or rename existing properties. The
-     meta columns `Car`, `Location`, `Stage`, and `Surface` are **Select** (so they render as tags),
-     per `notion-structure.md`. Then **apply the column order — MANDATORY, never skip (even on a
+     meta columns `Car`, `Location`, `Stage`, `Surface`, and `Conditions` are **Select** (so they
+     render as tags), per `notion-structure.md`. **On an existing `Setups` DB, add any meta column
+     that's missing** (older tables predate `Conditions`) in the *same* `notion-update-data-source`
+     call as the value columns. Then **apply the column order — MANDATORY, never skip (even on a
      quick / low-effort run)** (`notion-structure.md` → *Applying the order*): get the main table's
      `SHOW` list from the bundled script (`… --all --show-order`) and set the main `Setups` table
      view's `SHOW` to it.

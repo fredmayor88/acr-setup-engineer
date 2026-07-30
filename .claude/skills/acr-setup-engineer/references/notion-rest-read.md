@@ -49,10 +49,17 @@ python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>"
 
 # Setups learn-pool slice (build-setup learn mode):
 python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>" --learn-only
+
+# Captured game-default (stock) baseline rows for a car (build-setup step 4 anchor):
+python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>" --source default
 ```
 
 - `<car_name>` must **exactly** match the `Car` select option (e.g. `Alpine A110 1.8 1973`).
 - The script handles pagination automatically and exits 0 on success, 1 on HTTP/network error.
+- `--learn-only` **excludes `Source = default` rows** automatically — a captured stock baseline holds
+  the game's values, not the user's taste, so it is consumed only as the build anchor
+  (`notion-structure.md` → *Default (stock) baseline rows*). The two slices are complementary: run
+  both in the **same** code-execution block when a build needs the anchor and the learn pool.
 
 **Output:** a JSON array — one object per row, property names as keys:
 - `title` / `rich_text` properties → string (`""` when blank).

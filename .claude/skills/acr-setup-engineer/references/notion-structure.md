@@ -136,8 +136,8 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
 ## `Setups` DB — one row per setup
 - **Meta:** `Name` (title), `Car` (**Select**), `Location` (**Select**, optional), `Stage`
   (**Select**, optional), `Surface` (**Select**, options `Tarmac` / `Gravel` / `Snow`),
-  `Game version`, `Date` (**Date**, stores date *and* time), `Source` (`generated` | `imported`),
-  `Mode` (`learn` | `independent`),
+  `Conditions` (**Select**, optional), `Game version`, `Date` (**Date**, stores date *and* time),
+  `Source` (`generated` | `imported` | `default`), `Mode` (`learn` | `independent`),
   `Rating` (**Select**, options `1`–`5`, higher = better; **blank = unrated**), `Notes`,
   **`Learn from this`** (checkbox), `Model` (**Select**), `Skill version` (**Text**).
   Make `Car`, `Location`, `Stage`,
@@ -145,9 +145,29 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   mirrors the `Parameters` DB's `Car` select, and `Surface` its `Tarmac`/`Gravel`/`Snow` options.
   **`Location` and `Stage` are both optional and independently blankable** — a setup may name
   neither (an arbitrary build with no place context, e.g. "drift setup, tarmac"), a `Location`
-  only, or both. A setup's **driving intent / conditions are not a column** — they live in the
-  setup's own page-body summary (see *Mobile conventions* below); `Location`/`Stage` carry only
-  the place reference, never style or goals.
+  only, or both. `Location`/`Stage` carry only the place reference, never style or goals.
+  A setup's **driving intent is not a column** — it lives in the setup's own page-body summary (see
+  *Mobile conventions* below).
+  **`Conditions`** is a **Select** with the seeded options `Dry` / `Wet` / `Damp` / `Snow` / `Ice`
+  (create-or-reuse, so other values are fine), describing the weather/road state the setup is for or
+  was captured under. Give it the description *"Weather / road state (dry, wet, damp, snow, ice).
+  Optional — leave blank if it doesn't matter or it's already obvious from the name."*
+  **It is deliberately optional and often blank**, and a blank is never an error to fix:
+  - the conditions are frequently already in the `Name` (`alsace wet`), which is fine — don't
+    duplicate them into the column just for tidiness;
+  - the user hand-edits rows and simply may not fill it in;
+  - many builds genuinely don't care (a gravel setup that's fine dry or damp).
+
+  Where it **does** matter is `Source = default` rows: the game's stock setup may differ by
+  conditions, so a captured baseline records them whenever they're known (see *Default (stock)
+  baseline rows*). Never **infer** a value to fill the column — leave it blank instead, and never
+  treat a blank as "dry".
+
+  **Migration:** `Setups` tables created before this column exists simply don't have it. Any
+  workflow that's about to write a `Setups` row and finds `Conditions` missing should **add it in
+  the same `notion-update-data-source` call** it would otherwise make (or silently skip setting it
+  if no such call is happening) — never fail, never nag the user, and **never backfill existing
+  rows**, which are append-only and fine as they are.
   **`Model`** is also a **Select** (renders as a tag) holding **just the model name + version**,
   e.g. `Opus 4.8` or `Sonnet 4.6`; give the column the description *"Which model+version built this
   setup (e.g. Opus 4.8). Blank for imported setups."* **Blank for imported rows** — only `generated`
@@ -191,8 +211,69 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   meta columns last (see *Setups column order* below), applied through the view's `SHOW`
   directive — never creation order.
 - **`Learn from this`** gates the learning pool: `build-setup` `learn` mode learns only from
-  checked rows. Default **unchecked for both** `generated` and `imported` — the user checks it
-  after reviewing and deciding a setup is worth learning from.
+  checked rows. Default **unchecked for all three** `Source` values — the user checks it
+  after reviewing and deciding a setup is worth learning from. **`Source = default` rows are never
+  in the learn pool** even if checked (see below).
+
+## Default (stock) baseline rows (`Source = default`)
+
+A **default baseline row** records the setup the *game itself* gives before anything is changed,
+read off the user's setup-screen screenshots. It is the **numeric anchor** a build starts from
+(`SKILL.md` → *Baseline first*; procedure in `build-setup.md` steps 4–6): the `Parameters` catalog
+supplies legal *ranges* but nothing about where inside them ACR actually sits, and the captured
+default supplies exactly that.
+
+- **Written like any other `Setups` row**, with: `Source = default`, `Car`, `Stage`/`Location` (when
+  the build named them), `Surface`, `Date`, `Game version` (when known), `Skill version`, `Name`
+  ≤15 chars, **`Learn from this` unchecked**, and **`Model` blank** — the values are the game's, not
+  a model's, exactly as for `imported` rows.
+- **Excluded from the learn pool.** These are the game's values, not the user's taste; the
+  `--learn-only` query filters them out (`notion-rest-read.md`). They are consumed only as the
+  anchor.
+- **Append-only.** A re-capture adds a **new** row; the most recent row whose context matches wins.
+  Never edit an existing default row.
+
+### Capture context — recorded, never inferred
+
+**Whether ACR scopes its defaults per stage, per surface, per conditions, or not at all is unknown
+and changes between releases.** A wet-tarmac default may well differ from dry, and `Surface`
+(`Tarmac`/`Gravel`/`Snow`) is far too coarse to stand in for conditions. So the skill **never infers
+the scoping**: it records the full context a capture was taken under and, when a stored default was
+captured in a *different* context, shows the user the values and lets them confirm they apply here
+rather than assuming (`build-setup.md` step 4).
+
+The context is **stage, surface, conditions, game version, date**. Conditions go in the optional
+**`Conditions`** column (above) — on a default row, fill it whenever the conditions are known, since
+that's what a later build matches against. Leave it blank rather than guessing; a blank simply means
+the match falls back to stage + surface and the user gets asked to confirm.
+
+Because the column is optional and the rest of the context (game version, exact stage) isn't
+columnar, also record the whole thing in prose:
+- a **visible "Captured under" block** at the top of the row's page body (*not* inside a toggle), and
+- a compact **one-line copy in `Notes`**, so it's readable in the table without opening the page.
+
+That block is what `build-setup.md` step 4 shows the user when a stored default was captured in a
+different context.
+
+## Driving feedback records (collapsed + dated)
+
+The output of a `driving-feedback-interview.md` session is stored so it survives the chat, without
+burying the values the user actually came to read:
+
+- **Setup row `Notes`** — a **one-line dated verdict** only, e.g.
+  `2026-07-30 — liked it overall; understeer mid-corner, rear loose on hairpin exit.`
+- **Setup row page body** — the full structured record (symptom family → corner phase → severity →
+  the user's own words) inside a **collapsed toggle titled with the interview date**, e.g.
+  *"Driving feedback — 2026-07-30"*. Repeat interviews on the same row **stack chronologically** as
+  additional toggles; never overwrite an earlier one.
+- **`{Car}` page** — anything that reads as a **lasting preference** ("I always want more entry
+  rotation in this car") becomes a normal bullet in the page's **Guidelines** section, where it joins
+  the per-car guideline layer. The **raw symptom log** goes in a separate collapsed **"Driving
+  feedback log"** toggle, **dated, newest first** — that log is an objective record, **not** a
+  guideline layer, the same way stage facts are objective inputs.
+
+Every date comes from the deterministic Python one-liner under `Date` above, never from a guess at
+the wall clock.
 
 ## Setups column order — driven by the per-parameter `Order`
 
@@ -207,7 +288,8 @@ directive (see *Applying the order* below).
 leftmost regardless of `SHOW` order. Next come the **value columns**, sorted by their parameter's
 **`Order` ascending**. A column whose parameter has no `Order` falls back to `section_block + 990`
 (the end of its section), then by `Adjustment` name. **The rest of the meta columns come last**,
-after every value column, in this order: `Car`, `Location`, `Stage`, `Surface`, `Date`, `Source`,
+after every value column, in this order: `Car`, `Location`, `Stage`, `Surface`, `Conditions`,
+`Date`, `Source`,
 `Mode`, `Rating`, `Learn from this`, `Game version`, `Notes`, `Model`, `Skill version`. This
 puts the setup's tunable values first for fast on-phone reading, with bookkeeping metadata trailing.
 
@@ -401,7 +483,7 @@ Locations (page)            catalogue parent — created on first reference, und
   rough/smooth). Plus a `Setups[Stage=this]` filtered linked view (no `Car` filter).
 - **Create-if-missing, resolve by name:** when a setup names a location/stage that doesn't exist
   yet, create the `{Location}` page (if missing) under `Locations`, then the `{Stage}` page (if
-  missing) under it, from the facts the user gives (or asks for) — see `build-setup.md` step 7.
+  missing) under it, from the facts the user gives (or asks for) — see `build-setup.md` step 10.
   When the same stage is referenced again (any car), reuse the existing page — **never create a
   second stage page for the same name.**
 - **A setup may reference a `Location` and/or `Stage`, or neither** — both are optional, blankable
@@ -484,8 +566,9 @@ Users often read these pages on a **phone while playing**, so:
   desktop task on the wide table view).
 - Each generated setup's **page body** has two sections, in this order:
   1. **Brief setup summary** — always visible (not inside a toggle): an **H2 heading** with the
-     setup name, followed by 3–5 bullets covering location/stage/surface, **the driving
-     intent/conditions for this build** (its only home — there's no `Setups` column for it), tyre
+     setup name, followed by 3–5 bullets covering location/stage/surface/conditions, **the driving
+     intent for this build** (its only home — there's no `Setups` column for it; `Conditions` has an
+     optional column, but the *intent* never does), tyre
      choice, the key guidelines applied (citing user guidelines by name), and what prior setups
      contributed (or "no prior setups used" if none). Mirrors what the chat report says, stored
      permanently for quick on-phone reference.

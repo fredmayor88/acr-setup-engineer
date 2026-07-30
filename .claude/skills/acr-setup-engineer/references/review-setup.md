@@ -22,7 +22,8 @@ base) before starting.
 Navigate to `ACR Setup Engineer → Setups` DB and find the row matching the given name. Stay
 within `ACR Setup Engineer` scope — do not issue workspace-wide Notion searches.
 
-- **Unique match:** Load all value properties, plus `Car`, `Location`, `Stage`, `Surface`, `Mode`,
+- **Unique match:** Load all value properties, plus `Car`, `Location`, `Stage`, `Surface`,
+  `Conditions` (may be blank — don't treat that as an error), `Mode`,
   `Notes`, `Rating` (a **1–5 Select**, higher = better; blank = unrated).
 - **Multiple matches:** List them (Name / Car / Stage / Date) and ask the user to pick one.
 - **No match:** Tell the user and stop.
@@ -65,6 +66,13 @@ corners/speeds, character. These are **objective facts**, not a guideline — wh
 aiming for comes from the setup's own page-body summary, read alongside these facts.
 
 ### 5. Review the setup
+
+> **A `Source = default` row is the game's own stock setup, not something the skill built.** Review
+> it as a *reference* — say how it sits relative to the stage and the user's guidelines, and where
+> it's likely to need moving — but never present it as a poorly-built setup, and never flag a value
+> as a mistake someone made. A shown value outside the catalog's captured range means the
+> **`Parameters` range is stale** (re-onboard the car), not that the setup is illegal.
+
 Evaluate across three dimensions:
 
 **a. Constraint validation**

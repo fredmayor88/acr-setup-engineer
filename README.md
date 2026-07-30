@@ -20,31 +20,44 @@ engineering.
    any number of setups across any cars without re-describing it each time. You can also point it
    at an existing setup to use as a starting point — even one from a different car, where it
    transfers the *feel* rather than the raw numbers and re-derives every value for the new car.
-3. **Tweaks on your feedback** — describe what felt wrong after a run and it targets exactly the
+3. **Starts from the game's own setup, then asks how it felt** — before building anything new, it
+   suggests you run the stage on the **stock setup the game gives you**, tells you what to pay
+   attention to *before* you drive, and captures those values from a screenshot. From then on your
+   setup is a set of deliberate changes to a known reference instead of a guess. It's a suggestion,
+   not a hoop — say "just build me one" and it will.
+4. **Asks the right questions when you can't put it into words** — "it felt weird" is a perfectly
+   good answer. It walks you through plain-language questions ("did the car want to run wide when
+   you turned in?", "did one wheel spin up out of the hairpins?"), explains every term as it goes,
+   and "not sure" is always allowed. Then it works out which setting is actually responsible — and
+   fixes the big problems before fiddling with the small ones.
+5. **Tweaks on your feedback** — describe what felt wrong after a run and it targets exactly the
    right parameters and proposes a minimal set of changes, right in the chat. Refine as many times
    as you like; when you're happy, ask it to save and it writes a new setup row — the original is
    never touched.
-4. **Reviews any setup** — checks every value against legal ranges and your guidelines, flags
+6. **Reviews any setup** — checks every value against legal ranges and your guidelines, flags
    anything misaligned, and appends a timestamped AI Review to the setup's Notion page.
-5. **Your setup engineer, on demand** — just ask. Why is the front ARB stiffer on this setup?
+7. **Your setup engineer, on demand** — just ask. Why is the front ARB stiffer on this setup?
    What does preload actually do? How should I think about spring vs damper rates? It pulls your
    setups from Notion when you ask about one, compares two when you ask, and explains from the
    same tuning knowledge it builds with. Anything setup-related goes. Read-only: nothing changes.
-6. **Shares a setup** — one command and you get a clean, copy-paste-ready block ready to drop
+8. **Shares a setup** — one command and you get a clean, copy-paste-ready block ready to drop
    into Discord, WhatsApp, or anywhere you'd like.
-7. **Imports what you already have** — attach your ACR save file and it pulls your existing
+9. **Imports what you already have** — attach your ACR save file and it pulls your existing
    setups straight into Notion, so you don't need to enter them manually. You can import only
    selected setups of certain cars — it's not all-or-nothing. It even works **without Notion**
    (you get a clean copy-paste table in chat instead) and **without onboarding the car first**
    (it imports anyway; onboard later for the full experience). It reads older save versions too,
    not just the latest.
-8. **Exports a car template** — once you've onboarded a car from screenshots, package it as a
-   YAML file and share it with the community in one click. No command line, no tokens — just a
-   free GitHub account and a green button.
+10. **Exports a car template** — once you've onboarded a car from screenshots, package it as a
+    YAML file and share it with the community in one click. No command line, no tokens — just a
+    free GitHub account and a green button.
 
 Together these cover the **whole lifecycle of a setup** in one place. Every value stays within
 what the car actually allows, and the setups get **more personal the more you use it** — rate
 your setups and tick "Learn from this" on the good ones, and future setups follow your taste.
+
+> **Note:** the flow diagram below predates the baseline-first step (points 3–4) and hasn't been
+> redrawn yet.
 
 ![New setup flow](docs/new_setup_flow.png)
 
@@ -136,11 +149,22 @@ The first time you mention a stage, Claude saves its facts (surface, length, key
 a shared catalogue in Notion — any later setup, for any car, can reference the same stage without
 re-describing it.
 
-The new setup row appears in your Notion `Setups` database. Open it on your phone to see the
-values and the reasoning behind each choice. After driving: set a **Rating**, add **Notes**,
-and tick **Learn from this** if you liked it — future setups learn from the ones you've checked.
+**The first run on a new car/stage starts with the game's own setup.** Rather than inventing values
+from nothing, Claude will suggest you drive the stage on the **stock setup** first. It tells you what
+to pay attention to *before* you go (so you know what you're feeling for), then asks for a screenshot
+of the setup screen so it can record the game's own numbers. Those become the reference every later
+change is measured against — the difference between "here's a targeted fix" and "here's a guess".
+It also asks what conditions you drove in, because a wet default may not be the same as a dry one.
 
-**Tweak a setup**
+This is a **suggestion, not a gate** — if you'd rather just have a setup right now, say so and Claude
+builds one, noting that it had no reference to work from.
+
+The new setup row appears in your Notion `Setups` database. Open it on your phone to see the
+values and the reasoning behind each choice — including exactly which settings were moved off the
+game's defaults and why. After driving: set a **Rating**, add **Notes**, and tick **Learn from
+this** if you liked it — future setups learn from the ones you've checked.
+
+**Tweak a setup — or work out what's wrong in the first place**
 
 After driving, describe what felt wrong — e.g.: *"The Alsace setup understeers on entry —
 can you soften the front ARB?"* Claude maps the feedback to specific parameters and proposes a
@@ -149,6 +173,15 @@ back, and refine again as many times as you like. Nothing is written to Notion w
 only when you're happy and **ask Claude to save** does it create a single new setup row based on
 the original (the source is never modified). Claude gently reminds you to save once you say the car
 feels right.
+
+**Can't describe it? That's normal.** Say *"it felt weird, I don't really know what was wrong"* and
+Claude will interview you instead: plain-language questions, one small batch at a time, every term
+explained as it comes up, and "not sure" always an acceptable answer. *Did the car want to run wide
+when you turned in — and was that as you turned, or once you were already round? Did one wheel spin
+up coming out of the hairpins, or did the whole back end step out? Were you hitting the limiter with
+road left on the straights?* From those answers it works out which setting is responsible, and it
+fixes the big things (differential, ride height and springs) before the fine ones (dampers, wheel
+angles, brake bias) — because tuning the small stuff while something major is wrong just wastes runs.
 
 **Review a setup**
 

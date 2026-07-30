@@ -24,6 +24,7 @@ Pick the matching workflow and read its file before acting:
 | Onboard a car / capture its tunable parameters (from min & max screenshots) | `references/onboard-car.md` |
 | Build a setup for a stage | `references/build-setup.md` |
 | Tweak / refine a setup, or describe a handling problem to work through (problem → tweak → test loop) | `references/tweak-setup.md` |
+| Work out **what's actually wrong** with how the car feels — guided questions after a drive, when the user can't put it into words (then continue into `tweak-setup.md` / `build-setup.md` with the diagnosis) | `references/driving-feedback-interview.md` |
 | Review an existing setup from Notion | `references/review-setup.md` |
 | Ask a question / explain a setup or a tuning concept (read-only) | `references/ask-setups.md` |
 | Share a setup as a plain-text snippet (copy-paste) | `references/share-setup.md` |
@@ -38,6 +39,11 @@ Shared knowledge (read as needed):
   filtered slice of `Setups`)**; the connector can't list rows, so query the data source over
   REST. Follow this wherever a workflow says "fetch the car's rows".
 - `references/setup-tuning-principles.md` — the tuning reasoning base (drivetrain-tagged).
+- `references/driving-feedback-interview.md` — the shared **symptom → cause** question bank: how to
+  interview a beginner about how the car felt (plain language, terms defined inline, "not sure" always
+  allowed), the **pre-drive briefing** given before the default run, the gearing sub-interview, and
+  the **fix-order ladder** that decides what to change first. Read it from `build-setup.md` (before
+  and after the default drive) and from `tweak-setup.md` whenever feedback is vague.
 - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
 - `references/parameter-reference-template.md` — seed for the auto-maintained, read-only
   `Parameter reference` Notion page (verbatim in-game descriptions of every tuning parameter; also
@@ -73,7 +79,31 @@ Bundled tools (stdlib Python, run via code execution):
   blank option. A setup-row value column may be blank **only** when (a) the car does not have
   that parameter at all (the column is a union across the game's cars), or (b) it is the
   documented `FFB Multiplier` exception below. Never leave an applicable parameter blank because
-  a default "would be fine."
+  a default "would be fine." (This is about *blank cells*, and does not conflict with the
+  baseline-first rule below: a **captured** default row holds explicit values for every parameter,
+  so anchoring a build on it never produces a blank.)
+- **Baseline first — anchor on the game's own default setup.** The catalog gives legal *ranges* but
+  no sense of where inside them the game itself sits, so a from-scratch build is anchored on nothing.
+  For any new setup: if a **captured default** (`Source = default`) exists for this car in this
+  context, start from **its values** and move only what the driver's reported symptoms and the build's
+  intent justify — parameters nothing points at keep the default's value. If none exists, the default
+  path is to **recommend the user drive the in-game default first**, brief them on what to notice
+  *before* they drive (`references/driving-feedback-interview.md` → *Pre-drive briefing*), and offer
+  to capture it from setup-screen screenshots. This is a **strong recommendation, never a gate** — if
+  the user would rather just have a setup now, build one and say no baseline anchor was used.
+  **Never infer how the game scopes its defaults** — per stage, per surface, per conditions (a
+  wet-tarmac default may differ from dry), or not at all is **unknown and changes between releases**.
+  Match on the full capture context, and when a stored default was captured in a *different* context,
+  show it to the user and let them confirm it applies rather than assuming. Full procedure:
+  `references/build-setup.md` steps 4–6; storage conventions: `references/notion-structure.md` →
+  *Default (stock) baseline rows*.
+- **Fix major issues before fine tuning.** When several things could be changed, work the
+  **fix-order ladder**: tyre type → differential (preload → ramp angles → plates) → suspension (ride
+  height → springs) → ARBs → dampers → alignment (camber, toe) → brake bias (and brake hardware when
+  braking itself is the complaint). Gearing is a **parallel track**; **tyre pressure sits outside the
+  ladder** and is held at the captured default unless a symptom points at it (ACR's pressure model
+  isn't physically sensible). **What the driver actually reports always outranks this order.** See
+  `references/driving-feedback-interview.md` → *Fix-order ladder*.
 - **Surface-resolved ranges.** A `Parameters` row may carry an optional **`Surface`** tag
   (`Tarmac`/`Gravel`/`Snow`); a few parameters expose a different range per surface. The legal
   range for a setup on surface **S** is the row tagged `S` **if one exists**; else if `S` is
@@ -208,6 +238,13 @@ standard ACR lists for `Tyre type`/brake pads); the user completes it (see
 `references/notion-structure.md`).
 
 ## Glossary (ACR)
+- **Default / stock baseline** = the setup the *game itself* gives you before you change anything.
+  Captured from setup-screen screenshots and stored as a `Setups` row with `Source = default`; it is
+  the numeric anchor a build starts from (*Baseline first*, above).
+- **Corner phases** — **entry** (turning in, usually still braking), **mid** (off the brakes, steady
+  through the middle), **exit** (back on the throttle). Weight moves forward under braking, so the
+  front governs entry; it moves back on power, so the rear governs exit. Every balance symptom
+  resolves to a phase.
 - **Adjuster ring** = ride height. **Gear set** picks a ratio family; **primary gear** = the
   final-drive pair.
 - **LSD ramp (power/coast)**: lower angle = more lock. **Preload / plates** = base lock / number

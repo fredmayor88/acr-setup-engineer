@@ -27,12 +27,13 @@ base) before starting.
 Decide what the iteration starts from — **don't immediately write anything**:
 - **One setup clearly in scope** (just built/loaded in this thread, or unambiguously named) → use
   its current in-chat values as the working setup and say which one. For a saved setup, load all
-  value properties plus `Car`, `Location`, `Stage`, `Surface`, `Mode` (navigate
+  value properties plus `Car`, `Location`, `Stage`, `Surface`, `Conditions` (may be blank), `Mode` (navigate
   `ACR Setup Engineer → Setups`; stay within that scope — no workspace-wide searches).
 - **Multiple plausible matches** → list them (Name / Car / Stage / Date) and ask the user to pick.
 - **Nothing in scope** (the user described a problem but nothing has been built or loaded yet) →
-  **ask what to start from**: which saved setup to load, or whether to build a baseline first
-  (`build-setup.md`). Don't guess a base.
+  **ask what to start from**: which saved setup to load, or whether to run `build-setup.md` — which
+  will itself start from the game's captured default for this car/stage, or recommend driving it
+  (`build-setup.md` steps 4–6). Don't guess a base.
 
 ### 2. Load constraints + the car's identity facts
 > **Load steps 2–4 as one batched read** (`SKILL.md` → *Read efficiently*): once the structure is
@@ -78,6 +79,14 @@ this setup comes from its page body and the user's feedback, not the stage page.
 ### 5. Refinement iteration (repeat for each round of feedback)
 Each time the user gives feedback, run one round — **all in chat, no Notion writes**:
 
+- **If the feedback is vague, contradictory, or the user says they can't tell what's wrong** ("it
+  felt off", "I dunno, it was weird", "it just isn't fast"), **run
+  [driving-feedback-interview.md](driving-feedback-interview.md) before proposing anything.** Most
+  drivers feel the problem correctly but don't have the words for it, and a wrong diagnosis sends
+  the whole round in the wrong direction. Use its opening triage and symptom families in small
+  batches, plain language, defining each term as it comes up; accept "not sure" and move on. A
+  clear, specific complaint ("soften the front ARB by one step", "understeers on entry") needs no
+  interview — act on it directly.
 - Map the verbal feedback to specific parameters using the tuning principles, guidelines, and
   stage facts. For each parameter to change:
   - State the **current value** (from the working setup).
@@ -90,6 +99,14 @@ Each time the user gives feedback, run one round — **all in chat, no Notion wr
     Propose those too (they appear in the same change table).
 - **Make the smallest targeted change set** that addresses the feedback. Don't re-optimise
   parameters unrelated to the complaint — untouched parameters carry over verbatim.
+- **Fix the major thing first.** When the feedback implicates more than one area, order the change
+  set by the **fix-order ladder** ([driving-feedback-interview.md](driving-feedback-interview.md) →
+  *Fix-order ladder*): tyre type → differential (preload → ramps → plates) → ride height/springs →
+  ARBs → dampers → alignment → brake bias, with gearing as a parallel track. Don't fine-tune
+  alignment while the differential is wrong — it hides cause and effect. **What the user actually
+  asks for outranks the ladder.** **Tyre pressure sits outside it**: leave it alone unless a symptom
+  points directly at it (ACR's pressure model isn't physically sensible — see
+  `setup-tuning-principles.md` → *Tyre pressure*).
 - Present a compact **before/after change table** of only the parameters that change:
 
   | Parameter | Current | Proposed | Reason |
@@ -124,7 +141,9 @@ When the user asks to save (and not before):
   - Copy every value property from the source; overwrite the parameters changed across the session
     with the final working values.
   - Set: `Name`, `Car`, `Location` (if the source/feedback names one), `Stage` (likewise),
-    `Surface`, `Source = generated`, `Mode` (inherit source mode, default `learn`), `Date`
+    `Surface`, `Conditions` (inherit from the source row; update it if the user re-targeted the
+    conditions this session — **optional**, leave blank if the source's was blank),
+    `Source = generated`, `Mode` (inherit source mode, default `learn`), `Date`
     (current date/time — per `notion-structure.md` → `Date`: run the Python one-liner, don't guess),
     **`Model`** (just your current model name + version, e.g. `Opus 4.8`; do
     **not** copy from the source; this records the model that ran *this* refinement), and
@@ -171,6 +190,9 @@ braking effect."* Omit it when the car has no brake disc/caliper params.
   `Min..Max`. Validate every value (including user-corrected ones) before saving.
 - **Minimum change set** — don't re-tune uninvolved parameters; only change what the feedback
   requires (plus necessary secondary parameters for coherence).
+- **Interview on vague feedback** — when the user can't pin down what's wrong, run
+  `driving-feedback-interview.md` before proposing values; a wrong diagnosis wastes the whole round.
+- **Major before fine** — order changes by the fix-order ladder; the user's own words override it.
 - **Cite the reason** — every changed parameter must reference the feedback phrase, guideline tag,
   or stage fact driving it.
 - **Stay within `ACR Setup Engineer` scope** — same name-resolution rules as every other workflow.

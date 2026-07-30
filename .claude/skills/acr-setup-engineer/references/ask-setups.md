@@ -78,7 +78,8 @@ Load data the same way `review-setup.md` does (steps 1–4) — **but to explain
 Navigate to `ACR Setup Engineer → Setups` and find the row(s) matching the given name(s). Stay
 within `ACR Setup Engineer` scope — never issue workspace-wide Notion searches; discard any result from
 outside `ACR Setup Engineer`.
-- **Unique match:** load all value properties plus `Car`, `Location`, `Stage`, `Surface`, `Mode`,
+- **Unique match:** load all value properties plus `Car`, `Location`, `Stage`, `Surface`,
+  `Conditions` (may be blank), `Mode`,
   `Notes`, `Rating`.
 - **Multiple matches:** list them (Name / Car / Stage / Date) and ask the user to pick.
 - **No match:** tell the user and stop.

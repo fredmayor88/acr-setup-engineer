@@ -13,6 +13,9 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
     connector can't list database rows, so workflows query the data source over the REST API
     (`POST /v1/data_sources/{id}/query`) using a read-only token the user sets up once (README).
   - `references/setup-tuning-principles.md` — drivetrain-tagged tuning reasoning base.
+  - `references/driving-feedback-interview.md` — the shared symptom→cause question bank (beginner
+    interviewing rules, pre-drive briefing, gearing sub-interview) and the **fix-order ladder**.
+    Read by `build-setup.md` (baseline-first flow) and `tweak-setup.md` (vague feedback).
   - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
 - [README.md](README.md) — end-user docs (claude.ai install + usage).
 - `Makefile` — `make zip` builds `dist/acr-setup-engineer-skill.zip`; cross-platform (Mac, Linux, WSL, Git Bash on Windows).
@@ -61,7 +64,12 @@ For each release:
   no `../` paths escaping the skill folder.
 - Ship **no private Notion IDs** or personal data in tracked files.
 - Edit the data model in `references/notion-structure.md`; edit tuning knowledge in
-  `references/setup-tuning-principles.md`.
+  `references/setup-tuning-principles.md`; edit the diagnostic questions and the fix-order ladder in
+  `references/driving-feedback-interview.md` (the ladder is authored there and *referenced* from
+  `setup-tuning-principles.md`, `build-setup.md`, `tweak-setup.md` and `SKILL.md` — keep those
+  pointers, don't restate the order in several places).
+- `docs/*.png` flow diagrams are hand-drawn and go stale silently. `docs/new_setup_flow.png`
+  predates the baseline-first steps and needs redrawing.
 - Target platform is the **claude.ai web app** (Notion connector + Skills); a later move to
   Claude Code desktop is cheap since all data lives in Notion.
 
