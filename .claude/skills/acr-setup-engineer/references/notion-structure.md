@@ -162,12 +162,6 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   conditions, so a captured baseline records them whenever they're known (see *Default (stock)
   baseline rows*). Never **infer** a value to fill the column — leave it blank instead, and never
   treat a blank as "dry".
-
-  **Migration:** `Setups` tables created before this column exists simply don't have it. Any
-  workflow that's about to write a `Setups` row and finds `Conditions` missing should **add it in
-  the same `notion-update-data-source` call** it would otherwise make (or silently skip setting it
-  if no such call is happening) — never fail, never nag the user, and **never backfill existing
-  rows**, which are append-only and fine as they are.
   **`Model`** is also a **Select** (renders as a tag) holding **just the model name + version**,
   e.g. `Opus 4.8` or `Sonnet 4.6`; give the column the description *"Which model+version built this
   setup (e.g. Opus 4.8). Blank for imported setups."* **Blank for imported rows** — only `generated`
