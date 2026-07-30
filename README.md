@@ -1,258 +1,507 @@
-# ACR Setup Engineer — your personal AI setup engineer for Assetto Corsa Rally
+# ACR Setup Engineer
 
-A free Claude **Skill** that crafts **personalized** car setups for **Assetto Corsa Rally** —
-tuned to *your* driving style and preferences — and saves them to **your Notion**, so you can
-read them on your phone while you play. It's not a one-off generator but a **complete system for
-the whole life of a setup**: onboard a car, build a setup, tweak it on feedback, review it,
-share it, and import what you already have. You can also ask questions about general setup
-engineering.
+**Turns Claude into your own rally setup mechanic — for Assetto Corsa Rally.**
 
-> **Video walkthrough:** *(coming soon — YouTube link will go here)*
+You describe what the car did. In your own words. It works out which setting is doing it,
+changes it, tells you why, and saves the whole thing to your phone.
 
-**What it does**
-1. **Onboards a car** — take two sets of car param screenshots (everything at min, then max) and it
-   maps every knob and slider in seconds. Already in the bundled library? One command and you're
-   done — no screenshots needed.
-2. **Builds a setup for any stage** — describe the stage (or skip it for an arbitrary build) and
-   how you like the car to feel; it writes a setup constrained to what the car actually allows,
-   with the full reasoning behind every choice saved to your Notion so you can read it on your
-   phone while you play. Stages are saved once to a reusable catalogue, so the same stage backs
-   any number of setups across any cars without re-describing it each time. You can also point it
-   at an existing setup to use as a starting point — even one from a different car, where it
-   transfers the *feel* rather than the raw numbers and re-derives every value for the new car.
-3. **Starts from the game's own setup, then asks how it felt** — before building anything new, it
-   suggests you run the stage on the **stock setup the game gives you**, tells you what to pay
-   attention to *before* you drive, and captures those values from a screenshot. From then on your
-   setup is a set of deliberate changes to a known reference instead of a guess. It's a suggestion,
-   not a hoop — say "just build me one" and it will.
-4. **Asks the right questions when you can't put it into words** — "it felt weird" is a perfectly
-   good answer. It walks you through plain-language questions ("did the car want to run wide when
-   you turned in?", "did one wheel spin up out of the hairpins?"), explains every term as it goes,
-   and "not sure" is always allowed. Then it works out which setting is actually responsible — and
-   fixes the big problems before fiddling with the small ones.
-5. **Tweaks on your feedback** — describe what felt wrong after a run and it targets exactly the
-   right parameters and proposes a minimal set of changes, right in the chat. Refine as many times
-   as you like; when you're happy, ask it to save and it writes a new setup row — the original is
-   never touched.
-6. **Reviews any setup** — checks every value against legal ranges and your guidelines, flags
-   anything misaligned, and appends a timestamped AI Review to the setup's Notion page.
-7. **Your setup engineer, on demand** — just ask. Why is the front ARB stiffer on this setup?
-   What does preload actually do? How should I think about spring vs damper rates? It pulls your
-   setups from Notion when you ask about one, compares two when you ask, and explains from the
-   same tuning knowledge it builds with. Anything setup-related goes. Read-only: nothing changes.
-8. **Shares a setup** — one command and you get a clean, copy-paste-ready block ready to drop
-   into Discord, WhatsApp, or anywhere you'd like.
-9. **Imports what you already have** — attach your ACR save file and it pulls your existing
-   setups straight into Notion, so you don't need to enter them manually. You can import only
-   selected setups of certain cars — it's not all-or-nothing. It even works **without Notion**
-   (you get a clean copy-paste table in chat instead) and **without onboarding the car first**
-   (it imports anyway; onboard later for the full experience). It reads older save versions too,
-   not just the latest.
-10. **Exports a car template** — once you've onboarded a car from screenshots, package it as a
-    YAML file and share it with the community in one click. No command line, no tokens — just a
-    free GitHub account and a green button.
+Free. Open source. Your data stays in your Notion.
 
-Together these cover the **whole lifecycle of a setup** in one place. Every value stays within
-what the car actually allows, and the setups get **more personal the more you use it** — rate
-your setups and tick "Learn from this" on the good ones, and future setups follow your taste.
-
-> **Note:** the flow diagram below predates the baseline-first step (points 3–4) and hasn't been
-> redrawn yet.
-
-![New setup flow](docs/new_setup_flow.png)
-
-![Import setups flow](docs/import_setups_flow.png)
-
-![Tweak/ask flow](docs/tweak_ask_flow.png)
-
-![Car onboarding flow](docs/onboard_flow.png)
-
-![Knowledge structure](docs/knowledgeFlow.png)
+> **▶ Video walkthrough:** *(coming soon — YouTube link will go here)*
 
 ---
 
-## Before you start (prerequisites)
+## The setup screen is where most people quit
 
-- A **Claude account** at [claude.ai](https://claude.ai). Works on the **Free** plan; for heavy
-  use the **Pro** plan is smoother. *(The Skill is free — running Claude a lot may not be.)*
-- A **Notion account** (free is fine). All your setups live here.
+You open **Car Setup** for the first time and there are twenty-odd sliders staring back at you.
 
-## Setup (one time, ~5 minutes)
+Ramp angles. Preload. Plates. Bump and rebound — slow *and* fast. Adjuster ring. Toe.
 
-1. **Connect Notion.** In claude.ai → **Settings → Connectors**, add **Notion** and authorize
-   it. (One click; available on every plan.)
-2. **Turn on code execution + Skills + network.** Settings → **Capabilities** → enable **Code
-   execution** and **Skills**. Then under **Network egress** set the domain allowlist to **All
-   domains** — the skill needs this to call Notion's API from the code sandbox.
-3. **Add the skill.** Download **`acr-setup-engineer-skill.zip`** from this project's
-   [Releases](../../releases). In claude.ai → Settings → **Customize → Skills → Create skill**,
+No explanations. No idea which one matters. And no way to tell whether the change you just made
+helped or hurt.
+
+So you do what everyone does: you drive the default forever, or you paste a stranger's numbers off
+a forum and hope.
+
+Meanwhile the car keeps doing the thing you hate.
+
+It pushes wide when you turn in. It spins the inside wheel out of every hairpin. It skips off line
+on the rough stuff and you're just a passenger.
+
+**You already know what's wrong. You just don't know which slider is responsible.**
+
+That's the entire problem this fixes.
+
+## "I'd be faster if the setup wasn't holding me back"
+
+If you've thought that, you're probably right.
+
+You're not losing that corner because you can't drive it. You're losing it because the car won't
+rotate on the way in, and the fix is one setting you've never heard of, three menus deep.
+
+That's the frustrating part. It isn't a talent gap. It's a **vocabulary gap** — and it costs you
+the same seconds every single run.
+
+Setup work is the cheapest speed in the game. No new wheel, no new pedals, no extra seat time.
+Everyone at the sharp end is already tuning their way out of problems you're still driving around.
+
+You don't need to become a race engineer to close that. You need something that turns *"the back
+steps out on every hairpin"* into the two settings actually responsible.
+
+## How it works, in one picture
+
+```mermaid
+flowchart LR
+    A["Pick your car<br/>— one sentence"] --> B["Drive the game's own<br/>setup once"]
+    B --> C["Say how it felt<br/>in your own words"]
+    C --> D["Get a setup + the reason<br/>for every number, in Notion"]
+    D --> E["Drive it.<br/>Report back."]
+    E --> C
+```
+
+No files to edit. No numbers to look up. You talk, it engineers.
+
+## What you actually get
+
+**You never have to know the words.**
+*"It felt weird, I don't really know what was wrong"* is a perfectly good answer. It interviews
+you instead — in plain English. *"Did the car want to run wide when you turned in — and was that
+as you turned, or once you were already round?"* *"Did one wheel spin up out of the hairpins, or
+did the whole back end step out?"* Every term gets explained the moment it comes up, and **"not
+sure" is always allowed.**
+
+**It starts from the game's own setup — not from nowhere.**
+Before it builds anything, it tells you to drive the stock setup once, and tells you *what to pay
+attention to before you go* so you know what you're feeling for. Then it reads the game's numbers
+off a screenshot. Every change after that is a deliberate move away from a known reference —
+not a guess dressed up as engineering.
+
+**It fixes the big thing first.**
+Nothing is more useless than fine-tuning your dampers while the differential is wrong. It works a
+fixed order — tyres, then differential, then ride height and springs, then anti-roll bars, then
+dampers, then wheel angles, then brakes — so each run tells you something. Your own words always
+outrank the order.
+
+**It cannot hand you an illegal number.**
+Your car's real limits get captured once, straight from the game. Every value it writes is inside
+them, by construction. It will never invent a setting your car doesn't have, or a number the game
+won't accept.
+
+**Every number comes with a reason — readable on your phone, mid-session.**
+The setup lands in your Notion as a row you can read one-handed while the stage loads. Underneath
+it: what changed from the game's default, and why each one moved.
+
+**It gets more *yours* the more you use it.**
+Rate a setup 1–5 after driving. Tick *"Learn from this"* on the ones you loved. Future setups follow
+your taste — not the internet's.
+
+**Your existing setups can't be lost.**
+Game update wiped your saves? Attach your `.sav` file and it pulls every setup you'd already built
+straight into Notion. It reads older save formats too.
+
+**And it just answers questions.**
+*"What does preload actually do?"* *"Why is the front bar stiffer on my Alsace setup than my Wales
+one?"* Ask it anything about tuning. It's read-only — it explains, it doesn't touch your data.
+
+## You can't break anything
+
+- **It never overwrites a setup.** Every save is a new row. The original is untouched, always.
+- **Everything lives in your Notion**, in plain tables you own. Delete the skill tomorrow and your
+  setups are still sitting there.
+- **The token it uses to read your data is read-only**, and only sees the one page you connect it
+  to. It cannot modify or delete anything, anywhere.
+- **It's free**, and it works on Claude's free plan.
+
+## Get your first setup in about ten minutes
+
+1. Install the skill (5 minutes, one-time — [full steps below](#installation-one-time-about-5-minutes)).
+2. Say: *"Onboard the Lancia Stratos HF for Assetto Corsa Rally."* If it's one of the
+   [13 bundled cars](#bundled-car-library), that's it — no screenshots, no typing.
+3. Say: *"Build me a setup for a fast, bumpy tarmac stage."*
+4. Drive it. Come back and say how it felt — even badly.
+5. Iterate until you like it, then say *"save it."*
+
+## Already know your way around a setup screen?
+
+It doesn't get in your way, and there's plenty here for you:
+
+- **Point it at an existing setup as a starting basis** — including one from a *different car*,
+  where it transfers the *feel* rather than the raw numbers and re-derives every value for the new
+  car's weight bias, drivetrain and surface.
+- **Pin any parameter to its exact in-game click values** so it stops picking "somewhere in range"
+  ([Discrete steps](#pinning-a-setting-to-exact-values)).
+- **Write your own tuning rules** in Notion — global, per-surface, and per-car. Your guidelines beat
+  the built-in ones, and it cites which one drove each choice.
+- **Surface-aware ranges** — several cars expose different suspension limits on gravel than on
+  tarmac, and it validates against the right ones.
+- **Review any setup** against its legal ranges, your guidelines, and the stage.
+- **Share a setup** as a clean copy-paste block for Discord.
+- **Export a car** as a YAML template and contribute it back so the next driver skips the
+  screenshots.
+
+## Honest caveats
+
+- **Assetto Corsa Rally is in early access.** Tyres, physics and settings shift between builds.
+  Treat every setup as a strong, reasoned starting point — verify in-game.
+- **This won't make you fast on its own.** It removes the guessing from setup work. The driving is
+  still yours.
+- **It needs Notion** for the full experience (free account is fine). Save-file recovery works
+  without it.
+- The skill is free; running Claude heavily may not be.
+
+---
+---
+
+# Technical documentation
+
+## What it is
+
+A self-contained **Claude Skill** covering the **whole lifecycle of a car setup** for Assetto Corsa
+Rally: onboard a car, capture the game's baseline, build, tweak, review, explain, share, import and
+export. All state lives in the user's **Notion**, resolved by name — the skill creates its own
+structure on first use and stores no IDs.
+
+Two channels talk to Notion on purpose: **writes** go through the claude.ai Notion connector,
+**reads** go through Notion's REST API with a read-only token (see
+[How it reads and writes Notion](#how-it-reads-and-writes-notion)).
+
+## Prerequisites
+
+- A **Claude account** at [claude.ai](https://claude.ai). Works on **Free**; **Pro** has more
+  headroom for the longer workflows.
+- A **Notion account** (free is fine). All setups live there.
+
+## Installation (one time, about 5 minutes)
+
+1. **Connect Notion.** claude.ai → **Settings → Connectors** → add **Notion** and authorize it.
+   Available on every plan.
+2. **Enable code execution, Skills, and network.** Settings → **Capabilities** → turn on **Code
+   execution** and **Skills**. Then set **Network egress** to **All domains** — the skill calls
+   Notion's API from the code sandbox and can't reach it otherwise.
+3. **Add the skill.** Download **`acr-setup-engineer-skill.zip`** from
+   [Releases](../../releases). claude.ai → Settings → **Customize → Skills → Create skill** →
    upload the ZIP.
-4. **Onboard your first car.** Start a new chat and say *"Onboard the [car name] for Assetto
-   Corsa Rally."* — see [Quick start](#quick-start) for details. This creates your Notion
-   structure (the ACR Setup Engineer page and its tables).
-5. **Give the skill read access to Notion** *(takes ~3 minutes).* The skill reads your tables
-   through Notion's **API** so every read is fast, exact, and cheap.
+4. **Onboard your first car.** New chat: *"Onboard the Lancia Stratos HF for Assetto Corsa
+   Rally."* This creates the whole Notion structure on first use.
+5. **Give the skill read access to Notion** (below) — 3 minutes, and reads become fast and exact.
 
-   1. **Create a read-only connection.** Go to
-      [notion.so/profile/integrations](https://www.notion.so/profile/integrations) →
-      **Connections** → **+ New connection**. Name it (e.g. `myCarSetupConnection`), leave
-      **Authentication method** on **Access token**, pick your workspace, and **Create
-      connection**. On its **Configuration** tab, under **Capabilities**, leave **only "Read
-      content"** checked (uncheck Update and Insert) and **Save**. Copy the **Access token**
-      (`secret_…` / `ntn_…`).
-   2. **Connect it to only your data.** Open your **ACR Setup Engineer** page in Notion → **•••** →
-      **Connections** → add the connection you just made. Access cascades to everything under it
-      (your Parameters/Setups) — **and nothing else** in your workspace. The token is read-only and
-      can't see anything you didn't connect.
-   3. **Give the skill the token** (pick one):
-      - **Store it (recommended):** the skill **auto-creates a `Config` page** under **ACR Setup Engineer**
-        (with these same steps already on it) the first time it builds your structure — just open
-        it and paste the token onto it. The skill reads it automatically — set once, works in every
-        chat. (It's safe here: the token is read-only and only unlocks the data it sits next to.)
-      - **Paste per chat:** don't store it; paste it when the skill asks. Nothing is saved.
+### The read-only Notion token
 
-   The skill detects the token and reads your setups in one exact call.
+The skill reads your tables through Notion's **REST API**, because the connector can't reliably
+list a database's rows. That needs a token.
 
-## Quick start
+1. **Create a read-only connection.** Go to
+   [notion.so/profile/integrations](https://www.notion.so/profile/integrations) → **Connections** →
+   **+ New connection**. Name it (e.g. `myCarSetupConnection`), leave **Authentication method** on
+   **Access token**, pick your workspace, **Create connection**.
+   On its **Configuration** tab under **Capabilities**, leave **only "Read content"** checked
+   (uncheck Update and Insert) and **Save**. Copy the token (`secret_…` / `ntn_…`).
 
-**Onboard your first car**
+   ![Creating the Notion connection](docs/notionConnectionSetup.png)
 
-Say: *"Onboard the Lancia Stratos HF for Assetto Corsa Rally."*
+   ![Leaving only "Read content" checked, and copying the access token](docs/notionConnectionSetup2.png)
 
-- If the car has a **bundled template**, Claude will offer to auto-populate Notion from it —
-  no screenshots needed.
-- Otherwise, take two sets of screenshots of the car's Setup screens in ACR (everything at minimum,
-  then everything at maximum), attach them, and Claude reads every setting's range from the
-  images. **Take this first set on a tarmac stage (e.g. Alsace)** — that's the baseline (see
-  *Settings that change on gravel* below).
+2. **Connect it to only your data.** Open your **ACR Setup Engineer** page in Notion → **•••** →
+   **Connections** → add the connection you just made. Access cascades to everything under it —
+   **and nothing else** in your workspace.
 
-Either way, your Notion structure is created automatically on first use. Claude also looks up the
-car's **engine layout, weight bias, and approximate weight** (facts the game doesn't show) to
-personalize how it balances setups — you can edit any of these on the car's Notion page.
+3. **Give the skill the token** (pick one):
+   - **Store it (recommended).** The skill auto-creates a **`Config`** page under **ACR Setup
+     Engineer** (with these steps already on it) the first time it builds your structure. Paste the
+     token there. It's read automatically in every chat afterwards. Safe: the token is read-only and
+     only unlocks the data it sits next to.
+   - **Paste per chat.** Nothing is stored; paste it when asked.
 
-**Settings that change on gravel.** On many cars, a few suspension settings (most often spring
-stiffness) have a *different* available range on gravel than on tarmac. So after the tarmac pass,
-Claude asks you to do a quick check: load a **gravel stage (e.g. Wales)**, open the **Suspensions**
-screen, and see whether the range differs. If it does, you take a **second full two-pass set of
-screenshots on gravel** (everything at minimum, then everything at maximum — same as the first
-time), and Claude compares the two and records the gravel-only ranges separately — then every
-setup is checked against the range that's actually legal for the stage you're driving. If nothing
-differs (or you'd rather skip it), the tarmac ranges are used everywhere — nothing else to do.
+## Quick start by task
 
-**Build a setup**
+### Onboard a car
 
-Tell Claude the car, the stage (optional — leave it out for an arbitrary setup, e.g. "a drift
-setup on tarmac"), and how you like to drive — e.g.:
-*"Build a setup for the Lancia Stratos on a fast, bumpy tarmac stage; I like gentle
-throttle-on rotation and hate a floaty car under braking."*
-The first time you mention a stage, Claude saves its facts (surface, length, key corners) once to
-a shared catalogue in Notion — any later setup, for any car, can reference the same stage without
-re-describing it.
+*"Onboard the Lancia Stratos HF for Assetto Corsa Rally."*
 
-**The first run on a new car/stage starts with the game's own setup.** Rather than inventing values
-from nothing, Claude will suggest you drive the stage on the **stock setup** first. It tells you what
-to pay attention to *before* you go (so you know what you're feeling for), then asks for a screenshot
-of the setup screen so it can record the game's own numbers. Those become the reference every later
-change is measured against — the difference between "here's a targeted fix" and "here's a guess".
-It also asks what conditions you drove in, because a wet default may not be the same as a dry one.
+- **Bundled template?** It offers to populate Notion from it — no screenshots.
+- **Otherwise:** two full passes of the Car Setup screens (everything at **minimum**, then
+  everything at **maximum**), attached in chat. It reads every setting's range off the images.
+  **Take this first pass on a tarmac stage (e.g. Alsace)** — that's the baseline.
 
-This is a **suggestion, not a gate** — if you'd rather just have a setup right now, say so and Claude
-builds one, noting that it had no reference to work from.
+It also looks up the car's **engine layout, weight bias and approximate weight** (facts the game
+doesn't show) to inform balance reasoning. All editable on the car's Notion page.
 
-The new setup row appears in your Notion `Setups` database. Open it on your phone to see the
-values and the reasoning behind each choice — including exactly which settings were moved off the
-game's defaults and why. After driving: set a **Rating**, add **Notes**, and tick **Learn from
-this** if you liked it — future setups learn from the ones you've checked.
+**Gravel ranges.** On many cars a few suspension settings — usually spring stiffness — expose a
+*different* range on gravel. After the tarmac pass it asks you to load a gravel stage (e.g. Wales),
+open **Suspensions**, and say whether the range differs. If it does, you take a second full min/max
+pass on gravel and it records the gravel-only ranges separately. If not, tarmac ranges apply
+everywhere. Snow inherits gravel's ranges — no separate snow pass.
 
-**Tweak a setup — or work out what's wrong in the first place**
+### Build a setup
 
-After driving, describe what felt wrong — e.g.: *"The Alsace setup understeers on entry —
-can you soften the front ARB?"* Claude maps the feedback to specific parameters and proposes a
-minimal set of changes as a before/after change list — **all in chat**, so you can go test, come
-back, and refine again as many times as you like. Nothing is written to Notion while you iterate;
-only when you're happy and **ask Claude to save** does it create a single new setup row based on
-the original (the source is never modified). Claude gently reminds you to save once you say the car
-feels right.
+Tell it the car, the stage (optional), and how you like to drive:
 
-**Can't describe it? That's normal.** Say *"it felt weird, I don't really know what was wrong"* and
-Claude will interview you instead: plain-language questions, one small batch at a time, every term
-explained as it comes up, and "not sure" always an acceptable answer. *Did the car want to run wide
-when you turned in — and was that as you turned, or once you were already round? Did one wheel spin
-up coming out of the hairpins, or did the whole back end step out? Were you hitting the limiter with
-road left on the straights?* From those answers it works out which setting is responsible, and it
-fixes the big things (differential, ride height and springs) before the fine ones (dampers, wheel
-angles, brake bias) — because tuning the small stuff while something major is wrong just wastes runs.
+> *"Build a setup for the Lancia Stratos on a fast, bumpy tarmac stage; I like gentle throttle-on
+> rotation and hate a floaty car under braking."*
 
-**Review a setup**
+The first time you mention a stage, its facts (surface, length, key corners) are saved once to a
+shared catalogue — every later setup, for any car, references the same stage without re-describing
+it.
 
-Say: *"Review my alsace dry fast setup."*
+**The first run on a new car/stage starts with the game's own setup** — see the flow below. It's a
+strong recommendation, never a gate: say *"just build me one"* and it will, noting that no baseline
+anchor was used.
 
-Claude checks every value against the car's legal ranges and the tuning guidelines, flags
-anything misaligned, and suggests specific alternatives with reasoning. The review is printed in
-chat and added as a timestamped section at the bottom of the setup's Notion page.
+### Tweak a setup
 
-**Ask about a setup or tuning**
+After driving, describe what felt wrong: *"The Alsace setup understeers on entry — can you soften
+the front bar?"* It maps the feedback to specific parameters and proposes a minimal before/after
+change list **in chat**. Nothing is written while you iterate. When you're happy and **ask it to
+save**, it creates one new row based on the original — the source is never modified.
 
-Just ask — e.g.: *"What's the impact of a stiffer front ARB?"*, *"What are the basic rules for
-setting up ARBs and diffs?"*, *"Why is the ride height set so high on my Wales setup?"*, or
-*"Why is the front ARB stiffer on my Alsace setup than my Wales one?"*
+Can't describe it? Say so, and it runs the guided interview instead.
 
-Claude answers from the same tuning knowledge it builds setups with — reading the specific setup
-from your Notion when you ask about one, and comparing two when you ask. It's read-only: it
-explains in chat and never changes your Notion.
+### Review a setup
 
-**Import setups you already made**
+*"Review my alsace dry fast setup."* Every value checked against its legal ranges and your
+guidelines, misalignments flagged with concrete alternatives, printed in chat and appended as a
+timestamped **AI Review** section on the setup's Notion page.
 
-Attach your `CarSetupsDataSaveSlot.sav` (Windows: `%LOCALAPPDATA%\acr\Saved\SaveGames\CarSetupsDataSaveSlot.sav`) and
-say *"Import my setups from this save."* Claude reads the file, shows you what it found, and
-— once you confirm — adds the setups to Notion. If the file has setups for several cars, Claude
-asks which ones you want; cars that aren't onboarded yet are imported anyway (onboard them later
-for the full experience). **No Notion yet?** Claude offers to either set it up with you or just
-print your setups as a copy-paste table in the chat. Older save versions work too.
+### Ask a question
 
-## Pin a setting to specific values (optional)
+*"What's the impact of a stiffer front ARB?"* · *"Why is the ride height so high on my Wales
+setup?"* · *"What's different between these two setups?"* Read-only: it explains, never writes.
 
-Onboarding records each setting's **minimum and maximum**. For a continuous setting that's all
-the tool needs — it picks a value in range and tells you to dial to the nearest click in-game.
+### Import setups from your save file
 
-But some settings only offer a **few exact values** (e.g. spring stiffness with 4–5 steps), and
-some are **named options** with no min/max (gear set, brake caliper type). These live in the
-**`Discrete steps`** column — a comma-separated list, e.g. `42300, 50000, 57700, 65400, 73100`
-or `Short, Medium, Long`. When filled, every setup picks **only** from those values; leave it
-blank to keep the setting continuous.
+Attach `CarSetupsDataSaveSlot.sav` (Windows:
+`%LOCALAPPDATA%\acr\Saved\SaveGames\CarSetupsDataSaveSlot.sav`) and say *"Import my setups from
+this save."* It shows what it found, asks which cars/setups you want, and writes them to Notion.
+
+Works **without Notion** (you get a copy-paste table in chat) and **without onboarding the car
+first** (imported anyway; onboard later for the full experience). Older save versions are handled
+by a tolerant parser.
+
+### Share a setup
+
+*"Share my alsace dry fast setup."* → a clean, copy-paste-ready block for Discord, WhatsApp,
+forums.
+
+### Export a car template
+
+*"Export a template for the Lancia Stratos."* → a YAML file plus a one-click share link. You sign
+in to GitHub, paste, press one green button. No command line, no tokens.
+
+## The workflows
+
+| You want to… | Workflow |
+|---|---|
+| Capture a car's tunable parameters | [`onboard-car.md`](.claude/skills/acr-setup-engineer/references/onboard-car.md) |
+| Build a setup for a stage | [`build-setup.md`](.claude/skills/acr-setup-engineer/references/build-setup.md) |
+| Refine on driving feedback | [`tweak-setup.md`](.claude/skills/acr-setup-engineer/references/tweak-setup.md) |
+| Work out what's actually wrong | [`driving-feedback-interview.md`](.claude/skills/acr-setup-engineer/references/driving-feedback-interview.md) |
+| Critique an existing setup | [`review-setup.md`](.claude/skills/acr-setup-engineer/references/review-setup.md) |
+| Explain a setup or a concept | [`ask-setups.md`](.claude/skills/acr-setup-engineer/references/ask-setups.md) |
+| Produce a copy-paste snippet | [`share-setup.md`](.claude/skills/acr-setup-engineer/references/share-setup.md) |
+| Import from a save file | [`import-savegame.md`](.claude/skills/acr-setup-engineer/references/import-savegame.md) |
+| Export a community template | [`export-car-template.md`](.claude/skills/acr-setup-engineer/references/export-car-template.md) |
+
+## Flows
+
+### Building a setup (baseline-first)
+
+```mermaid
+flowchart TD
+    Start["'Build me a setup for the Stratos on Alsace'"] --> Onb{"Car onboarded?"}
+
+    Onb -->|"yes"| Ctx
+    Onb -->|"no, template bundled"| Auto["Auto-onboard from the template<br/>no screenshots, no separate step"]
+    Onb -->|"no, no template"| Stop["Onboard from screenshots first<br/>build stops here"]
+    Auto --> Ctx
+
+    Ctx["Load: legal ranges, drivetrain + car facts,<br/>your guidelines, stage facts,<br/>surface and conditions"] --> Base{"Captured stock baseline<br/>for this car, stage<br/>and conditions?"}
+
+    Base -->|"exact match"| Anchor
+    Base -->|"different context"| Ask["Show the stored values and the context<br/>'does the game give you these here?'"]
+    Base -->|"none"| Brief["Pre-drive briefing:<br/>what to pay attention to,<br/>in plain language"]
+
+    Ask -->|"confirmed"| Anchor
+    Ask -->|"different"| Capture
+
+    Brief --> Drive["You drive the game's stock setup"]
+    Drive --> Capture["Screenshot the setup screen<br/>saved as a Source=default row"]
+    Capture --> Interview["Guided interview:<br/>what did the car actually do?"]
+    Interview --> Anchor
+
+    Brief -.->|"or: just build me one"| Choose
+
+    Anchor["Anchor on the game's own numbers"] --> Choose["Move only what the symptoms and<br/>the build intent justify, in fix order:<br/>tyre, diff, ride height and springs,<br/>ARBs, dampers, alignment, brakes"]
+
+    Choose --> Valid{"Every value legal<br/>for this surface?"}
+    Valid -->|"no"| Choose
+    Valid -->|"yes"| Write["One new row in Notion:<br/>values, changes-from-default,<br/>per-parameter reasoning"]
+    Write --> Rate["You drive it, then rate 1-5<br/>and tick 'Learn from this'"]
+    Rate -.->|"feeds future builds"| Ctx
+```
+
+### The refine loop
+
+Nothing is written to Notion while you iterate. One row at the end, only when you ask.
+
+```mermaid
+flowchart LR
+    Drive["You drive it"] --> Words{"Can you name<br/>what's wrong?"}
+
+    Words -->|"'understeers on entry'"| Map
+    Words -->|"'it felt weird'"| Int["Plain-language interview<br/>2-4 questions at a time<br/>every term explained<br/>'not sure' is fine"]
+    Int --> Map
+
+    Map["Symptom mapped to the settings<br/>actually responsible<br/>major fixed before fine"] --> Prop["Minimal before/after<br/>change list, in chat"]
+    Prop --> Drive
+    Prop -->|"'save it'"| Save["One new row in Notion<br/>the original is never touched"]
+```
+
+### Onboarding a car
+
+```mermaid
+flowchart TD
+    Req["'Onboard the Lancia Stratos HF'"] --> Tpl{"Bundled template<br/>for this car?"}
+
+    Tpl -->|"yes"| Offer["Offer it: all ranges and<br/>discrete steps pre-filled"]
+    Offer -->|"accepted"| Facts
+    Offer -->|"declined"| Shots
+    Tpl -->|"no"| Shots["Attach two full passes of the<br/>Car Setup screens: everything at min,<br/>then everything at max<br/>TARMAC stage — this is the baseline"]
+
+    Shots --> Extract["Read every row: section, name,<br/>min, max, unit, screen order"]
+    Extract --> Confirm["Confirmation table<br/>uncertain reads flagged"]
+    Confirm --> Facts["Car identity facts:<br/>drivetrain, engine layout,<br/>weight bias, weight"]
+
+    Facts --> Notion["Create/extend the Notion structure<br/>parameter catalog + setup value columns"]
+    Notion --> Gravel{"Do any suspension ranges<br/>differ on gravel?"}
+
+    Gravel -->|"no / skip"| Done["Ready. Tarmac ranges<br/>apply everywhere"]
+    Gravel -->|"yes"| Second["Second full min/max pass on gravel"]
+    Second --> Diff["Auto-diff vs tarmac, confirm,<br/>write Surface=Gravel rows<br/>only for what differs"]
+    Diff --> Done
+```
+
+### Importing from a save file
+
+```mermaid
+flowchart TD
+    Sav["Attach CarSetupsDataSaveSlot.sav"] --> Parse["Bundled parser<br/>version-aware, two handlers"]
+
+    Parse -->|"parsed"| Pick
+    Parse -->|"unreadable"| AI["Fall back to reading the bytes directly<br/>you're told this happened"]
+    AI --> Pick
+
+    Pick["Pick which cars and setups to import<br/>values shown for approval"] --> Have{"Notion connected?"}
+
+    Have -->|"no"| Chat["Copy-paste table in chat<br/>nothing is lost"]
+    Have -->|"yes"| Cat{"Car onboarded?"}
+
+    Cat -->|"yes"| Ver
+    Cat -->|"no, template matches"| AutoOn["Auto-onboard from the template"]
+    Cat -->|"no template"| Raw["Raw import: columns built from<br/>the save, ranges not validated"]
+    AutoOn --> Ver
+
+    Ver{"Save's game version matches<br/>the template's version?"}
+    Ver -->|"yes"| Snap["Validate and snap<br/>to the catalog's clean steps"]
+    Ver -->|"no"| Asis["Written exactly as the save had them<br/>out-of-range values noted, never clamped"]
+
+    Snap --> Rows["Rows in Notion, Source=imported"]
+    Asis --> Rows
+    Raw --> Rows
+```
+
+### How one value gets decided
+
+```mermaid
+flowchart TD
+    subgraph layers["Guideline layers — later wins"]
+        L1["Built-in tuning principles<br/>tagged by drivetrain"]
+        L2["Bundled car troubleshooting<br/>per-car symptom fixes"]
+        L3["Your global Tuning guidelines"]
+        L4["Your per-surface notes"]
+        L5["Your per-car guidelines"]
+        L6["This build's intent + what you reported"]
+        L1 --> L2 --> L3 --> L4 --> L5 --> L6
+    end
+
+    Car["Car facts<br/>drivetrain, weight bias,<br/>engine layout, weight"] --> Merge
+    Stage["Stage facts<br/>surface, length, corners"] --> Merge
+    Anchor["The game's captured default<br/>the numeric anchor"] --> Merge
+    Learn["Your rated setups<br/>marked 'Learn from this'"] --> Merge
+    L6 --> Merge
+
+    Merge["Reason it out<br/>real conflicts between your own layers<br/>are asked about, never guessed"] --> Gate{"Legal for this car<br/>on this surface?"}
+
+    Gate -->|"Discrete steps filled"| Exact["Must be one of them<br/>exact value"]
+    Gate -->|"numeric min..max"| Range["Any target in range<br/>dial to nearest in-game"]
+
+    Exact --> Out["Written to your Notion<br/>with the reason attached"]
+    Range --> Out
+```
+
+## What it creates in Notion
+
+Created on first use, resolved **by name** (no stored IDs), self-healing if you rename or move
+things back:
+
+```
+ACR Setup Engineer (root page)
+├── Config                  read-only API token + its setup instructions
+├── Parameters       (DB)   the catalog — one row per Car × Adjustment × Surface
+├── Setups           (DB)   one row per setup
+├── Tuning guidelines       your global preferences (editable)
+├── Parameter reference     the in-game description of every parameter (auto-maintained)
+├── Locations
+│   └── {Location}
+│       └── {Stage}         facts only: surface, length, key corners, character
+└── {Car}                   drivetrain, weight bias, engine layout, weight,
+                            a Guidelines section, and a filtered Setups view
+```
+
+Two databases only. Car, location and stage pages are **filtered linked views**, never new
+databases — a stage is shared reference data, created once and referenced by any number of setups
+across any cars.
+
+`Setups` rows are **append-only**. Nothing is ever modified or deleted by the skill.
+
+## Pinning a setting to exact values
+
+Onboarding records each setting's **minimum and maximum**. For a continuous setting that's enough —
+it picks a target in range and tells you to dial to the nearest click in-game.
+
+But some settings only offer a **few exact values** (spring stiffness with 4–5 steps), and some are
+**named options** with no min/max (gear set, brake caliper type). Those live in the **`Discrete
+steps`** column — a comma-separated list, e.g. `42300, 50000, 57700, 65400, 73100` or
+`Short, Medium, Long`. When filled, every setup picks **only** from those values. Leave it blank to
+keep the setting continuous.
 
 For named options, onboarding **pre-seeds `Discrete steps` with whatever the screenshots show**
-(usually the two endpoints) so you start from those instead of a blank cell — just open the car's
-**`Parameters`** table in Notion and add any missing in-between options. On Assetto Corsa Rally,
-tyre compounds and brake pads (`SOFT, MEDIUM, HARD`) come fully pre-filled and ready to use.
+(usually the two endpoints) — open the car's `Parameters` table in Notion and add the missing
+in-between options. Tyre compounds and brake pads (`SOFT, MEDIUM, HARD`) ship fully pre-filled.
 
-During onboarding, Claude flags the settings most likely to need this: spring stiffness, ARBs,
-and all damper channels (these typically have just a handful of in-game click positions).
+Onboarding flags the settings most likely to need this: spring stiffness, anti-roll bars, and the
+damper channels.
 
 > **Brake parameters.** A created setup may not include values for every brake parameter — some
-> aren't always captured during onboarding. If you really need them, open the car's `Parameters`
-> table in Notion and add them manually.
+> aren't always captured during onboarding. Add them manually in the car's `Parameters` table if
+> you need them.
 
-## Make it tune to your taste
+## Making it tune to your taste
 
-The tool reasons from built-in tuning knowledge **plus your own preferences**, and **your
-preferences win**. Edit those in Notion — no files, no code:
+The skill reasons from built-in tuning knowledge **plus your own preferences**, and **your
+preferences win**. Edit them in Notion — no files, no code:
 
 - a global **`Tuning guidelines`** page (overall style, likes/dislikes, per-surface notes)
 - a **"Guidelines"** section on each car's page for car-specific quirks
 
-Future setups follow whatever you write there.
+Future setups follow whatever you write there, and cite it when it drives a choice.
 
-## Car template library
+Ratings feed the same loop: set a **Rating** (1–5), add **Notes**, and tick **Learn from this** on
+setups you liked. Only ticked setups enter the learning pool.
 
-The skill ships with community-contributed parameter templates in `car-templates/`. When
-onboarding a car that has a template, all parameters (including pre-filled `Discrete steps`)
-are loaded from the template — no screenshots needed.
+## Bundled car library
 
-**Pre-bundled cars.** Parameter templates are bundled for the cars below, so you can onboard any of
-them in one command — no screenshots — and then build **Assetto Corsa Rally (ACR) setups** for
-them tuned to your style. Want to build an *ACR setup for* a specific car, or generate *Assetto
-Corsa Rally setups* in general? Start here:
+Templates carry every parameter with min/max ranges, discrete steps and screen order pre-filled, so
+these cars onboard in one command — no screenshots:
 
 - **Alfa Romeo GTA 1300 Junior** (1972) — RWD
 - **Alpine A110 1.8** (1973) — RWD
@@ -268,88 +517,83 @@ Corsa Rally setups* in general? Start here:
 - **Skoda Fabia RS Rally2** (2022) — AWD
 - **Subaru Impreza 555 (S3)** (1993) — AWD
 
-Don't see your car? Onboard it from screenshots (see [Quick start](#quick-start)) and — if you
-like — contribute the template back so the next driver gets it for free.
+Don't see your car? Onboard it from screenshots — and if you feel like it, contribute the template
+back so the next driver gets it for free.
 
-**Contribute your car (optional, but lovely).** If you onboarded a car from screenshots, it's
-not in the shared library yet — sharing it saves the next driver the whole screenshot process.
-Once onboarded, say *"Export a template for the Lancia Stratos"* and Claude formats the car's
-Notion parameters as a YAML file, then offers you a **share link**. You click it, sign in to
-GitHub, paste the file Claude gives you, and press one button — GitHub makes your own copy of the
-project and opens the contribution for you. No command line, no tokens, nothing to install — it
-just needs a **free GitHub account**. Already have one? It'd be a great way to give back. Don't,
-or not in the mood? No worries — skip it; everything still works.
+**Contributing a car.** Once onboarded, say *"Export a template for the Lancia Stratos"* and you
+get the YAML plus a share link. Sign in to GitHub, paste, press the green button — GitHub makes
+your own copy of the project and opens the contribution for you. No command line, no tokens; a free
+GitHub account is all it takes. Not in the mood? Skip it — everything still works.
 
+## How it reads and writes Notion
+
+Two channels, on purpose:
+
+- **Writing** (creating the structure, adding setups, updating rows) goes through the **Notion
+  connector** — the OAuth connection you authorize in claude.ai. It already has write access,
+  handles Notion's block and property formatting from plain markdown, and is the more forgiving path
+  to drive.
+- **Reading** rows goes through Notion's **REST API** with the **read-only token**. This exists
+  because the connector *can't* reliably list a database's rows: `notion-fetch` returns a table's
+  schema but no rows, and search is capped and mixes cars. The REST API gives one exact, paginated
+  read instead.
+
+Why the read token stays **read-only**: it sits in plaintext on your Config page, so even if it
+leaked it could only *read* the data you connected it to. A direct REST *write* would be marginally
+faster per call, but writes are rare and small — you read on every workflow, you write a handful of
+rows when saving. Granting the stored token write access would trade real safety for a speedup on
+the path that needs it least.
+
+## Troubleshooting
+
+- **Claude doesn't use the skill** → start a fresh chat; check **Skills** and **Code execution** are
+  enabled (Settings → Capabilities) and the skill is toggled on.
+- **Don't use Haiku for onboarding** → Haiku misreads values off min/max setup-screen screenshots.
+  Use **Sonnet** or **Opus** for onboarding.
+- **Sonnet gets flagged for no reason** → if Sonnet trips a refusal on an ordinary request, switch
+  to **Opus** — confirmed to work fine.
+- **It can't reach Notion** → re-check the **Notion connector** (Settings → Connectors).
+- **Token is set but reads are slow** → confirm **Network egress** is **All domains** (Settings →
+  Capabilities, install step 2). Without it the sandbox can't reach `api.notion.com` and falls back
+  to the slower connector read.
+- **Hitting limits on Free** → the workflows run several steps; Pro has more headroom.
+- **A value looks slightly "off"** → expected for continuous settings; dial to the nearest in-game
+  position. To force exact values, fill `Discrete steps`.
+- **Columns render alphabetically** → they self-heal on the next build/tweak/review, which
+  re-asserts the column order.
+- **Where's my data?** → entirely in **your** Notion. Screenshots and save files you attach go to
+  Claude to read; nothing is stored by this project.
 
 ## Building locally
 
 ```
 git clone https://github.com/fredmayor88/acr-setup-engineer.git
 make test
-make zip 
+make zip
 make check-zip
 ```
 
-
-## Troubleshooting
-
-- **Claude doesn't use the skill** → start a fresh chat; make sure **Skills** and **Code
-  execution** are enabled (Settings → Capabilities) and the skill is toggled on.
-- **Don't use Haiku for onboarding** → Haiku struggles to read values off the min/max setup-screen
-  screenshots and will misread settings. Use **Sonnet** or **Opus** for onboarding.
-- **Sonnet gets flagged for no reason** → if Sonnet trips a refusal/safety flag on a perfectly
-  ordinary request, switch to **Opus** — it's confirmed to work fine.
-- **It can't reach Notion** → re-check the **Notion connector** (Settings → Connectors).
-- **Set up the API token but reads are still slow** → double-check that **Network egress** is set
-  to **All domains** in Settings → Capabilities (see setup step 2). Without it the sandbox can't
-  reach `api.notion.com` and falls back to the slower connector read.
-- **Hitting limits on Free** → the workflow does several steps; the Pro plan has more headroom.
-- **A value looks slightly "off"** → expected for continuous settings: dial to the nearest
-  in-game position. To force exact values, fill `Discrete steps` in Notion (see above).
-- **Where's my data?** → entirely in **your** Notion. Screenshots and save files you attach go
-  to Claude to read; nothing is stored by this project.
-
-## How it reads & writes Notion
-
-The skill uses **two distinct channels** to talk to Notion, on purpose:
-
-- **Writing** (creating your Notion structure, adding setups, updating rows) goes through the
-  **Notion connector** — the OAuth connection you authorize in claude.ai. It already has write
-  access, handles Notion's block/property formatting from plain markdown, and is the more forgiving
-  path for the model to drive.
-- **Reading** rows goes through Notion's **REST API** with the **read-only token** (the Config-page
-  setup above). This exists because the connector *can't* reliably list a database's rows
-  (`notion-fetch` returns a table's schema but no rows; search is capped and mixes cars). The REST
-  API gives one exact, paginated read instead.
-
-Why the read token stays **read-only**: it lives in plaintext on your Config page, so keeping it
-read-only means even if it leaked it could only *read* the data you connected it to — never modify
-or delete anything. A direct REST *write* would be marginally faster per call, but writes are rare
-and small (you read every workflow; you write a handful of rows when saving), and granting the
-stored token write access would trade that safety for a speedup on the path that needs it least. So
-writes stay on the connector and reads stay on the read-only token.
-
-## Notes
+## Notes and sources
 
 - **Assetto Corsa Rally is in early access** — tyre compounds and some settings change between
   builds. Treat the guidance as a strong starting point and verify in-game.
 - Tuning advice is distilled from community guides, physics, and the author's own in-game and
-  real-life experience; it's not guaranteed to be the fastest for you — your own
-  ratings and notes are what make it personal. Sources include (among others):
+  real-life experience. It is not guaranteed to be the fastest for you — your own ratings and notes
+  are what make it personal. Sources include, among others:
   [SETUPS para Assetto Corsa Rally (ACR) EXPLICADO](https://www.youtube.com/watch?v=0aseHRowyVs),
   [The ULTIMATE Setup Guide for EA SPORTS WRC | Every Setting Explained](https://www.youtube.com/watch?v=dIEXCHuT72U),
   [Assetto Corsa Rally SETUP GUIDE - SUSPENSIONS Explained](https://www.youtube.com/watch?v=N0W4iptyQVo).
 
 ## License
 
-[AGPL v3](LICENSE) — free to use, modify, and share; modifications must remain open-source.
+[AGPL v3](LICENSE) — free to use, modify and share; modifications must remain open-source.
 
 ---
 
 ### For maintainers
 
-The skill source lives in [.claude/skills/acr-setup-engineer/](.claude/skills/acr-setup-engineer/) — a
-self-contained Claude Skill (`SKILL.md` + bundled `references/` and `car-templates/`). It also
-works as a project skill in Claude Code. See [CLAUDE.md](CLAUDE.md) for the full release
-procedure; the short version: `make zip` builds `dist/acr-setup-engineer-skill.zip`, then
-`make release TAG=vX.Y.Z` drafts the GitHub release.
+The skill source lives in [.claude/skills/acr-setup-engineer/](.claude/skills/acr-setup-engineer/) —
+a self-contained Claude Skill (`SKILL.md` + bundled `references/`, `car-templates/` and
+`car-troubleshooting/`). It also works as a project skill in Claude Code. See
+[CLAUDE.md](CLAUDE.md) for the full release procedure; the short version: `make zip` builds
+`dist/acr-setup-engineer-skill.zip`, then `make release TAG=vX.Y.Z` drafts the GitHub release.

@@ -68,8 +68,12 @@ For each release:
   `references/driving-feedback-interview.md` (the ladder is authored there and *referenced* from
   `setup-tuning-principles.md`, `build-setup.md`, `tweak-setup.md` and `SKILL.md` — keep those
   pointers, don't restate the order in several places).
-- `docs/*.png` flow diagrams are hand-drawn and go stale silently. `docs/new_setup_flow.png`
-  predates the baseline-first steps and needs redrawing.
+- **Flow diagrams live in the README as Mermaid**, not as images — they diff in review and can't
+  go stale silently the way a PNG does. The hand-drawn `docs/*_flow.png` / `docs/knowledgeFlow.png`
+  files are **superseded and no longer referenced**; don't re-add them. When a workflow changes,
+  update the matching Mermaid block under *Flows*.
+- `docs/notionConnectionSetup{,2}.png` **are** referenced (the token setup). `…Setup3.png` is
+  deliberately **not** — it shows the author's email address in a Notion tooltip.
 - Target platform is the **claude.ai web app** (Notion connector + Skills); a later move to
   Claude Code desktop is cheap since all data lives in Notion.
 
