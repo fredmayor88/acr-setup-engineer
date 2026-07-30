@@ -78,7 +78,7 @@ not a guess dressed up as engineering.
 
 **It fixes the big thing first.**
 Nothing is more useless than fine-tuning your dampers while the differential is wrong. It works a
-fixed order — tyres, then differential, then ride height and springs, then anti-roll bars, then
+fixed order — the differential first, then ride height and springs, then anti-roll bars, then
 dampers, then wheel angles, then brakes — so each run tells you something. Your own words always
 outrank the order.
 
@@ -340,7 +340,7 @@ flowchart TD
 
     Brief -.->|"or: just build me one"| Choose
 
-    Anchor["Anchor on the default setup's numbers"] --> Choose["Move only what the symptoms and<br/>the build intent justify, in fix order:<br/>tyre, diff, ride height and springs,<br/>ARBs, dampers, alignment, brakes"]
+    Anchor["Anchor on the default setup's numbers"] --> Choose["Move only what the symptoms and<br/>the build intent justify, in fix order:<br/>diff, ride height and springs,<br/>ARBs, dampers, alignment, brakes"]
 
     Choose --> Valid{"Every value legal<br/>for this surface?"}
     Valid -->|"no"| Choose
