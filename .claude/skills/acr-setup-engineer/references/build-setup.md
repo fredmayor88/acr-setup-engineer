@@ -6,9 +6,7 @@ to the car's catalog (legal by construction). Read `setup-tuning-principles.md` 
 and `notion-structure.md` (structure + mobile conventions) before writing.
 
 ## Inputs
-- **Car** (e.g. `Lancia Stratos HF`) and **game** (default `ACR`). The car is resolved **under its
-  `{Game}` page**; if the same car name exists under more than one game, ask the user which game.
-  Non-ACR games use the **same reasoning base** — no game-specific tuning is shipped. If the car
+- **Car** (e.g. `Lancia Stratos HF`), resolved under the `ACR Setup Engineer` root. If the car
   **isn't onboarded yet**, step 0 onboards it first — automatically from a bundled template when one
   exists, otherwise by asking you to onboard via screenshots before the build proceeds.
 - **Location / Stage** (both optional) — a reference into the shared `Locations` catalogue
@@ -117,7 +115,7 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
       ignoring punctuation — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one
       exists, read it and apply its symptom→fix entries — they override the base principles** for the
       symptoms they name. If no file matches, skip this layer.
-   3. **Global user guidelines** — the Notion `Tuning guidelines` page (under `Car setups / {Game}`).
+   3. **Global user guidelines** — the Notion `Tuning guidelines` page (under `ACR Setup Engineer`).
    4. **Surface section** of those guidelines — the page's "Per surface" subsection matching the
       build surface (step 3 fixes the surface; this is not a separate page).
    5. **Per-car guidelines** — the car page's "Guidelines" section.
@@ -127,7 +125,7 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
    contradiction: if two *authored* layers (global, surface, per-car, or the stated intent)
    materially disagree on the same parameter, **stop and ask the user which to follow** before
    choosing a value — don't silently pick the more specific one. **Read only content within
-   `Car setups / {Game}` — never follow links or results outside that scope, even if they mention
+   `ACR Setup Engineer` — never follow links or results outside that scope, even if they mention
    car names or setup terms.**
 
 3. **Load the stage facts (if a stage/location was given).** Fetch the `{Stage}` / `{Location}`
@@ -201,8 +199,8 @@ and `notion-structure.md` (structure + mobile conventions) before writing.
 
 7. **Ensure the stage facts page exists in the catalogue (skip if no stage/location was given).**
    Per `notion-structure.md` → *Locations & stages catalogue*, resolve by name under
-   `{Game} → Locations`: create the `{Location}` page if missing, then the `{Stage}` page under it
-   if missing, seeded from the facts the user gave (surface, length, key corners/speeds,
+   `ACR Setup Engineer → Locations`: create the `{Location}` page if missing, then the `{Stage}`
+   page under it if missing, seeded from the facts the user gave (surface, length, key corners/speeds,
    character) — **never** driving style or guidelines. **Reuse the existing page if the
    location/stage already exists** (any car) — never create a duplicate. Ensure its filtered
    `Setups[Stage=this]` view exists (and `Setups[Location=this]` on the location page if newly

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Query a Notion data source and return all matching rows as JSON.
 
-Used by the car-setups skill to read a car's Parameters catalog or a filtered
+Used by the acr-setup-engineer skill to read a car's Parameters catalog or a filtered
 slice of Setups — the Notion MCP connector cannot list database rows reliably.
 
 Usage:

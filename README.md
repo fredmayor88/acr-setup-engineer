@@ -1,10 +1,11 @@
-# Car Setups — your personal AI rally setup engineer for Assetto Corsa Rally
+# ACR Setup Engineer — your personal AI setup engineer for Assetto Corsa Rally
 
 A free Claude **Skill** that crafts **personalized** car setups for **Assetto Corsa Rally** —
 tuned to *your* driving style and preferences — and saves them to **your Notion**, so you can
 read them on your phone while you play. It's not a one-off generator but a **complete system for
 the whole life of a setup**: onboard a car, build a setup, tweak it on feedback, review it,
-share it, and import what you already have. You can also ask questions about general setup engineering. The skill was built for ACR but the approach is general.
+share it, and import what you already have. You can also ask questions about general setup
+engineering.
 
 > **Video walkthrough:** *(coming soon — YouTube link will go here)*
 
@@ -55,11 +56,6 @@ your setups and tick "Learn from this" on the good ones, and future setups follo
 
 ![Knowledge structure](docs/knowledgeFlow.png)
 
-**Other games:** this skill was built and tested exclusively for **Assetto Corsa Rally**. You
-may be able to onboard cars and build setups for other rally/racing games, but this has not been
-tested and is not supported. Use it for other games entirely at your own risk — no support will
-be provided for non-ACR use. **Save-file import is ACR-only.**
-
 ---
 
 ## Before you start (prerequisites)
@@ -75,12 +71,12 @@ be provided for non-ACR use. **Save-file import is ACR-only.**
 2. **Turn on code execution + Skills + network.** Settings → **Capabilities** → enable **Code
    execution** and **Skills**. Then under **Network egress** set the domain allowlist to **All
    domains** — the skill needs this to call Notion's API from the code sandbox.
-3. **Add the skill.** Download **`car-setups-skill.zip`** from this project's
+3. **Add the skill.** Download **`acr-setup-engineer-skill.zip`** from this project's
    [Releases](../../releases). In claude.ai → Settings → **Customize → Skills → Create skill**,
    upload the ZIP.
 4. **Onboard your first car.** Start a new chat and say *"Onboard the [car name] for Assetto
    Corsa Rally."* — see [Quick start](#quick-start) for details. This creates your Notion
-   structure (the Car setups page and its tables).
+   structure (the ACR Setup Engineer page and its tables).
 5. **Give the skill read access to Notion** *(takes ~3 minutes).* The skill reads your tables
    through Notion's **API** so every read is fast, exact, and cheap.
 
@@ -91,12 +87,12 @@ be provided for non-ACR use. **Save-file import is ACR-only.**
       connection**. On its **Configuration** tab, under **Capabilities**, leave **only "Read
       content"** checked (uncheck Update and Insert) and **Save**. Copy the **Access token**
       (`secret_…` / `ntn_…`).
-   2. **Connect it to only your data.** Open your **Car setups** page in Notion → **•••** →
+   2. **Connect it to only your data.** Open your **ACR Setup Engineer** page in Notion → **•••** →
       **Connections** → add the connection you just made. Access cascades to everything under it
       (your Parameters/Setups) — **and nothing else** in your workspace. The token is read-only and
       can't see anything you didn't connect.
    3. **Give the skill the token** (pick one):
-      - **Store it (recommended):** the skill **auto-creates a `Config` page** under **Car setups**
+      - **Store it (recommended):** the skill **auto-creates a `Config` page** under **ACR Setup Engineer**
         (with these same steps already on it) the first time it builds your structure — just open
         it and paste the token onto it. The skill reads it automatically — set once, works in every
         chat. (It's safe here: the token is read-only and only unlocks the data it sits next to.)
@@ -255,7 +251,7 @@ or not in the mood? No worries — skip it; everything still works.
 ## Building locally
 
 ```
-git clone https://github.com/fredmayor88/car-setups.git
+git clone https://github.com/fredmayor88/acr-setup-engineer.git
 make test
 make zip 
 make check-zip
@@ -284,7 +280,7 @@ make check-zip
 
 The skill uses **two distinct channels** to talk to Notion, on purpose:
 
-- **Writing** (creating your Car setups structure, adding setups, updating rows) goes through the
+- **Writing** (creating your Notion structure, adding setups, updating rows) goes through the
   **Notion connector** — the OAuth connection you authorize in claude.ai. It already has write
   access, handles Notion's block/property formatting from plain markdown, and is the more forgiving
   path for the model to drive.
@@ -319,8 +315,8 @@ writes stay on the connector and reads stay on the read-only token.
 
 ### For maintainers
 
-The skill source lives in [.claude/skills/car-setups/](.claude/skills/car-setups/) — a
+The skill source lives in [.claude/skills/acr-setup-engineer/](.claude/skills/acr-setup-engineer/) — a
 self-contained Claude Skill (`SKILL.md` + bundled `references/` and `car-templates/`). It also
 works as a project skill in Claude Code. See [CLAUDE.md](CLAUDE.md) for the full release
-procedure; the short version: `make zip` builds `dist/car-setups-skill.zip`, then
+procedure; the short version: `make zip` builds `dist/acr-setup-engineer-skill.zip`, then
 `make release TAG=vX.Y.Z` drafts the GitHub release.

@@ -1,10 +1,10 @@
 # CLAUDE.md — maintainer notes
 
-This repo packages a **single self-contained Claude Skill** that builds car setups for racing
-games (built for **Assetto Corsa Rally**) and stores them in the user's **Notion**.
+This repo packages a **single self-contained Claude Skill** that builds car setups for
+**Assetto Corsa Rally** and stores them in the user's **Notion**.
 
 ## Where things live
-- **The product** is the skill at [.claude/skills/car-setups/](.claude/skills/car-setups/):
+- **The product** is the skill at [.claude/skills/acr-setup-engineer/](.claude/skills/acr-setup-engineer/):
   - `SKILL.md` — entry point: core rules + routing to the three workflows.
   - `references/onboard-car.md`, `build-setup.md`, `import-savegame.md` — the workflows.
   - `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions,
@@ -15,7 +15,7 @@ games (built for **Assetto Corsa Rally**) and stores them in the user's **Notion
   - `references/setup-tuning-principles.md` — drivetrain-tagged tuning reasoning base.
   - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
 - [README.md](README.md) — end-user docs (claude.ai install + usage).
-- `Makefile` — `make zip` builds `dist/car-setups-skill.zip`; cross-platform (Mac, Linux, WSL, Git Bash on Windows).
+- `Makefile` — `make zip` builds `dist/acr-setup-engineer-skill.zip`; cross-platform (Mac, Linux, WSL, Git Bash on Windows).
 
 The skill is **self-contained** (it bundles its own references) so it works both uploaded to
 claude.ai and as a project skill in Claude Code. There is **no separate Notion bootstrap** — the
@@ -25,11 +25,11 @@ IDs).
 ## Release procedure
 
 The skill is distributed as a ZIP release asset on
-[GitHub](https://github.com/fredmayor88/car-setups). The repo remote should point there.
+[GitHub](https://github.com/fredmayor88/acr-setup-engineer). The repo remote should point there.
 
 ```bash
 # One-time: switch remote from CodeCommit to GitHub
-git remote set-url origin https://github.com/fredmayor88/car-setups.git
+git remote set-url origin https://github.com/fredmayor88/acr-setup-engineer.git
 git push -u origin main
 ```
 
@@ -45,7 +45,7 @@ For each release:
    step 4 below produces a ZIP, or rerun once `make release` has).
 4. `make release TAG=vX.Y.Z` — stamps `VERSION` to the tag and commits it (so the archived skill
    self-reports its release version — see *Skill version* in `SKILL.md`), runs `make test`,
-   rebuilds `dist/car-setups-skill.zip` from that committed tree, tags, pushes, and creates a
+   rebuilds `dist/acr-setup-engineer-skill.zip` from that committed tree, tags, pushes, and creates a
    draft GitHub release with the ZIP attached.
 5. **Manual smoke test on claude.ai**: upload the ZIP (Settings → Customize → Skills → Create
    skill), attach min/max screenshots, say "onboard my car" — confirm Notion structure is
@@ -57,7 +57,7 @@ For each release:
 `RELEASE_NOTES.md` and `dist/` are gitignored (binary churn; notes are ephemeral).
 
 ## Conventions
-- Keep the skill self-contained: bundle anything it needs under `.claude/skills/car-setups/`;
+- Keep the skill self-contained: bundle anything it needs under `.claude/skills/acr-setup-engineer/`;
   no `../` paths escaping the skill folder.
 - Ship **no private Notion IDs** or personal data in tracked files.
 - Edit the data model in `references/notion-structure.md`; edit tuning knowledge in

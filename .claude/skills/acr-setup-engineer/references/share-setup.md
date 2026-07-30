@@ -75,4 +75,4 @@ Built with: Sonnet 4.6/normal
 ## Rules
 - Never write to or modify Notion — this workflow is strictly read-only.
 - No justifications in the snippet; those live in the Notion page toggles.
-- Scope reads to `Car setups` only — do not search the workspace broadly.
+- Scope reads to `ACR Setup Engineer` only — do not search the workspace broadly.

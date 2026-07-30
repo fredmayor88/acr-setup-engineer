@@ -2,7 +2,7 @@
 
 Export a car's full parameter catalog from Notion as a YAML template file that can be bundled
 with the skill and shared with the community. The exported file, once added to the skill's
-`.claude/skills/car-setups/car-templates/` folder (the same one the bundled templates live in),
+`.claude/skills/acr-setup-engineer/car-templates/` folder (the same one the bundled templates live in),
 lets future users onboard the same car without screenshots.
 
 ## Trigger phrases
@@ -12,7 +12,6 @@ parameter file for a car.
 
 ## Inputs
 - **Car name** — ask if not provided or ambiguous (must match a car already onboarded in Notion).
-- **Game** — defaults to ACR; ask only if the user has multiple games and it's unclear.
 - **Game version** — ask which game version the parameters were captured in (e.g. `0.4`), since
   tunable ranges can shift between versions. If the user doesn't know, write `"unknown"`. (No
   Notion lookup — don't try to infer it from existing setups.)
@@ -20,14 +19,14 @@ parameter file for a car.
 ## Procedure
 
 ### 1. Read from Notion
-- Navigate to `Car setups → {Game} → Parameters` DB and fetch all rows where `Car` = the
+- Navigate to `ACR Setup Engineer → Parameters` DB and fetch all rows where `Car` = the
   requested car **using [notion-rest-read.md](notion-rest-read.md)** (the connector can't list
   rows reliably — this is what made export slow and incomplete). Follow the same name-resolution
-  rules as other workflows (resolve by name, no hardcoded IDs; stay within `Car setups` scope).
+  rules as other workflows (resolve by name, no hardcoded IDs; stay within `ACR Setup Engineer` scope).
   Read each row's optional **`Surface`** tag too — a car may have a baseline row (blank `Surface`)
   **and** a surface-specific row (e.g. `Gravel`) for the same `Adjustment`; export **both**.
   Read each row's **`Order`** too (the display position — emitted as `order:` in the YAML).
-- Read the car's `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page under `{Game}`.
+- Read the car's `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page.
 - Also read the car-level identity fields from the `{Car}` page, when present: `Engine layout`
   (front/mid/rear), `Weight bias` (front/balanced/rear), `Weight` (approximate kerb weight,
   e.g. `~950 kg`), `Max power` (e.g. `250 hp at 7700 rpm`), and `Max torque` (e.g.
@@ -62,7 +61,7 @@ Produce a YAML block with this exact structure:
 
 ```yaml
 car: "{Car Name}"
-game: "{Game}"
+game: "ACR"
 save_ids: ["{exact in-save car string}"]   # OPTIONAL — see rules; omit if unknown
 drivetrain: "{FWD|RWD|AWD}"
 engine_layout: "{descriptive engine placement, e.g. mid-rear transverse V6 behind the driver}"
@@ -121,7 +120,7 @@ Always show the YAML as a fenced code block in chat regardless of what else is a
 ````
 
 Then tell the user:
-> "Save this as `.claude/skills/car-setups/car-templates/{slug}.yaml` in the skill repo — this is
+> "Save this as `.claude/skills/acr-setup-engineer/car-templates/{slug}.yaml` in the skill repo — this is
 > the **same folder the bundled templates live in**, so the skill picks it up automatically (a
 > bare `car-templates/` at the repo root is the wrong place and won't be loaded). The slug is the
 > car name lowercased with spaces and special characters replaced by hyphens, e.g.
@@ -151,11 +150,11 @@ pressure:
   The link is just (no code sandbox needed — the filename is short):
 
   ```
-  https://github.com/fredmayor88/car-setups/new/main?filename=.claude/skills/car-setups/car-templates/{slug}.yaml
+  https://github.com/fredmayor88/acr-setup-engineer/new/main?filename=.claude/skills/acr-setup-engineer/car-templates/{slug}.yaml
   ```
 
   where `{slug}` is the car name lowercased with spaces and special characters replaced by hyphens
-  (e.g. `lancia-stratos-hf`). **Use the full `.claude/skills/car-setups/car-templates/` path** —
+  (e.g. `lancia-stratos-hf`). **Use the full `.claude/skills/acr-setup-engineer/car-templates/` path** —
   that's where the bundled templates live and where the skill loads them from; a bare
   `car-templates/` at the repo root is the wrong place and won't be picked up.
 

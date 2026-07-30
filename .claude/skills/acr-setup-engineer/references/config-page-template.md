@@ -1,7 +1,7 @@
 # Config page template (seed for the Notion page)
 
 This is the friendly template used to create the **`Config`** page in Notion (directly under the
-`Car setups` root) the first time the skill builds your structure. It explains how to give the
+`ACR Setup Engineer` root) the first time the skill builds your structure. It explains how to give the
 skill fast, exact read access to your setups and gives you a place to paste the token. It's
 written for a non-technical user: plain language, numbered steps.
 
@@ -14,7 +14,7 @@ written for a non-technical user: plain language, numbered steps.
 
 # 🔑 Config
 
-This page gives the **car-setups skill** fast, exact read access to your tables. It's optional but
+This page gives the **acr-setup-engineer skill** fast, exact read access to your tables. It's optional but
 recommended — without it, reading your setups is slower and less reliable.
 
 You only do this **once**, and it takes about 3 minutes.
@@ -25,7 +25,7 @@ left sidebar pick **Connections** → **+ New connection**. Give it a name (e.g.
 `myCarSetupConnection`), leave **Authentication method** on **Access token**, pick your workspace
 under **Installable in**, then click **Create connection**.
 
-![Create a new connection with the Access token method](https://raw.githubusercontent.com/fredmayor88/car-setups/main/docs/notionConnectionSetup.png)
+![Create a new connection with the Access token method](https://raw.githubusercontent.com/fredmayor88/acr-setup-engineer/main/docs/notionConnectionSetup.png)
 
 ## 2. Make it read-only and copy the token
 On the connection's **Configuration** tab, under **Capabilities → Content capabilities**, leave
@@ -34,14 +34,14 @@ connection** at the bottom to apply the change. Then copy the **Access token** f
 **Integration token** section — use the eye icon to reveal it and the copy icon to grab it. It
 starts with `secret_` or `ntn_`.
 
-![Leave only Read content checked under Capabilities](https://raw.githubusercontent.com/fredmayor88/car-setups/main/docs/notionConnectionSetup2.png)
+![Leave only Read content checked under Capabilities](https://raw.githubusercontent.com/fredmayor88/acr-setup-engineer/main/docs/notionConnectionSetup2.png)
 
-## 3. Connect it to only your Car setups
-Open your **Car setups** page → **•••** menu (top-right) → **Connections** → find and add the
+## 3. Connect it to only your setups
+Open your **ACR Setup Engineer** page → **•••** menu (top-right) → **Connections** → find and add the
 connection you just made (e.g. `myCarSetupConnection`). Access cascades to everything under
-`Car setups` (your Parameters/Setups) — **and nothing else** in your workspace.
+`ACR Setup Engineer` (your Parameters/Setups) — **and nothing else** in your workspace.
 
-![Add the connection to the Car setups page via the ••• menu](https://raw.githubusercontent.com/fredmayor88/car-setups/main/docs/notionConnectionSetup3.png)
+![Add the connection to the ACR Setup Engineer page via the ••• menu](https://raw.githubusercontent.com/fredmayor88/acr-setup-engineer/main/docs/notionConnectionSetup3.png)
 
 ## 4. Paste your token below
 Paste the access token on the line below. It's safe here: the token is **read-only** and can only

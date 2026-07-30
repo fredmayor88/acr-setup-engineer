@@ -14,7 +14,7 @@ import unittest
 from unittest.mock import MagicMock, patch
 
 SCRIPT = os.path.join(os.path.dirname(__file__), '..', '.claude', 'skills',
-                      'car-setups', 'scripts', 'query_notion_parameters.py')
+                      'acr-setup-engineer', 'scripts', 'query_notion_parameters.py')
 _spec = importlib.util.spec_from_file_location('query_notion_parameters', SCRIPT)
 Q = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(Q)
@@ -240,7 +240,7 @@ class TestReadTemplateRows(unittest.TestCase):
     """The token-free --from-template path: read {Adjustment, Order} from template YAML."""
 
     TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), '..', '.claude', 'skills',
-                                 'car-setups', 'car-templates')
+                                 'acr-setup-engineer', 'car-templates')
 
     def _write(self, text):
         import tempfile

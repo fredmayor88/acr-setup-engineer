@@ -12,7 +12,7 @@ This file is the **shipped base**. The user's own preferences live in **Notion**
 layers, in increasing priority:
 
 1. **Base principles** (this file)
-2. **Global user guidelines** (Notion: `Car setups / {Game} / Tuning guidelines`)
+2. **Global user guidelines** (Notion: `ACR Setup Engineer / Tuning guidelines`)
 3. **Surface section** of that same page (its "Per surface" subsection matching the build
    surface) — not a separate page
 4. **Per-car guidelines** (the car page's "Guidelines" section)

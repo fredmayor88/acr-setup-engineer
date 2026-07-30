@@ -13,7 +13,6 @@ base) before starting.
 - **Working setup** — the setup being refined. It may be (a) a setup built, loaded, or already
   iterated **earlier in this thread** (use its current in-chat values), or (b) a **named saved
   setup** the user points at. If neither is clearly in scope, **ask what to start from** (step 1).
-  Game defaults to `ACR`.
 - **Feedback** — free-form description of what felt wrong or what to change, e.g. *"understeers
   on entry"*, *"too stiff on bumps"*, *"needs more mid-corner rotation"*, or even a direct
   request like *"soften the front ARB by one step"*.
@@ -28,8 +27,8 @@ base) before starting.
 Decide what the iteration starts from — **don't immediately write anything**:
 - **One setup clearly in scope** (just built/loaded in this thread, or unambiguously named) → use
   its current in-chat values as the working setup and say which one. For a saved setup, load all
-  value properties plus `Car`, `Location`, `Stage`, `Surface`, `Mode` (navigate `Car setups →
-  {Game} → Setups`; stay within `Car setups` scope — no workspace-wide searches).
+  value properties plus `Car`, `Location`, `Stage`, `Surface`, `Mode` (navigate
+  `ACR Setup Engineer → Setups`; stay within that scope — no workspace-wide searches).
 - **Multiple plausible matches** → list them (Name / Car / Stage / Date) and ask the user to pick.
 - **Nothing in scope** (the user described a problem but nothing has been built or loaded yet) →
   **ask what to start from**: which saved setup to load, or whether to build a baseline first
@@ -41,7 +40,7 @@ Decide what the iteration starts from — **don't immediately write anything**:
 > one code-execution block, fetching the `{Car}` page **once** for both its identity facts (this
 > step) and its Guidelines section (step 3). Skip any read whose data is already in the thread.
 
-Fetch the car's `Parameters` rows (within `Car setups → {Game} → Parameters`):
+Fetch the car's `Parameters` rows (within `ACR Setup Engineer → Parameters`):
 `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Order`, `Surface`. Read the car's identity
 facts from the `{Car}` page — `Drivetrain` (FWD/RWD/AWD), `Engine layout`, `Weight bias`, `Weight`
 — and feed them into the balance reasoning (same facts a build loads; not drivetrain alone). If a
@@ -61,7 +60,7 @@ Same precedence chain as `build-setup.md` (lowest → highest):
    it and apply its symptom→fix entries — they override the base principles** for the symptoms they
    name. This is the main path for handling problems like "the brakes lock as soon as I touch them".
    If no file matches, skip this layer.
-3. **Global user guidelines** — Notion `Tuning guidelines` page under `Car setups / {Game}`.
+3. **Global user guidelines** — Notion `Tuning guidelines` page under `ACR Setup Engineer`.
 4. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
    `Surface` (not a separate page).
 5. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
@@ -69,7 +68,7 @@ The working setup's own **driving intent/goal** (from its page body, plus the us
 round) is the most specific layer. Apply only lines tagged `[All]` **or the car's drivetrain**.
 **More specific is the default lean**, not an auto-resolution: if an authored layer materially
 contradicts the stated intent or feedback, **ask the user** which to follow before proposing the
-change. Never read content outside `Car setups`.
+change. Never read content outside `ACR Setup Engineer`.
 
 ### 4. Load stage facts (if the working setup references one)
 Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface, key
@@ -174,4 +173,4 @@ braking effect."* Omit it when the car has no brake disc/caliper params.
   requires (plus necessary secondary parameters for coherence).
 - **Cite the reason** — every changed parameter must reference the feedback phrase, guideline tag,
   or stage fact driving it.
-- **Stay within `Car setups` scope** — same name-resolution rules as every other workflow.
+- **Stay within `ACR Setup Engineer` scope** — same name-resolution rules as every other workflow.

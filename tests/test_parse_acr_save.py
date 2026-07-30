@@ -15,7 +15,7 @@ import tempfile
 import unittest
 
 SCRIPT = os.path.join(os.path.dirname(__file__), '..', '.claude', 'skills',
-                      'car-setups', 'scripts', 'parse_acr_save.py')
+                      'acr-setup-engineer', 'scripts', 'parse_acr_save.py')
 _spec = importlib.util.spec_from_file_location('parse_acr_save', SCRIPT)
 P = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(P)

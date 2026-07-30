@@ -1,0 +1,33 @@
+# Suspension Setup, Adjustments, and Testing - Team O'Neil
+https://www.youtube.com/watch?v=EDmHpxgMxFU
+
+- usually 50% stiffer springs vs the road version
+
+their order:
+- spring rates
+- ride height
+- ARBs
+- wheel angles in order: caster, camber, toe 
+- dampers
+- tire pressure
+- brake bias 
+
+
+Although their order is dictated by practicality: adjust what's difficult to adjust first (in the garage) and later finer adjustments can be done e.g. on stage
+
+the base setting: the factory one
+on rough road: up ride height and low the spring rate: high and soft. ARBs softer. high speed compression down. slow compression up. more tyre pressure on rough road. 
+slippery road - softer springs
+grippy road - stiffer springs 
+basically for suspensions and ARBs - like for rough vs smooth road 
+
+slippery road: low pressure
+grippy road: high pressure 
+
+brake bias: the better the grip the more towards front 
+
+    
+if the car understeers: go bottom to the top!!!
+- first front tyre pressure lower. and rear higher 
+- dampers: low speed rebound: front softer, rear higher  
+- for understeer: toe out

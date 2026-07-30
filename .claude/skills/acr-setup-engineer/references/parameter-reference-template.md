@@ -1,7 +1,7 @@
 # Parameter reference template (seed for the Notion page)
 
 This is the seed used to create the **global** `Parameter reference` page in Notion
-(`Car setups / {Game} / Parameter reference`). It lists and describes **every tunable parameter
+(`ACR Setup Engineer / Parameter reference`). It lists and describes **every tunable parameter
 available in the game**, using the authoritative in-game text, so the user can read what each
 setting does on their phone without opening the game or returning to the tuning menu.
 
@@ -17,7 +17,7 @@ current. It is therefore **read-only** for the user — see the banner in the bo
 
 # 🔧 Parameter reference
 
-> **Read-only — auto-maintained by the car-setups skill.** This page lists every tunable
+> **Read-only — auto-maintained by the acr-setup-engineer skill.** This page lists every tunable
 > parameter in the game with its authoritative in-game description. The skill **refreshes this
 > page on updates**, so **don't add personal notes here — they will be overwritten**. Put your own
 > tuning preferences on the **`Tuning guidelines`** page instead (that one is yours to edit).

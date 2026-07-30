@@ -1,6 +1,6 @@
 # Reading rows from a Notion database — the reliable way
 
-**The canonical way to read a car's rows from a `Car setups` database** (the `Parameters`
+**The canonical way to read a car's rows from an `ACR Setup Engineer` database** (the `Parameters`
 catalog, or a filtered slice of `Setups`). Use this wherever a workflow says "fetch the car's
 `Parameters` rows" or "fetch this car's `Setups` rows".
 
@@ -20,7 +20,7 @@ the database directly through Notion's REST API, which supports an exact filter 
    is the `<uuid>` **with the `collection://` prefix stripped**.
 2. **A read-only integration token** (`secret_…` / `ntn_…`). See "Give the skill read access to
    Notion" in `README.md` for the one-time setup. Obtain the token at read time:
-   - **Primary:** `notion-fetch` the **`Config`** page under `Car setups` and read the token from
+   - **Primary:** `notion-fetch` the **`Config`** page under `ACR Setup Engineer` and read the token from
      it (it persists across chats). The page is auto-created with the structure, so it normally
      exists.
    - **Page exists but no token pasted yet** (just the seeded instructions): the one-time setup
@@ -93,5 +93,5 @@ unreliable (capped, semantic, mixes cars) and produces silently wrong setups.
   read and don't guess values.
 
 ## Scope
-Only ever query a data source **inside `Car setups`**. Never use this against a database resolved
+Only ever query a data source **inside `ACR Setup Engineer`**. Never use this against a database resolved
 from a workspace-wide search, and discard any row whose `Car` isn't the requested one.

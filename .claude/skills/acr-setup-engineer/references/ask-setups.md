@@ -19,8 +19,7 @@ you need to load data.
 - **The question** — free-form. May be conceptual, or about a named setup, or a comparison of
   two setups.
 - **Optional anchors** — a setup name (e.g. `alsace dry fast`), a car, a location/stage, a surface, a
-  drivetrain. Use them to scope and to apply the right drivetrain filter. Game defaults to `ACR`;
-  ask only if the user has data under multiple games and it's unclear which one.
+  drivetrain. Use them to scope and to apply the right drivetrain filter.
 
 ## 1. Classify the question
 Decide what to load **before** answering:
@@ -67,7 +66,7 @@ Answer from `setup-tuning-principles.md`:
   `Tuning guidelines` page that speaks to it, fold that in and flag that their own preference
   overrides the base (later wins: base → global guidelines → surface section ("Per surface" on
   that same page) → per-car → the setup's own driving intent, most specific). Only read it if
-  it's readily reachable within `Car setups → {Game}`; don't go hunting.
+  it's readily reachable within `ACR Setup Engineer`; don't go hunting.
 
 Keep answers concrete and physical. Cite which lever pushes which way (front vs rear, power vs
 coast ramp, slow vs fast damper) rather than vague "it depends".
@@ -76,9 +75,9 @@ coast ramp, slow vs fast damper) rather than vague "it depends".
 Load data the same way `review-setup.md` does (steps 1–4) — **but to explain, not to critique**.
 
 ### 3a. Identify the setup(s)
-Navigate to `Car setups → {Game} → Setups` and find the row(s) matching the given name(s). Stay
-within `Car setups` scope — never issue workspace-wide Notion searches; discard any result from
-outside `Car setups`.
+Navigate to `ACR Setup Engineer → Setups` and find the row(s) matching the given name(s). Stay
+within `ACR Setup Engineer` scope — never issue workspace-wide Notion searches; discard any result from
+outside `ACR Setup Engineer`.
 - **Unique match:** load all value properties plus `Car`, `Location`, `Stage`, `Surface`, `Mode`,
   `Notes`, `Rating`.
 - **Multiple matches:** list them (Name / Car / Stage / Date) and ask the user to pick.
@@ -102,7 +101,7 @@ Same precedence chain as `build-setup.md` / `review-setup.md` (lowest → highes
    punctuation — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
    it and apply its symptom→fix entries — they override the base principles** for the symptoms they
    name. If no file matches, skip this layer.
-3. **Global user guidelines** — `Tuning guidelines` page under `Car setups / {Game}`.
+3. **Global user guidelines** — `Tuning guidelines` page under `ACR Setup Engineer`.
 4. **Surface section** — that page's "Per surface" subsection matching the setup's `Surface`.
 5. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
 The setup's own **driving intent** (its page-body summary) is the most specific layer. Apply only
@@ -160,7 +159,7 @@ starting point to verify in-game, not a guarantee.
 ## Rules
 - **Read-only — never write to Notion.** This workflow only reads; it produces a chat answer. (If
   the user wants the explanation saved to the setup's page, that's the `review-setup` workflow.)
-- **Stay within `Car setups` scope** — same name-resolution and scope discipline as every
+- **Stay within `ACR Setup Engineer` scope** — same name-resolution and scope discipline as every
   workflow; never issue workspace-wide searches; discard any out-of-scope result before it
   influences the answer.
 - **Drivetrain-aware** — apply only guideline/principle lines tagged `[All]` or the car's

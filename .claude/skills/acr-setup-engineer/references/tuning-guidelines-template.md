@@ -1,7 +1,7 @@
 # Tuning guidelines template (seed for the Notion page)
 
 This is the friendly template used to create the **global** `Tuning guidelines` page in
-Notion (`Car setups / {Game} / Tuning guidelines`) during bootstrap. It's written for a
+Notion (`ACR Setup Engineer / Tuning guidelines`) during bootstrap. It's written for a
 non-technical user: plain language, examples, fill-in prompts. The setup generator reads it
 and **your notes here override the shipped defaults**.
 

@@ -7,7 +7,7 @@ import os
 import unittest
 
 VERSION_FILE = os.path.join(os.path.dirname(__file__), '..', '.claude', 'skills',
-                             'car-setups', 'VERSION')
+                             'acr-setup-engineer', 'VERSION')
 
 
 class TestSkillVersion(unittest.TestCase):

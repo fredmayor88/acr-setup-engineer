@@ -12,7 +12,7 @@ import unittest
 import yaml
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), '..', '.claude', 'skills',
-                              'car-setups', 'car-templates')
+                              'acr-setup-engineer', 'car-templates')
 
 CANONICAL_TYRES = [
     'Tarmac Soft', 'Tarmac Medium', 'Tarmac Hard', 'Tarmac Wet', 'Tarmac Winter',

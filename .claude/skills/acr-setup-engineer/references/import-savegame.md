@@ -5,14 +5,12 @@ recovery feature**: it works **with or without a Notion connection**, and **whet
 is onboarded**. When Notion is available the setups are appended to the `Setups` database (rows
 with `Source = imported`); when it isn't, they're printed as a copy-pasteable table in chat.
 
-**ACR-only.** The bundled parser reads ACR's UE5 GVAS save (`CarSetupsDataSaveSlot.sav`). Save-file
-import is **not supported for other games** — don't attempt to parse a non-ACR save. For another
-game, tell the user to onboard the car via screenshots (`onboard-car.md`) and build setups instead.
+The bundled parser reads ACR's UE5 GVAS save (`CarSetupsDataSaveSlot.sav`).
 
 ## Inputs
 - An ACR save file, **attached in the chat** — `CarSetupsDataSaveSlot.sav` (on Windows it lives
   at `%LOCALAPPDATA%\acr\Saved\SaveGames\CarSetupsDataSaveSlot.sav`).
-- **Car(s)** (usually inferable from the save) and **game** (`ACR`).
+- **Car(s)** — usually inferable from the save.
 - A Notion connection is **optional** (see step 4).
 
 ## Procedure
@@ -101,7 +99,7 @@ select/copy cleanly. Inside each car's block:
 List any parser `warnings` for that car **below** the block (outside the fences), not inside it.
 
 ### 4. Notion available, or chat-only?
-Try to resolve the **`Car setups`** root via the Notion connector (per `notion-structure.md`).
+Try to resolve the **`ACR Setup Engineer`** root via the Notion connector (per `notion-structure.md`).
 - **Connector available** → continue to step 5 (write to Notion).
 - **No Notion connection** (connector not configured / calls fail) → present a **choice**:
   1. **Set up Notion now** — walk the user through connecting Notion (claude.ai → Settings →
@@ -123,9 +121,9 @@ already existing. Do these sub-steps **in this order**, per selected car:
 > `--show-order --from-template` (no `Config` page, no REST). The read-only token is only required to
 > read back a catalog for a car that was **already onboarded** before this run.
 
-**5.1 — Ensure the base structure exists** (per `notion-structure.md`): the `Car setups` root →
-the `Config` page (seed from `config-page-template.md` if missing — token blank; **never overwrite
-an existing one**) → `{Game}` page → the `Parameters`/`Setups` DBs → the global `Parameter
+**5.1 — Ensure the base structure exists** (per `notion-structure.md`): the `ACR Setup Engineer`
+root → the `Config` page (seed from `config-page-template.md` if missing — token blank; **never
+overwrite an existing one**) → the `Parameters`/`Setups` DBs → the global `Parameter
 reference` page (seed/refresh its body from `parameter-reference-template.md` — auto-maintained, see
 `notion-structure.md`) → the `{Car}` page. Set the car page's
 **`Drivetrain`** from the parser's `drivetrain` field (derived deterministically from the diff

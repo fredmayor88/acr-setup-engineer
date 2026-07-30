@@ -8,10 +8,7 @@ of legal values every generated setup is constrained to. This workflow is also t
 Read `notion-structure.md` (structure + schemas + create-if-missing) before writing.
 
 ## Inputs
-- **Car name** (e.g. `Lancia Stratos HF`); the **game** — **ask the user which game this car is
-  for** (Assetto Corsa Rally, or another game), defaulting to `ACR` if they don't say. The answer
-  is the `{Game}` page name in step 6 (create-if-missing handles a brand-new game page). For a
-  **non-ACR game** this same screenshot workflow applies — extract whatever the screenshots show.
+- **Car name** (e.g. `Lancia Stratos HF`).
 - The car's **drivetrain** (FWD / RWD / AWD) — derive it from which differential sections the car
   has:
   `Differentials.Front` + `Differentials.Rear` (or any `Differentials.Centre`) ⇒ **AWD**;
@@ -21,11 +18,11 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
   - a **max** set (every setting dialed to its maximum).
   Ask the user to attach both. One pair per setup screen/tab (Gearbox, Suspensions F/R,
   Dampers F/R, Axles, Differential(s), Wheels/Tyres F/R, Brakes, Electronics, …).
-  - **For ACR, this first pass must be taken on a TARMAC stage (e.g. Alsace).** Tarmac is the
+  - **This first pass must be taken on a TARMAC stage (e.g. Alsace).** Tarmac is the
     **baseline**: some parameters (chiefly on the Suspensions screen) expose a *different* range
     on gravel, and the whole catalog is anchored to the tarmac values. Capturing the baseline on
     gravel would mislabel the surface-specific ranges. The optional gravel pass comes later
-    (step 8). (For a non-ACR game without this surface behaviour, any one stage is fine.)
+    (step 8).
 
 ## Procedure
 
@@ -113,14 +110,12 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      in screenshot order, de-duplicated. **Observed values only — never invent option names the
      screenshots don't show.** The list is usually incomplete (only the endpoints are visible),
      so still flag the row for the user to add any middle options.
-     - `Tyre type` — for **ACR**, pre-fill `Discrete steps` with the standard ACR tyre list
-       (see the ACR exception below); use `—` for min/max as normal.
-       For non-ACR games, seed with the observed values as usual.
+     - `Tyre type` — pre-fill `Discrete steps` with the standard ACR tyre list
+       (see the tyre/pad exception below); use `—` for min/max as normal.
      - `Brake discs`, `Brake calipers` (front & rear) — seed with the observed disc/caliper
        names.
-     - `Brake pads/shoe` (front & rear) — for **ACR**, pre-fill `Discrete steps` with the
-       standard pad list (see the ACR exception below); use `—` for min/max as normal. For
-       non-ACR games, seed with the observed values as usual.
+     - `Brake pads/shoe` (front & rear) — pre-fill `Discrete steps` with the
+       standard pad list (see the tyre/pad exception below); use `—` for min/max as normal.
      - `Engine map`, `Throttle map`
      - `LSD power/coast ramp`, `Differential ratio`, and `Centre Ratio to Rear` — **always
        use `—`**, regardless of whether the screenshots show names (e.g. "Sport LSD") or paired
@@ -129,8 +124,8 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
        options.
      **Flag every `—` row** in the confirmation table as *"needs user enumeration —
      review/complete"*; the seeded endpoints make it usable, but the user should verify and add
-     any missing options. **(ACR exception: `Tyre Type` and `Brake pads/shoe` already have
-     `Discrete steps` pre-filled with their standard ACR lists — do not flag them.)**
+     any missing options. **(Exception: `Tyre Type` and `Brake pads/shoe` already have
+     `Discrete steps` pre-filled with their standard lists — do not flag them.)**
    - **ABS map and TCS map are always numeric** (0–N integer levels). If their screenshots show
      numbers, capture min and max. If they show `—`, that most likely means this car has no
      ABS/TCS — omit them rather than recording `—`. Do not treat ABS/TCS as component
@@ -144,9 +139,9 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      blank** — it is the user's to fill later (see step 9); onboarding never guesses a numeric
      step set. For **`—` named-selection** parameters, seed `Discrete steps` with the observed
      option names as described above (never fabricate names).
-   - **ACR exception — `Tyre Type` and `Brake pads/shoe`**: pre-fill `Discrete steps` with the
-     standard ACR list — no screenshot or user action needed; these lists are the same for
-     every ACR car, so the rows are immediately usable and **not** flagged.
+   - **Tyre/pad exception — `Tyre Type` and `Brake pads/shoe`**: pre-fill `Discrete steps` with
+     the standard list — no screenshot or user action needed; these lists are the same for
+     every car, so the rows are immediately usable and **not** flagged.
      - `Tyre Type`: `Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter,
        Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)`.
      - `Brake pads/shoe` (front & rear): `SOFT, MEDIUM, HARD`.
@@ -159,12 +154,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
    - **Capture the easily-missed ones too**, when present: damper `Bump transition`
      / `Rebound transition`, `Centre differential` & `Front differential` (AWD), `Engine map`,
      `Throttle map`, `ABS`, `TCS`, and brake `master cylinder` / `disc` / `caliper` / `pad`
-     (front & rear). (**ACR only**: `Tyre type` and `Brake pads/shoe` are created automatically
-     with their standard ACR lists — no screenshot needed; skip them in the screenshot sweep.)
-     These are **car-dependent** — older cars may simply lack them; that's fine.
-     For a **non-ACR game** this list is only a *hint*: that game may expose different settings or
-     none of these. Capture whatever the screenshots actually show; never fabricate an ACR
-     parameter the game doesn't have.
+     (front & rear). (`Tyre type` and `Brake pads/shoe` are created automatically with their
+     standard lists — no screenshot needed; skip them in the screenshot sweep.)
+     These are **car-dependent** — older cars may simply lack them; that's fine. Capture whatever
+     the screenshots actually show; never fabricate a parameter the car doesn't have.
    - **If a setup screen shows "Not available for this car"**, skip that entire category — do not
      create any rows for it. Note it in the confirmation table and final report as an
      informational item only (e.g. *"Dampers — not available for this car"*). This is normal;
@@ -203,9 +196,9 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      `couldn't determine`) and continue.
 
 6. **Ensure the Notion structure exists (create-if-missing).** Per `notion-structure.md`,
-   resolve **by name** and create whatever is missing: the `Car setups` root → the `Config` page
-   (seed from `config-page-template.md` if missing — token blank; **never overwrite an existing
-   one**) → `{Game}` page → the `Parameters` and `Setups` DBs → the global `Tuning guidelines` page
+   resolve **by name** and create whatever is missing: the `ACR Setup Engineer` root → the `Config`
+   page (seed from `config-page-template.md` if missing — token blank; **never overwrite an
+   existing one**) → the `Parameters` and `Setups` DBs → the global `Tuning guidelines` page
    (seed it from `tuning-guidelines-template.md`) → the global `Parameter reference` page (seed its
    body from `parameter-reference-template.md`; **this page is auto-maintained — if it already
    exists, refresh its body by replacing it, don't append**, unlike the never-overwrite
@@ -262,8 +255,7 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      3. **H2 "Guidelines"** heading + a short stub inviting car-specific tuning preferences
         (tone per `tuning-guidelines-template.md`) — appended **after** the view.
 
-8. **Check for surface-specific ranges (optional gravel pass).** **ACR only** — skip for games
-   without surface-dependent ranges.
+8. **Check for surface-specific ranges (optional gravel pass).**
 
    The catalog written above is the **tarmac baseline**. On many cars, some **Suspensions**
    settings (most commonly **spring stiffness**, sometimes ride height / ARB) expose a *different*

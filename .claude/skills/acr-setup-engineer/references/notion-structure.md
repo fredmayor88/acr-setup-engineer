@@ -9,30 +9,28 @@ create whatever is missing, on first use. Read this before any skill writes to N
 Skills locate the structure **by its canonical names**, not by hardcoded IDs, so it's portable
 across workspaces and self-healing:
 
-1. Search for the root page **`Car setups`**; create it if absent.
+1. Search for the root page **`ACR Setup Engineer`**; create it if absent.
 2. Directly under the root, the **`Config`** page (holds the read-only Notion API token). **Create
    it if absent, seeded from [config-page-template.md](config-page-template.md)** (the integration
    setup instructions + an empty token line). **Never overwrite an existing `Config` page** — it
    may already hold the user's pasted token; leave its contents untouched.
-3. Under the root, the game page (e.g. **`ACR`**); create if absent. Multiple `{Game}` pages may
-   coexist — resolve a car under the game it was onboarded into, and ask the user if the same car
-   name appears under more than one game.
-4. Under the game: the **`Parameters`** DB, the **`Setups`** DB, the **`Tuning guidelines`**
+3. Also under the root: the **`Parameters`** DB, the **`Setups`** DB, the **`Tuning guidelines`**
    page, the **`Parameter reference`** page, and the **`Locations`** catalogue page; create any
    that are missing (schemas below). Unlike the other pages, **`Parameter reference` is
    auto-maintained**: (re-)seed its body from `parameter-reference-template.md` on first create
    **and refresh it on skill updates** — it is not a user-editable layer (see its section below).
-5. Per car: the **`{Car}`** page with its filtered view. Per location/stage referenced by a setup:
+4. Per car: the **`{Car}`** page with its filtered view. Per location/stage referenced by a setup:
    the **`{Location}`** page and **`{Stage}`** page (under `Locations`) with their filtered views.
 
 Never depend on stored page/database IDs — always re-resolve the structure **by name**. (You
 may reuse an ID within a single run once you've found it, but a fresh run must still work.)
 
-**Scope is `Car setups` only — never search broadly.** Once you've resolved the `Car setups`
-root, navigate all deeper structure by name traversal (never issue a workspace-wide Notion search
-to find setup data or guidelines). If a Notion API call returns results from outside `Car setups`,
-discard them before processing. Anything outside that root is out of scope regardless of its
-title or content — never treat it as a guideline, prior setup, or parameter source.
+**Scope is `ACR Setup Engineer` only — never search broadly.** Once you've resolved the
+`ACR Setup Engineer` root, navigate all deeper structure by name traversal (never issue a
+workspace-wide Notion search to find setup data or guidelines). If a Notion API call returns
+results from outside that root, discard them before processing. Anything outside it is out of
+scope regardless of its title or content — never treat it as a guideline, prior setup, or
+parameter source.
 
 ## Reading rows — use the REST query, not the connector
 The Notion **connector cannot list a database's rows** (`notion-fetch` returns schema only;
@@ -44,7 +42,7 @@ prompt the user through the one-time setup rather than substituting an unreliabl
 
 That read path uses a **read-only API token** the user sets up once (see *Give the skill read
 access to Notion* in `README.md`). The token lives on a **`Config`** page directly under the
-`Car setups` root; the skill `notion-fetch`es that page to read it. The `Config` page is
+`ACR Setup Engineer` root; the skill `notion-fetch`es that page to read it. The `Config` page is
 **auto-created** as part of the structure (create-if-missing, seeded from
 [config-page-template.md](config-page-template.md)) carrying the integration-setup instructions and
 an **empty token line** — so the page is normally present even before the user has pasted a token;
@@ -54,25 +52,24 @@ the token back, copy it into other pages, or include it in exports.
 ## Hierarchy
 
 ```
-Car setups (root page)
-├── Config (page)               holds the read-only Notion API token; auto-created with setup
-│                                instructions, token blank until the user pastes it (see "Reading rows")
-└── {Game}                      e.g. ACR
-    ├── Parameters        (DB)  the catalog — one row per Car × Adjustment × Surface
-    ├── Setups            (DB)  one row per setup
-    ├── Tuning guidelines (page) global user preferences (seeded from the template)
-    ├── Parameter reference (page) game parameter glossary — verbatim in-game descriptions of every
-    │                            tunable parameter; seeded AND refreshed from the template; read-only
-    ├── Locations         (page) catalogue parent — created on first stage/location reference
-    │   └── {Location} (page)   e.g. Monte Carlo — facts only, filtered Setups[Location] view
-    │       └── {Stage} (page)  e.g. Col de Turini — facts only (surface, length, key
-    │                            corners/speeds, character), filtered Setups[Stage] view
-    └── {Car} (page)            per car: identity facts (Drivetrain, Engine layout, Weight
-                                 bias, Weight, Max power, Max torque), a "Guidelines" section,
-                                 filtered Setups[Car] view
+ACR Setup Engineer (root page)
+├── Config (page)              holds the read-only Notion API token; auto-created with setup
+│                               instructions, token blank until the user pastes it (see "Reading rows")
+├── Parameters        (DB)     the catalog — one row per Car × Adjustment × Surface
+├── Setups            (DB)     one row per setup
+├── Tuning guidelines (page)   global user preferences (seeded from the template)
+├── Parameter reference (page) parameter glossary — verbatim in-game descriptions of every
+│                               tunable parameter; seeded AND refreshed from the template; read-only
+├── Locations         (page)   catalogue parent — created on first stage/location reference
+│   └── {Location} (page)      e.g. Monte Carlo — facts only, filtered Setups[Location] view
+│       └── {Stage} (page)     e.g. Col de Turini — facts only (surface, length, key
+│                               corners/speeds, character), filtered Setups[Stage] view
+└── {Car} (page)               per car: identity facts (Drivetrain, Engine layout, Weight
+                                bias, Weight, Max power, Max torque), a "Guidelines" section,
+                                filtered Setups[Car] view
 ```
 
-Two DBs **per game** only — car/location/stage pages are **filtered linked views**, never new
+**Two DBs only** — car/location/stage pages are **filtered linked views**, never new
 DBs. A stage is **immutable, shared reference data** — it is created once under `Locations` and
 referenced by any number of setups (any car, any number of times), never duplicated per car.
 
@@ -157,10 +154,10 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   setups write it. The skill self-identifies with its known model name. No predefined options —
   create-or-reuse (Notion adds the option if absent).
   **`Skill version`** is plain **Text** (not Select — it's a free-form string, not a small fixed
-  set) recording **which version of the car-setups skill created this row**: the skill's
+  set) recording **which version of the acr-setup-engineer skill created this row**: the skill's
   `VERSION` file when released, or a `git describe` string for an unreleased source checkout (see
   `SKILL.md` → *Skill version*). Give the column the description *"Which version of the
-  car-setups skill created this row (e.g. v0.3.0, or a git-describe string for source builds)."*
+  acr-setup-engineer skill created this row (e.g. v0.3.0, or a git-describe string for source builds)."*
   Unlike `Model`, it is written on **every** skill-created row — generated, tweaked, **and
   imported** — since it identifies the tool/logic that produced the row, not the model that
   authored values. When
@@ -385,13 +382,13 @@ tags on `Setups` rows, never duplicated per car.
 
 A **stage is reference data, not per-car content**: its road, surface, length, and corners don't
 change depending on which car drives it. So locations and stages live **once**, centrally, under
-the game page, and any number of `Setups` rows (any car) reference them by name via the `Location`
+the root page, and any number of `Setups` rows (any car) reference them by name via the `Location`
 / `Stage` select tags. **Stage/location pages hold objective facts only — never guidelines,
 driving style, or per-build conditions** (those live on the setup itself; see `build-setup.md`
 and *Mobile conventions* below).
 
 ```
-Locations (page)            catalogue parent — created on first reference, under {Game}
+Locations (page)            catalogue parent — created on first reference, under the root
 └── {Location} (page)       e.g. Monte Carlo — region/character facts
     └── {Stage} (page)      e.g. Col de Turini — surface, length, key corners/speeds, character
 ```
@@ -456,7 +453,7 @@ above. More-specific is the default lean; a **material conflict between authored
 surface, per-car, intent) is surfaced to the user to resolve, not auto-picked.**
 
 ## `Parameter reference` page
-A global, per-game **glossary**: the **verbatim in-game descriptions of every tunable parameter**
+A global **glossary**: the **verbatim in-game descriptions of every tunable parameter**
 (what each setting does, grouped by setup screen — Gearbox → Suspension → Dampers → Axles → Wheels →
 Brakes → Differentials → Electronics & Aerodynamics), so the user can read them on a phone without
 opening the game. Seeded from [parameter-reference-template.md](parameter-reference-template.md).
@@ -470,7 +467,7 @@ purely reference and plays no part in the layered tuning model above.
 
 **How to create / refresh (do this exactly):** copy **everything below the `---` line** in
 `parameter-reference-template.md` (the banner + all parameter sections) as the page body.
-- **Create (page absent):** create the page under `{Game}` titled exactly `Parameter reference` and
+- **Create (page absent):** create the page under the root titled exactly `Parameter reference` and
   write that content as its body.
 - **Refresh (page already exists):** **replace** the body — first **delete every existing block on
   the page**, then write the current template content fresh. **Do not append** (appending

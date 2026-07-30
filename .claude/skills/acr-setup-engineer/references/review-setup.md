@@ -9,8 +9,7 @@ base) before starting.
 
 ## Inputs
 - **Setup name** (e.g. `alsace dry fast`). The user can also provide **Car**, **Location**, and/or
-  **Stage** to narrow disambiguation. Game defaults to `ACR`; ask only if the user has setups
-  under multiple games and it's unclear which one.
+  **Stage** to narrow disambiguation.
 
 ## Procedure
 
@@ -20,8 +19,8 @@ base) before starting.
 > facts (step 2) and its Guidelines section (step 3).
 
 ### 1. Identify the setup
-Navigate to `Car setups → {Game} → Setups` DB and find the row matching the given name. Stay
-within `Car setups` scope — do not issue workspace-wide Notion searches.
+Navigate to `ACR Setup Engineer → Setups` DB and find the row matching the given name. Stay
+within `ACR Setup Engineer` scope — do not issue workspace-wide Notion searches.
 
 - **Unique match:** Load all value properties, plus `Car`, `Location`, `Stage`, `Surface`, `Mode`,
   `Notes`, `Rating` (a **1–5 Select**, higher = better; blank = unrated).
@@ -34,7 +33,7 @@ There is nothing to review without values.
 
 ### 2. Load constraints + drivetrain
 Fetch the car's `Parameters` rows **via [notion-rest-read.md](notion-rest-read.md)** (stay within
-`Car setups → {Game} → Parameters`): `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`,
+`ACR Setup Engineer → Parameters`): `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`,
 `Order`, `Surface`. Also read the `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page attribute.
 When the review lists several parameters together, present them in `Order` sequence
 (`notion-structure.md` → *Setups column order*). This workflow is read-only — it never reorders
@@ -51,14 +50,14 @@ Same precedence chain as `build-setup.md` (lowest → highest priority):
    punctuation — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
    it and apply its symptom→fix entries — they override the base principles** for the symptoms they
    name. If no file matches, skip this layer.
-3. **Global user guidelines** — Notion `Tuning guidelines` page under `Car setups / {Game}`.
+3. **Global user guidelines** — Notion `Tuning guidelines` page under `ACR Setup Engineer`.
 4. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
    `Surface` (not a separate page).
 5. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
 The setup's own **driving intent** (its page-body summary) is the most specific layer. Apply only
 lines tagged `[All]` **or the car's drivetrain**. More specific is the default lean, not an
 auto-resolution — if reviewing surfaces a real contradiction between authored layers, note it as
-a finding rather than silently picking a side. Never read content outside `Car setups`.
+a finding rather than silently picking a side. Never read content outside `ACR Setup Engineer`.
 
 ### 4. Load stage facts (if the setup references one)
 Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface, key
@@ -140,7 +139,7 @@ manually.
 
 ## Rules
 - **Append-only** — never modify or delete existing page content; only add to the bottom.
-- **Stay within `Car setups` scope** — same name-resolution and scope rules as every other
+- **Stay within `ACR Setup Engineer` scope** — same name-resolution and scope rules as every other
   workflow.
 - **Drivetrain-aware** — apply only guideline lines tagged `[All]` or the car's drivetrain.
 - **Cite the guideline** — every concern must reference which principle or user guideline it

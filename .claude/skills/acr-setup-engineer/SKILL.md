@@ -1,18 +1,14 @@
 ---
-name: car-setups
-description: A complete system for the whole lifecycle of a personalized car setup for Assetto Corsa Rally (and other rally/racing games), saved to the user's Notion. Setups are tailored to the user's driving style and preferences and get more personal as they rate and learn from past setups. Use when the user wants to onboard a car (capture its tunable parameters from min/max setup-screen screenshots or a bundled template), generate or tweak a setup for a stage from its description and their driving style (optionally starting from an existing setup as a reference, including one from another car), review or share an existing setup from Notion, import existing setups from a save file, export an onboarded car as a shareable community template, or ask questions about setups and tuning (why a setup uses a value, what a parameter does, how to think about ARBs/diffs/springs/etc.). Reads and writes through the user's Notion connection and keeps every value within the car's legal ranges.
+name: acr-setup-engineer
+description: A complete system for the whole lifecycle of a personalized car setup for Assetto Corsa Rally (ACR), saved to the user's Notion. Setups are tailored to the user's driving style and preferences and get more personal as they rate and learn from past setups. Use when the user wants to onboard a car (capture its tunable parameters from min/max setup-screen screenshots or a bundled template), generate or tweak a setup for a stage from its description and their driving style (optionally starting from an existing setup as a reference, including one from another car), review or share an existing setup from Notion, import existing setups from a save file, export an onboarded car as a shareable community template, or ask questions about setups and tuning (why a setup uses a value, what a parameter does, how to think about ARBs/diffs/springs/etc.). Reads and writes through the user's Notion connection and keeps every value within the car's legal ranges.
 ---
 
-# car-setups
+# ACR Setup Engineer
 
-A **complete system for the whole lifecycle of a personalized car setup** for rally games (built
-for **Assetto Corsa Rally**, ACR) — onboard, build, tweak, review, share, import, and explain —
-storing everything in the user's **Notion** via their Notion connection. Setups are **tailored to the
-user's driving style and preferences** and get more personal as the user rates and learns from
-past setups. The **game is chosen at onboarding** (ACR or another game) and data is filed under a
-per-game page; other games are supported with the same workflows, except **save-file import is
-ACR-only**. The bundled glossary and tuning principles are written for ACR but serve as the base
-for **all** games — no game-specific knowledge is shipped.
+A **complete system for the whole lifecycle of a personalized car setup** for **Assetto Corsa
+Rally** (ACR) — onboard, build, tweak, review, share, import, and explain — storing everything in
+the user's **Notion** via their Notion connection. Setups are **tailored to the user's driving
+style and preferences** and get more personal as the user rates and learns from past setups.
 
 A **community template library** lives in `car-templates/` — one YAML file per car with all
 tunable parameters, Min/Max ranges, and Discrete steps pre-filled. When onboarding a car that
@@ -88,21 +84,20 @@ Bundled tools (stdlib Python, run via code execution):
   ("build a gravel setup", "use tarmac parameters") — this overrides the referenced stage's
   surface (or, with no stage, is simply the surface) for the **whole** build (range resolution,
   tyre choice, and surface-tagged guidelines) and becomes the setup row's `Surface`.
-- **ACR tyre fallback + canonical names.** For ACR, the legal `Tyre Type` set is the car's
+- **Tyre fallback + canonical names.** The legal `Tyre Type` set is the car's
   stored `Discrete steps` list **when it specifies one**; only when that cell is blank or
   missing does the legal set fall back to the standard list: `Tarmac Soft, Tarmac Medium,
   Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel
   Hard, Snow (Studs)`. Validate every tyre pick against this effective list. **Every tyre
   value written into a setup must be a fully-qualified name from that list** — never a
   bare/ambiguous value (`Snow` → `Tarmac Snow` or `Snow (Studs)`; `Gravel` →
-  `Gravel Soft/Medium/Hard`; `Dry Tarmac` → `Tarmac Soft/Medium/Hard`). For non-ACR games,
-  use the stored list as-is (no fallback).
+  `Gravel Soft/Medium/Hard`; `Dry Tarmac` → `Tarmac Soft/Medium/Hard`).
 - **Tyre pressure is always two values.** Every setup stores `Pressure Front` and
   `Pressure Rear` as two separate values — never a single combined tyre-pressure value.
-- **Notion scope is `Car setups` only — never search broadly.** Navigate the hierarchy
-  explicitly by name starting from the `Car setups` root; do not issue workspace-wide Notion
+- **Notion scope is `ACR Setup Engineer` only — never search broadly.** Navigate the hierarchy
+  explicitly by name starting from the `ACR Setup Engineer` root; do not issue workspace-wide Notion
   searches to locate setup data, guidelines, or parameters. If a Notion API call returns results
-  from outside `Car setups`, discard them entirely before processing. Out-of-scope content must
+  from outside `ACR Setup Engineer`, discard them entirely before processing. Out-of-scope content must
   never influence setup values, guideline layers, or parameter catalogs, even if it mentions car
   names or setup terms.
 - **Skip `FFB Multiplier`.** It is a controller/display preference, not a car setup parameter —

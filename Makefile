@@ -1,16 +1,16 @@
-# Car-setups skill — common developer tasks.
+# ACR Setup Engineer skill — common developer tasks.
 # Requires: Python 3, git. Works on Mac, Linux, WSL, and Git Bash on Windows.
 # Dev/test dependencies (PyYAML): pip install -r requirements-dev.txt
 #
 # Targets:
 #   make test        run the full test suite
-#   make zip         rebuild dist/car-setups-skill.zip (commit changes first)
+#   make zip         rebuild dist/acr-setup-engineer-skill.zip (commit changes first)
 #   make check-zip   list ZIP entries — verify forward slashes + expected files
 #   make release     create a GitHub draft release with the ZIP asset (edit TAG first)
 #   make all         test + zip (default)
 
 TAG ?= v0.1.0
-VERSION_FILE := .claude/skills/car-setups/VERSION
+VERSION_FILE := .claude/skills/acr-setup-engineer/VERSION
 
 .PHONY: all test zip check-zip release stamp-version
 
@@ -21,9 +21,9 @@ test:
 
 zip:
 	python -c "import os; os.makedirs('dist', exist_ok=True)"
-	git archive --format=zip --prefix=car-setups/ HEAD:.claude/skills/car-setups \
-	  -o dist/car-setups-skill.zip
-	@echo "Built dist/car-setups-skill.zip"
+	git archive --format=zip --prefix=acr-setup-engineer/ HEAD:.claude/skills/acr-setup-engineer \
+	  -o dist/acr-setup-engineer-skill.zip
+	@echo "Built dist/acr-setup-engineer-skill.zip"
 
 check-zip:
 	python check_zip.py
@@ -38,7 +38,7 @@ stamp-version:
 release: stamp-version test zip
 	git tag $(TAG)
 	git push origin main $(TAG)
-	gh release create $(TAG) dist/car-setups-skill.zip \
+	gh release create $(TAG) dist/acr-setup-engineer-skill.zip \
 	  --title "$(TAG)" \
 	  --notes-file RELEASE_NOTES.md \
 	  --draft
