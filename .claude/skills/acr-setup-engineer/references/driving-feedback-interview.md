@@ -51,6 +51,13 @@ decides what happens on **exit**.
 ## Pre-drive briefing
 
 Delivered **before** the user drives — a driver can't report on things they didn't know to notice.
+
+It goes with **whichever setup they're actually about to drive**, and only once that's decided:
+normally the game's default, **after** it has been captured and sanity-checked (`build-setup.md`
+step 5b) — never alongside the screenshot request, since a default that fails the check is never
+driven. When the check rejects the default, the briefing lands before they drive the **built** setup
+instead. The content below is the same either way.
+
 Keep it to a handful of bullets:
 
 1. The corner-phase primer above, in plain words.

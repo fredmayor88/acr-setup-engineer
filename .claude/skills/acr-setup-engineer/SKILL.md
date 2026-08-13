@@ -87,16 +87,29 @@ Bundled tools (stdlib Python, run via code execution):
   For any new setup: if a **captured default** (`Source = default`) exists for this car in this
   context, start from **its values** and move only what the driver's reported symptoms and the build's
   intent justify — parameters nothing points at keep the default's value. If none exists, the default
-  path is to **recommend the user drive the in-game default first**, brief them on what to notice
-  *before* they drive (`references/driving-feedback-interview.md` → *Pre-drive briefing*), and offer
-  to capture it from setup-screen screenshots. This is a **strong recommendation, never a gate** — if
-  the user would rather just have a setup now, build one and say no baseline anchor was used.
+  path is to ask for **setup-screen screenshots of the in-game default first**, capture it, and
+  **check it (below) before recommending a drive** — then brief the user on what to notice
+  *before* they drive (`references/driving-feedback-interview.md` → *Pre-drive briefing*). This is a
+  **strong recommendation, never a gate** — if the user would rather just have a setup now, build one
+  and say no baseline anchor was used.
   **Never infer how the game scopes its defaults** — per stage, per surface, per conditions (a
   wet-tarmac default may differ from dry), or not at all is **unknown and changes between releases**.
   Match on the full capture context, and when a stored default was captured in a *different* context,
   show it to the user and let them confirm it applies rather than assuming. Full procedure:
   `references/build-setup.md` steps 4–6; storage conventions: `references/notion-structure.md` →
   *Default (stock) baseline rows*.
+- **Check the default before anyone drives it — ACR's defaults are sometimes broken.** The game
+  occasionally hands out a setup from the wrong regime entirely (the recurring case: a dry-tarmac
+  setup for the same stage in **snow** conditions). So whenever a default's values are in hand and
+  about to become the anchor — fresh capture, exact-context match, or confirmed reuse — judge them
+  against the build's surface and conditions **before** sending the user out to drive it. The bar is
+  **wrong-regime or self-contradictory, never merely suboptimal** (suboptimal is what the
+  anchor-plus-interview flow is *for*), and the check is **silent when it passes**. Wrong in a few
+  parameters ⇒ **keep the anchor and override just those**, naming them to the user. Wrong across the
+  board ⇒ **tell the user the game's default looks broken**, don't recommend driving it, and build a
+  proper setup with no anchor. A user who wants to drive it anyway gets to. The broken default is
+  still **stored and flagged** as a `Source = default` row, never withheld. Full procedure:
+  `references/build-setup.md` step 5b.
 - **Fix major issues before fine tuning.** When several things could be changed, work the
   **fix-order ladder**: tyre type → differential (preload → ramp angles → plates) → suspension (ride
   height → springs) → ARBs → dampers → alignment (camber, toe) → brake bias (and brake hardware when

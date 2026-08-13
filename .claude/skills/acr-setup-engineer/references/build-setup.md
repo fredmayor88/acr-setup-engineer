@@ -5,13 +5,21 @@ Generate a setup for one car on one stage and append it as a **new row** in the 
 to the car's catalog (legal by construction). Read `setup-tuning-principles.md` (reasoning base)
 and `notion-structure.md` (structure + mobile conventions) before writing.
 
-**Baseline first.** A build is anchored on the **game's own default setup** wherever possible: if a
-captured default exists for this context, the build starts from its values and moves only what the
-driver's feedback justifies; if none exists, the default path is to *recommend the user drive the
-default first*, capture it, and interview them (steps 4–6) rather than generating from scratch. The
-catalog gives legal *ranges* but no sense of where inside them the game itself sits — the captured
-default supplies exactly that, so every later change is a targeted fix instead of a guess. This is a
-strong recommendation, **not a gate**: if the user would rather just have a setup now, build one.
+**Baseline first — but capture and check the default before anyone drives it.** A build is anchored
+on the **game's own default setup** wherever possible: if a captured default exists for this context,
+the build starts from its values and moves only what the driver's feedback justifies. If none exists,
+the default path is to ask for **setup-screen screenshots of the default first**, capture it,
+**sanity-check it**, and only *then* recommend driving it and interview the driver (steps 4–6) —
+never the other way round. The catalog gives legal *ranges* but no sense of where inside them the
+game itself sits; the captured default supplies exactly that, so every later change is a targeted
+fix instead of a guess.
+
+**ACR's defaults are not always sane.** The game sometimes hands out a setup from the wrong regime
+entirely — a dry-tarmac setup for the same stage in snow conditions, say. Driving that wastes a run
+and produces interview symptoms that describe the broken default rather than the car, so **step 5b
+checks the default before the drive is recommended** and, when it doesn't hold up, says so and
+builds a proper setup instead. All of this is a strong recommendation, **not a gate**: if the user
+would rather just have a setup now, build one.
 
 ## Inputs
 - **Car** (e.g. `Lancia Stratos HF`), resolved under the `ACR Setup Engineer` root. If the car
@@ -162,27 +170,27 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
    per surface, per conditions (a wet-tarmac default may well differ from dry), or not at all is
    **unknown and changes between releases**. So:
    - **A default row whose whole context matches this build** (same stage, surface, conditions) →
-     load its values as the **numeric anchor** and continue to step 7.
+     load its values as the **numeric anchor** and go to **step 5b** (the check runs on a stored
+     default too, silently when it passes).
    - **A default row for this car in any differing context** (another stage, another surface, or the
      same surface in different conditions) → don't demand a fresh screenshot pass, and **don't assume
      it transfers**. Show the user the stored values *and the context they were captured under*, and
      ask them to glance at the in-game setup screen here: *"Do these match what the game gives you on
      this stage, in these conditions?"* **Confirmed** → write a `default` row for this context from
-     those values (step 5's write, no screenshots needed) and continue. **Different** → fall through
-     to the capture path below.
-   - **No default row for this car at all** → the recommend-first path:
-     1. In one short message, recommend running the stage on the **in-game default setup** first, and
-        say why: it's the game's own baseline, it's often already decent, and it turns everything
-        after it into a targeted fix rather than a guess.
-     2. Deliver the **pre-drive briefing** from
-        [driving-feedback-interview.md](driving-feedback-interview.md) — the corner-phase vocabulary
-        plus a short "what to pay attention to" list tailored to this stage's facts (step 3), and the
-        gearing prompts. A driver can't report on things they didn't know to notice, so this comes
-        **before** the drive, not after.
-     3. Ask for **setup-screen screenshots of the default** so it can be captured (step 5).
-     4. **Stop here** — don't build yet. **But this is a recommendation, not a gate:** if the user
-        says to build anyway, or would rather not drive the default, go straight on to step 7 and
-        build normally, noting in the report (step 12) and page body (step 11) that no baseline
+     those values (step 5's write, no screenshots needed) and go to **step 5b**. **Different** → fall
+     through to the capture path below.
+   - **No default row for this car at all** → the **screenshots-first** path:
+     1. In one short message, say the game's own default setup is the anchor the build starts from —
+        it's the game's baseline, it's often already decent, and it turns everything after into a
+        targeted fix rather than a guess — and ask for **setup-screen screenshots of the default**
+        for *this* stage in *these* conditions (step 5 captures them).
+     2. **Don't ask them to drive anything yet, and don't deliver the pre-drive briefing here.** The
+        default gets captured and sanity-checked (step 5b) *before* a drive is recommended, because
+        ACR sometimes gives out a default from the wrong regime and driving that wastes a run. The
+        briefing lands in step 5b, right before whichever setup they're actually sent to drive.
+     3. **Stop here** — don't build yet. **But this is a recommendation, not a gate:** if the user
+        says to build anyway, or would rather not bother with the default, go straight on to step 7
+        and build normally, noting in the report (step 12) and page body (step 11) that no baseline
         anchor was used.
 
 5. **Capture the default (when the screenshots arrive).** Use the **conditions settled in step 3** —
@@ -209,7 +217,68 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
    re-capture adds a **new** row and the most recent matching context wins. Full conventions:
    `notion-structure.md` → *Default (stock) baseline rows*.
 
-6. **Interview the driver.** When the user reports back from the default drive, run
+   The values are now captured — but **not yet judged fit to drive**. Go to step 5b.
+
+5b. **Sanity-check the baseline before recommending a drive.** Run this whenever a default's values
+   are in hand and about to become the anchor — a fresh capture (step 5), an exact-context match, or
+   a user-confirmed reuse (step 4). **ACR's defaults are sometimes from the wrong regime entirely**
+   (the recurring case: a dry-tarmac setup offered for the same stage in snow conditions), and the
+   numbers say so before anyone drives it.
+
+   **The bar is *wrong-regime or self-contradictory*, not *suboptimal*.** A default that's merely
+   not ideal is exactly what the anchor-plus-interview flow exists for — don't fail it. Only fail a
+   default that **can't be right** for this surface and these conditions.
+
+   Judge the values against the **build surface + conditions fixed in step 3**, the car's identity
+   facts (step 1) and the surface-resolved ranges, reusing the checks that already exist:
+   - [setup-tuning-principles.md](setup-tuning-principles.md) → *Surface guidance (starting bias)* —
+     the expected regime per surface (tarmac low/stiff, higher pressure; gravel high/soft; snow very
+     high/very soft; bumpy → compliance).
+   - [review-setup.md](review-setup.md) → *Internal consistency* — the same coherence tensions
+     (very soft springs with very stiff dampers, tyre vs surface, brake bias vs weight bias).
+
+   Red flags, heaviest first:
+   1. **Tyre compound wrong for the surface/conditions** — a `Tarmac …` compound on a gravel or snow
+      stage, a dry compound in wet/snow conditions. The heaviest flag: tyre sits at the top of the
+      fix-order ladder, so everything downstream of it is being judged on the wrong grip level.
+   2. **Whole-car regime mismatch** — tarmac-low ride height with stiff springs/ARBs on gravel or
+      snow, or the reverse (gravel-high and floppy on tarmac).
+   3. **Values pinned at a range extreme** with no plausible reason for this surface.
+   4. **Internal incoherence** per the reference above.
+
+   If **conditions were left blank in step 3** (the user didn't know), judge on **surface alone** and
+   say that's what was judged — never infer conditions to manufacture a verdict.
+
+   Then take one of three routes:
+   - **Sensible** (the common case) → say so in **one line**, deliver the **pre-drive briefing** from
+     [driving-feedback-interview.md](driving-feedback-interview.md) (corner-phase vocabulary, a short
+     "what to pay attention to" list tailored to this stage's facts, the gearing prompts), ask them to
+     drive it, and **stop** — step 6 picks up when they report back. **On a stored default that
+     passes, stay silent**: no commentary, no write. Don't re-litigate a baseline on every repeat build.
+   - **Locally broken** — a few parameters are wrong-regime but the rest is plausible → **keep the
+     default as the anchor and override only the flagged parameters** (step 8). Name them in plain
+     language and say why (*"the game's giving you tarmac tyres on a snow stage — I've swapped those
+     and left the rest of its numbers alone"*). **Don't send them to drive the default** — build now;
+     they drive the built setup, with the pre-drive briefing delivered before *that* drive.
+   - **Broadly broken** — wrong regime across the board (the dry-tarmac-on-snow case) → say plainly
+     that **the game's default looks broken for this context**, and what's wrong with it. **Don't
+     recommend driving it.** Build now with **no baseline anchor** (step 8's from-scratch path),
+     briefing them before they drive the built setup, and say so in the report (step 12) and page
+     body (step 11).
+
+   **Never a gate.** If the user wants to drive the default anyway, accept it without arguing and
+   continue the normal path (briefing → drive → step 6).
+
+   **Record the verdict on the default row** — for a row captured or written this run, always; for a
+   previously stored row, only when it **fails**. A one-line dated verdict in `Notes`, plus a visible
+   dated **"Baseline assessment"** block in the page body (same placement and shape as "Captured
+   under" — not inside a toggle): the verdict, what was flagged, and how it was handled (anchored with
+   overrides / no anchor / driven anyway). Conventions: `notion-structure.md` → *Default (stock)
+   baseline rows*.
+
+6. **Interview the driver.** Only when the default was actually driven (step 5b's *sensible* route,
+   or a user who chose to drive it anyway) — a rejected default is never driven, so this step is
+   skipped and the build goes straight on. When the user reports back from the default drive, run
    [driving-feedback-interview.md](driving-feedback-interview.md): the opening triage, then the
    symptom families and the gearing sub-interview, in small batches and plain language. Persist the
    result as that file's *Recording the outcome* section describes — a one-line dated verdict in the
@@ -244,7 +313,8 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
    `Snow`, fall back to a `Gravel` row before the baseline; see
    [notion-rest-read.md](notion-rest-read.md)) — **no step grid, no interpolation**.
 
-   - **Anchor on the baseline when one exists (step 4).** Start from the **default's values** and
+   - **Anchor on the baseline when one exists (step 4) and it passed step 5b.** Start from the
+     **default's values** and
      move a parameter **only** when the interview symptoms (step 6) or the driving intent justify it.
      Every departure is reasoned and reported as `default → new`. A parameter with nothing pointing
      at it **keeps the default's value** — that's the whole point of the anchor, and it does not
@@ -254,6 +324,14 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
      parallel), fixing the major problem before the fine tuning — see
      [driving-feedback-interview.md](driving-feedback-interview.md) → *Fix-order ladder*. **What the
      driver actually reported outranks the ladder.**
+   - **A baseline that failed step 5b** changes what the anchor is worth:
+     - **Locally broken** → the anchor still holds for everything that wasn't flagged. **Re-derive
+       each flagged parameter from principles** (surface guidance + guidelines + intent, as if there
+       were no baseline for it) instead of inheriting the default's value, work them in ladder order,
+       and report them as `default → new` alongside any symptom-driven moves — with the reason being
+       the step 5b flag, not a driver symptom (there was no drive).
+     - **Broadly broken** → there is **no anchor**: derive every parameter from principles, exactly
+       as when no default exists at all.
    - **Tyre type is always re-derived**, even with a baseline — it follows the build surface, never
      the default's compound.
    - **Tyre pressure is always two values** — choose `Pressure Front` and `Pressure Rear` separately,
@@ -359,7 +437,10 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
        - What prior `Learn from this` setups contributed, or *"no prior setups used"* if none.
        - Whether the build was **anchored on a captured default** (name the baseline row) or built
          from scratch with **no baseline anchor**, and the headline symptoms from the interview that
-         drove the changes.
+         drove the changes. When step 5b flagged the default, say so here: which parameters were
+         **overridden because the game's default was wrong for this context** (locally broken), or
+         that the default was **rejected outright and never driven** (broadly broken), and what was
+         wrong with it.
      This is the same information as the step 12 chat report, stored permanently so the user can revisit
      the reasoning on their phone without expanding the detail toggle.
      - Then, when the car has toe parameters, one **visible** line (not in a toggle — it's read
@@ -369,7 +450,9 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
    - When a baseline anchor was used (step 4), add a toggle **"Changes from the stock baseline"** —
      one line per parameter that moved: `default value → new value` + a one-line reason, in
      fix-order ladder order. Parameters left at the default are **not** listed; say how many were
-     held. (Same shape as `tweak-setup.md`'s "Changes from {source}" toggle.)
+     held. (Same shape as `tweak-setup.md`'s "Changes from {source}" toggle.) A parameter moved
+     because step 5b flagged it says so as its reason (*"the default's tarmac compound can't work on
+     snow"*) rather than citing a driver symptom.
    - Below it, the **per-parameter justification inside a toggle** — grouped by section and ordered by
      each parameter's **`Order`** (the in-game screen sequence: Gearbox → Suspensions → Dampers →
      Axles → Differentials → Wheels/Tyres → Brakes → Electronics & Aerodynamics, Front before Rear).
@@ -383,7 +466,10 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
    applied, and whether any checked prior setups were learned from. State whether the build was
    **anchored on a captured default** — if so, how many parameters moved off it and how many were
    held; if not, say plainly that **no baseline anchor was used** and that driving the game's default
-   first would make the next iteration sharper. If a **cross-car reference** was
+   first would make the next iteration sharper. **When step 5b flagged the default**, lead with that
+   in plain language: what the game got wrong for this context, and either which parameters were
+   overridden around it (locally broken) or that it was rejected and **not driven** so the build
+   carries no anchor (broadly broken). If a **cross-car reference** was
    used, call out where the build diverged from it and why (one line). **Confirm in one line that
    you asserted the column order** (step 11) on the affected views — if you can't, you skipped a
    required step: go back and do it before finishing. Link the new row; remind the
@@ -413,9 +499,15 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
   auto-onboard from it (announce, no Yes/No gate) before building; no template ⇒ ask the user to
   onboard via screenshots (`onboard-car.md`) and don't build until the catalog exists.
 - **Baseline first, but never a gate (steps 4–6).** With a captured default for this context, anchor
-  on it and move only what the driver's feedback justifies. Without one, recommend driving the game's
-  default, brief the user *before* they drive, and offer to capture it — then build anyway the moment
-  they ask.
+  on it and move only what the driver's feedback justifies. Without one, ask for the default's
+  **screenshots first**, capture it, and check it — then build anyway the moment they ask.
+- **Capture and check before the drive (step 5b).** Never send the user out to drive a default that
+  hasn't been sanity-checked against this surface and these conditions. The pre-drive briefing goes
+  with the drive that actually happens, not with the screenshot request.
+- **A broken default is said out loud, not driven.** Wrong-regime in a few parameters ⇒ keep the
+  anchor and override just those, naming them. Wrong-regime across the board ⇒ say the game's default
+  looks broken, build with no anchor, and don't recommend driving it. The bar is *wrong-regime or
+  self-contradictory*, never *suboptimal* — and a user who wants to drive it anyway gets to.
 - **Never infer how the game scopes its defaults** (per stage / surface / conditions / car). Reuse
   across any differing context is **user-confirmed**, never assumed.
 - **Hold the default's tyre pressures** unless a symptom points at them; ACR's pressure model isn't

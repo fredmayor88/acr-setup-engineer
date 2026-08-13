@@ -249,6 +249,25 @@ columnar, also record the whole thing in prose:
 That block is what `build-setup.md` step 4 shows the user when a stored default was captured in a
 different context.
 
+### Baseline assessment — the verdict on whether the default is usable
+
+ACR sometimes gives out a default from the **wrong regime** for the context (a dry-tarmac setup for
+a stage in snow conditions). Before a default is used as an anchor — and before the user is ever sent
+out to drive it — `build-setup.md` **step 5b** judges it against the build's surface and conditions.
+
+- **A default judged broken is still written and kept**, exactly like any other capture. It's a
+  factual record of what the game gave; withholding it would only cost a re-screenshot later. It is
+  simply **flagged**, so a later build reads the verdict instead of re-litigating it.
+- The verdict lives in two places, mirroring the "Captured under" convention:
+  - a **one-line dated verdict in `Notes`**, readable in the table without opening the page;
+  - a visible dated **"Baseline assessment"** block in the page body (*not* inside a toggle), next to
+    "Captured under": the verdict, what was flagged, and how it was handled — anchored with
+    overrides, no anchor at all, or driven anyway at the user's request.
+- **Written whenever the row is captured or written this run; on a previously stored row, only when
+  the check fails.** A stored default that passes is left untouched — no churn on repeat builds.
+- Dated and **appended**, the same way driving-feedback records are (below), so a row can carry
+  assessments from several builds.
+
 ## Driving feedback records (collapsed + dated)
 
 The output of a `driving-feedback-interview.md` session is stored so it survives the chat, without

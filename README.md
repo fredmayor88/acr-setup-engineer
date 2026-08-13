@@ -52,7 +52,8 @@ steps out on every hairpin"* into the two settings actually responsible.
 
 ```mermaid
 flowchart LR
-    A["Name your car and stage<br/>— one sentence"] --> B["Drive the default<br/>setup once"]
+    A["Name your car and stage<br/>— one sentence"] --> S["Screenshot the game's<br/>default setup"]
+    S --> B["It checks the default,<br/>then you drive it once"]
     B --> C["Say how it felt<br/>in your own words"]
     C --> D["Get a setup + the reason<br/>for every number, in Notion"]
     D --> E["Drive it.<br/>Report back."]
@@ -71,10 +72,15 @@ did the whole back end step out?"* Every term gets explained the moment it comes
 sure" is always allowed.**
 
 **It starts from the default setup — not from nowhere.**
-Before it builds anything, it tells you to drive the default setup once, and tells you *what to pay
-attention to before you go* so you know what you're feeling for. Then it reads the game's numbers
-off a screenshot. Every change after that is a deliberate move away from a known reference —
-not a guess dressed up as engineering.
+Before it builds anything, it asks for a screenshot of the game's default setup and reads its
+numbers. Every change after that is a deliberate move away from a known reference — not a guess
+dressed up as engineering. Then it tells you to drive that default once, and tells you *what to pay
+attention to before you go* so you know what you're feeling for.
+
+**And it won't send you out on a default the game got wrong.**
+ACR sometimes offers a setup from the wrong regime entirely — dry tarmac tyres for the same stage in
+snow. It checks the default before you drive it: if it's sensible, off you go. If it isn't, it says
+so, tells you what's wrong with it, and builds you a proper one instead of wasting your run.
 
 **It fixes the big thing first.**
 Nothing is more useless than fine-tuning your dampers while the differential is wrong. It works a
@@ -258,7 +264,8 @@ length, elevation change, how tight or flowing it is, what the corners are like.
 in the catalogue once and sharpen every setup built for that stage afterwards. Don't know the
 name, or would rather not bother? Describe it in a sentence; that works fine too.
 
-**The first run on a new car/stage starts with the default setup** — see the flow below. It's a
+**The first run on a new car/stage starts with the default setup** — screenshot it, and it gets
+captured, checked, and (if it holds up) driven before anything is built; see the flow below. It's a
 strong recommendation, never a gate: say *"just build me one"* and it will, noting that no baseline
 anchor was used.
 
@@ -331,19 +338,28 @@ flowchart TD
 
     Ctx["Load: legal ranges, drivetrain + car facts,<br/>your guidelines, stage facts,<br/>surface and conditions"] --> Base{"Captured default setup<br/>for this car, stage<br/>and conditions?"}
 
-    Base -->|"exact match"| Anchor
+    Base -->|"exact match"| Check
     Base -->|"different context"| Ask["Show the stored values and the context<br/>'does the game give you these here?'"]
-    Base -->|"none"| Brief["Pre-drive briefing:<br/>what to pay attention to,<br/>in plain language"]
+    Base -->|"none"| Shots["Screenshot the game's default setup<br/>— before driving anything"]
 
-    Ask -->|"confirmed"| Anchor
-    Ask -->|"different"| Capture
+    Ask -->|"confirmed"| Check
+    Ask -->|"different"| Shots
+
+    Shots --> Capture["Values read off the screenshots,<br/>saved as a Source=default row"]
+    Capture --> Check{"Does the default make sense<br/>for this surface<br/>and these conditions?"}
+
+    Check -->|"yes"| Brief["Pre-drive briefing:<br/>what to pay attention to,<br/>in plain language"]
+    Check -->|"a few values are wrong"| Over["Keep the default as the anchor,<br/>override just the broken values<br/>— and say which"]
+    Check -->|"wrong setup entirely<br/>e.g. dry tarmac on snow"| Broken["'The game's default looks broken here'<br/>no drive, no anchor — build one instead"]
 
     Brief --> Drive["You drive the default setup"]
-    Drive --> Capture["Screenshot the setup screen<br/>saved as a Source=default row"]
-    Capture --> Interview["Guided interview:<br/>what did the car actually do?"]
+    Drive --> Interview["Guided interview:<br/>what did the car actually do?"]
     Interview --> Anchor
 
-    Brief -.->|"or: just build me one"| Choose
+    Over --> Anchor
+    Broken --> Choose
+
+    Shots -.->|"or: just build me one"| Choose
 
     Anchor["Anchor on the default setup's numbers"] --> Choose["Move only what the symptoms and<br/>the build intent justify, in fix order:<br/>diff, ride height and springs,<br/>ARBs, dampers, alignment, brakes"]
 
