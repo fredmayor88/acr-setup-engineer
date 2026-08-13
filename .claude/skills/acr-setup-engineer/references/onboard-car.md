@@ -83,7 +83,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 
 3. **Extract each Adjustment.** For every tunable row, capture `Section`, `Adjustment`
    (canonical name — reuse names already in the catalog), `Min` (from the min shot), `Max`
-   (from the max shot), `Unit`. Mind sign conventions (e.g. negative camber). **Never skip a
+   (from the max shot), `Unit`. Mind sign conventions (e.g. negative camber). Record every range
+   **exactly as the screen shows it** — in particular **don't "fix" toe**: ACR's toe sign is
+   inverted (positive = toe-out; `SKILL.md` → *ACR's toe sign is inverted*), and the catalog stores
+   screen values, so the min/max go in unconverted. **Never skip a
    row that appears on screen** — if a parameter shows `—` in both screenshots, still create
    the row with Min=`—`, Max=`—` and flag it for user enumeration; only omit a row if it is
    absent from the screenshots entirely.

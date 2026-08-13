@@ -51,7 +51,11 @@ Answer from `setup-tuning-principles.md`:
   `parameter-reference-template.md`**, not from memory — these
   conventions vary between games and are easy to invert. Example: for the LSD ramp question, the
   base states **"Lower ramp angle = more lock"** — so a **30/30** ramp is more locked than a
-  **45/45** one; answer by citing that line, not by asserting it unsourced.
+  **45/45** one; answer by citing that line, not by asserting it unsourced. **Toe is the
+  standing trap**: ACR's setup screen shows it with an **inverted** sign (game bug), so
+  **positive = toe-out, negative = toe-in** — the opposite of most sims. Answer any toe-direction
+  question from that line (`parameter-reference-template.md` → *Toe*, `SKILL.md` → *ACR's toe sign
+  is inverted*), and mention the inversion whenever you explain or quote a toe value.
 - **"Basic rules for X?"** → give the heuristics: the *Balance cheat-sheet (which way to push)*,
   the *General rule* ("stiffer where you want less grip/more response; softer where you want more
   grip/compliance"), and the *Workflow / methodology* ordering (tyre first → survival before

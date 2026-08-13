@@ -82,6 +82,12 @@ range (the row for the setup's `Surface`; `Snow` falls back to `Gravel`, then ba
 - Otherwise → the value must be within `Min..Max` (inclusive).
 Any violation is a **hard error** — list every one found; do not suppress or soften them.
 
+> **Toe values read inverted** (`SKILL.md` → *ACR's toe sign is inverted*): a **positive** stored
+> toe is toe-**out**, a **negative** one is toe-**in**. Judge the alignment of a toe value by that
+> direction — e.g. a positive front toe on a turn-in-focused setup is *well-supported*, not a
+> concern — and state the direction in words whenever the review mentions a toe number, with the
+> one-line inversion warning. Any suggested alternative is likewise given as a screen number.
+
 **b. Guideline alignment**
 For each filled parameter, judge whether the value is consistent with the drivetrain-filtered
 guidelines for this surface, the stage facts, and the setup's own stated driving intent. Classify
@@ -156,3 +162,5 @@ manually.
   not a vague direction.
 - **Hard errors first** — constraint violations are listed before everything else and never
   softened.
+- **Toe sign is inverted** — positive = toe-out, negative = toe-in; say which direction a toe value
+  actually gives and warn about the inversion whenever the review quotes one.

@@ -116,6 +116,14 @@ Each time the user gives feedback, run one round — **all in chat, no Notion wr
 
   The user may correct any proposed value here — re-validate any user-supplied value against the
   catalog before accepting it.
+- **Toe changes — the game's sign is inverted** (`SKILL.md` → *ACR's toe sign is inverted*).
+  Decide the direction physically (more front toe-out to sharpen turn-in, more rear toe-in to
+  steady the exit), then express it as the **setup-screen number**: toe-out ⇒ **positive**, toe-in
+  ⇒ **negative**; more toe-out = number **up**, more toe-in = number **down**. Read the working
+  setup's current toe the same way (positive = toe-out) and never convert a stored value. Whenever
+  a round's change table contains a toe row, append the one-line warning under it: *"Note: ACR
+  shows toe with an **inverted sign** — the proposed `{value}` is toe-**{out/in}**. Enter it
+  exactly as given."*
 - **Apply the changes to the in-chat working setup** — the proposed values become the new current
   values, so the **next** round's "Current" column reflects everything so far. Then tell the user
   to **test in-game and report back**, and iterate. **Do not write to Notion.**
@@ -165,6 +173,8 @@ When the user asks to save (and not before):
   bullet above them, since intent has no DB column):
   1. Toggle **"Changes from {source name}"** — each parameter changed over the session: old value →
      new value + one-line rationale.
+  Plus, when the car has toe parameters, the same **visible** toe-sign warning line a build writes
+  (`build-setup.md` step 11): positive = toe-out, negative = toe-in, enter exactly as stored.
   2. Toggle **"Full justification"** — per-section reasoning for every parameter (same format as
      `build-setup`: grouped by section and ordered by each parameter's `Order`; short headings +
      bullets), covering changed and unchanged parameters so the reasoning is self-contained.
@@ -193,6 +203,8 @@ braking effect."* Omit it when the car has no brake disc/caliper params.
 - **Interview on vague feedback** — when the user can't pin down what's wrong, run
   `driving-feedback-interview.md` before proposing values; a wrong diagnosis wastes the whole round.
 - **Major before fine** — order changes by the fix-order ladder; the user's own words override it.
+- **Toe sign is inverted** — toe-out ⇒ positive, toe-in ⇒ negative; read stored toe the same way,
+  never convert it, and warn the user whenever a toe value is proposed or saved.
 - **Cite the reason** — every changed parameter must reference the feedback phrase, guideline tag,
   or stage fact driving it.
 - **Stay within `ACR Setup Engineer` scope** — same name-resolution rules as every other workflow.

@@ -355,6 +355,13 @@ Electronics & Aerodynamics (8000) (Additional Lights toggle not captured — omi
   TCS Map ......................... 8020
 ```
 
+> **Stored values are setup-screen values.** Every value column holds the number **as the game's
+> setup screen shows it**, never a normalised or sign-corrected one. This matters for `Toe Front` /
+> `Toe Rear`: ACR's toe sign is **inverted** (positive = toe-**out**, negative = toe-**in**), and
+> both `Parameters` ranges and `Setups` values keep that convention untouched — the interpretation
+> happens in the reasoning and in the warning shown to the user (`SKILL.md` → *ACR's toe sign is
+> inverted*).
+
 **Car-specific extras** not in this list (AWD centre/front diffs, damper bump/rebound *transitions*,
 engine/throttle map, master-cylinder variants, adjustable aero, …) get a number **inside the right
 section block**, from their screenshot position (e.g. a centre diff between the front & rear diff

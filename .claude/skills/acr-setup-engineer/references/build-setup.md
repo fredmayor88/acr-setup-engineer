@@ -262,6 +262,11 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
      pressures** and move them only on a reported pressure symptom — ACR's pressure model isn't
      physically sensible, so the game's own numbers beat the skill's reasoning. Without a baseline,
      fall back to that file's **ACR pressure rule** (start in the upper half of the legal range).
+   - **Toe — the game's sign is inverted** (`SKILL.md` → *ACR's toe sign is inverted*): decide the
+     direction physically (front toe-out for turn-in, rear toe-in for exit stability — the rally
+     default), then write it as the **setup-screen number**: toe-out ⇒ **positive**, toe-in ⇒
+     **negative**. Read a baseline's / reference's stored toe the same way (positive = toe-out).
+     Never convert a stored value — flag it in the report (step 12) instead.
 
    If a parameter is pulled in conflicting directions by two
    authored layers (global/surface/per-car guidelines vs. the stated intent) in a way that
@@ -357,6 +362,10 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
          drove the changes.
      This is the same information as the step 12 chat report, stored permanently so the user can revisit
      the reasoning on their phone without expanding the detail toggle.
+     - Then, when the car has toe parameters, one **visible** line (not in a toggle — it's read
+       while entering values in-game): *"⚠️ Toe: ACR's setup screen has an **inverted** toe sign —
+       positive = toe-**out**, negative = toe-**in**. Enter the row's toe values exactly as stored
+       ({front value} = toe-{out/in} front, {rear value} = toe-{out/in} rear)."*
    - When a baseline anchor was used (step 4), add a toggle **"Changes from the stock baseline"** —
      one line per parameter that moved: `default value → new value` + a one-line reason, in
      fix-order ladder order. Parameters left at the default are **not** listed; say how many were
@@ -386,6 +395,12 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
    user comes back with how it drove and wants changes, switch to the refine loop
    (`tweak-setup.md`) and iterate **in chat** — don't rebuild from scratch; if what they say is
    vague ("it felt off"), run [driving-feedback-interview.md](driving-feedback-interview.md) first.
+   - **Toe sign warning — always include it when the setup has toe values.** Add this one-line note
+     to the chat report: *"Note: ACR's setup screen shows toe with an **inverted sign** (game bug) —
+     a **positive** value is toe-**out**, a **negative** value is toe-**in**. The numbers above are
+     already in the game's convention, so enter them exactly as given: `Toe Front {value}` gives you
+     toe-{out/in} at the front, `Toe Rear {value}` gives toe-{out/in} at the rear."* Fill in the
+     actual directions from the chosen values. Omit it only if the car has no toe parameters.
    - **Brake disc/caliper availability caveat.** If the setup includes **both** a `Brake Discs`
      and a `Brake Calipers` selection (front and/or rear), add this one-line note to the chat
      report: *"Note: the in-game **calipers available depend on the selected brake disc**, so this
@@ -405,6 +420,9 @@ strong recommendation, **not a gate**: if the user would rather just have a setu
   across any differing context is **user-confirmed**, never assumed.
 - **Hold the default's tyre pressures** unless a symptom points at them; ACR's pressure model isn't
   physically sensible, so the game's numbers beat the skill's reasoning.
+- **Toe sign is inverted** — pick the direction physically, write the screen number (toe-out ⇒
+  positive, toe-in ⇒ negative), store/read it unconverted, and **warn the user** in both the page
+  body and the chat report.
 - **Fix major before fine** — work the ladder (tyre → diff → height/springs → ARBs → dampers →
   alignment → brake bias), and let what the driver actually reported override it.
 - Legal by construction: pick from `Discrete steps` when set, else a target within `Min..Max`

@@ -164,7 +164,16 @@ Rear Toe In enhances cornering stability by creating lateral force and improving
 
 Rally setups often use slight Front Toe Out for better responsiveness and Rear Toe In for balanced cornering stability. Toe settings balance stability and agility based on driving needs.
 
-**Sign convention in ACR:** negative values = toe-out; positive values = toe-in.
+**⚠️ Sign convention in ACR — the setup screen's toe sign is inverted (game bug).** *(Skill note,
+not in-game text.)* The number the setup screen shows does the **opposite** of what its sign
+suggests:
+
+- **positive** toe value → the wheels point **outwards** = toe-**out**
+- **negative** toe value → the wheels point **inwards** = toe-**in**
+
+So the usual rally alignment — **front toe-out + rear toe-in** — is entered as a **positive front
+toe** and a **negative rear toe**. Enter the numbers exactly as given; they are already written in
+the setup screen's (inverted) convention, so don't flip them yourself.
 
 ### Tyre Type
 

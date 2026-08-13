@@ -143,6 +143,11 @@ It doesn't get in your way, and there's plenty here for you:
 
 - **Assetto Corsa Rally is in early access.** Tyres, physics and settings shift between builds.
   Treat every setup as a strong, reasoned starting point — verify in-game.
+- **The game's toe sign is inverted** (an ACR bug): a **positive** toe value in the setup screen
+  actually points the wheels **outwards** (toe-out), a negative one points them inwards (toe-in).
+  The skill knows this — it picks toe with the inversion in mind, gives you the number to type in
+  as-is, and reminds you of it every time it hands you toe values. Enter them exactly as given;
+  don't flip the sign yourself.
 - **This won't make you fast on its own.** It removes the guessing from setup work. The driving is
   still yours.
 - **It needs Notion** for the full experience (free account is fine). Save-file recovery works

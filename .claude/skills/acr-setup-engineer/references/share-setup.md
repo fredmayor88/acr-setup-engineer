@@ -42,6 +42,18 @@ never writes to Notion.
    followed by `Built with: {Model}`. Omit the line entirely for imported setups (where
    `Model` is blank).
 
+   **Toe sign note — include it whenever the snippet contains a toe value.** After the last
+   section (before any `Built with:` line), append a blank line and:
+
+   ```
+   Note: ACR's setup screen shows toe with an inverted sign — positive = toe-OUT,
+   negative = toe-IN. Enter these values exactly as shown.
+   ```
+
+   It travels with the snippet because whoever pastes it into the game needs it. Repeat it in one
+   line of chat outside the block too (`SKILL.md` → *ACR's toe sign is inverted*). Toe values are
+   shared **as stored** — never converted.
+
 ### Example output
 
 ```
@@ -69,10 +81,18 @@ Brake balance: 58 %
 ABS: 3
 TCS: 2
 
+Note: ACR's setup screen shows toe with an inverted sign — positive = toe-OUT,
+negative = toe-IN. Enter these values exactly as shown.
+
 Built with: Sonnet 4.6/normal
 ```
 
+(In this example the front toe `0.1` is toe-**out** and the rear `-0.1` is toe-**in** — the usual
+rally alignment.)
+
 ## Rules
 - Never write to or modify Notion — this workflow is strictly read-only.
+- **Toe sign is inverted** — share values as stored and carry the toe note inside the snippet
+  whenever it contains a toe value.
 - No justifications in the snippet; those live in the Notion page toggles.
 - Scope reads to `ACR Setup Engineer` only — do not search the workspace broadly.

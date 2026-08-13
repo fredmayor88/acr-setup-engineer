@@ -350,6 +350,13 @@ sideways; front toe-in adds straight-line stability but resists turning (underst
 `[RWD]`); rear toe-out adds rotation/oversteer. **Don't overdo toe** — it scrubs and slows the
 car. Rally default: **front toe-out + rear toe-in**.
 
+> **⚠️ Sign is inverted in ACR (game bug).** The setup screen's toe value does the *opposite* of
+> what its sign suggests: **positive = toe-out** (wheels point outwards), **negative = toe-in**.
+> So the rally default above is entered as **front positive, rear negative**; "more toe-out" means
+> moving the number **up**, "more toe-in" means moving it **down**. Values are always stored and
+> reported in this screen convention — never converted — and the user is **warned** about the
+> inversion whenever toe values are handed to them (`SKILL.md` → *ACR's toe sign is inverted*).
+
 ### Brakes `[All]`
 
 **Front bias** — forward bias makes the front lock first → understeer (predictable, planted

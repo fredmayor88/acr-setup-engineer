@@ -298,7 +298,10 @@ hides cause and effect.
    car handle the surface (no bottoming, no floating), then worry about under/oversteer.
 4. **ARBs**.
 5. **Dampers**.
-6. **Wheel angles** — camber, toe.
+6. **Wheel angles** — camber, toe. (A toe cause named anywhere above is a **direction** —
+   "more front toe-out", "less rear toe-out". Turning it into a value uses ACR's **inverted** toe
+   sign: toe-out ⇒ **positive**, toe-in ⇒ **negative** — see `SKILL.md` → *ACR's toe sign is
+   inverted*.)
 7. **Brake bias** — and brake hardware (calipers/discs/master cylinder) when the complaint is
    hardware-scale: *barely brakes* or *locks instantly*.
 

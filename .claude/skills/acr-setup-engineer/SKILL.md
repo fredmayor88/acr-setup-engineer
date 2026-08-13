@@ -124,6 +124,21 @@ Bundled tools (stdlib Python, run via code execution):
   `Gravel Soft/Medium/Hard`; `Dry Tarmac` → `Tarmac Soft/Medium/Hard`).
 - **Tyre pressure is always two values.** Every setup stores `Pressure Front` and
   `Pressure Rear` as two separate values — never a single combined tyre-pressure value.
+- **ACR's toe sign is inverted (game bug) — reason in directions, write the screen number.** In
+  ACR's setup screen a toe value does the **opposite** of what its sign suggests: a **positive**
+  toe value points the wheels **outwards** (toe-**out**), a **negative** one points them
+  **inwards** (toe-**in**). Every toe number the skill stores, reads, or shows is the value **as it
+  appears in the setup screen** — never a "corrected" physical value — so nothing is ever converted
+  on read or write; only the *reasoning* maps:
+  - want **toe-out** (front turn-in bite, rear rotation) → choose a **positive** value;
+  - want **toe-in** (front straight-line stability, rear exit stability) → choose a **negative** value;
+  - reading an existing / captured / imported value → **positive = toe-out, negative = toe-in**.
+  The rally default (**front toe-out + rear toe-in**) is therefore **front positive, rear
+  negative**. **Whenever you give the user toe values** — build report, tweak change table, review,
+  share snippet, import preview — add a one-line warning that ACR's toe sign is inverted, saying
+  which direction the given numbers actually produce and that they must be entered **exactly as
+  given** (don't flip them). Authoritative statement:
+  `references/parameter-reference-template.md` → *Toe*.
 - **Notion scope is `ACR Setup Engineer` only — never search broadly.** Navigate the hierarchy
   explicitly by name starting from the `ACR Setup Engineer` root; do not issue workspace-wide Notion
   searches to locate setup data, guidelines, or parameters. If a Notion API call returns results
@@ -250,4 +265,6 @@ standard ACR lists for `Tyre type`/brake pads); the user completes it (see
 - **LSD ramp (power/coast)**: lower angle = more lock. **Preload / plates** = base lock / number
   of friction plates.
 - **ARB**: front stiffer → understeer; rear stiffer → oversteer.
+- **Toe sign (ACR bug)**: positive setup-screen value = toe-**out**; negative = toe-**in** (see the
+  core rule above).
 - **Surfaces**: tarmac (stiffer, higher pressure), gravel & snow (softer, lower pressure).

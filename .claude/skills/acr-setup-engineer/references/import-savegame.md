@@ -98,6 +98,12 @@ select/copy cleanly. Inside each car's block:
 
 List any parser `warnings` for that car **below** the block (outside the fences), not inside it.
 
+**Toe sign.** Saved toe values are in the game's own (inverted) convention — **positive =
+toe-out, negative = toe-in** (`SKILL.md` → *ACR's toe sign is inverted*). Import and store them
+**exactly as parsed**, never converted, and when a printed block contains a toe row add one line
+below it noting the inversion and which direction each setup's toe actually gives. Interpret them
+the same way if you later reason about an imported setup.
+
 ### 4. Notion available, or chat-only?
 Try to resolve the **`ACR Setup Engineer`** root via the Notion connector (per `notion-structure.md`).
 - **Connector available** → continue to step 5 (write to Notion).
