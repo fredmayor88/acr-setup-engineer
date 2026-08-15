@@ -189,7 +189,7 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
 2. **Enable code execution, Skills, and network.** Settings → **Capabilities** → turn on **Code
    execution** and **Skills**. Then set **Network egress** to **All domains** — the skill calls
    Notion's API from the code sandbox and can't reach it otherwise.
-3. **Add the skill.** Download **`acr-setup-engineer-skill.zip`** from
+3. **Add the skill.** Download **`acr-setup-engineer-skill-vX.Y.Z.zip`** (the latest version) from
    [Releases](../../releases). claude.ai → Settings → **Customize → Skills → Add skill** →
    upload the ZIP.
 4. **Onboard your first car.** New chat: *"Onboard the Lancia Stratos HF for Assetto Corsa
@@ -634,4 +634,5 @@ The skill source lives in [.claude/skills/acr-setup-engineer/](.claude/skills/ac
 a self-contained Claude Skill (`SKILL.md` + bundled `references/`, `car-templates/` and
 `car-troubleshooting/`). It also works as a project skill in Claude Code. See
 [CLAUDE.md](CLAUDE.md) for the full release procedure; the short version: `make zip` builds
-`dist/acr-setup-engineer-skill.zip`, then `make release TAG=vX.Y.Z` drafts the GitHub release.
+`dist/acr-setup-engineer-skill-<version>.zip` (named after the `VERSION` file it contains), then
+`make release TAG=vX.Y.Z` drafts the GitHub release.

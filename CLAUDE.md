@@ -21,7 +21,14 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
     Read by `build-setup.md` (baseline-first flow) and `tweak-setup.md` (vague feedback).
   - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
 - [README.md](README.md) — end-user docs (claude.ai install + usage).
-- `Makefile` — `make zip` builds `dist/acr-setup-engineer-skill.zip`; cross-platform (Mac, Linux, WSL, Git Bash on Windows).
+- `Makefile` — `make zip` builds `dist/acr-setup-engineer-skill-<version>.zip`, where `<version>` is
+  read from **HEAD's** `VERSION` file so the filename always matches the `VERSION` inside the
+  archive (`make check-zip` enforces that). On an unstamped checkout that's the previous release's
+  tag, so build the ZIP *after* `stamp-version` — which `make release` already does. `make clean`
+  removes `dist/`. Cross-platform (Mac, Linux, WSL, and Windows from **both** Git Bash and
+  PowerShell/cmd). **Keep recipes free of shell-specific syntax** — make uses cmd.exe when invoked
+  from PowerShell, where `2>/dev/null`, `||`, `rm -rf` and `echo > file` all misbehave; do that work
+  in `python -c` instead. Assume GNU Make 3.81 (no `$(file <...)`).
 
 The skill is **self-contained** (it bundles its own references) so it works both uploaded to
 claude.ai and as a project skill in Claude Code. There is **no separate Notion bootstrap** — the
@@ -47,11 +54,12 @@ For each release:
    bullet per change, optionally under a `What's new in vX.Y.Z:` line) — first review the full
    `git log`/`git diff` since the previous tag so no change is missed. Exclude maintainer-only
    churn (e.g. CLAUDE.md working notes, the VERSION stamp).
-3. `make check-zip` — verify entries use forward slashes and `SKILL.md` is at the top (run after
+3. `make check-zip` — verify entries use forward slashes, `SKILL.md` is at the top, and the
+   version in the ZIP filename matches the `VERSION` file inside it (run after
    step 4 below produces a ZIP, or rerun once `make release` has).
 4. `make release TAG=vX.Y.Z` — stamps `VERSION` to the tag and commits it (so the archived skill
    self-reports its release version — see *Skill version* in `SKILL.md`), runs `make test`,
-   rebuilds `dist/acr-setup-engineer-skill.zip` from that committed tree, tags, pushes, and creates a
+   rebuilds `dist/acr-setup-engineer-skill-vX.Y.Z.zip` from that committed tree, tags, pushes, and creates a
    draft GitHub release with the ZIP attached.
 5. **Manual smoke test on claude.ai**: upload the ZIP (Settings → Customize → Skills → Create
    skill), attach min/max screenshots, say "onboard my car" — confirm Notion structure is
