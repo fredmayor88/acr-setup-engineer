@@ -28,9 +28,20 @@ car and its rows are **already in hand**; see the note in step 1.
   requested car **using [notion-rest-read.md](notion-rest-read.md)** (the connector can't list
   rows reliably — this is what made export slow and incomplete). Follow the same name-resolution
   rules as other workflows (resolve by name, no hardcoded IDs; stay within `ACR Setup Engineer` scope).
-  Read each row's optional **`Surface`** tag too — a car may have a baseline row (blank `Surface`)
-  **and** a surface-specific row (e.g. `Gravel`) for the same `Adjustment`; export **both**.
-  Read each row's **`Order`** too (the display position — emitted as `order:` in the YAML).
+- **Read every field of every row** — the export is a full snapshot, not a range dump. Per row:
+  `Section`, `Adjustment`, `Min`, `Max`, `Unit`, **`Discrete steps`**, **`Order`**, and the optional
+  **`Surface`**.
+  - **`Discrete steps` is the field most often lost — carry it for every row that has one.** It is
+    **user-owned and usually filled *after* onboarding** (`onboard-car.md` step 9 asks the user to
+    enumerate `—` rows and to pin coarse numerics like spring stiffness / ARB), so a screenshot-onboarded
+    car typically has steps in Notion that were never part of the extraction. It is also **not limited
+    to `—` rows**: a numeric row with a real `Min..Max` may carry a step list, and that list must
+    export too. Whatever the Notion cell holds, it goes into `discrete_steps`.
+  - **`Surface`**: a car may have a baseline row (blank `Surface`) **and** a surface-specific row
+    (e.g. `Gravel`) for the same `Adjustment`; export **both**, each with its own `Discrete steps`.
+  - **`Order`** is the display position — emitted as `order:` in the YAML.
+  The REST read (`notion-rest-read.md`) returns these as row keys already, `Discrete steps` included
+  (blank `""` means the cell is genuinely empty). Don't drop keys when building the in-memory catalog.
 - Read the car's `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page.
 - Also read the car-level identity fields from the `{Car}` page, when present: `Engine layout`
   (front/mid/rear), `Weight bias` (front/balanced/rear), `Weight` (approximate kerb weight,
@@ -44,6 +55,14 @@ car and its rows are **already in hand**; see the note in step 1.
 the `Surface` tags, the `Order`s and the identity facts from the run that just wrote them
 (`SKILL.md` → *Read efficiently*). Re-reading Notion here is a wasted round trip against data you
 authored seconds ago. Start at step 2.
+
+**Exception — the user has since edited Notion.** The shortcut is only valid while the in-memory
+rows still match Notion. If, after the onboarding write, the user filled or changed **any** cell in
+the `Parameters` DB — most commonly the `Discrete steps` the step 9 report asked them to enumerate,
+whether they say so or you offered the export after they reported doing it — those edits exist
+**only in Notion** and your in-memory rows are stale. **Re-read the car's rows via
+`notion-rest-read.md`** (step 1) before formatting, and export from the fresh read. When in doubt,
+re-read: one extra query is cheaper than shipping a template with empty `discrete_steps`.
 
 ### 2. Completeness check
 Before formatting, scan for gaps and warn (but do NOT block the export):
@@ -98,8 +117,12 @@ parameters:
 Rules:
 - `min` and `max`: use a bare number (no quotes) for numeric values; use `"—"` (quoted em-dash)
   for named-selection parameters.
-- `discrete_steps`: use a comma-separated string for filled values (e.g.
-  `"Short, Medium, Long"`); use an empty string `""` for blank entries.
+- `discrete_steps`: **emit the line for every parameter**, carrying the row's Notion `Discrete steps`
+  cell **verbatim** as a comma-separated string (e.g. `"Short, Medium, Long"`, or
+  `"42300, 50000, 57700, 65400, 73100"`). Normalise only whitespace (single space after each comma);
+  never re-order, abbreviate, summarise, round, or truncate a list, and never replace a long list
+  with a range. This applies to **numeric** rows too — a row with a real `Min..Max` **and** a step
+  list exports both. Use an empty string `""` **only** when the Notion cell is actually blank.
 - `unit`: empty string `""` when there is no unit.
 - `order`: the integer display position (section-blocked, e.g. `2020`; see `notion-structure.md`
   → *Setups column order*). Emit the `Order` read from Notion; if a row has none, fall back to the
@@ -126,7 +149,22 @@ Rules:
 - Use double quotes around all string values; no quotes around numbers.
 - Produce clean YAML — no trailing spaces, consistent 2-space indentation.
 
-### 5. Present to user
+### 5. Verify the YAML against the source rows
+Before showing anything, check the generated YAML back against the rows you read — silent drops are
+the failure mode this export has actually had:
+
+- **Row count**: one YAML entry per source row (baseline **and** surface-tagged rows).
+- **`discrete_steps`**: the number of entries with a **non-empty** `discrete_steps` equals the number
+  of source rows whose `Discrete steps` cell is non-blank, and each such list matches its source cell
+  item-for-item. A row that has steps in Notion but exports `""` is a **bug, not a gap** — fix it (and
+  re-read Notion if your rows might be stale, per step 1's exception) rather than reporting it in the
+  gap warning.
+- **`order` / `surface`**: every row that had an `Order` carries it; every surface-tagged row keeps
+  its `surface:` line and every baseline row omits it.
+
+Only the genuinely blank cells from step 2 may appear as `""`.
+
+### 6. Present to user
 Always show the YAML as a fenced code block in chat regardless of what else is available:
 
 ````
@@ -143,7 +181,7 @@ Then tell the user:
 > `lancia-stratos-hf.yaml`. Once committed, the skill will offer it automatically to anyone who
 > onboards this car."
 
-### 6. Offer to share it with the community
+### 7. Offer to share it with the community
 After showing the code block, invite the user to contribute it back — warmly, and without any
 pressure:
 

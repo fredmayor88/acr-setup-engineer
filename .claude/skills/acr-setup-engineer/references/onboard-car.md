@@ -406,7 +406,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
     community*. On a yes, run `export-car-template.md` from the top (it still needs its **Game
     version** input — ask for it there). **You already hold every row from this run: don't re-fetch
     the car's `Parameters` from Notion** (`SKILL.md` → *Read efficiently*); pick that workflow up at
-    its completeness check with the rows in hand.
+    its completeness check with the rows in hand — **unless the user has edited Notion since the
+    step 7 write** (typically filling the `Discrete steps` this report asked for). Those edits live
+    only in Notion, so in that case re-read the car's rows first (`export-car-template.md` step 1 and
+    its *Exception*) — an export missing the user's `Discrete steps` is useless to whoever imports it.
 
     **Never pressure, and never gate anything on it.** A "no" (or no answer) ends the topic —
     onboarding is already complete either way.
