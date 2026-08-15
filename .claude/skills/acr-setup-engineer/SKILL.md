@@ -1,6 +1,6 @@
 ---
 name: acr-setup-engineer
-description: A complete system for the whole lifecycle of a personalized car setup for Assetto Corsa Rally (ACR), saved to the user's Notion. Setups are tailored to the user's driving style and preferences and get more personal as they rate and learn from past setups. Use when the user wants to onboard a car (capture its tunable parameters from min/max setup-screen screenshots or a bundled template), generate or tweak a setup for a stage from its description and their driving style (optionally starting from an existing setup as a reference, including one from another car), review or share an existing setup from Notion, import existing setups from a save file, export an onboarded car as a shareable community template, or ask questions about setups and tuning (why a setup uses a value, what a parameter does, how to think about ARBs/diffs/springs/etc.). Reads and writes through the user's Notion connection and keeps every value within the car's legal ranges.
+description: A complete system for the whole lifecycle of a personalized car setup for Assetto Corsa Rally (ACR), saved to the user's Notion. Setups are tailored to the user's driving style and preferences and get more personal as they rate and learn from past setups. Use when the user wants to onboard a car (capture its tunable parameters from min/max setup-screen screenshots or a bundled template, plus its identity facts from the in-game car info screen), generate or tweak a setup for a stage from its description and their driving style (optionally starting from an existing setup as a reference, including one from another car), review or share an existing setup from Notion, import existing setups from a save file, export an onboarded car as a shareable community template, or ask questions about setups and tuning (why a setup uses a value, what a parameter does, how to think about ARBs/diffs/springs/etc.). Reads and writes through the user's Notion connection and keeps every value within the car's legal ranges.
 ---
 
 # ACR Setup Engineer
@@ -21,7 +21,7 @@ Pick the matching workflow and read its file before acting:
 
 | If the user wants to… | Follow |
 |---|---|
-| Onboard a car / capture its tunable parameters (from min & max screenshots) | `references/onboard-car.md` |
+| Onboard a car / capture its tunable parameters (from min & max screenshots, plus the car info screen for its identity facts) | `references/onboard-car.md` |
 | Build a setup for a stage | `references/build-setup.md` |
 | Tweak / refine a setup, or describe a handling problem to work through (problem → tweak → test loop) | `references/tweak-setup.md` |
 | Work out **what's actually wrong** with how the car feels — guided questions after a drive, when the user can't put it into words (then continue into `tweak-setup.md` / `build-setup.md` with the diagnosis) | `references/driving-feedback-interview.md` |

@@ -7,6 +7,9 @@ weight_bias: "~56% front / ~44% rear (approx. — model knowledge, verify if you
 weight: "~760–790 kg (lightened aluminium-panel GTA; ~760 kg race evolution, ~790 kg homologation)"
 max_power: "163 hp at 8400 rpm"
 max_torque: "148 Nm at 6500 rpm"
+class: "Group 2/4 · H3"
+gearbox: "Manual 5-speed"
+steering_lock: "1332°"
 version: "0.4"
 parameters:
   - section: "Gearbox"

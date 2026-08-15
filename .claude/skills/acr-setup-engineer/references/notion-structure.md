@@ -65,7 +65,8 @@ ACR Setup Engineer (root page)
 │       └── {Stage} (page)     e.g. Col de Turini — facts only (surface, length, key
 │                               corners/speeds, character), filtered Setups[Stage] view
 └── {Car} (page)               per car: identity facts (Drivetrain, Engine layout, Weight
-                                bias, Weight, Max power, Max torque), a "Guidelines" section,
+                                bias, Weight, Max power, Max torque, Class, Gearbox,
+                                Steering lock), a "Guidelines" section,
                                 filtered Setups[Car] view
 ```
 
@@ -457,14 +458,19 @@ the first place is a separate operation — see *Creating an inline linked view*
    - **`Weight`** (approximate kerb weight, e.g. `~950 kg`).
    - **`Max power`** (peak power with rpm, e.g. `250 hp at 7700 rpm`).
    - **`Max torque`** (peak torque with rpm, e.g. `260 Nm at 6000 rpm`).
+   - **`Class`** (the in-game class badges, e.g. `Group 2/4 · H3`).
+   - **`Gearbox`** (transmission type and gear count, e.g. `Manual 5-speed`).
+   - **`Steering lock`** (total lock in degrees, e.g. `1332°`).
 
    These are **car facts that inform tuning reasoning — not tunable parameters**; they never go in
-   the `Parameters` DB. Any field the skill can't determine confidently is stored as the literal
-   **`couldn't determine`** so the user knows it was attempted and can edit it by hand. Engine
-   layout / weight bias / weight / max power / max torque are populated during onboarding (see
-   `onboard-car.md`); the user may overwrite any of them at any time. **Max power / max torque may be
-   left blank** — unlike the others they aren't web-looked-up on the screenshot path (the user is
-   only asked for them optionally), so a blank field is normal rather than `couldn't determine`.
+   the `Parameters` DB. All nine are populated during onboarding (see `onboard-car.md` step 5),
+   which resolves each field down a ladder — **car information screenshot → bundled template →
+   model knowledge → web lookup → ask the user (last resort)** — so most come straight off the
+   in-game car info screen. Any field still unresolved at the end of that ladder is stored as the
+   literal **`couldn't determine`** so the user knows it was attempted and can edit it by hand.
+   The user may overwrite any of them at any time, and a later onboarding refresh **won't clobber a
+   hand-edited value** — it fills blanks and `couldn't determine`s, and surfaces a conflict rather
+   than silently resolving it.
 2. **H2 "Setups"** heading — immediately followed by the `Setups[Car=this]` filtered linked
    view (hide blank columns).
 3. **H2 "Guidelines"** heading — free-text car-specific preferences (seeded as a stub,

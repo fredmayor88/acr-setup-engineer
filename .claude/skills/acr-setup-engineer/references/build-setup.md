@@ -92,8 +92,12 @@ would rather just have a setup now, build one.
      bundled-template path**: write every template row into `Parameters` (with `Order` /
      `Discrete steps` / `Surface`) in **one `notion-create-pages` call**, add all the `Setups`
      value columns in **one `notion-update-data-source` call** (`SKILL.md` → *Batch Notion
-     writes*), and set the car's `Drivetrain` + identity facts (`Engine layout` / `Weight bias` /
-     `Weight`) from the template. **Skip** onboarding's interactive "Use this template? (Yes/No)"
+     writes*), and set the car's `Drivetrain` + **every identity fact the template carries**
+     (`Engine layout` / `Weight bias` / `Weight` / `Max power` / `Max torque` / `Class` /
+     `Gearbox` / `Steering lock` — see `notion-structure.md` → *Car page*) from the template.
+     A build has no car information screenshot to fall back on, so **don't run step 5's lookup
+     ladder here** — leave whatever the template lacks unset and move on; a later
+     `onboard-car.md` run fills it in. **Skip** onboarding's interactive "Use this template? (Yes/No)"
      prompt **and** its optional gravel pass (the template already carries any `Surface` rows).
      **Don't add a separate Yes/No gate** — announce it in one line (*"{Car} isn't onboarded yet,
      but I have a bundled template — I'll onboard it from the template first, then build your

@@ -9,10 +9,18 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 
 ## Inputs
 - **Car name** (e.g. `Lancia Stratos HF`).
-- The car's **drivetrain** (FWD / RWD / AWD) — derive it from which differential sections the car
-  has:
+- The car's **drivetrain** (FWD / RWD / AWD) — read it off the **car information screenshot**
+  below, which states it outright (`RWD` / `FWD` / `AWD`, next to the drivetrain icon). Without
+  that shot, derive it from which differential sections the car has:
   `Differentials.Front` + `Differentials.Rear` (or any `Differentials.Centre`) ⇒ **AWD**;
   front-only ⇒ **FWD**; rear-only ⇒ **RWD**. Confirm with the user if unclear.
+- **Car information screenshot, attached in the chat:** the in-game **car info / HISTORY** screen —
+  the one whose right-hand panel lists the car's name, year, class badges, `Engine`, `Max Power`,
+  `Max Torque`, `Weight`, and the drivetrain / transmission / steering-lock icons, next to the
+  history prose. **This is the primary source for the car's identity facts** (step 5) — one shot
+  instead of a lookup. Ask for it alongside the min/max pass. It is **optional**: if the user
+  doesn't have it, identity facts fall through the rest of the ladder in step 5. It is **not** a
+  source of tunable parameters — nothing on it goes into `Parameters`.
 - **Screenshots, attached in the chat:** two passes of the Car Setup screens —
   - a **min** set (every setting dialed to its minimum), and
   - a **max** set (every setting dialed to its maximum).
@@ -51,9 +59,11 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
        path. In the report (step 9), note which parameters still have a blank `Discrete steps`
        despite being a `—`-type param, and call them out for user enumeration as usual.
        The `drivetrain` field in the template sets the car's drivetrain. If the template carries
-       the optional `engine_layout`, `weight_bias`, `weight`, `max_power`, or `max_torque` fields,
-       use them directly for the car identity facts in step 5 — no lookup needed (see the
-       determination step below). An
+       the optional `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`, `class`,
+       `gearbox`, or `steering_lock` fields, use them directly for the car identity facts in step 5
+       — no lookup needed (see the determination step below). For any identity field the template
+       **lacks**, still work step 5's ladder: an older template may predate several of these fields,
+       and a car information screenshot (if the user has one) fills them in a single shot. An
        optional `save_ids` field (the exact in-save car string, used only by save-file import to
        match the car) needs no action here — it doesn't affect the screenshot/template catalog;
        carry it through untouched.
@@ -75,11 +85,15 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
    content looks complete, proceed with the chosen source and upsert the extracted values.
 
 2. **Read the attached screenshots** and pair each min shot with its max shot by the setup
-   screen it shows. If a screen is missing, say so — don't guess its ranges.
+   screen it shows. If a screen is missing, say so — don't guess its ranges. **Set the car
+   information screenshot aside** — it has no min/max pair and contributes no `Parameters` rows;
+   it feeds step 5 only.
    **Before the user uploads:** remind them (1) to take this pass on a **tarmac stage (e.g.
-   Alsace)** — it's the baseline (see step 8 for the optional gravel pass); and (2) to include
+   Alsace)** — it's the baseline (see step 8 for the optional gravel pass); (2) to include
    screenshots of every setup tab, even tabs that show *"Not available for this car"* — those
-   screenshots tell the skill which categories to skip cleanly.
+   screenshots tell the skill which categories to skip cleanly; and (3) to add **one shot of the
+   car information / HISTORY screen** so the identity facts come straight off the game instead of
+   a lookup (step 5).
 
 3. **Extract each Adjustment.** For every tunable row, capture `Section`, `Adjustment`
    (canonical name — reuse names already in the catalog), `Min` (from the min shot), `Max`
@@ -169,32 +183,68 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 4. **Confirm before writing.** Show the assembled table (`Section`, `Adjustment`, `Min`, `Max`,
    `Unit`) and **flag any uncertain reads**. Proceed on the OK.
 
-5. **Determine the car's identity facts (engine layout, weight bias, weight, max power, max
-   torque).** These are **real-world facts about the physical car** — the game does not expose them —
-   and they inform tuning balance (see `setup-tuning-principles.md`). They are **car facts, not
-   tunable parameters**, and are stored on the `{Car}` page (next to `Drivetrain`), never in
-   `Parameters`. Resolve each in this order, stopping at the first confident source:
-   1. **Template** — if onboarding from a bundled template that carries `engine_layout`,
-      `weight_bias`, `weight`, `max_power`, or `max_torque`, use those values directly; no lookup.
-   2. **Model knowledge** — for a well-known car, state the facts directly (e.g. *"Lancia Stratos —
+5. **Determine the car's identity facts.** These describe **the car itself**, not what can be tuned
+   on it; they inform tuning balance (see `setup-tuning-principles.md`). They are **car facts, not
+   tunable parameters** — every one of them is stored on the `{Car}` page (step 7), never in
+   `Parameters`. The full set:
+
+   | Field | Example |
+   |---|---|
+   | `Drivetrain` | `RWD` |
+   | `Engine layout` | `front longitudinal inline-4 (1290 cc DOHC), driving the rear wheels` |
+   | `Weight bias` | `~56% front / ~44% rear` |
+   | `Weight` | `760 kg` |
+   | `Max power` | `163 hp at 8400 rpm` |
+   | `Max torque` | `148 Nm at 6500 rpm` |
+   | `Class` | `Group 2/4 · H3` |
+   | `Gearbox` | `Manual 5-speed` |
+   | `Steering lock` | `1332°` |
+
+   **Resolve each field independently, stopping at the first confident source** — a single car
+   normally draws from several rungs at once (weight off the screenshot, weight bias off the web):
+
+   1. **Car information screenshot** — the primary source when the user attached one. Read it
+      directly; no lookup, no confirmation needed for what it states outright. See *What the info
+      screen does and doesn't give* below.
+   2. **Bundled template** — when onboarding from a template carrying `engine_layout`,
+      `weight_bias`, `weight`, `max_power`, `max_torque`, `class`, `gearbox`, or `steering_lock`,
+      use those values directly. If a template value **materially disagrees** with the info
+      screenshot, **prefer the screenshot** (it is what this build of the game actually models) and
+      note the discrepancy in the report.
+   3. **Model knowledge** — for a well-known car, state the facts directly (e.g. *"Lancia Stratos —
       mid-rear transverse V6 behind the driver, ~44% front / ~56% rear, ~950 kg"*).
-   3. **Web lookup (optional)** — if web search/fetch is available in this session and the car is
-      unfamiliar, look up the **engine layout** (descriptive placement — where the engine sits
-      and how it's oriented, e.g. *"mid-rear transverse V6 behind the driver"*), the **weight
-      bias** (front/rear percentages, e.g. *"~44% front / ~56% rear"*, derived from the
-      approximate front/rear weight distribution), and the **approximate kerb weight**. If web access is **not** available, skip silently.
-   - This is a factual *car* lookup — it is **distinct** from the "Notion scope only / never search
-     broadly" rule, which governs *setup-data* search, not real-world research. The lookup never
-     produces a setup value.
-   - **Max power / max torque** are the exception: they come **directly from the template** when one
-     is used. On the **screenshot path**, don't web-look them up — just **optionally ask** the user
-     for peak power and torque (*"Optionally, what's this car's max power and torque? Helps context —
-     skip it if you don't know."*). They're **not crucial**: if the user skips or doesn't know,
-     **leave the field blank** (not `couldn't determine`).
+   4. **Web lookup** — if web search/fetch is available in this session, look up whatever is still
+      missing: the **engine layout** (descriptive placement — where the engine sits and how it's
+      oriented), the **weight bias** (front/rear percentages, derived from the approximate
+      front/rear weight distribution), the **approximate kerb weight**, peak **power**/**torque**,
+      the competition **class**, **gearbox** and **steering lock**. If web access is **not**
+      available in this session, skip this rung silently.
+      This is a factual *car* lookup — **distinct** from the "Notion scope only / never search
+      broadly" rule, which governs *setup-data* search, not real-world research. The lookup never
+      produces a setup value.
+   5. **Ask the user — last resort only.** Only for fields still unresolved after rungs 1–4. Ask
+      **once**, in a single batched question listing just the gaps (*"Two things I couldn't pin
+      down for the {Car}: its weight bias and steering lock. Know either? Fine to skip."*) — never
+      one question per field, and never for a field the screenshot already answered.
+
+   **What the info screen does and doesn't give:**
+   - **Stated outright** — `Drivetrain`, `Weight`, `Max power`, `Max torque`, `Class` (the badges,
+     e.g. `GROUP 2/4` + `H3`), `Gearbox` (from the transmission icon, e.g. `Manual 5` ⇒
+     `Manual 5-speed`), `Steering lock` (the degrees figure, e.g. `1332°`). Record these
+     **exactly as shown**, units included.
+   - **Partial** — `Engine layout`. The panel gives only the cylinder configuration (e.g.
+     `Inline 4`); **placement and orientation** (front/mid/rear, longitudinal/transverse) are not
+     in the panel. Read the **history prose** on the same screenshot first — it frequently states
+     displacement, layout and construction — then fall through to rungs 3–4 to complete it. Combine
+     into one descriptive string rather than storing the bare cylinder count.
+   - **Never shown** — `Weight bias`. It always falls through to rungs 2–5.
+
    - **Confirm with the user** before storing: show each value with its **source and confidence**,
-     and let them correct it. For any value not found confidently, record the literal
-     **`couldn't determine`** so the user can fill it in by hand later — **except max power / max
-     torque, which are left blank when not provided** (see the bullet above).
+     and let them correct it. Values read straight off the screenshot can be shown as settled
+     (source: *info screen*); flag inferred or web-sourced ones as such.
+   - For any field still unresolved after the whole ladder — including a field the user was asked
+     about and didn't know — record the literal **`couldn't determine`** so the user can fill it
+     in by hand later.
    - **Never block onboarding** over a missing identity fact — record what you have (or
      `couldn't determine`) and continue.
 
@@ -236,11 +286,14 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      `SHOW` list from the bundled script (`… --all --show-order`) and set the main `Setups` table
      view's `SHOW` to it.
      Creation order does **not** drive the rendered table — the view's `SHOW` directive does.
-   - **Record the car's identity facts** on the `{Car}` page: `Drivetrain`, and the
-     `Engine layout` / `Weight bias` / `Weight` / `Max power` / `Max torque` resolved in step 5
-     (write `couldn't determine` for any of engine layout / weight bias / weight that weren't found;
-     leave `Max power` / `Max torque` **blank** when not provided). These live on the page next to
-     each other — never as `Parameters` rows.
+   - **Record the car's identity facts** on the `{Car}` page — **all nine resolved in step 5**:
+     `Drivetrain`, `Engine layout`, `Weight bias`, `Weight`, `Max power`, `Max torque`, `Class`,
+     `Gearbox`, `Steering lock` (write the literal `couldn't determine` for any the ladder didn't
+     resolve). Write them **together in one page update**, not field by field. They live on the
+     page next to each other — never as `Parameters` rows. On a **refresh** of an
+     already-onboarded car, fill in fields that are blank or hold `couldn't determine`, and update
+     any the info screenshot now answers outright; **don't overwrite a value the user has edited
+     by hand** unless the screenshot contradicts it, in which case show both and let them choose.
    - **Seed the `{Car}` page body in this order** (create sections that are missing; never
      overwrite existing content). The linked view is **not** page markdown — create it with
      `notion-create-view`, never as a `<linked-view />`-style placeholder (`notion-structure.md` →
@@ -290,11 +343,15 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
         range is unchanged (it stays a single blank-`Surface` row). If the `Parameters` DB has no
         `Surface` property yet, add it first (per `notion-structure.md` create-if-missing).
 
-9. **Report.** Rows added/updated, the recorded drivetrain, the car's identity facts
-   (`Engine layout` / `Weight bias` / `Weight` / `Max power` / `Max torque`, noting any stored as
-   `couldn't determine` — or, for max power / max torque, left blank — for the user to fill in), any
-   **surface-specific `Gravel` rows** created (list which parameters differ
-   from the tarmac baseline), and anything flagged uncertain.
+9. **Report.** Rows added/updated, and the car's identity facts as written to the `{Car}` page —
+   all nine (`Drivetrain` / `Engine layout` / `Weight bias` / `Weight` / `Max power` /
+   `Max torque` / `Class` / `Gearbox` / `Steering lock`), **each with the rung it came from**
+   (info screen / template / model knowledge / web / you), so the user can see what was read off
+   the game and what was inferred. Call out any stored as `couldn't determine` for the user to fill
+   in, and any template-vs-screenshot discrepancy. Then: any **surface-specific `Gravel` rows**
+   created (list which parameters differ from the tarmac baseline), and anything flagged uncertain.
+   **If no car information screenshot was attached**, mention once that one shot of the in-game car
+   info screen would have settled most of these — useful next time, not worth redoing now.
    **Tell the user about `Discrete steps`:** any parameter can be pinned to an exact set of
    values by filling its `Discrete steps` cell in Notion (e.g. spring stiffness
    `42300, 50000, 57700, 65400, 73100`, or gear set `1, 2, 3`).
@@ -321,6 +378,13 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      Non-blocking — they can be used immediately — but strongly recommended.
 
 ## Rules
+- **Identity facts are never `Parameters` rows**, and the car information screenshot is never a
+  source of tunable ranges. It answers step 5 only; the min/max setup-screen passes remain the
+  sole source of the catalog.
+- **Asking the user is the last resort for identity facts.** Work the ladder — info screenshot →
+  template → model knowledge → web lookup — and only then ask, once, batched, for whatever is
+  still missing. Never open onboarding by asking the user to type facts the game or the web can
+  supply.
 - Prefer canonical `Adjustment` names so `Setups` columns stay consistent across cars. If a car
   uses different wording for a familiar parameter, accept it and record it as shown — never
   reject or flag a parameter for non-standard naming. New parameter names are simply added to

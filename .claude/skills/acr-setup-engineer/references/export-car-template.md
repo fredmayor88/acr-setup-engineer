@@ -29,9 +29,10 @@ parameter file for a car.
 - Read the car's `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page.
 - Also read the car-level identity fields from the `{Car}` page, when present: `Engine layout`
   (front/mid/rear), `Weight bias` (front/balanced/rear), `Weight` (approximate kerb weight,
-  e.g. `~950 kg`), `Max power` (e.g. `250 hp at 7700 rpm`), and `Max torque` (e.g.
-  `260 Nm at 6000 rpm`). These may be blank or hold the literal `couldn't determine` — carry
-  whatever is there. They are car facts, **not** rows in the `Parameters` DB.
+  e.g. `~950 kg`), `Max power` (e.g. `250 hp at 7700 rpm`), `Max torque` (e.g.
+  `260 Nm at 6000 rpm`), `Class` (e.g. `Group 2/4 · H3`), `Gearbox` (e.g. `Manual 5-speed`), and
+  `Steering lock` (e.g. `1332°`). These may be blank or hold the literal `couldn't determine` —
+  carry whatever is there. They are car facts, **not** rows in the `Parameters` DB.
 - If no rows are found, tell the user the car hasn't been onboarded yet and stop.
 
 ### 2. Completeness check
@@ -69,6 +70,9 @@ weight_bias: "{front/rear percentages, e.g. ~44% front / ~56% rear}"
 weight: "{approx kerb weight, e.g. ~950 kg}"
 max_power: "{peak power with rpm, e.g. 250 hp at 7700 rpm}"
 max_torque: "{peak torque with rpm, e.g. 260 Nm at 6000 rpm}"
+class: "{in-game class badges, e.g. Group 2/4 · H3}"
+gearbox: "{transmission type and gear count, e.g. Manual 5-speed}"
+steering_lock: "{total lock in degrees, e.g. 1332°}"
 version: "{game version the parameters were captured in, e.g. 0.4 — or unknown}"
 parameters:
   - section: "{Section}"
@@ -95,10 +99,12 @@ Rules:
   `Surface` is set); **omit the line entirely for baseline rows** (blank `Surface`). A parameter
   whose range differs on gravel appears as two entries: the baseline (no `surface`) and a second
   with `surface: "Gravel"`.
-- `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`: **optional** car-level
-  header fields. Emit each only when the `{Car}` page has a value; omit the line entirely if blank.
-  If the page holds the literal `couldn't determine`, carry it through as-is. These are not
-  parameters.
+- `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`, `class`, `gearbox`,
+  `steering_lock`: **optional** car-level header fields. Emit each only when the `{Car}` page has a
+  value; omit the line entirely if blank. If the page holds the literal `couldn't determine`, carry
+  it through as-is. These are not parameters. All are optional in both directions — a template
+  predating any of them still imports cleanly, and onboarding fills the gaps from the car
+  information screenshot or a lookup (`onboard-car.md` step 5).
 - `save_ids`: **optional** list of the exact in-save car string(s) ACR writes for this car (the
   `car` field the save-file parser emits, e.g. `"MiniCooperS1275"`, `"LanciaRally037Evo2"`). It lets
   **save-file import** (`import-savegame.md` step 5.2) match a save to this template **reliably** —
@@ -181,7 +187,8 @@ pressure:
   this `version` (major.minor), import validates and snaps that setup's values to the catalog
   ("official parse") instead of writing them as-is; an `"unknown"` version simply skips that check
   (import falls back to the as-is path). The `save_ids` and `engine_layout` /
-  `weight_bias` / `weight` / `max_power` / `max_torque` header fields, the per-parameter `surface`
+  `weight_bias` / `weight` / `max_power` / `max_torque` / `class` / `gearbox` / `steering_lock`
+  header fields, the per-parameter `surface`
   field, and the per-parameter `order` field remain **optional and backward-compatible**: a template
   missing any of them imports
   exactly as before (a missing `order` falls back to the canonical defaults in

@@ -237,9 +237,16 @@ list a database's rows. That needs a token.
 - **Otherwise:** two full passes of the Car Setup screens (everything at **minimum**, then
   everything at **maximum**), attached in chat. It reads every setting's range off the images.
   **Take this first pass on a tarmac stage (e.g. Alsace)** — that's the baseline.
+- **Plus one shot of the car information / HISTORY screen** — the page with the car's class
+  badges, `Engine`, `Max Power`, `Max Torque`, `Weight` and the drivetrain / gearbox /
+  steering-lock icons. Optional, but it settles most of the car's facts in a single image.
 
-It also looks up the car's **engine layout, weight bias and approximate weight** (facts the game
-doesn't show) to inform balance reasoning. All editable on the car's Notion page.
+It records the car's **drivetrain, engine layout, weight bias, weight, max power, max torque,
+class, gearbox and steering lock** on its Notion page, to inform balance reasoning. Most come
+straight off that info screenshot; anything it doesn't show — weight bias never appears there — it
+looks up online. **You only get asked as a last resort**, once, for whatever is genuinely
+unfindable, and "don't know" is always a fine answer. All nine are editable on the car's Notion
+page afterwards.
 
 **Gravel ranges.** On many cars a few suspension settings — usually spring stiffness — expose a
 *different* range on gravel. After the tarmac pass it asks you to load a gravel stage (e.g. Wales),
@@ -396,13 +403,13 @@ flowchart TD
     Tpl -->|"yes"| Offer["Offer it: all ranges and<br/>discrete steps pre-filled"]
     Offer -->|"accepted"| Facts
     Offer -->|"declined"| Shots
-    Tpl -->|"no"| Shots["Attach two full passes of the<br/>Car Setup screens: everything at min,<br/>then everything at max<br/>TARMAC stage — this is the baseline"]
+    Tpl -->|"no"| Shots["Attach two full passes of the<br/>Car Setup screens: everything at min,<br/>then everything at max<br/>TARMAC stage — this is the baseline<br/>+ one shot of the car info screen"]
 
     Shots --> Extract["Read every row: section, name,<br/>min, max, unit, screen order"]
     Extract --> Confirm["Confirmation table<br/>uncertain reads flagged"]
-    Confirm --> Facts["Car identity facts:<br/>drivetrain, engine layout,<br/>weight bias, weight"]
+    Confirm --> Facts["Car identity facts, per field:<br/>info screenshot → template →<br/>model knowledge → web lookup →<br/>ask you (last resort)"]
 
-    Facts --> Notion["Create/extend the Notion structure<br/>parameter catalog + setup value columns"]
+    Facts --> Notion["Create/extend the Notion structure<br/>parameter catalog + setup value columns<br/>+ all nine identity facts on the car page"]
     Notion --> Gravel{"Do any suspension ranges<br/>differ on gravel?"}
 
     Gravel -->|"no / skip"| Done["Ready. Tarmac ranges<br/>apply everywhere"]
