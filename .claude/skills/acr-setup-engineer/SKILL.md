@@ -15,7 +15,9 @@ tunable parameters, Min/Max ranges, and Discrete steps pre-filled. When onboardi
 has a bundled template, the skill offers to auto-populate Notion from it (skipping screenshots).
 When the user asks to **build** (or **import**) a setup for a car that isn't onboarded yet, a
 matching template **auto-onboards it first** — no screenshots, no separate step. Users can export
-their own onboarded car's parameters as a template to contribute back.
+their own onboarded car's parameters as a template to contribute back — and after a **screenshot**
+onboarding (a car with no bundled template) the skill **offers this unprompted**, since that user is
+the only one who can supply that car's catalog (`references/onboard-car.md` step 10).
 
 Pick the matching workflow and read its file before acting:
 

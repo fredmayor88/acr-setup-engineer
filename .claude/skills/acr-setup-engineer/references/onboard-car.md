@@ -377,6 +377,40 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      `42300, 50000, 57700, 65400, 73100`), but setup values will be poorly-targeted without it.
      Non-blocking — they can be used immediately — but strongly recommended.
 
+10. **Offer to contribute the catalog as a community template — screenshot path only.**
+
+    This car had **no bundled template** (that's why there were screenshots), so the catalog the
+    user just built exists nowhere but their Notion. They're the only person who can give it to the
+    next driver of this car — but they'd have to know the export workflow exists to ask for it, so
+    **offer it here** rather than waiting.
+
+    **Only offer when all of these hold:**
+    - The catalog came from **screenshots**, not a bundled template. (A template-onboarded car has
+      nothing new to contribute — it came from `car-templates/` already.)
+    - **No** `car-templates/` file matched this car in step 1. If one matched and the user
+      *declined* it in favour of their own screenshots, don't offer — a template already exists;
+      instead mention in one line that their capture may be worth contributing if the bundled one
+      looks out of date for their game version, and leave it there.
+    - The write in step 7 **succeeded**.
+
+    **Mind the gaps first.** A template whose `discrete_steps` are empty is unusable to whoever
+    imports it, and step 9 has just listed exactly those gaps (`—` rows still needing enumeration,
+    flagged numerics). So:
+    - **Gaps outstanding** → don't push an export now. Close the report with one line: once those
+      cells are filled in Notion, they can say *"contribute my car"* and it'll be turned into a
+      shareable template. Don't repeat it or ask again.
+    - **No gaps** → make the offer directly.
+
+    **Don't restate the invitation here** — the wording, the GitHub hand-off and the
+    filename-prefilled link are authored in `export-car-template.md` → *Offer to share it with the
+    community*. On a yes, run `export-car-template.md` from the top (it still needs its **Game
+    version** input — ask for it there). **You already hold every row from this run: don't re-fetch
+    the car's `Parameters` from Notion** (`SKILL.md` → *Read efficiently*); pick that workflow up at
+    its completeness check with the rows in hand.
+
+    **Never pressure, and never gate anything on it.** A "no" (or no answer) ends the topic —
+    onboarding is already complete either way.
+
 ## Rules
 - **Identity facts are never `Parameters` rows**, and the car information screenshot is never a
   source of tunable ranges. It answers step 5 only; the min/max setup-screen passes remain the

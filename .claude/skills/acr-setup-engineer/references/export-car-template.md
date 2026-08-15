@@ -10,6 +10,11 @@ lets future users onboard the same car without screenshots.
 "contribute my car", "submit my car setup parameters", or any request to produce a shareable
 parameter file for a car.
 
+**Also entered from onboarding.** `onboard-car.md` step 10 offers this at the end of a
+**screenshot** onboarding — the case where the user has just hand-built a catalog for a car with no
+bundled template, and is therefore the only person who can contribute it. Arriving that way, the
+car and its rows are **already in hand**; see the note in step 1.
+
 ## Inputs
 - **Car name** — ask if not provided or ambiguous (must match a car already onboarded in Notion).
 - **Game version** — ask which game version the parameters were captured in (e.g. `0.4`), since
@@ -34,6 +39,11 @@ parameter file for a car.
   `Steering lock` (e.g. `1332°`). These may be blank or hold the literal `couldn't determine` —
   carry whatever is there. They are car facts, **not** rows in the `Parameters` DB.
 - If no rows are found, tell the user the car hasn't been onboarded yet and stop.
+
+**Arriving from `onboard-car.md` step 10:** skip this whole section — you already hold every row,
+the `Surface` tags, the `Order`s and the identity facts from the run that just wrote them
+(`SKILL.md` → *Read efficiently*). Re-reading Notion here is a wasted round trip against data you
+authored seconds ago. Start at step 2.
 
 ### 2. Completeness check
 Before formatting, scan for gaps and warn (but do NOT block the export):

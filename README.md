@@ -248,6 +248,13 @@ looks up online. **You only get asked as a last resort**, once, for whatever is 
 unfindable, and "don't know" is always a fine answer. All nine are editable on the car's Notion
 page afterwards.
 
+**Contributing it back.** If your car had no bundled template, you've just built its catalog by
+hand — and you're the only person who can hand it to the next driver of that car. So at the end it
+offers to turn your catalog into a shareable template (one green button on GitHub, free account,
+nothing to install). If any parameters are still flagged as needing your input, it waits and simply
+tells you that once you've filled them in, *"contribute my car"* will do it. Always optional, never
+nagged.
+
 **Gravel ranges.** On many cars a few suspension settings — usually spring stiffness — expose a
 *different* range on gravel. After the tarmac pass it asks you to load a gravel stage (e.g. Wales),
 open **Suspensions**, and say whether the range differs. If it does, you take a second full min/max
@@ -416,6 +423,11 @@ flowchart TD
     Gravel -->|"yes"| Second["Second full min/max pass on gravel"]
     Second --> Diff["Auto-diff vs tarmac, confirm,<br/>write Surface=Gravel rows<br/>only for what differs"]
     Diff --> Done
+
+    Done --> Contrib{"Built from screenshots?<br/>i.e. no bundled template existed"}
+    Contrib -->|"no"| End["Onboarded"]
+    Contrib -->|"yes"| Share["Offer to contribute it as a<br/>community template<br/>(once any flagged gaps are filled)"]
+    Share --> End
 ```
 
 ### Importing from a save file
