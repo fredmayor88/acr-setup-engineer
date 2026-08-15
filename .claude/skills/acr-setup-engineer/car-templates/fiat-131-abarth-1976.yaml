@@ -52,84 +52,84 @@ parameters:
     min: 2500
     max: 5000
     unit: "Ns/m"
-    discrete_steps: ""
+    discrete_steps: "2500, 2750, 3000, 3250, 3500, 3750, 4000, 4250, 4500, 4750, 5000"
   - section: "Dampers"
     adjustment: "Slow Rebound Front"
     order: 3020
     min: 3500
     max: 7000
     unit: "Ns/m"
-    discrete_steps: ""
+    discrete_steps: "3500, 3750, 4000, 4250, 4500, 4750, 5000, 5250, 5500, 5750, 6000, 6250, 6500, 6750, 7000"
   - section: "Dampers"
     adjustment: "Fast Bump Front"
     order: 3030
     min: 1500
     max: 4000
     unit: "Ns/m"
-    discrete_steps: ""
+    discrete_steps: "1500, 1750, 2000, 2250, 2500, 2750, 3000, 3250, 3500, 3750, 4000"
   - section: "Dampers"
     adjustment: "Fast Rebound Front"
     order: 3040
     min: 2500
     max: 5500
     unit: "Ns/m"
-    discrete_steps: ""
+    discrete_steps: "2500, 2750, 3000, 3250, 3500, 3750, 4000, 4250, 4500, 4750, 5000, 5250, 5500"
   - section: "Dampers"
     adjustment: "Bump Transition Front"
     order: 3045
     min: 0.050
     max: 0.250
     unit: "m/s"
-    discrete_steps: ""
+    discrete_steps: "0.050, 0.075, 0.100, 0.125, 0.150, 0.175, 0.200, 0.225, 0.250"
   - section: "Dampers"
     adjustment: "Rebound Transition Front"
     order: 3046
     min: 0.050
     max: 0.250
     unit: "m/s"
-    discrete_steps: ""
+    discrete_steps: "0.050, 0.075, 0.100, 0.125, 0.150, 0.175, 0.200, 0.225, 0.250"
   - section: "Dampers"
     adjustment: "Slow Bump Rear"
     order: 3050
     min: 1250
     max: 3500
     unit: "Ns/m"
-    discrete_steps: ""
+    discrete_steps: "1250, 1500, 1750, 2000, 2250, 2500, 2750, 3000, 3250, 3500"
   - section: "Dampers"
     adjustment: "Slow Rebound Rear"
     order: 3060
     min: 3000
     max: 7500
     unit: "Ns/m"
-    discrete_steps: ""
+    discrete_steps: "3000, 3250, 3500, 3750, 4000, 4250, 4500, 4750, 5000, 5250, 5500, 5750, 6000, 6250, 6500, 6750, 7000, 7250, 7500"
   - section: "Dampers"
     adjustment: "Fast Bump Rear"
     order: 3070
     min: 1250
     max: 2500
     unit: "Ns/m"
-    discrete_steps: ""
+    discrete_steps: "1250, 1500, 1750, 2000, 2250, 2500"
   - section: "Dampers"
     adjustment: "Fast Rebound Rear"
     order: 3080
     min: 2500
     max: 6000
     unit: "Ns/m"
-    discrete_steps: ""
+    discrete_steps: "2500, 2750, 3000, 3250, 3500, 3750, 4000, 4250, 4500, 4750, 5000, 5250, 5500, 5750, 6000"
   - section: "Dampers"
     adjustment: "Bump Transition Rear"
     order: 3085
     min: 0.050
     max: 0.250
     unit: "m/s"
-    discrete_steps: ""
+    discrete_steps: "0.050, 0.075, 0.100, 0.125, 0.150, 0.175, 0.200, 0.225, 0.250"
   - section: "Dampers"
     adjustment: "Rebound Transition Rear"
     order: 3086
     min: 0.050
     max: 0.250
     unit: "m/s"
-    discrete_steps: ""
+    discrete_steps: "0.050, 0.075, 0.100, 0.125, 0.150, 0.175, 0.200, 0.225, 0.250"
   - section: "Axles"
     adjustment: "Anti-roll Bar Stiffness Front"
     order: 4010
