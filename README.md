@@ -557,6 +557,7 @@ these cars onboard in one command — no screenshots:
 - **Alpine A110 1.8** (1973) — RWD
 - **Citroën Xsara WRC** (2003) — AWD
 - **Fiat 124 Abarth Rally 16V** (1974) — RWD
+- **Fiat 131 Abarth** (1976) — RWD
 - **Hyundai i20 Rally2** (2021) — AWD
 - **Lancia 037 Evoluzione 2** (1984) — RWD
 - **Lancia Delta Integrale Evoluzione** (1992) — AWD
