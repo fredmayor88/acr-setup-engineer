@@ -11,24 +11,22 @@ Free. Open source. Your data stays in your Notion.
 
 ---
 
-## The setup screen is where most people quit
+## Forty sliders, six ways to fix the same thing
 
-You open **Car Setup** for the first time and there are twenty-odd sliders staring back at you.
+You open **Car Setup** for the first time and there are forty-odd sliders staring back at you.
+Twenty if you are in something from 1972. Nearly fifty in a Delta Integrale.
 
 Ramp angles. Preload. Plates. Bump and rebound — slow *and* fast. Adjuster ring. Toe.
 
-No explanations. No idea which one matters. And no way to tell whether the change you just made
-helped or hurt.
+There are explanations. That's not the problem. The problem is that understeer alone has about nine plausible causes — front ARB, diff preload, ride height, rebound, toe — and the screen doesn't rank them. Every knob is presented as equally likely.
 
-So you do what everyone does: you drive the default forever, or you paste a stranger's numbers off
-a forum and hope.
+Knowing what a slider does isn't the same as knowing which one to move. That gap is years of trial and error, and most people never close it. So you drive the default forever, or you paste a stranger's numbers off a forum and hope.
 
 Meanwhile the car keeps doing the thing you hate.
 
-It pushes wide when you turn in. It spins the inside wheel out of every hairpin. It skips off line
-on the rough stuff and you're just a passenger.
+It pushes wide when you turn in. It spins the inside wheel out of every hairpin. It skips off line on the rough stuff and you're just a passenger.
 
-**You already know what's wrong. You just don't know which slider is responsible.**
+**You already know what's wrong. You just don't know which slider owns it.**
 
 That's the entire problem this fixes.
 
@@ -47,6 +45,24 @@ Everyone at the sharp end is already tuning their way out of problems you're sti
 
 You don't need to become a race engineer to close that. You need something that turns *"the back
 steps out on every hairpin"* into the two settings actually responsible.
+## The fast guy's setup was built around the fast guy
+
+The usual shortcut is to copy a setup off YouTube or a Discord from someone quick, drop it in, and
+find out you're *slower*. That's not bad luck.
+
+A fast driver's setup is built around a fast driver. It's usually pointier and looser than you'd
+want, because he's happy with a car that rotates hard and he catches it without thinking. It's built
+for his braking points, his line, his commitment over crests, his stage, his conditions. Hand that
+car to someone driving at a different pace and it isn't fast — it's just harder.
+
+And the worse part is you learn nothing. You've got forty numbers you didn't choose, so when the
+car does something you hate you have no idea which one did it, or whether it was ever the setup at
+all.
+
+Copy the fast guy by all means — but as a **starting reference you can interrogate**, not as
+gospel. Point this at his setup, say what you don't like about it, and it'll tell you which of his
+numbers is fighting you and pull it back toward how *you* drive.
+
 
 ## How it works, in one picture
 
@@ -105,9 +121,33 @@ your taste — not the internet's.
 Game update wiped your saves? Attach your `.sav` file and it pulls every setup you'd already built
 straight into Notion. It reads older save formats too.
 
-**And it just answers questions.**
-*"What does preload actually do?"* *"Why is the front bar stiffer on my Alsace setup than my Wales
-one?"* Ask it anything about tuning. It's read-only — it explains, it doesn't touch your data.
+## You don't have to be building a setup to use it
+
+Half of what I use it for isn't building anything. It's thinking out loud.
+
+Setup work is normally a lonely business. You get a theory, there's nobody to test it against, and
+the only way to find out is to burn a run on it. That's the real bottleneck — not the sliders, the
+thinking.
+
+And there's no such thing as a free change. Everything in a setup is a tradeoff — you get more of
+this, you get less of that. Every slider is buying something with something else, and the screen
+won't tell you what you're spending.
+
+So talk to it *before* you touch anything:
+
+- *"I want more rotation on turn-in but I don't want it loose over crests. What are my options and
+  what does each one cost me?"*
+- *"Stiffer rear bar or less preload — what's the difference in how it'll actually feel?"*
+- *"Wales, wet, third gear the whole way. What should I be worried about before I start?"*
+- *"My Alsace setup works and I don't know why. Explain it to me."*
+- *"What does preload actually do?"*
+
+You get the tradeoff, not just an answer — and you can argue with it, which is the point. It's
+read-only while you're talking: nothing gets written to your Notion until you say save.
+
+Some of the best sessions end with you changing nothing. Working out *why* the car does what it
+does is worth as much as the setup — and sometimes the honest answer is that the car's fine and you
+should go drive it.
 
 ## You can't break anything
 
