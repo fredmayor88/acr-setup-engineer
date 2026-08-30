@@ -197,6 +197,10 @@ would rather just have a setup now, build one.
         and build normally, noting in the report (step 12) and page body (step 11) that no baseline
         anchor was used.
 
+   **Not this workflow:** setup screens showing a setup the **user** built and wants stored under a
+   name is [capture-setup.md](capture-setup.md) — none of the baseline machinery below (step 5b
+   included) applies to it.
+
 5. **Capture the default (when the screenshots arrive).** Use the **conditions settled in step 3** —
    don't ask again here; if they were left blank there because the user didn't know, ask once now,
    since this row is the one that will be matched against later.

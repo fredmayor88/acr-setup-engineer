@@ -1,6 +1,6 @@
 ---
 name: acr-setup-engineer
-description: A complete system for the whole lifecycle of a personalized car setup for Assetto Corsa Rally (ACR), saved to the user's Notion. Setups are tailored to the user's driving style and preferences and get more personal as they rate and learn from past setups. Use when the user wants to onboard a car (capture its tunable parameters from min/max setup-screen screenshots or a bundled template, plus its identity facts from the in-game car info screen), generate or tweak a setup for a stage from its description and their driving style (optionally starting from an existing setup as a reference, including one from another car), review or share an existing setup from Notion, import existing setups from a save file, export an onboarded car as a shareable community template, or ask questions about setups and tuning (why a setup uses a value, what a parameter does, how to think about ARBs/diffs/springs/etc.). Reads and writes through the user's Notion connection and keeps every value within the car's legal ranges.
+description: A complete system for the whole lifecycle of a personalized car setup for Assetto Corsa Rally (ACR), saved to the user's Notion. Setups are tailored to the user's driving style and preferences and get more personal as they rate and learn from past setups. Use when the user wants to onboard a car (capture its tunable parameters from min/max setup-screen screenshots or a bundled template, plus its identity facts from the in-game car info screen), generate or tweak a setup for a stage from its description and their driving style (optionally starting from an existing setup as a reference, including one from another car), review or share an existing setup from Notion, capture a setup they built themselves in-game from photos of the setup screens, import existing setups from a save file, export an onboarded car as a shareable community template, or ask questions about setups and tuning (why a setup uses a value, what a parameter does, how to think about ARBs/diffs/springs/etc.). Reads and writes through the user's Notion connection and keeps every value within the car's legal ranges.
 ---
 
 # ACR Setup Engineer
@@ -30,6 +30,7 @@ Pick the matching workflow and read its file before acting:
 | Review an existing setup from Notion | `references/review-setup.md` |
 | Ask a question / explain a setup or a tuning concept (read-only) | `references/ask-setups.md` |
 | Share a setup as a plain-text snippet (copy-paste) | `references/share-setup.md` |
+| **Save/store a setup the user built themselves in-game**, from photos of the setup screens — *"store this as {name} for the {car}"*, *"save these screens as a setup"* (photos show **current values**, and a name to save it under is given or asked for) | `references/capture-setup.md` |
 | Import existing setups from a save file | `references/import-savegame.md` |
 | Export a car's parameters as a community template file | `references/export-car-template.md` |
 
@@ -163,7 +164,7 @@ Bundled tools (stdlib Python, run via code execution):
 - **Skip `FFB Multiplier`.** It is a controller/display preference, not a car setup parameter —
   never capture it during onboarding and never include it in setups.
 - **Skill version.** Determine once per run and record it on every `Setups` row you create
-  (generated, tweaked, **and imported**). Read the bundled `VERSION` file at the skill root:
+  (generated, tweaked, captured, **and imported**). Read the bundled `VERSION` file at the skill root:
   - If it holds a concrete version (e.g. `v0.3.0`), that **is** your skill version.
   - If it holds `dev` (an unreleased source checkout): if you can run `git` in the skill's repo,
     use `git describe --tags --always --dirty` (e.g. `v0.2.0-3-gdbc15b1`, or a bare short hash if

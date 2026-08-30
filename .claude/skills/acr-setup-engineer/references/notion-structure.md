@@ -138,7 +138,7 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
 - **Meta:** `Name` (title), `Car` (**Select**), `Location` (**Select**, optional), `Stage`
   (**Select**, optional), `Surface` (**Select**, options `Tarmac` / `Gravel` / `Snow`),
   `Conditions` (**Select**, optional), `Game version`, `Date` (**Date**, stores date *and* time),
-  `Source` (`generated` | `imported` | `default`), `Mode` (`learn` | `independent`),
+  `Source` (`generated` | `screenshot` | `imported` | `default`), `Mode` (`learn` | `independent`),
   `Rating` (**Select**, options `1`–`5`, higher = better; **blank = unrated**), `Notes`,
   **`Learn from this`** (checkbox), `Model` (**Select**), `Skill version` (**Text**).
   Make `Car`, `Location`, `Stage`,
@@ -165,16 +165,16 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   treat a blank as "dry".
   **`Model`** is also a **Select** (renders as a tag) holding **just the model name + version**,
   e.g. `Opus 4.8` or `Sonnet 4.6`; give the column the description *"Which model+version built this
-  setup (e.g. Opus 4.8). Blank for imported setups."* **Blank for imported rows** — only `generated`
-  setups write it. The skill self-identifies with its known model name. No predefined options —
+  setup (e.g. Opus 4.8). Blank for setups the skill didn't author."* **Blank for `screenshot`,
+  `imported` and `default` rows** — only `generated` setups write it. The skill self-identifies with its known model name. No predefined options —
   create-or-reuse (Notion adds the option if absent).
   **`Skill version`** is plain **Text** (not Select — it's a free-form string, not a small fixed
   set) recording **which version of the acr-setup-engineer skill created this row**: the skill's
   `VERSION` file when released, or a `git describe` string for an unreleased source checkout (see
   `SKILL.md` → *Skill version*). Give the column the description *"Which version of the
   acr-setup-engineer skill created this row (e.g. v0.3.0, or a git-describe string for source builds)."*
-  Unlike `Model`, it is written on **every** skill-created row — generated, tweaked, **and
-  imported** — since it identifies the tool/logic that produced the row, not the model that
+  Unlike `Model`, it is written on **every** skill-created row — generated, tweaked, captured,
+  **and imported** — since it identifies the tool/logic that produced the row, not the model that
   authored values. When
   appending a setup row, **create-or-reuse** all Select options (Notion adds a new option if
   absent). Create `Rating` as a **Select** with five options `1` `2` `3`
@@ -206,9 +206,34 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   meta columns last (see *Setups column order* below), applied through the view's `SHOW`
   directive — never creation order.
 - **`Learn from this`** gates the learning pool: `build-setup` `learn` mode learns only from
-  checked rows. Default **unchecked for all three** `Source` values — the user checks it
+  checked rows. Default **unchecked for every** `Source` value — the user checks it
   after reviewing and deciding a setup is worth learning from. **`Source = default` rows are never
   in the learn pool** even if checked (see below).
+
+## Photo-captured setup rows (`Source = screenshot`)
+
+A **`screenshot` row** records a setup the **user built themselves in-game**, transcribed from photos
+of the car-setup screens (`capture-setup.md`). It is distinct from the other three sources:
+
+| `Source` | Where the values came from |
+|---|---|
+| `generated` | the skill built them (`build-setup.md` / `tweak-setup.md`) |
+| `screenshot` | the user built them in-game; read off setup-screen photos |
+| `imported` | the user built them in-game; parsed from a `.sav` file (`import-savegame.md`) |
+| `default` | the **game** produced them; the stock baseline read off setup-screen photos |
+
+`screenshot` and `imported` are the same provenance (the user's own tuning) through different
+transports, and the transport matters: a `.sav` parse is exact, whereas a photo reading can be
+misread, so a `screenshot` row is the one place a stored value may carry a flagged reading. Keeping
+them apart is what makes that traceable later.
+
+- **Written like any other `Setups` row**, with `Source = screenshot`, `Name` ≤15 chars, `Date`,
+  `Skill version`, **`Model` blank** (the values are the user's, not a model's), and **`Learn from
+  this` unchecked** until the user opts in.
+- **Eligible for the learn pool** once checked — unlike `default` rows, these are the user's taste.
+- **Values are written as read** — never clamped, never dropped. A reading outside the catalog's
+  resolved range is **flagged, not corrected** (`capture-setup.md` step 4).
+- **Append-only.** A re-capture adds a new row; never edit an existing one.
 
 ## Default (stock) baseline rows (`Source = default`)
 

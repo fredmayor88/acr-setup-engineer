@@ -7,8 +7,8 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
 - **The product** is the skill at [.claude/skills/acr-setup-engineer/](.claude/skills/acr-setup-engineer/):
   - `SKILL.md` — entry point: core rules + the workflow routing table.
   - The workflows: `references/onboard-car.md`, `build-setup.md`, `tweak-setup.md`,
-    `review-setup.md`, `ask-setups.md`, `share-setup.md`, `import-savegame.md`,
-    `export-car-template.md` — plus `driving-feedback-interview.md` (below), which the
+    `review-setup.md`, `ask-setups.md`, `share-setup.md`, `capture-setup.md`,
+    `import-savegame.md`, `export-car-template.md` — plus `driving-feedback-interview.md` (below), which the
     routing table also lists as an entry point.
   - `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions,
     create-if-missing rules. **The source of truth for the data model.**

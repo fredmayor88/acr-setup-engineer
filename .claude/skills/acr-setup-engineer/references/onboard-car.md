@@ -24,6 +24,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 - **Screenshots, attached in the chat:** two passes of the Car Setup screens —
   - a **min** set (every setting dialed to its minimum), and
   - a **max** set (every setting dialed to its maximum).
+
+  **Not this workflow:** photos showing a single set of **current values** (no min/max pass), with a
+  name to save them under, are a *setup* to store, not a catalog — go to
+  [capture-setup.md](capture-setup.md).
   Ask the user to attach both. One pair per setup screen/tab (Gearbox, Suspensions F/R,
   Dampers F/R, Axles, Differential(s), Wheels/Tyres F/R, Brakes, Electronics, …).
   - **This first pass must be taken on a TARMAC stage (e.g. Alsace).** Tarmac is the
