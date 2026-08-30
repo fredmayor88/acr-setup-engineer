@@ -170,7 +170,7 @@ should go drive it.
 1. Install the skill (5 minutes, one-time — [full steps below](#installation-one-time-about-5-minutes),
    or [watch it](https://www.youtube.com/watch?v=f7NPJM9S9PU)).
 2. Say: *"Onboard the Lancia Stratos HF for Assetto Corsa Rally."* If it's one of the
-   [13 bundled cars](#bundled-car-library), that's it — no screenshots, no typing.
+   [14 bundled cars](#bundled-car-library), that's it — no screenshots, no typing.
 3. Say: *"Build me a setup for a fast, bumpy tarmac stage."*
 4. Drive it. Come back and say how it felt — even badly.
 5. Iterate until you like it, then say *"save it."*
