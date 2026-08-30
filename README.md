@@ -7,7 +7,9 @@ changes it, tells you why, and saves the whole thing to your phone.
 
 Free. Open source. Your data stays in your Notion.
 
-> **▶ Video walkthrough:** *(coming soon — YouTube link will go here)*
+> **▶ Video walkthroughs:**
+> - [Installation](https://www.youtube.com/watch?v=f7NPJM9S9PU)
+> - [Onboarding a new car](https://www.youtube.com/watch?v=6EULzBKqBRc)
 
 ---
 
@@ -165,7 +167,8 @@ should go drive it.
 
 ## Get your first setup in about ten minutes
 
-1. Install the skill (5 minutes, one-time — [full steps below](#installation-one-time-about-5-minutes)).
+1. Install the skill (5 minutes, one-time — [full steps below](#installation-one-time-about-5-minutes),
+   or [watch it](https://www.youtube.com/watch?v=f7NPJM9S9PU)).
 2. Say: *"Onboard the Lancia Stratos HF for Assetto Corsa Rally."* If it's one of the
    [13 bundled cars](#bundled-car-library), that's it — no screenshots, no typing.
 3. Say: *"Build me a setup for a fast, bumpy tarmac stage."*
@@ -229,6 +232,8 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
 
 ## Installation (one time, about 5 minutes)
 
+> **▶ Watch it instead:** [Installation walkthrough](https://www.youtube.com/watch?v=f7NPJM9S9PU)
+
 1. **Connect Notion.** claude.ai → **Settings → Connectors** → add **Notion** and authorize it.
    Available on every plan.
 2. **Enable code execution, Skills, and network.** Settings → **Capabilities** → turn on **Code
@@ -275,6 +280,8 @@ list a database's rows. That needs a token.
 ## Quick start by task
 
 ### Onboard a car
+
+> **▶ Watch it instead:** [Onboarding a new car](https://www.youtube.com/watch?v=6EULzBKqBRc)
 
 *"Onboard the Lancia Stratos HF for Assetto Corsa Rally."*
 
