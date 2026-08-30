@@ -21,6 +21,16 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
     Read by `build-setup.md` (baseline-first flow) and `tweak-setup.md` (vague feedback).
   - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
 - [README.md](README.md) — end-user docs (claude.ai install + usage).
+- `car-charts/` — one power/torque PNG per car, generated from the ACR game files. **Committed and
+  served by public raw URL**, not bundled in the skill ZIP: a skill on claude.ai has no way to push
+  a local file into Notion, so the car page attaches the chart from its URL (which is also why the
+  templates store a URL, not a path). Regenerate with `tools/torque-curves`; never hand-edit.
+- `tools/torque-curves/` — maintainer-only extractor (needs a local ACR install, node + python).
+  Reads each car's `FC_<Car>_Torque` curve out of the pak files, renders `car-charts/`, and rewrites
+  the delimited `# --- engine curve … ---` stanza in each bundled template. Its README documents the
+  IoStore/Oodle handling, the parser heuristic, and the sanity check that catches a game update
+  breaking it. Re-run after a physics-touching patch or when a car is onboarded (add it to
+  `CAR_MAP` first).
 - `Makefile` — `make zip` builds `dist/acr-setup-engineer-skill-<version>.zip`, where `<version>` is
   read from **HEAD's** `VERSION` file so the filename always matches the `VERSION` inside the
   archive (`make check-zip` enforces that). On an unstamped checkout that's the previous release's

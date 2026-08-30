@@ -1,0 +1,10 @@
+{
+  "name": "acr-torque-curves",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Oodle decompression helper for extracting ACR engine torque curves",
+  "type": "module",
+  "dependencies": {
+    "ooz-wasm": "^2.0.0"
+  }
+}

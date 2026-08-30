@@ -54,7 +54,11 @@ Shared knowledge (read as needed):
 - `references/config-page-template.md` — seed for the auto-created `Config` page (integration
   setup instructions + a blank token line for the read-only Notion token).
 - `car-templates/` — bundled YAML parameter templates, one file per car (see
-  `references/export-car-template.md` for the file format).
+  `references/export-car-template.md` for the file format). Each also carries the car's
+  **engine curve read out of the ACR game files** — a `power_torque_chart:` URL that gets attached
+  to the Notion car page, and an `engine_curve:` block (peak torque, peak power, and the raw
+  `[rpm, Nm]` points) to reason about gearing and shift points from. See
+  `references/notion-structure.md` → *Power/torque chart*.
 - `car-troubleshooting/` — bundled per-car **symptom→fix** knowledge, one markdown file per car
   (e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`), matched to the car the same way as a
   template (filename from the `car:` name, case-insensitive, ignoring punctuation). Whenever a

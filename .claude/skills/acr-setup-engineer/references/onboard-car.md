@@ -68,6 +68,9 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
        — no lookup needed (see the determination step below). For any identity field the template
        **lacks**, still work step 5's ladder: an older template may predate several of these fields,
        and a car information screenshot (if the user has one) fills them in a single shot. An
+       If the template carries `power_torque_chart:` / `engine_curve:` (extracted from the game
+       files, so no ladder applies), the chart goes on the car page in step 7 and the curve is
+       available to every later gearing decision. An
        optional `save_ids` field (the exact in-save car string, used only by save-file import to
        match the car) needs no action here — it doesn't affect the screenshot/template catalog;
        carry it through untouched.
@@ -298,6 +301,12 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      already-onboarded car, fill in fields that are blank or hold `couldn't determine`, and update
      any the info screenshot now answers outright; **don't overwrite a value the user has edited
      by hand** unless the screenshot contradicts it, in which case show both and let them choose.
+   - **Attach the power/torque chart** if the car's bundled template has a `power_torque_chart:`
+     URL — `notion-create-attachment` with that `source_url`, then an image block directly under
+     the identity facts (`notion-structure.md` → *Power/torque chart*, which also carries the
+     fallback). Do it **now**, in the same page update as the facts: the linked view created below
+     is appended to the end of the page, so anything added afterwards lands beneath it. Cars with
+     no bundled template have no chart — skip it silently.
    - **Seed the `{Car}` page body in this order** (create sections that are missing; never
      overwrite existing content). The linked view is **not** page markdown — create it with
      `notion-create-view`, never as a `<linked-view />`-style placeholder (`notion-structure.md` →
@@ -352,7 +361,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
    `Max torque` / `Class` / `Gearbox` / `Steering lock`), **each with the rung it came from**
    (info screen / template / model knowledge / web / you), so the user can see what was read off
    the game and what was inferred. Call out any stored as `couldn't determine` for the user to fill
-   in, and any template-vs-screenshot discrepancy. Then: any **surface-specific `Gravel` rows**
+   in, and any template-vs-screenshot discrepancy. Say whether the **power/torque chart** went on
+   the page, and if the curve's peaks disagree with the `Max power` / `Max torque` facts, show both
+   figures and explain which is which (`notion-structure.md` → *Power/torque chart*). Then: any
+   **surface-specific `Gravel` rows**
    created (list which parameters differ from the tarmac baseline), and anything flagged uncertain.
    **If no car information screenshot was attached**, mention once that one shot of the in-game car
    info screen would have settled most of these — useful next time, not worth redoing now.

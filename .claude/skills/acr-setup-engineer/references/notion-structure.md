@@ -496,9 +496,11 @@ the first place is a separate operation — see *Creating an inline linked view*
    The user may overwrite any of them at any time, and a later onboarding refresh **won't clobber a
    hand-edited value** — it fills blanks and `couldn't determine`s, and surfaces a conflict rather
    than silently resolving it.
-2. **H2 "Setups"** heading — immediately followed by the `Setups[Car=this]` filtered linked
+2. **The power/torque chart** — an image block, directly under the identity facts, when the car's
+   bundled template carries a `power_torque_chart:` URL. See *Power/torque chart* below.
+3. **H2 "Setups"** heading — immediately followed by the `Setups[Car=this]` filtered linked
    view (hide blank columns).
-3. **H2 "Guidelines"** heading — free-text car-specific preferences (seeded as a stub,
+4. **H2 "Guidelines"** heading — free-text car-specific preferences (seeded as a stub,
    tone per `tuning-guidelines-template.md`).
 
 The `Parameters[Car=this]` filtered view is accessible via the Notion sidebar / linked DB;
@@ -506,6 +508,35 @@ it is **not** inlined on the car page body to keep the page short.
 
 **Always create content in this order** when seeding or updating the `{Car}` page — the
 Setups section must appear before Guidelines so it is the first thing visible on mobile.
+
+### Power/torque chart
+
+Every bundled `car-templates/*.yaml` carries a **`power_torque_chart:`** URL (a PNG in the
+project's public repo) plus an **`engine_curve:`** block holding the same data as numbers —
+peak torque, peak power, and the raw `[rpm, Nm]` points. Both are read
+straight out of the ACR game files, so they describe **what the car actually makes in-game**,
+not a manufacturer brochure figure.
+
+**Putting it on the `{Car}` page.** Attach it once, when the identity facts are written —
+before the linked view exists, since `notion-create-view` appends to the end of the page:
+
+1. **`notion-create-attachment`** with `source_url` = the template's `power_torque_chart:` URL and
+   `filename` = the last path segment (e.g. `lancia-stratos-power-torque.png`). Notion downloads a
+   copy, so the page keeps working if the URL ever moves.
+2. Put the returned **`markdown_source`** in the page update as an image block:
+   `![Power and torque — {Car}](<markdown_source>)`.
+
+If the attachment call fails or isn't available, **fall back to embedding the URL directly** —
+`![Power and torque — {Car}](<power_torque_chart URL>)` — which renders the same, just hosted
+externally. If the car has no bundled template, there's no chart; skip the block entirely rather
+than inventing one, and **never** substitute a chart from a different car.
+
+**The chart is not a fact source for `Max power` / `Max torque`.** Those nine identity facts keep
+their own ladder (`onboard-car.md` step 5). Where they disagree with the curve — which happens on
+forced-induction cars, whose quoted figures are usually real-world specs — leave both standing and
+say so in the report; the curve is what the game simulates, the fact line is what the car is
+advertised as. Reason about gearing, shift points and powerband from **`engine_curve:`**, not from
+the `Max power` line.
 
 **The car page never holds stage sub-pages.** Stage and location facts live in the shared
 catalogue below, not nested under any one car — a stage is referenced by `Stage` (and `Location`)

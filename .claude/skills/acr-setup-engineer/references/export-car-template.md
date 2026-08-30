@@ -138,6 +138,10 @@ Rules:
   it through as-is. These are not parameters. All are optional in both directions — a template
   predating any of them still imports cleanly, and onboarding fills the gaps from the car
   information screenshot or a lookup (`onboard-car.md` step 5).
+- `power_torque_chart` / `engine_curve`: **never exported.** Both are generated from the ACR game
+  files by `tools/torque-curves` in the project repo, not from anything Notion stores, so an export
+  simply omits them — the maintainer regenerates them when the car is added to the bundled library.
+  A template without them imports and onboards cleanly; the car page just gets no chart.
 - `save_ids`: **optional** list of the exact in-save car string(s) ACR writes for this car (the
   `car` field the save-file parser emits, e.g. `"MiniCooperS1275"`, `"LanciaRally037Evo2"`). It lets
   **save-file import** (`import-savegame.md` step 5.2) match a save to this template **reliably** —

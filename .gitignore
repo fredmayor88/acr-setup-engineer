@@ -19,3 +19,6 @@ __pycache__/
 
 
 .history
+
+# Node deps for the maintainer-only game-file extractor
+tools/torque-curves/node_modules/
