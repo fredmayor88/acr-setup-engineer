@@ -117,6 +117,11 @@ it: what changed from the game's default, and why each one moved.
 Rate a setup 1–5 after driving. Tick *"Learn from this"* on the ones you loved. Future setups follow
 your taste — not the internet's.
 
+**Your own setups belong in there too.**
+Tinkered your way to something good in-game? Photograph the setup screens, attach them, name it —
+it's in Notion. No rebuilding it by hand, no explaining yourself. It transcribes what you built and
+keeps its opinions to itself.
+
 **Your existing setups can't be lost.**
 Game update wiped your saves? Attach your `.sav` file and it pulls every setup you'd already built
 straight into Notion. It reads older save formats too.
@@ -343,6 +348,16 @@ timestamped **AI Review** section on the setup's Notion page.
 *"What's the impact of a stiffer front ARB?"* · *"Why is the ride height so high on my Wales
 setup?"* · *"What's different between these two setups?"* Read-only: it explains, never writes.
 
+### Save a setup you built yourself
+
+You've been tinkering in-game and you like where it ended up. Photograph the setup screens with
+your phone, attach them, and say *"store this as 'gravel fast' for the Fiat 131."* It transcribes
+the screens into a Notion row and stops there.
+
+It doesn't judge the setup, doesn't improve it, doesn't ask you why. You built it — the screens are
+the truth. The only thing it checks is whether it read the photos correctly, and it only says
+anything if a number looks impossible.
+
 ### Import setups from your save file
 
 Attach `CarSetupsDataSaveSlot.sav` (Windows:
@@ -374,6 +389,7 @@ in to GitHub, paste, press one green button. No command line, no tokens.
 | Critique an existing setup | [`review-setup.md`](.claude/skills/acr-setup-engineer/references/review-setup.md) |
 | Explain a setup or a concept | [`ask-setups.md`](.claude/skills/acr-setup-engineer/references/ask-setups.md) |
 | Produce a copy-paste snippet | [`share-setup.md`](.claude/skills/acr-setup-engineer/references/share-setup.md) |
+| Save a setup you built in-game, from photos | [`capture-setup.md`](.claude/skills/acr-setup-engineer/references/capture-setup.md) |
 | Import from a save file | [`import-savegame.md`](.claude/skills/acr-setup-engineer/references/import-savegame.md) |
 | Export a community template | [`export-car-template.md`](.claude/skills/acr-setup-engineer/references/export-car-template.md) |
 
@@ -497,6 +513,26 @@ flowchart TD
     Snap --> Rows["Rows in Notion, Source=imported"]
     Asis --> Rows
     Raw --> Rows
+```
+
+### Capturing a setup from photos
+
+```mermaid
+flowchart TD
+    Shots["Photos of the setup screens<br/>'store this as gravel fast for the Fiat 131'"] --> Cat{"Car onboarded?"}
+
+    Cat -->|"yes"| Read
+    Cat -->|"no, template matches"| AutoOn["Auto-onboard from the template"]
+    Cat -->|"no template"| StopC["Onboard the car first<br/>no catalog, no columns to write into"]
+    AutoOn --> Read
+
+    Read["Transcribe the screens<br/>canonical names, tyre names, discrete steps"] --> Chk{"Does every reading<br/>fit the car's known range?"}
+
+    Chk -->|"yes"| Row
+    Chk -->|"no"| Flag["Written as read, never clamped<br/>flagged: misread photo, or stale catalog?"]
+    Flag --> Row
+
+    Row["One row in Notion, Source=screenshot<br/>no reasoning, no opinion, no changes"]
 ```
 
 ### How one value gets decided
