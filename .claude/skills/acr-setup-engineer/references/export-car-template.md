@@ -51,6 +51,14 @@ car and its rows are **already in hand**; see the note in step 1.
   carry whatever is there. They are car facts, **not** rows in the `Parameters` DB.
 - If no rows are found, tell the user the car hasn't been onboarded yet and stop.
 
+**If the read came from the catalog snapshot** (the no-egress fallback in
+`notion-rest-read.md`): the snapshot is only as fresh as the last catalog write, and
+`Discrete steps` is exactly the field users fill in by hand *afterwards*. Before exporting, show
+the snapshot's `written_at` and ask whether any `Parameters` cell was edited since. Untouched →
+proceed. Edited → have the user paste the current values of the edited cells and fold them in —
+an export missing them is useless to whoever imports it, so don't export from a snapshot the user
+says is stale.
+
 **Arriving from `onboard-car.md` step 10:** skip this whole section — you already hold every row,
 the `Surface` tags, the `Order`s and the identity facts from the run that just wrote them
 (`SKILL.md` → *Read efficiently*). Re-reading Notion here is a wasted round trip against data you

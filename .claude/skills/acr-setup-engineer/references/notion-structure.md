@@ -39,6 +39,11 @@ The Notion **connector cannot list a database's rows** (`notion-fetch` returns s
 [notion-rest-read.md](notion-rest-read.md)** — it queries the data source over Notion's REST API
 with an exact `Car` filter and pagination (reliable, complete, one call). If there's no token,
 prompt the user through the one-time setup rather than substituting an unreliable connector read.
+The one connector-readable copy of a catalog is the `{Car}` page's **`Catalog snapshot`** toggle —
+the sanctioned fallback when the REST path can't run at all (no network egress, e.g. Claude's Free
+plan); see *Catalog snapshot* below and the fallback ladder in
+[notion-rest-read.md](notion-rest-read.md). It covers `Parameters` catalogs only, never `Setups`
+slices.
 
 That read path uses a **read-only API token** the user sets up once (see *Give the skill read
 access to Notion* in `README.md`). The token lives on a **`Config`** page directly under the
@@ -502,12 +507,15 @@ the first place is a separate operation — see *Creating an inline linked view*
    view (hide blank columns).
 4. **H2 "Guidelines"** heading — free-text car-specific preferences (seeded as a stub,
    tone per `tuning-guidelines-template.md`).
+5. **The `Catalog snapshot` toggle** — auto-maintained copy of the car's `Parameters` catalog,
+   always the **last** block on the page (see *Catalog snapshot* below).
 
 The `Parameters[Car=this]` filtered view is accessible via the Notion sidebar / linked DB;
 it is **not** inlined on the car page body to keep the page short.
 
 **Always create content in this order** when seeding or updating the `{Car}` page — the
-Setups section must appear before Guidelines so it is the first thing visible on mobile.
+Setups section must appear before Guidelines so it is the first thing visible on mobile, and
+the `Catalog snapshot` toggle always goes last.
 
 ### Power/torque chart
 
@@ -541,6 +549,91 @@ the `Max power` line.
 **The car page never holds stage sub-pages.** Stage and location facts live in the shared
 catalogue below, not nested under any one car — a stage is referenced by `Stage` (and `Location`)
 tags on `Setups` rows, never duplicated per car.
+
+### Catalog snapshot
+
+The **last block on every `{Car}` page** is a collapsed **toggle** titled **`Catalog snapshot`**,
+holding the car's complete `Parameters` catalog as YAML. It exists so the catalog stays readable
+when the REST read path can't run: the connector can fetch a page body in full even though it
+can't list database rows, which is what keeps the skill working on accounts whose code sandbox
+has no network egress (Claude's Free plan). Reading it: `notion-rest-read.md` → *The catalog
+snapshot fallback*.
+
+**This is the one deliberate exception to "never duplicate values into a page body"** (*Mobile
+conventions* below). It is a cache, and it is treated like one: the `Parameters` **rows stay the
+single source of truth**, the snapshot carries the metadata to be validated and dated, and every
+catalog write refreshes it.
+
+**Format.** Inside the toggle, first one banner line:
+
+> Auto-maintained copy of this car's parameter catalog, used when the fast read path isn't
+> available. Don't edit it (it gets overwritten) — edit the `Parameters` rows instead.
+
+— then a fenced `yaml` code block:
+
+```yaml
+car: Lancia Stratos HF
+written_at: 2026-09-05
+skill_version: v0.13.0
+row_count: 43
+rows:
+  - Adjustment: Adjuster Ring
+    Section: Suspensions — Front
+    Min: 20
+    Max: 45
+    Unit: mm
+    Discrete steps: ""
+    Order: 12
+  - Adjustment: Spring Stiffness Front
+    Section: Suspensions — Front
+    Min: 42300
+    Max: 73100
+    Unit: N/m
+    Discrete steps: "42300, 50000, 57700, 65400, 73100"
+    Order: 14
+  - Adjustment: Spring Stiffness Front
+    Section: Suspensions — Front
+    Surface: Gravel
+    Min: 21000
+    Max: 52000
+    Unit: N/m
+    Discrete steps: ""
+    Order: 14
+  # … one entry per Parameters row for this car
+```
+
+- `rows` holds **one entry per `Parameters` row** for this car — the baseline rows **and** every
+  `Surface`-tagged row — with keys mirroring the REST read's output exactly
+  (`notion-rest-read.md` → *Output*): `Surface` omitted on baseline rows, `Discrete steps` as
+  `""` when blank, numeric fields omitted when null. A snapshot parses into the same in-memory
+  catalog as the REST query, so every downstream rule (surface resolution, value legality)
+  applies unchanged.
+- `row_count` = the number of entries in `rows` — the read-side integrity check.
+- `written_at` = the date of the write; `skill_version` per `SKILL.md` → *Skill version*.
+
+**When to write it: every catalog write ends with it.** A run that creates or updates any of a
+car's `Parameters` rows is **not finished** until the snapshot reflects the result. That means:
+- `onboard-car.md` step 7 — first onboard or refresh, screenshot or template path;
+- `onboard-car.md` step 8 — the gravel pass (the new `Surface = Gravel` rows go in too);
+- `import-savegame.md` 5.2/5.3 — template auto-onboard.
+Build it from the rows **you already hold in the run** — never read the catalog back just to
+write the snapshot.
+
+**Backfill — missing only, never a diff.** When a run (a) holds a **fresh, full REST read** of
+the car's catalog, (b) has the fetched `{Car}` page in hand, (c) is **already writing to Notion**
+for its own purposes, and (d) the page has **no** `Catalog snapshot` toggle — append one from the
+rows in hand. That's a presence glance at a page already loaded, and at most one extra write in
+a car's lifetime; it backfills cars onboarded before the snapshot existed. **Never compare an
+existing snapshot against the rows** — staleness is not checked on reads: catalog writes refresh
+it (above), and snapshot reads disclose `written_at`. Read-only workflows never gain a write from
+this rule, and never add reads just to run it.
+
+**Placement & refresh mechanics.** The toggle sits at the **very end** of the page, appended
+**after** the Guidelines stub (and after `notion-create-view`, which appends to the page end —
+see *Positioning matters*). On refresh, **replace the toggle's contents** (or remove the toggle
+and append a fresh one) — never append a second snapshot. Like the `Parameter reference` page it
+holds no user content, so overwriting is safe; anything the user typed inside it is overwritten
+by design — the banner says so, and their real edits belong in the `Parameters` rows.
 
 ## Locations & stages catalogue — shared, immutable facts
 
@@ -601,6 +694,8 @@ the end of the page**, so sequence the operations:
 2. **Then** `notion-create-view` — the view lands right after that heading/description.
 3. **Then** append any trailing markdown (e.g. the `{Car}` page's **H2 "Guidelines"** stub).
    Never add the trailing section before the view, or the view ends up below it.
+4. **Then** (`{Car}` page only) append the **`Catalog snapshot`** toggle (see *Catalog
+   snapshot*) — always the last block on the page.
 
 **Idempotent.** Before creating, `notion-fetch` the page; if a linked view of the `Setups` data
 source already exists there, re-assert it with `notion-update-view` (see *Applying the order*)
@@ -660,6 +755,8 @@ Users often read these pages on a **phone while playing**, so:
      *Setups column order* above) — the same sequence as the in-game setup screens. The same
      `Order` governs share snippets and exported templates, so every projection matches the table.
   **Never duplicate values into a page body checklist** — the database row is the single source
-  of truth. A checklist would drift the moment the user edits a value in the table.
+  of truth. A checklist would drift the moment the user edits a value in the table. (The `{Car}`
+  page's `Catalog snapshot` toggle is the one deliberate exception — a validated, dated cache,
+  refreshed on every catalog write; see *Catalog snapshot*.)
 - **No wide tables inside page bodies** (they scroll horizontally on a phone); use short
   headings + bullet lists. Keep property names concise.

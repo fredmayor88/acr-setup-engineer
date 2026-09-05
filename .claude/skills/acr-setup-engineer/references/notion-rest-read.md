@@ -41,7 +41,8 @@ Resolve the structure **once**, then collapse the rest (`SKILL.md` → *Read eff
   `data_source_id`s within the run, and skip anything already loaded in the thread.
 
 ## The query — run the bundled script
-Run this in **code execution** (the sandbox must allow outbound HTTPS to `api.notion.com`):
+Run this in **code execution** (the sandbox must allow outbound HTTPS to `api.notion.com` — when
+it can't, walk the fallback ladder below):
 
 ```
 # Parameters catalog for one car:
@@ -88,16 +89,56 @@ So group the returned rows by `Adjustment`, then pick the surface-matching row i
 `Snow`, fall back to a `Gravel` row before the baseline), else the baseline. Most parameters have
 only the baseline row and resolve to it on every surface.
 
-## No token (or the query fails)
-This REST query **is** the read path — don't substitute the connector's row-listing, which is
-unreliable (capped, semantic, mixes cars) and produces silently wrong setups.
-- **No token available:** the `Config` page (auto-created with the structure) already carries the
-  one-time setup steps — point the user there (or to "Give the skill read access to Notion" in
-  `README.md`), or have them paste a token for this chat. Then read.
-- **Query errors / times out:** the most common cause is the code sandbox not being allowed
-  outbound network to `api.notion.com` (egress is restricted by default). Tell the user reads need
-  outbound access enabled (or a pasted token) — surface the problem; don't fall back to a degraded
-  read and don't guess values.
+## When the REST query can't run — the fallback ladder
+This REST query **is** the primary read path — **never** substitute the connector's row-listing
+(`notion-search` / a database `notion-fetch`), which is unreliable (capped, semantic, mixes cars)
+and produces silently wrong setups. When the query can't run, walk this ladder instead:
+
+1. **No token available:** the `Config` page (auto-created with the structure) already carries the
+   one-time setup steps — point the user there (or to "Give the skill read access to Notion" in
+   `README.md`), or have them paste a token for this chat. Then read. (Skip straight to rung 2
+   when the sandbox has no network — a token can't help then.)
+2. **Query errors / times out:** the usual cause is the code sandbox not being allowed outbound
+   network to `api.notion.com` (egress is restricted by default — and on **Claude's Free plan it
+   can't be widened at all**: the "All domains" egress setting doesn't exist there). Don't retry
+   endlessly and don't guess values:
+   - **`Parameters` catalog reads** fall back to the `{Car}` page's **catalog snapshot** — next
+     section.
+   - **`Setups` slice reads have no fallback** (setups accumulate; no snapshot can stay current).
+     Proceed as if the slice came back **empty**, and say plainly which feature was skipped and
+     why: a learn-pool read ⇒ the setup is built without the user's setup history; a
+     stored-default read ⇒ no stored baseline is visible, so follow the normal no-baseline path
+     (ask for fresh default screenshots). Anything captured **in the current chat** is unaffected
+     — those values are already in context.
+3. **Neither the query nor a valid snapshot is available:** surface the problem and stop the read
+   — never assemble rows from search results, and never guess.
+
+Tell the user which path a read took whenever it isn't the REST query. On a plan **with** egress
+control the fix is Settings → Capabilities → Network egress → **All domains**, then a **new chat**
+(settings changes don't apply to an already-open conversation).
+
+## The catalog snapshot fallback
+Every `{Car}` page ends with an auto-maintained **`Catalog snapshot`** toggle — the car's full
+`Parameters` catalog as YAML, refreshed by every workflow that writes the catalog
+(`notion-structure.md` → *Catalog snapshot* has the format and refresh rules). To read from it:
+
+1. `notion-fetch` the `{Car}` page (you usually hold it already — `SKILL.md` → *Read
+   efficiently*). **Check the response's `truncated` / `unknown_block_count` indicators first**:
+   if the page came back incomplete, treat the snapshot as unavailable rather than parsing a
+   partial block.
+2. Parse the YAML inside the toggle and **validate before use**: `car` matches the requested car,
+   and `row_count` equals the number of entries in `rows`. Any mismatch ⇒ treat as no snapshot
+   (rung 3 above).
+3. Each `rows` entry mirrors this doc's *Output* keys exactly (same names, same blank/omitted
+   conventions), so build the in-memory catalog from them and apply the normal
+   surface-resolution and value/legality rules unchanged.
+4. **Say the read used the snapshot and give its `written_at`** — hand-edits to `Parameters` rows
+   since that date aren't in it. When the output leaves the user's own Notion (e.g. a template
+   export), confirm nothing was edited since — see `export-car-template.md` step 1.
+
+**No snapshot on the page** (car onboarded by an older skill version): rung 3 above — and tell
+the user that re-onboarding the car writes it (as does any setup-saving run on a plan with
+egress, which backfills a missing snapshot — `notion-structure.md` → *Backfill*).
 
 ## Scope
 Only ever query a data source **inside `ACR Setup Engineer`**. Never use this against a database resolved

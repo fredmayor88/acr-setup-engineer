@@ -40,7 +40,10 @@ Shared knowledge (read as needed):
   (a stage is created once, centrally, and referenced — never duplicated — by any setup).
 - `references/notion-rest-read.md` — **the reliable way to read a car's `Parameters` rows (or a
   filtered slice of `Setups`)**; the connector can't list rows, so query the data source over
-  REST. Follow this wherever a workflow says "fetch the car's rows".
+  REST. Follow this wherever a workflow says "fetch the car's rows". It also carries the
+  **fallback ladder** for when the sandbox can't reach `api.notion.com` (no network egress —
+  e.g. Claude's Free plan): catalog reads fall back to the `{Car}` page's `Catalog snapshot`
+  toggle; `Setups` slices degrade to empty, stated plainly.
 - `references/setup-tuning-principles.md` — the tuning reasoning base (drivetrain-tagged).
 - `references/driving-feedback-interview.md` — the shared **symptom → cause** question bank: how to
   interview a beginner about how the car felt (plain language, terms defined inline, "not sure" always
@@ -224,7 +227,10 @@ Bundled tools (stdlib Python, run via code execution):
 - **Notion by name.** Resolve the structure by its canonical names and create whatever is
   missing (per `references/notion-structure.md`); don't rely on stored IDs.
 - **Reading rows.** To read a car's `Parameters` rows or a filtered slice of `Setups`, follow
-  `references/notion-rest-read.md` — the connector can't list database rows reliably.
+  `references/notion-rest-read.md` — the connector can't list database rows reliably. When the
+  REST query can't run (no egress), that doc's **fallback ladder** applies: `Parameters` reads use
+  the `{Car}` page's `Catalog snapshot`; `Setups` reads proceed as empty and say so — never
+  substitute connector row-listing, never guess.
 - **Read efficiently — collapse round-trips.** Seeding context is slow when reads are done one at a
   time. After resolving the structure once, the remaining reads are **independent**: issue them
   **together in a single step (parallel tool calls)** — e.g. the `Parameters`/`Setups` DB fetches

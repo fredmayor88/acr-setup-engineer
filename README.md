@@ -206,6 +206,8 @@ It doesn't get in your way, and there's plenty here for you:
   still yours.
 - **It needs Notion** for the full experience (free account is fine). Save-file recovery works
   without it.
+- **Claude's Free plan runs a reduced mode** — snapshot reads, no learning from your past setups.
+  Details in [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do).
 - The skill is free; running Claude heavily may not be.
 
 ---
@@ -226,8 +228,9 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
 
 ## Prerequisites
 
-- A **Claude account** at [claude.ai](https://claude.ai). Works on **Free**; **Pro** has more
-  headroom for the longer workflows.
+- A **Claude account** at [claude.ai](https://claude.ai). Works on **Free**, with limits — see
+  [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do); **Pro** removes them and
+  has more headroom for the longer workflows.
 - A **Notion account** (free is fine). All setups live there.
 
 ## Installation (one time, about 5 minutes)
@@ -238,13 +241,19 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
    Available on every plan.
 2. **Enable code execution, Skills, and network.** Settings → **Capabilities** → turn on **Code
    execution** and **Skills**. Then set **Network egress** to **All domains** — the skill calls
-   Notion's API from the code sandbox and can't reach it otherwise.
+   Notion's API from the code sandbox and can't reach it otherwise. Settings apply to **new chats
+   only** — if one is already open, start another.
+   **On the Free plan the "All domains" option doesn't exist** — egress stops at package managers,
+   and no setting changes that. The skill still works; it reads from a snapshot instead (see
+   [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)).
 3. **Add the skill.** Download **`acr-setup-engineer-skill-vX.Y.Z.zip`** (the latest version) from
    [Releases](../../releases). claude.ai → Settings → **Customize → Skills → Add skill** →
    upload the ZIP.
 4. **Onboard your first car.** New chat: *"Onboard the Lancia Stratos HF for Assetto Corsa
    Rally."* This creates the whole Notion structure on first use.
-5. **Give the skill read access to Notion** (below) — 3 minutes, and reads become fast and exact.
+5. **Give the skill read access to Notion** (below) — 3 minutes, and reads become fast and
+   exact. **Skip this on Free** — the token feeds a read path Free can't run (see
+   [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)).
 
 ### The read-only Notion token
 
@@ -683,12 +692,42 @@ Two channels, on purpose:
   because the connector *can't* reliably list a database's rows: `notion-fetch` returns a table's
   schema but no rows, and search is capped and mixes cars. The REST API gives one exact, paginated
   read instead.
+- **When the sandbox has no network** — Claude's Free plan caps egress at package managers, with
+  no "All domains" option — parameter reads fall back to a **catalog snapshot** the skill keeps at
+  the bottom of each car's page, written by the same connector that does every other write. The
+  connector *can* fetch a page body in full, so the snapshot read is complete and validated (a row
+  count is checked); what stays out of reach is your setup history (see below).
 
 Why the read token stays **read-only**: it sits in plaintext on your Config page, so even if it
 leaked it could only *read* the data you connected it to. A direct REST *write* would be marginally
 faster per call, but writes are rare and small — you read on every workflow, you write a handful of
 rows when saving. Granting the stored token write access would trade real safety for a speedup on
 the path that needs it least.
+
+## What Claude's Free plan can't do
+
+The REST read path needs the code sandbox to reach `api.notion.com`, and that takes the
+**Network egress → All domains** setting — which exists on **Pro and Max** but not on **Free**.
+On Free, egress is capped at package managers and there is no switch to flip. That's not a
+configuration problem to fix; it's the plan.
+
+The skill still works on Free. Every catalog write also leaves an auto-maintained **catalog
+snapshot** at the bottom of the car's Notion page, and reads fall back to it. What that costs
+you:
+
+- **Reads use the snapshot, not the live table.** Hand-edits to `Parameters` rows in Notion —
+  filling `Discrete steps`, fixing a range — aren't visible until the next catalog write
+  refreshes the snapshot. The skill tells you the snapshot's date whenever it reads one.
+- **No setup history.** Saved setups can't be read back: builds aren't personalized from the
+  setups you've rated, and a stored game-default baseline can't be reused — you'll be asked to
+  screenshot the default again. Anything captured in the current chat works normally.
+- **Skip the read-only token setup.** The token only feeds the REST path, which can't run on
+  Free. Nothing to configure.
+- **Cars onboarded by an older skill version have no snapshot yet.** Re-onboard the car
+  (template cars take one sentence) — or save any setup on a plan with egress, which backfills
+  it automatically.
+
+On Pro or Max, set **Network egress → All domains** (install step 2) and none of this applies.
 
 ## Troubleshooting
 
@@ -699,9 +738,13 @@ the path that needs it least.
 - **Sonnet gets flagged for no reason** → if Sonnet trips a refusal on an ordinary request, switch
   to **Opus** — confirmed to work fine.
 - **It can't reach Notion** → re-check the **Notion connector** (Settings → Connectors).
-- **Token is set but reads are slow** → confirm **Network egress** is **All domains** (Settings →
-  Capabilities, install step 2). Without it the sandbox can't reach `api.notion.com` and falls back
-  to the slower connector read.
+- **Token is set but reads still fail** → confirm **Network egress** is **All domains**
+  (Settings → Capabilities, install step 2), then start a **new chat** — capability changes don't
+  apply to one that's already open. On **Free** that option doesn't exist and reads use the
+  catalog snapshot instead — by design (see
+  [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)).
+- **"No catalog snapshot" on Free** → the car was onboarded by an older skill version.
+  Re-onboard it (template cars take one sentence) and the snapshot is written.
 - **Hitting limits on Free** → the workflows run several steps; Pro has more headroom.
 - **A value looks slightly "off"** → expected for continuous settings; dial to the nearest in-game
   position. To force exact values, fill `Discrete steps`.

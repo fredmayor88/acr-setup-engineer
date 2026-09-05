@@ -187,8 +187,13 @@ setup row is written. Pick the case:
 
 **5.3 — Ensure the `{Car}` page has its Setups view** (this is what makes imported rows show up on
 the car page — without it the rows exist only in the main `Setups` table). Seed the page body the
-**same way onboarding does** (`onboard-car.md` step 7, sub-steps 1–3): H2 "Setups" heading → the
-`Setups[Car=this]` filtered linked view → H2 "Guidelines" stub. The linked view is **not** page
+**same way onboarding does** (`onboard-car.md` step 7, sub-steps 1–4): H2 "Setups" heading → the
+`Setups[Car=this]` filtered linked view → H2 "Guidelines" stub → the **`Catalog snapshot`**
+toggle last (`notion-structure.md` → *Catalog snapshot*). The snapshot applies to **catalog cars
+only**: for a car auto-onboarded this run, build it from the template rows in hand; for an
+already-onboarded car, leave its existing snapshot alone — unless the page has none, in which
+case append one from 5.2's full REST read (`notion-structure.md` → *Backfill*; never diff an
+existing snapshot). A raw-path car has no catalog, so no snapshot. The linked view is **not** page
 markdown — create it with `notion-create-view` per `notion-structure.md` → *Creating an inline
 linked view*, which is **idempotent**: `notion-fetch` the page first; if a `Setups` linked view
 already exists, re-assert it (don't append a duplicate); if it's missing, create it. The catalog now

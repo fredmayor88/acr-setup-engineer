@@ -323,6 +323,13 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
         heading from step 1.
      3. **H2 "Guidelines"** heading + a short stub inviting car-specific tuning preferences
         (tone per `tuning-guidelines-template.md`) — appended **after** the view.
+     4. **The `Catalog snapshot` toggle** — appended last, so it sits at the very end of the page:
+        the car's full `Parameters` catalog as YAML inside a collapsed toggle
+        (`notion-structure.md` → *Catalog snapshot* for the exact format). Build it from the rows
+        you just wrote in this run — no read-back. This copy is what keeps reads working when the
+        REST path isn't available (no network egress, e.g. Claude's Free plan), so the write isn't
+        finished without it. On a **refresh** of an already-onboarded car, replace the existing
+        toggle's contents instead of appending a second one.
 
 8. **Check for surface-specific ranges (optional gravel pass).**
 
@@ -355,6 +362,9 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
         **Never touch the baseline rows**, and **never** create a gravel row for a parameter whose
         range is unchanged (it stays a single blank-`Surface` row). If the `Parameters` DB has no
         `Surface` property yet, add it first (per `notion-structure.md` create-if-missing).
+     5. **Refresh the `Catalog snapshot`** on the `{Car}` page so the new `Gravel` rows are in it
+        (`notion-structure.md` → *Catalog snapshot*) — the catalog write isn't finished until the
+        snapshot matches the rows.
 
 9. **Report.** Rows added/updated, and the car's identity facts as written to the `{Car}` page —
    all nine (`Drivetrain` / `Engine layout` / `Weight bias` / `Weight` / `Max power` /
