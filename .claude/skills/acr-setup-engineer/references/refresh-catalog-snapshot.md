@@ -25,14 +25,19 @@ on the page* case.
 
    1. **The REST read** (`notion-rest-read.md`) — the normal path whenever the sandbox has
       egress. Complete and exact; use it if it runs.
-   2. **The bundled template — only if the catalog is an untouched template onboard.** When the
-      car was onboarded from a `car-templates/` file, ask one question: *"Have you hand-edited
-      any `Parameters` cell for this car since onboarding (filling `Discrete steps`, fixing a
-      range)?"* **Untouched** → build the rows from the template file (same field mapping as
-      `onboard-car.md` step 1). **Edited, unsure, or the skill has been upgraded since the
-      onboard** (the bundled template may be newer than what was written back then) → fall
-      through to the paste path: the snapshot must mirror **the rows in Notion**, not the
-      current template.
+   2. **The bundled template — automatic whenever one matches the car.** Look in
+      `car-templates/` for a matching file (same match rule as `onboard-car.md` step 1) and, if
+      one is there, **build the rows from it and write the snapshot — no questions first.** It's
+      on disk, it needs no network, and it is the curated catalog for that car. Don't ask the
+      user to paste anything they already shipped with the skill.
+      Then **say so in the report** (step 4) and add one line: the snapshot holds the bundled
+      template's ranges, so if they've hand-filled `Discrete steps` or corrected a range in
+      Notion, those aren't in it — say the word and it gets rebuilt from a paste instead. That's
+      a cheap, reversible disclosure, and it beats interrogating every user about edits most of
+      them never made.
+      Note the template's `version:` in the report too: a template newer than the user's onboard
+      carries **corrected** ranges for the current game version, which is a fix, not a
+      regression — the `Parameters` rows in Notion are left untouched either way.
    3. **The paste path — works everywhere, including Free.** Ask the user to open the
       `Parameters` view filtered to this car in Notion (desktop is easiest), select the table,
       and paste it into the chat. Parse the pasted rows into the catalog fields (`Adjustment`,
@@ -48,10 +53,10 @@ on the page* case.
 3. **Write the toggle** per `notion-structure.md` → *Catalog snapshot*: replace the existing
    toggle's contents if the page has one, else append it at the very end of the page.
 
-4. **Report.** Row count, `written_at`, and which source the rows came from (REST / template /
-   pasted). If the rows came from the paste path or the template, add one line that a later run
-   with egress will read the live table again as normal — the snapshot only serves the runs that
-   can't.
+4. **Report.** Row count, `written_at`, and which source the rows came from (REST / template —
+   with its `version:` / pasted). For the template path, add the hand-edit line from rung 2. For
+   any non-REST source, one line that a later run with egress reads the live table again as
+   normal — the snapshot only serves the runs that can't.
 
 ## Rules
 - **This workflow writes exactly one thing: the snapshot toggle.** It never creates, updates, or

@@ -724,9 +724,10 @@ you:
 - **Skip the read-only token setup.** The token only feeds the REST path, which can't run on
   Free. Nothing to configure.
 - **Cars onboarded by an older skill version have no snapshot yet.** One-time fix, right from
-  Free: *"refresh the catalog snapshot for the {car}"* — the skill writes the snapshot (pasting
-  the car's `Parameters` table from Notion if it can't read it) and touches nothing else. Any
-  setup-saving run on a plan with egress also backfills it automatically.
+  Free: *"refresh the catalog snapshot for the {car}"* — instant for the bundled cars (the
+  template ships with the skill), or paste the car's `Parameters` table from Notion for one you
+  onboarded from screenshots. It touches nothing else. Any setup-saving run on a plan with
+  egress also backfills it automatically.
 
 On Pro or Max, set **Network egress → All domains** (install step 2) and none of this applies.
 
@@ -746,8 +747,9 @@ On Pro or Max, set **Network egress → All domains** (install step 2) and none 
   [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)).
 - **"No catalog snapshot" on Free** → the car was onboarded by an older skill version. Say
   *"refresh the catalog snapshot for the {car}"* — it writes the snapshot and touches nothing
-  else (your setups and hand-edits stay put). No network needed: if asked, paste the car's
-  `Parameters` table from Notion into the chat.
+  else (your setups stay put). For the bundled cars it's instant, straight from the shipped
+  template; for a car you onboarded from screenshots, paste its `Parameters` table from Notion
+  when asked.
 - **Hitting limits on Free** → the workflows run several steps; Pro has more headroom.
 - **A value looks slightly "off"** → expected for continuous settings; dial to the nearest in-game
   position. To force exact values, fill `Discrete steps`.
