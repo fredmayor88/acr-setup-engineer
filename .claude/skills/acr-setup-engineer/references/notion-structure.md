@@ -617,7 +617,8 @@ car's `Parameters` rows is **not finished** until the snapshot reflects the resu
 - `onboard-car.md` step 8 — the gravel pass (the new `Surface = Gravel` rows go in too);
 - `import-savegame.md` 5.2/5.3 — template auto-onboard.
 Build it from the rows **you already hold in the run** — never read the catalog back just to
-write the snapshot.
+write the snapshot. (`refresh-catalog-snapshot.md` is the standalone version: it writes **only**
+the snapshot, for cars onboarded before it existed — with a paste path that needs no egress.)
 
 **Backfill — missing only, never a diff.** When a run (a) holds a **fresh, full REST read** of
 the car's catalog, (b) has the fetched `{Car}` page in hand, (c) is **already writing to Notion**

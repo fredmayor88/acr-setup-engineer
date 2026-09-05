@@ -33,6 +33,7 @@ Pick the matching workflow and read its file before acting:
 | **Save/store a setup the user built themselves in-game**, from photos of the setup screens — *"store this as {name} for the {car}"*, *"save these screens as a setup"* (photos show **current values**, and a name to save it under is given or asked for) | `references/capture-setup.md` |
 | Import existing setups from a save file | `references/import-savegame.md` |
 | Export a car's parameters as a community template file | `references/export-car-template.md` |
+| Create/refresh a car's **catalog snapshot** — make an already-onboarded car readable without network egress (e.g. Claude's Free plan), touching nothing else | `references/refresh-catalog-snapshot.md` |
 
 Shared knowledge (read as needed):
 - `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions, the

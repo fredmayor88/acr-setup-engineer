@@ -723,9 +723,10 @@ you:
   screenshot the default again. Anything captured in the current chat works normally.
 - **Skip the read-only token setup.** The token only feeds the REST path, which can't run on
   Free. Nothing to configure.
-- **Cars onboarded by an older skill version have no snapshot yet.** Re-onboard the car
-  (template cars take one sentence) — or save any setup on a plan with egress, which backfills
-  it automatically.
+- **Cars onboarded by an older skill version have no snapshot yet.** One-time fix, right from
+  Free: *"refresh the catalog snapshot for the {car}"* — the skill writes the snapshot (pasting
+  the car's `Parameters` table from Notion if it can't read it) and touches nothing else. Any
+  setup-saving run on a plan with egress also backfills it automatically.
 
 On Pro or Max, set **Network egress → All domains** (install step 2) and none of this applies.
 
@@ -743,8 +744,10 @@ On Pro or Max, set **Network egress → All domains** (install step 2) and none 
   apply to one that's already open. On **Free** that option doesn't exist and reads use the
   catalog snapshot instead — by design (see
   [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)).
-- **"No catalog snapshot" on Free** → the car was onboarded by an older skill version.
-  Re-onboard it (template cars take one sentence) and the snapshot is written.
+- **"No catalog snapshot" on Free** → the car was onboarded by an older skill version. Say
+  *"refresh the catalog snapshot for the {car}"* — it writes the snapshot and touches nothing
+  else (your setups and hand-edits stay put). No network needed: if asked, paste the car's
+  `Parameters` table from Notion into the chat.
 - **Hitting limits on Free** → the workflows run several steps; Pro has more headroom.
 - **A value looks slightly "off"** → expected for continuous settings; dial to the nearest in-game
   position. To force exact values, fill `Discrete steps`.

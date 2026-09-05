@@ -136,9 +136,11 @@ Every `{Car}` page ends with an auto-maintained **`Catalog snapshot`** toggle �
    since that date aren't in it. When the output leaves the user's own Notion (e.g. a template
    export), confirm nothing was edited since — see `export-car-template.md` step 1.
 
-**No snapshot on the page** (car onboarded by an older skill version): rung 3 above — and tell
-the user that re-onboarding the car writes it (as does any setup-saving run on a plan with
-egress, which backfills a missing snapshot — `notion-structure.md` → *Backfill*).
+**No snapshot on the page** (car onboarded by an older skill version): rung 3 above — and
+offer the fix in the same breath: `refresh-catalog-snapshot.md` writes the snapshot and nothing
+else, and works even without egress (the user pastes the car's `Parameters` table from Notion).
+Re-onboarding also writes it, as does any setup-saving run on a plan with egress
+(`notion-structure.md` → *Backfill*).
 
 ## Scope
 Only ever query a data source **inside `ACR Setup Engineer`**. Never use this against a database resolved
