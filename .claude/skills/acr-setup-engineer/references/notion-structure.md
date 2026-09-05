@@ -615,6 +615,8 @@ rows:
 car's `Parameters` rows is **not finished** until the snapshot reflects the result. That means:
 - `onboard-car.md` step 7 — first onboard or refresh, screenshot or template path;
 - `onboard-car.md` step 8 — the gravel pass (the new `Surface = Gravel` rows go in too);
+- `onboard-car.md` step 9 — when the user dictates `Discrete steps` in chat and the rows are
+  updated in-run;
 - `import-savegame.md` 5.2/5.3 — template auto-onboard.
 Build it from the rows **you already hold in the run** — never read the catalog back just to
 write the snapshot. (`refresh-catalog-snapshot.md` is the standalone version: it writes **only**

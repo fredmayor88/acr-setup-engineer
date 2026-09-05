@@ -378,9 +378,23 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
    created (list which parameters differ from the tarmac baseline), and anything flagged uncertain.
    **If no car information screenshot was attached**, mention once that one shot of the in-game car
    info screen would have settled most of these — useful next time, not worth redoing now.
-   **Tell the user about `Discrete steps`:** any parameter can be pinned to an exact set of
-   values by filling its `Discrete steps` cell in Notion (e.g. spring stiffness
-   `42300, 50000, 57700, 65400, 73100`, or gear set `1, 2, 3`).
+   **Tell the user about `Discrete steps`, and offer to take them now.** Any parameter can be
+   pinned to an exact set of values (e.g. spring stiffness
+   `42300, 50000, 57700, 65400, 73100`, or gear set `1, 2, 3`). Two ways, and **offer the first
+   one** when the report flags any parameter below:
+   - **Give them here, in chat** — *"Read them off the in-game screen and paste them and I'll
+     write them in."* You still hold every row you just created, so update those rows directly
+     (one batched `notion-update-page` pass over the affected rows) **and rewrite the `Catalog
+     snapshot` from the updated rows** in the same breath. No row lookup, no re-onboarding, and
+     the car leaves this run complete. This is the **only** moment the values can be written
+     without a row query, so it is the recommended route on **any** plan and the *only*
+     self-service one where the sandbox has no network egress (Claude's Free plan — see
+     `notion-rest-read.md`).
+   - **Fill the cells in Notion later** — always available, and the right call if they need to
+     go look at the game first. **On a plan without egress, tell them the follow-up**: those
+     edits live only in the rows, so the snapshot keeps serving the old values until they say
+     *"refresh the catalog snapshot for this car"* (`refresh-catalog-snapshot.md`). On a plan
+     with egress nothing is needed — reads go to the live rows.
    **Parameters needing user action — call these out explicitly in three groups:**
    - *Component-name selections* (brake discs/calipers, engine/throttle map,
      differential ratio/LSD ramp when shown as names): `Min/Max = —`, **pre-seeded with the
@@ -454,9 +468,13 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
   the table.
 - This workflow only defines *legal ranges* — never write a value into a setup here.
 - Never ask for click counts or interpolate. For **numeric** params `Discrete steps` is
-  **optional and user-owned** — onboarding leaves it blank. For **`—` named-selection** params
-  onboarding seeds it with the option names the screenshots show (observed values only, never
-  fabricated) plus the standard ACR lists for `Tyre Type`/brake pads; the user completes it.
+  **optional and user-owned** — onboarding never fabricates or infers it, and the write in step 7
+  leaves it blank. Step 9 may *offer* to record values the user reads off the game and dictates
+  in chat; that's the user filling their own cell through a convenient channel, not the skill
+  deriving one, and a "no thanks" leaves the cell blank as before. For **`—` named-selection**
+  params onboarding seeds it with the option names the screenshots show (observed values only,
+  never fabricated) plus the standard ACR lists for `Tyre Type`/brake pads; the user completes
+  it.
 - **Never use existing Notion content as parameter input.** The `{Car}` page is a write
   destination. Any tables or notes already on it are the user's own work — do not read,
   compare, or defer to them during extraction. Screenshots (or a bundled profile) are the only

@@ -15,7 +15,8 @@ on the page* case.
 
 ## Inputs
 - **Car name** — must already be onboarded (its `Parameters` rows exist in Notion). If it isn't,
-  say so and point to `onboard-car.md` — onboarding writes the snapshot itself.
+  say so and point to `onboard-car.md` — onboarding writes the snapshot itself, and its step 9
+  can take `Discrete steps` in chat so a fresh screenshot onboard needs no refresh at all.
 
 ## Procedure
 
