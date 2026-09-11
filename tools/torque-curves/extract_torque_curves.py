@@ -39,7 +39,7 @@ CAR_MAP = {
     "CitroenXsaraWRC":              ("citroen-xsara-wrc-2003", "Citroen Xsara WRC 2003"),
     "Fiat124Abarth":                ("fiat-124-abarth-rally-16v-1974", "Fiat 124 Abarth Rally 16V 1974"),
     "Fiat131Abarth":                ("fiat-131-abarth-1976", "Fiat 131 Abarth 1976"),
-    "Hyundaii20NRally2":            ("hyundai-i20-rally2-2021", "Hyundai i20 Rally2 2021"),
+    "HyundaiI20NRally2":            ("hyundai-i20-rally2-2021", "Hyundai i20 Rally2 2021"),
     "LanciaDeltaHFIntegraleEvo":    ("lancia-delta-integrale-evoluzione-1992", "Lancia Delta Integrale Evoluzione 1992"),
     "LanciaFulviaCoupeHF": ("lancia-fulvia-coupe-hf-1970", "Lancia Fulvia Coupe HF 1970"),
     "LanciaRally037Evo2":           ("lancia-037-evoluzione-2-1984", "Lancia 037 Evoluzione 2 1984"),
@@ -268,7 +268,7 @@ def main():
     if not args.dry_run:
         os.makedirs(args.charts, exist_ok=True)
 
-    no_template, written = [], 0
+    no_template, written, charted = [], 0, 0
     for car, asset_name in order:
         keys = parse_rich_curve(open(os.path.join(work, car + ".bin"), "rb").read())
         if not keys:
@@ -282,6 +282,7 @@ def main():
 
         if not args.dry_run:
             render_chart(display, s, os.path.join(args.charts, f"{slug}-power-torque.png"))
+        charted += 1
 
         tpl = os.path.join(args.templates, f"{slug}.yaml")
         has_tpl = os.path.exists(tpl)
@@ -297,7 +298,8 @@ def main():
             write_template(tpl, yaml_block(slug, asset_name, s))
             written += 1
 
-    print(f"\n{'would write' if args.dry_run else 'wrote'} {len(order)} charts, "
+    # charts are only written for cars in CAR_MAP, so this is not len(order)
+    print(f"\n{'would write' if args.dry_run else 'wrote'} {charted} charts, "
           f"{written} template updates")
     if no_template:
         print("no bundled template yet (chart generated anyway): " + ", ".join(no_template))
