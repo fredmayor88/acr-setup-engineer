@@ -93,3 +93,9 @@ CARRIED_OVER = {'Tyre Type', 'Brake Discs Front', 'Brake Discs Rear',
                 'Front Cylinder', 'Rear Cylinder', 'Master Cylinder'}
 
 MAX_DISCRETE = 64          # longer than this and a min/max line says it better
+
+# Per-parameter caps, applied instead of MAX_DISCRETE. Ride height is a continuous
+# adjuster: enumerating 61 millimetre positions is noise, and min/max says it better.
+# A handful of entries still gets listed, because some cars have two real hardware
+# positions and that is worth knowing.
+DISCRETE_CAP = {'Adjuster Ring': 8}

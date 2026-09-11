@@ -112,7 +112,15 @@ def num(v):
     return repr(r).rstrip('0').rstrip('.')
 
 
-def steps_list(mn, mx, step):
+def discrete_cap(adjustment):
+    """How many entries this parameter may enumerate before min/max says it better."""
+    for stem, cap in M.DISCRETE_CAP.items():
+        if adjustment.startswith(stem):
+            return cap
+    return M.MAX_DISCRETE
+
+
+def steps_list(mn, mx, step, cap=M.MAX_DISCRETE):
     """The explicit value list, or '' when a min/max/step line already says it."""
     if not step or step <= 0 or mx <= mn:
         return ''
@@ -120,7 +128,7 @@ def steps_list(mn, mx, step):
     if abs(n - round(n)) > 1e-6:
         return ''
     count = int(round(n)) + 1
-    if count < 2 or count > M.MAX_DISCRETE:
+    if count < 2 or count > cap:
         return ''
     return ', '.join(num(mn + i * step) for i in range(count))
 
@@ -197,7 +205,8 @@ def build_rows(pkg, tables):
         rows.append({
             'section': section, 'adjustment': adjustment, 'order': order,
             'min': num(mn), 'max': num(mx), 'unit': unit,
-            'discrete_steps': steps if steps is not None else steps_list(mn, mx, step),
+            'discrete_steps': (steps if steps is not None
+                               else steps_list(mn, mx, step, discrete_cap(adjustment))),
         })
 
     for (group, axle, suffix), val in merged.items():
@@ -300,7 +309,8 @@ def build_rows(pkg, tables):
             rows.append({
                 'section': M.SECTIONS.get(group, group), 'adjustment': name,
                 'order': fo if axle == 'Front' else ro, 'min': num(a), 'max': num(b),
-                'unit': unit, 'discrete_steps': steps_list(a, b, c), 'surface': surface,
+                'unit': unit, 'surface': surface,
+                'discrete_steps': steps_list(a, b, c, discrete_cap(name)),
             })
 
     return rows, notes, merged
