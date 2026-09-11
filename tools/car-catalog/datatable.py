@@ -41,3 +41,28 @@ def rows(pkg):
             cur = pkg.name(idx, num)
             out.setdefault(cur, [])
     return out
+
+
+def tagged_rows(pkg, tag):
+    """{row name: value} for one tag in a table whose rows carry several.
+
+    DT_Wheels rows list Tires / Rims / Calipers / Discs side by side, so the
+    single-tag heuristic in rows() would keep whichever tag happened to be the
+    most common. Naming the tag removes the guess.
+    """
+    _, blob = pkg.export_bytes(0)
+    seq = _fnames(pkg, blob)
+    tags = {'Tires', 'Rims', 'Calipers', 'Discs', 'Pads', 'Gears', 'Values', 'Name'}
+    out, cur, pending = {}, None, None
+    for _, idx, num in seq:
+        name = pkg.name(idx, num)
+        if pending is not None:
+            if pending == tag and cur is not None:
+                out[cur] = name
+            pending = None
+            continue
+        if name in tags:
+            pending = name
+            continue
+        cur = name
+    return out
