@@ -67,13 +67,23 @@ Ride height, LSD preload and handbrake force step so finely that listing every v
 
 These stay as the previous template had them, and the run prints which ones were carried over:
 
-- **Tyre Type, brake discs / calipers / pads, master cylinders.** These are DB part records
-  whose *display* strings the UI synthesises from part specs — the files hold
-  `APLockheed_CP4448-81_267x28_Baffled_5x108_APLockheedDisc00` where the setup screen shows
-  `267/156X28 B TYPE1`. Emitting the raw ids would be worse than useless for matching what's
-  on screen, so the human-readable lists are kept.
-- **Proportioning preload, front cylinder, rear cylinder.** The per-car asset stores no bound
-  for these; the displayed range is derived from the fitted master cylinder.
+- **Brake discs and calipers.** These are DB part records whose *display* strings the UI
+  synthesises — the files hold `APLockheed_CP4448-81_267x28_Baffled_5x108_APLockheedDisc00`
+  where the setup screen shows `267/156X28 B TYPE1`. `DT_DiscsLists` / `DT_CalipersLists` do
+  give the per-car, per-axle part ids (keyed `<DT_Wheels prefix>_<Surface>_<Axle>`), and the id
+  yields the outer diameter, the thickness and the `P`/`B`/`D` letter (`Planar`/`Baffled`/…) —
+  but **the middle number and the `TYPE<n>` index are not in the game data**. Searched and ruled
+  out: the `DT_Discs` row bytes, the per-disc `DA_*` DataAsset (524 bytes: asset paths plus one
+  description string, `AlfaRomeo 250mm Type1 250x22 4x108` — no `140`), and the part id itself.
+  Some disc assets happen to embed it (`Alcon DIV2216X 355-249/32 …` → `355/249X32`) but most
+  don't, so it's most likely read off the disc mesh or computed UI-side. Re-check only with new
+  evidence. Calipers are the same story: `2x48` comes from the id, `TYPE<n>` doesn't.
+- **`Proportioning Preload`.** The per-car asset stores no bound; the displayed range is derived
+  from the fitted master cylinder by a formula that hasn't been worked out. Affects few cars.
+- **`Engine Map` / `Throttle Map`.** Present as bound-less settings on a couple of cars. Only one
+  bundled template has them at all (the Xsara: `0, 1` and `1, 2`), and those two disagree on
+  whether the list starts at 0 or 1 — one car is not enough evidence to pin a definition-level
+  constant, so they still need a screenshot.
 - **`Front Bias` (0.25–0.75), `Proportioning Ratio` (0–1), `ABS Map` / `TCS Map` (1–3).**
   Definition-level constants: every car's asset overrides only the *step*, so the bounds live
   in the shared setting definition. They're pinned in `mapping.py`'s `DEFINITION_RANGES`.
@@ -83,6 +93,32 @@ These stay as the previous template had them, and the run prints which ones were
   real-world specs anyway, not game output; compare them against the `engine_curve:` peaks,
   not against each other. One look at the game's car-info screen (plus a spec sheet for the
   power/torque numbers) fills these in.
+
+## Part lists that *are* recovered from the game files
+
+A brand-new car gets these filled automatically (the run prints
+`+ filled from the game files: …`), so they never need a screenshot. An existing template's own
+wording still wins on a refresh, which is why adding this changed nothing in the 14
+screenshot-onboarded templates:
+
+- **`Tyre Type`, `Brake Pads Front` / `Brake Pads Rear` — game-wide constants, not per-car.**
+  All 14 screenshot-onboarded templates carry byte-identical lists: the canonical 10 tyre
+  compounds and `SOFT, MEDIUM, HARD`. Pinned in `mapping.py`'s `CONSTANT_STEPS`; the tyre list
+  must stay identical to the one the skill validates against in `SKILL.md`.
+- **`Front Cylinder` / `Rear Cylinder` — `DT_MasterCylindersLists`**, keyed by the car's
+  `DT_Wheels` prefix (`LanciaRally037Evoluzione2`, `AudiQuattroGr.4`, …), one bore list per car
+  serving both axles. Verified against every bundled template that has these rows — 037, i20,
+  306, Xsara, Fabia, Impreza, 131 — all exact matches. A car absent from that table has no
+  cylinder parameter at all (the Peugeot 208 Rally4), which lines up with what its presets asset
+  exposes. The combined `Master Cylinder` row some cars use instead (front/rear pairs, e.g. the
+  Alfa's `20.64_20.64, 22.23_22.23`) lives in `DT_MasterCylindersSets` and is **not** wired up —
+  no queued car needed it.
+
+The table naming is a consistent pattern worth knowing: `DT_<Thing>Lists` holds the per-car or
+per-part *option lists* and parses with the plain `datatable.rows()` reader, while `DT_<Thing>`
+holds the part records themselves and needs struct-level parsing. That's the same mechanism
+`build_rows()` already uses for gear sets and diff ramps, which is why wiring a new one up is
+usually a `WANTED_TABLES` entry plus a lookup.
 
 ## Car identity facts
 
@@ -177,11 +213,17 @@ bootstrapped this way):
    Two fields the screen does *not* carry: `weight_bias` (rarely published for rally cars — an
    estimate marked `(estimated — no published figure)` is the established convention, see the
    Fiat 131 template) and the `engine_layout` detail beyond cylinder count (orientation,
-   displacement, valve gear) — a quick spec-sheet lookup. Finally, fill the `NEEDS SCREENSHOT`
-   parameters from the min/max setup screens. Until `car:` stops being the literal string
-   `"TODO"`, the template is a draft — don't let the skill auto-onboard a car from it, and note
-   that the gearing charts title themselves from `car:`, so rendering them before this step puts
-   the word "TODO" on the chart.
+   displacement, valve gear) — a quick spec-sheet lookup. Until `car:` stops being the literal
+   string `"TODO"`, the template is a draft — don't let the skill auto-onboard a car from it, and
+   note that the gearing charts title themselves from `car:`, so rendering them before this step
+   puts the word "TODO" on the chart.
+6. **Capture the one screen the files can't replace:** the brake setup screen, for
+   `Brake Discs Front`/`Rear` and `Brake Calipers Front`/`Rear` (plus `Engine Map` /
+   `Throttle Map` / `Proportioning Preload` on the rare car that has them) — everything the run
+   flags `NEEDS SCREENSHOT`. `DT_DiscsLists` / `DT_CalipersLists` tell you **how many options to
+   expect per axle**, so you can check the capture is complete before typing it in. Worth typing
+   carefully: the hand-entered values in the older templates contain real typos — `TYPE 2` with a
+   stray space, `Typ1` truncated, and a `355/248` that the game files say is `355/249`.
 
 ## Chart titles come from two places — keep them in sync
 

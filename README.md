@@ -170,7 +170,7 @@ should go drive it.
 1. Install the skill (5 minutes, one-time — [full steps below](#installation-one-time-about-5-minutes),
    or [watch it](https://www.youtube.com/watch?v=f7NPJM9S9PU)).
 2. Say: *"Onboard the Lancia Stratos HF for Assetto Corsa Rally."* If it's one of the
-   [14 bundled cars](#bundled-car-library), that's it — no screenshots, no typing.
+   [18 bundled cars](#bundled-car-library), that's it — no screenshots, no typing.
 3. Say: *"Build me a setup for a fast, bumpy tarmac stage."*
 4. Drive it. Come back and say how it felt — even badly.
 5. Iterate until you like it, then say *"save it."*
@@ -678,6 +678,7 @@ these cars onboard in one command — no screenshots:
 
 - **Alfa Romeo GTA 1300 Junior** (1972) — RWD
 - **Alpine A110 1.8** (1973) — RWD
+- **Audi Quattro Gr.4** (1981) — AWD
 - **Citroën Xsara WRC** (2003) — AWD
 - **Fiat 124 Abarth Rally 16V** (1974) — RWD
 - **Fiat 131 Abarth** (1976) — RWD
@@ -687,14 +688,18 @@ these cars onboard in one command — no screenshots:
 - **Lancia Fulvia Coupé HF** (1970) — FWD
 - **Lancia Stratos HF** (1976) — RWD
 - **Mini Cooper S** (1964) — FWD
+- **Peugeot 206 WRC** (1999) — AWD (no charts yet)
+- **Peugeot 208 Rally4** (2020) — FWD
 - **Peugeot 306 II Maxi** (1997) — FWD
 - **Skoda Fabia RS Rally2** (2022) — AWD
 - **Subaru Impreza 555 (S3)** (1993) — AWD
+- **Volkswagen Polo GTI R5** (2018) — AWD
 
-Every one of them carries its power/torque curve, its gearing chart, and — where the final drive
-is adjustable — its final-drive chart, all from the game files. The **Peugeot 208 Rally4** has a
-curve too but no parameter template yet — onboard it from screenshots and its chart is
-already waiting.
+Each carries its power/torque curve, its gearing chart, and — where the final drive is adjustable
+— its final-drive chart, all from the game files. The **Peugeot 206 WRC** is the exception: it has
+no charts at all, because the game ships no engine curve for it yet. The four newest cars (Audi,
+both the 206 and the 208, and the Polo) are also still missing their brake disc and caliper
+options; everything else is filled in.
 
 Don't see your car? Onboard it from screenshots — and if you feel like it, contribute the template
 back so the next driver gets it for free.

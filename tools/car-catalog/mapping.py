@@ -92,6 +92,23 @@ CARRIED_OVER = {'Tyre Type', 'Brake Discs Front', 'Brake Discs Rear',
                 'Brake Pads Front', 'Brake Pads Rear',
                 'Front Cylinder', 'Rear Cylinder', 'Master Cylinder'}
 
+# Game-wide constants, not per-car: every one of the 14 screenshot-onboarded templates
+# carries these exact lists, front and rear, with no variation. Used to fill a brand-new
+# car's rows instead of asking for a screenshot. The tyre list is also the canonical set
+# the skill validates against (SKILL.md - "Tyre fallback + canonical names"), so the two
+# must stay identical.
+CONSTANT_STEPS = {
+    'Tyre Type': ('Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter, '
+                  'Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)'),
+    'Brake Pads Front': 'SOFT, MEDIUM, HARD',
+    'Brake Pads Rear': 'SOFT, MEDIUM, HARD',
+}
+
+# Master-cylinder bores come out of DT_MasterCylindersLists, keyed by the car's DT_Wheels
+# prefix, as one list per car that serves both axles. Verified against every bundled
+# template that has these rows (037, i20, 306, Xsara, Fabia, Impreza, 131) - exact match.
+MASTER_CYLINDER_ROWS = ('Front Cylinder', 'Rear Cylinder')
+
 MAX_DISCRETE = 64          # longer than this and a min/max line says it better
 
 # Per-parameter caps, applied instead of MAX_DISCRETE. Ride height is a continuous

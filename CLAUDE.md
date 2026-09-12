@@ -115,3 +115,35 @@ For each release:
 - After finishing a feature or request, **do not run `make test` or build the ZIP
   (`make zip` / `make release`) by default** — only do so when explicitly instructed. These are
   part of the release procedure above, not a routine post-task check.
+
+### Car templates and charts: get it from the game files
+
+Whenever asked to **create or update a car template or its charts**, the default is to extract
+**everything you can** from the ACR game files with the `tools/` extractors. Don't ask for
+screenshots of anything the files already hold — the parameter catalogue in particular is fully
+extractable, and asking for min/max setup screens for it is redoing solved work.
+
+- **Ask for one thing: the in-game car-info screen.** It carries the display name, year, engine,
+  max power, max torque, weight and steering lock in a single capture. Two known traps (both hit
+  on real cars) are written up in `bootstrap_header()` in `tools/car-catalog/extract_car_catalog.py`:
+  the steering-lock figure is sometimes the per-side angle, and the engine description can be
+  wrong. Read them before transcribing.
+- **The one capture the files genuinely can't replace** is the brake setup screen — brake discs
+  and calipers, plus `Engine Map` / `Throttle Map` / `Proportioning Preload` on the rare car that
+  has them. Everything else in the catalogue comes from the files.
+- **Before concluding anything "isn't in the game files", read
+  [tools/car-catalog/README.md](tools/car-catalog/README.md).** It records what has been ruled out
+  *with the evidence*, and the naming pattern that usually cracks a new field: `DT_<Thing>Lists`
+  holds per-car option lists and parses with the plain `datatable.rows()` reader, while
+  `DT_<Thing>` holds part records needing struct-level parsing. Wiring a new one up is usually a
+  `WANTED_TABLES` entry plus a lookup. A previous session wrote off tyres, pads and master
+  cylinders as screenshot-only; all three turned out to be extractable.
+- **Validate every new extraction against the screenshot-onboarded templates before trusting it.**
+  There are 14 of them and they are ground truth. Every extractor in `tools/` was confirmed this
+  way (identity facts matched all 14; master-cylinder bores matched every car that has them), and
+  the exercise also surfaced typos in the hand-entered values — so when derived and hand-entered
+  values disagree, suspect the hand-entered one.
+- **Keep the blast radius to the car you were asked about.** All four extractors take `--car`;
+  use it. Re-running a tool across every car rewrites templates you weren't asked to touch, and
+  on Windows (`core.autocrlf=true`) that also sprays line-ending-only "modified" flags with no
+  content change.

@@ -29,6 +29,8 @@ from datatable import rows as dt_rows        # noqa: E402
 import mapping as M                          # noqa: E402
 import car_identity as CI                    # noqa: E402  (bootstrap_header only)
 import extract_torque_curves as TC           # noqa: E402  (folder name for save_ids)
+sys.path.insert(0, os.path.join(REPO, 'tools', 'gearing-charts'))
+import make_gearing_chart as GC              # noqa: E402  (DT_Wheels prefix per slug)
 
 DEFAULT_PAKS = ('C:/Program Files (x86)/Steam/steamapps/common/'
                 'Assetto Corsa Rally/acr/Content/Paks')
@@ -62,7 +64,9 @@ TABLE_ALIASES = {'LSDRampAnglesLists': 'DT_DiffRampsLists'}
 
 WANTED_TABLES = ['DT_RearGearsLists', 'DT_FrontGearsLists', 'DT_CentreGearsLists',
                  'DT_CentreToRearGearsLists', 'DT_CentreToFrontGearsLists',
-                 'DT_PrimaryGearsLists', 'DT_GearsSetsLists', 'DT_DiffRampsLists']
+                 'DT_PrimaryGearsLists', 'DT_GearsSetsLists', 'DT_DiffRampsLists',
+                 # bores for Front/Rear Cylinder, keyed by the car's DT_Wheels prefix
+                 'DT_MasterCylindersLists']
 
 
 # ---------------------------------------------------------------- pak plumbing
@@ -402,15 +406,36 @@ def render(rows):
     return '\n'.join(lines) + '\n'
 
 
-def merge(new_rows, old_rows, merged):
+def derived_steps(name, cylinders):
+    """A CARRIED_OVER row's values recovered from the game files rather than from a
+    previous template, or None when only a screenshot can supply them.
+
+    Covers the game-wide constants (tyre compounds, pad compounds) and the per-car
+    master-cylinder bores. Brake discs and calipers are NOT here: their setup-screen
+    strings (`250/140X22 P TYPE1`) carry a middle number and a TYPE index that aren't
+    in DT_Discs/DT_Calipers, the per-part DataAssets, or the part ids - see
+    README.md - What it doesn't touch.
+    """
+    if name in M.CONSTANT_STEPS:
+        steps = M.CONSTANT_STEPS[name]
+        return '—', '—', steps
+    if name in M.MASTER_CYLINDER_ROWS and cylinders:
+        return cylinders[0], cylinders[-1], ', '.join(cylinders)
+    return None
+
+
+def merge(new_rows, old_rows, merged, cylinders=()):
     """Game-derived rows, plus what only the previous template can supply.
 
     Two kinds get carried over: parameters whose legal values are DB part records
     the UI spells itself, and parameters the game leaves at their definition
-    default so the per-car asset holds no bound at all.
+    default so the per-car asset holds no bound at all. Where the game files can
+    actually supply one of those (see derived_steps), a car with no previous
+    template gets it from there instead of needing a screenshot; an existing
+    template's own wording still wins, so refreshing never rewrites it.
     """
     old_by_name = {r['adjustment']: r for r in old_rows if not r.get('surface')}
-    out, carried, missing = [], [], []
+    out, carried, missing, derived = [], [], [], []
 
     for r in new_rows:
         if not r.pop('inherit', False):
@@ -435,13 +460,21 @@ def merge(new_rows, old_rows, merged):
         old = old_by_name.get(name)
         order, unit = CARRIED_ORDER[name]
         if old is None:
-            missing.append(name)
+            got = derived_steps(name, cylinders)
+            if got is None:
+                missing.append(name)
+                continue
+            mn, mx, steps = got
+            out.append({'section': 'Wheels' if name == 'Tyre Type' else 'Brakes',
+                        'adjustment': name, 'order': order, 'min': mn, 'max': mx,
+                        'unit': unit, 'discrete_steps': steps})
+            derived.append(name)
             continue
         out.append({'section': old['section'], 'adjustment': name, 'order': order,
                     'min': old['min'], 'max': old['max'], 'unit': old['unit'] or unit,
                     'discrete_steps': old['discrete_steps']})
         carried.append(name)
-    return out, carried, missing
+    return out, carried, missing, derived
 
 
 def bootstrap_header(slug):
@@ -532,7 +565,11 @@ def main():
             path = os.path.join(TEMPLATES, slug + '.yaml')
             is_new = slug in new_slugs
             txt, old_rows = read_old(path)
-            rows, carried, missing = merge(new_rows, old_rows, merged)
+            # DT_MasterCylindersLists is keyed by the car's DT_Wheels prefix, which
+            # gearing-charts already maps per slug - reuse it rather than add a 5th map
+            wheels_key = GC.CARS.get(slug, (None, None, None))[1]
+            cylinders = tables.get('DT_MasterCylindersLists', {}).get(wheels_key, ())
+            rows, carried, missing, derived = merge(new_rows, old_rows, merged, cylinders)
 
             def key(r):
                 return (r['adjustment'] + (f' [{r["surface"]}]' if r.get('surface') else ''))
@@ -562,10 +599,12 @@ def main():
                 print(f'    ! {n}')
             if is_new:
                 for n in missing:
-                    print(f'    ! NEEDS SCREENSHOT (no previous template to carry it from): {n}')
+                    print(f'    ! NEEDS SCREENSHOT (not in the game files): {n}')
             else:
                 for n in missing:
                     print(f'    ! no game range and no previous value: {n}')
+            if derived:
+                print(f'    + filled from the game files: {", ".join(sorted(derived))}')
             if carried:
                 print(f'    = carried over from the previous template: {", ".join(sorted(carried))}')
 

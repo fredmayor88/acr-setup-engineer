@@ -155,6 +155,13 @@ parameters:
     discrete_steps: ""
 
   - section: "Wheels"
+    adjustment: "Tyre Type"
+    order: 6010
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "Tarmac Soft, Tarmac Medium, Tarmac Hard, Tarmac Wet, Tarmac Winter, Tarmac Snow, Gravel Soft, Gravel Medium, Gravel Hard, Snow (Studs)"
+  - section: "Wheels"
     adjustment: "Pressure Front"
     order: 6020
     min: 10
@@ -191,12 +198,26 @@ parameters:
     discrete_steps: ""
 
   - section: "Brakes"
+    adjustment: "Brake Pads Front"
+    order: 7030
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
+  - section: "Brakes"
     adjustment: "Handbrake Force"
     order: 7070
     min: 0.5
     max: 1.5
     unit: ""
     discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Brake Pads Rear"
+    order: 7100
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "SOFT, MEDIUM, HARD"
 
   - section: "Electronics"
     adjustment: "Additional Lights"
