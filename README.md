@@ -9,7 +9,7 @@ Free. Open source. Your data stays in your Notion.
 
 > **▶ Video walkthroughs:**
 > - [Installation](https://www.youtube.com/watch?v=f7NPJM9S9PU)
-> - [Onboarding a new car](https://www.youtube.com/watch?v=6EULzBKqBRc)
+> - [Onboarding a new (unsupported) car](https://www.youtube.com/watch?v=6EULzBKqBRc)
 
 ---
 
