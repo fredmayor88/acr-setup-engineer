@@ -24,6 +24,7 @@ Pick the matching workflow and read its file before acting:
 | If the user wants to… | Follow |
 |---|---|
 | Onboard a car / capture its tunable parameters (from min & max screenshots, plus the car info screen for its identity facts) | `references/onboard-car.md` |
+| **Refresh an already-onboarded car** — *"refresh the {car} in my Notion"*, *"update {car}"*, *"re-onboard {car}"*: rewrites **everything static** about it (identity facts, the engine/gearing charts, the `Parameters` catalog, the `Catalog snapshot`), leaving `Setups` and hand-written guidelines alone | `references/onboard-car.md` (refresh path) |
 | Build a setup for a stage | `references/build-setup.md` |
 | Tweak / refine a setup, or describe a handling problem to work through (problem → tweak → test loop) | `references/tweak-setup.md` |
 | Work out **what's actually wrong** with how the car feels — guided questions after a drive, when the user can't put it into words (then continue into `tweak-setup.md` / `build-setup.md` with the diagnosis) | `references/driving-feedback-interview.md` |
@@ -33,7 +34,7 @@ Pick the matching workflow and read its file before acting:
 | **Save/store a setup the user built themselves in-game**, from photos of the setup screens — *"store this as {name} for the {car}"*, *"save these screens as a setup"* (photos show **current values**, and a name to save it under is given or asked for) | `references/capture-setup.md` |
 | Import existing setups from a save file | `references/import-savegame.md` |
 | Export a car's parameters as a community template file | `references/export-car-template.md` |
-| Create/refresh a car's **catalog snapshot** — make an already-onboarded car readable without network egress (e.g. Claude's Free plan), touching nothing else | `references/refresh-catalog-snapshot.md` |
+| Create/refresh a car's **catalog snapshot specifically** — the user names the *snapshot* (*"refresh the catalog snapshot for {car}"*, *"make {car} readable on Free"*): makes an already-onboarded car readable without network egress, touching nothing else. A bare *"refresh {car}"* is the **row above**, not this one | `references/refresh-catalog-snapshot.md` |
 
 Shared knowledge (read as needed):
 - `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions, the
@@ -149,6 +150,22 @@ Bundled tools (stdlib Python, run via code execution):
   `Gravel Soft/Medium/Hard`; `Dry Tarmac` → `Tarmac Soft/Medium/Hard`).
 - **Tyre pressure is always two values.** Every setup stores `Pressure Front` and
   `Pressure Rear` as two separate values — never a single combined tyre-pressure value.
+- **Compound gear values keep their `*` — never let markdown eat it.** A car with a two-stage
+  primary drive spells it `35//30*33//28` (two gear pairs, multiplied). **`*` is markdown
+  emphasis**, so two of them in one string pair up and are silently swallowed on the way into
+  Notion — a `Discrete steps` list or checklist line becomes `35//3033//28, 33//2832//31`, which
+  is unreadable and matches nothing in the catalog. So:
+  - **`A//B*C//D` (asterisk, no spaces) is the one canonical spelling.** Never substitute `x`,
+    `×` or ` * `, never drop the `*`, and never "tidy" a value you're copying.
+  - **Wrap every parameter value in backticks wherever it lands in a markdown context** — the
+    in-game checklist, the `Catalog snapshot`, a share snippet, a change table, any report.
+    Inline code is literal, so the asterisk survives. This costs nothing on values that don't
+    contain one, so apply it to values generally rather than special-casing gears.
+  - **Read side — repair, don't accept.** A value holding two `//` groups with nothing between
+    them (`35//3033//28`) is a corrupted gear value, not a legal one. Restore the `*` by matching
+    it against the parameter's `Discrete steps`; if exactly one catalog entry matches once the
+    asterisks are stripped from both, use that entry and say you repaired it. If none or several
+    match, ask rather than guessing.
 - **ACR's toe sign is inverted (game bug) — reason in directions, write the screen number.** In
   ACR's setup screen a toe value does the **opposite** of what its sign suggests: a **positive**
   toe value points the wheels **outwards** (toe-**out**), a **negative** one points them

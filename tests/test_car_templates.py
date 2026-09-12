@@ -7,6 +7,7 @@ Run: python -m unittest discover tests   (or: python tests/test_car_templates.py
 """
 import glob
 import os
+import re
 import unittest
 
 import yaml
@@ -96,6 +97,32 @@ class TestCarTemplates(unittest.TestCase):
                 power = [(r, nm * r / 9549.0 * 1.35962) for r, nm in points]
                 p_rpm, p_hp = max(power, key=lambda x: x[1])
                 self.assertEqual(curve['peak_power'], f'{round(p_hp)} hp at {p_rpm} rpm')
+
+
+    def test_compound_gear_values_keep_their_asterisk(self):
+        """A two-stage primary drive is spelled `A//B*C//D`. Because `*` is markdown
+        emphasis, a value that round-trips through an unprotected markdown context comes
+        back as `35//3033//28` — asterisks eaten, matching nothing in the catalog. The
+        templates are the source these get repaired from, so they must never carry the
+        collapsed form (SKILL.md -> Compound gear values)."""
+        compound = re.compile(r'^\d+//\d+\*\d+//\d+$')
+        seen = 0
+        for path, doc in load_templates():
+            with self.subTest(template=os.path.basename(path)):
+                for param in doc['parameters']:
+                    steps = param.get('discrete_steps') or ''
+                    for value in (v.strip() for v in steps.split(',')):
+                        # two ratio pairs in one value means a compound primary drive
+                        if value.count('//') < 2:
+                            continue
+                        seen += 1
+                        self.assertRegex(
+                            value, compound,
+                            f'{param["adjustment"]}: compound gear value {value!r} must be '
+                            f'spelled A//B*C//D with the asterisk intact')
+        # guard the guard: if the notation ever changes shape, this test must not
+        # silently start checking nothing.
+        self.assertGreater(seen, 0, 'no compound gear values found in any template')
 
 
 if __name__ == '__main__':

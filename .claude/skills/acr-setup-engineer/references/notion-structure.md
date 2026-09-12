@@ -124,6 +124,17 @@ and an optional **`Surface`**. The authoritative legal-value catalog. Parameter 
   standard lists for `Tyre type` (full tyre list) and `Brake pads` (`SOFT, MEDIUM, HARD`),
   which are immediately usable. **When present it is the authoritative legal set** for that
   car's parameter; when blank the parameter is treated as continuous over `Min..Max`.
+- **Value notation is literal — especially the compound-gear `*`.** Values are stored and shown
+  exactly as the game spells them: slash pairs as `65//17`, ramp angles as `45/55`, and a
+  two-stage primary drive as **`35//30*33//28`** — asterisk, no spaces. This is the **one
+  canonical spelling**; never rewrite it as `x`, `×` or ` * `, and never drop the `*`.
+  Because `*` is markdown emphasis, a value written unprotected into any markdown context (a
+  page-body checklist, the `Catalog snapshot`, a report) loses its asterisks when two of them
+  pair up — `35//30*33//28, 33//28*32//31` collapses to `35//3033//28, 33//2832//31`. **Wrap
+  values in backticks** wherever they're written into page markdown, and **quote them in the
+  snapshot YAML**, so the asterisk always survives the round trip (`SKILL.md` → *Compound gear
+  values*). A value read back in the collapsed form is corrupted — repair it against
+  `Discrete steps`, don't treat it as legal.
 - **`Order`** (Number) — the parameter's **display position**, driving the order of every `Setups`
   column and every setup projection. Seeded at onboarding from the order the parameter appears on
   the in-game setup screens (canonical ACR defaults + numbering in **Setups column order** below);
@@ -619,6 +630,14 @@ rows:
     Unit: N/m
     Discrete steps: ""
     Order: 14
+  - Adjustment: Primary Gear
+    Section: Gearbox
+    Min: "—"
+    Max: "—"
+    Unit: ""
+    # Always quoted, and every `*` intact — see "Value notation is literal" above.
+    Discrete steps: "35//30*33//28, 33//28*32//31, 33//31*31//30"
+    Order: 1020
   # … one entry per Parameters row for this car
 ```
 

@@ -13,6 +13,15 @@ Read `notion-structure.md` → *Catalog snapshot* (format + placement) before wr
 snapshot", "make {car} readable on Free" — and arriving from `notion-rest-read.md`'s *No snapshot
 on the page* case.
 
+**Not this workflow: a bare "refresh {car}".** *"Refresh the Lancia Stratos in my Notion"*,
+*"update the {car}"*, *"re-onboard {car}"* name the **car**, not the snapshot — the user wants
+everything static about it brought up to date (identity facts, the engine/gearing charts, the
+`Parameters` catalog **and** the snapshot). That's `onboard-car.md`'s refresh path; go there. This
+workflow is the **narrow** one, chosen only when the user names the *snapshot* itself or when a
+read path sent you here. Writing only the snapshot for a request that said "refresh the car"
+silently leaves the charts and identity facts stale — the exact failure this note exists to
+prevent.
+
 ## Inputs
 - **Car name** — must already be onboarded (its `Parameters` rows exist in Notion). If it isn't,
   say so and point to `onboard-car.md` — onboarding writes the snapshot itself, and its step 9

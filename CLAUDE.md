@@ -21,16 +21,26 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
     Read by `build-setup.md` (baseline-first flow) and `tweak-setup.md` (vague feedback).
   - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
 - [README.md](README.md) — end-user docs (claude.ai install + usage).
-- `car-charts/` — one power/torque PNG per car, generated from the ACR game files. **Committed and
+- `car-charts/` — the chart PNGs per car (power/torque, gearing, and final-drive where the final
+  drive is adjustable), generated from the ACR game files. **Committed and
   served by public raw URL**, not bundled in the skill ZIP: a skill on claude.ai has no way to push
   a local file into Notion, so the car page attaches the chart from its URL (which is also why the
-  templates store a URL, not a path). Regenerate with `tools/torque-curves`; never hand-edit.
+  templates store a URL, not a path). Regenerate with `make charts` (`tools/torque-curves` for the
+  power/torque ones, `tools/gearing-charts` for the other two); never hand-edit.
 - `tools/torque-curves/` — maintainer-only extractor (needs a local ACR install, node + python).
   Reads each car's `FC_<Car>_Torque` curve out of the pak files, renders `car-charts/`, and rewrites
   the delimited `# --- engine curve … ---` stanza in each bundled template. Its README documents the
   IoStore/Oodle handling, the parser heuristic, and the sanity check that catches a game update
   breaking it. Re-run after a physics-touching patch or when a car is onboarded (add it to
   `CAR_MAP` first).
+- `tools/gearing-charts/` — maintainer-only, same requirements. Reads the car's gear-set assets and
+  renders the gearing + final-drive charts into `car-charts/`, and writes each template's
+  `gearing_chart:` / `final_drive_chart:` URLs into the same delimited engine-curve stanza
+  `tools/torque-curves` owns. A car whose final drive isn't adjustable gets no final-drive chart and
+  no `final_drive_chart:` line — that's expected, not a failure. Add new cars to `CARS` first.
+- `tools/car-catalog/` — maintainer-only. Rebuilds every template's `parameters:` block (Min/Max/
+  Discrete steps) straight from the game's setup-preset assets, so a game update is a re-run instead
+  of a fresh round of screenshots. See its README.
 - `Makefile` — `make zip` builds `dist/acr-setup-engineer-skill-<version>.zip`, where `<version>` is
   read from **HEAD's** `VERSION` file so the filename always matches the `VERSION` inside the
   archive (`make check-zip` enforces that). On an unstamped checkout that's the previous release's

@@ -309,12 +309,23 @@ looks up online. **You only get asked as a last resort**, once, for whatever is 
 unfindable, and "don't know" is always a fine answer. All nine are editable on the car's Notion
 page afterwards.
 
-**Cars with a bundled template also get a power/torque chart** on their Notion page, read straight
-out of the ACR game files — so it's what the car actually makes in the sim, not a brochure figure.
+**Cars with a bundled template also get their charts** on their Notion page, all read straight
+out of the ACR game files — so they're what the car actually does in the sim, not brochure
+figures:
+
+- a **power/torque chart** — the engine curve;
+- a **gearing chart** — where each gear tops out, for every gear set the car has;
+- a **final-drive chart** — what each primary gear × differential ratio does to that whole ladder
+  (only on cars whose final drive is adjustable).
+
 The same data drives gearing advice in numbers: peak torque rpm, peak power rpm, and the whole
 curve between them. On turbocharged cars the curve's peak torque often
 sits below the `Max Torque` the info screen quotes; both are kept, and the skill tells you which is
 which.
+
+Onboarded a car before these charts existed? Say *"refresh the Lancia Stratos in my Notion"* and
+it brings everything static about the car up to date — charts, identity facts, the parameter
+catalog — without touching your setups.
 
 **Contributing it back.** If your car had no bundled template, you've just built its catalog by
 hand — and you're the only person who can hand it to the next driver of that car. So at the end it
@@ -495,7 +506,7 @@ flowchart TD
     Extract --> Confirm["Confirmation table<br/>uncertain reads flagged"]
     Confirm --> Facts["Car identity facts, per field:<br/>info screenshot → template →<br/>model knowledge → web lookup →<br/>ask you (last resort)"]
 
-    Facts --> Notion["Create/extend the Notion structure<br/>parameter catalog + setup value columns<br/>+ all nine identity facts on the car page<br/>+ the power/torque chart, if the car has one"]
+    Facts --> Notion["Create/extend the Notion structure<br/>parameter catalog + setup value columns<br/>+ all nine identity facts on the car page<br/>+ its charts, if the car has a bundled template"]
     Notion --> Gravel{"Do any suspension ranges<br/>differ on gravel?"}
 
     Gravel -->|"no / skip"| Done["Ready. Tarmac ranges<br/>apply everywhere"]
@@ -603,8 +614,8 @@ ACR Setup Engineer (root page)
 │   └── {Location}
 │       └── {Stage}         facts only: surface, length, key corners, character
 └── {Car}                   drivetrain, weight bias, engine layout, weight,
-                            a power/torque chart, a Guidelines section,
-                            and a filtered Setups view
+                            its power/torque, gearing and final-drive charts,
+                            a Guidelines section, and a filtered Setups view
 ```
 
 Two databases only. Car, location and stage pages are **filtered linked views**, never new
@@ -668,8 +679,9 @@ these cars onboard in one command — no screenshots:
 - **Skoda Fabia RS Rally2** (2022) — AWD
 - **Subaru Impreza 555 (S3)** (1993) — AWD
 
-Every one of them carries its power/torque curve from the game files. The **Peugeot 208 Rally4**
-has a curve too but no parameter template yet — onboard it from screenshots and its chart is
+Every one of them carries its power/torque curve, its gearing chart, and — where the final drive
+is adjustable — its final-drive chart, all from the game files. The **Peugeot 208 Rally4** has a
+curve too but no parameter template yet — onboard it from screenshots and its chart is
 already waiting.
 
 Don't see your car? Onboard it from screenshots — and if you feel like it, contribute the template

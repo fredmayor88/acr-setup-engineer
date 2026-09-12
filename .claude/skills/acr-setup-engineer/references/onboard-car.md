@@ -7,6 +7,51 @@ of legal values every generated setup is constrained to. This workflow is also t
 
 Read `notion-structure.md` (structure + schemas + create-if-missing) before writing.
 
+## Trigger phrases
+**Onboarding:** "onboard my car", "onboard the {car}", "capture the {car}'s parameters", "add the
+{car} to Notion".
+
+**Refreshing an already-onboarded car:** "refresh the {car} in my Notion", "update the {car}",
+"re-onboard the {car}", "bring the {car} up to date". A refresh request that names the **car**
+lands here — **not** in `refresh-catalog-snapshot.md`, which is only for a request that names the
+**snapshot** itself.
+
+## Refreshing an already-onboarded car
+
+A refresh rewrites **everything static** about the car, and the run isn't finished until all four
+have been brought up to date:
+
+1. **Identity facts** — fill blanks and `couldn't determine`s; never clobber a hand-edited value
+   (step 7).
+2. **The engine/gearing charts** — attach any of `power_torque_chart:` / `gearing_chart:` /
+   `final_drive_chart:` the template carries that aren't on the page yet (step 7). This is how a
+   car onboarded before a chart existed picks it up.
+3. **The `Parameters` catalog** — upsert rows from the bundled template (or screenshots), so
+   corrected ranges from a newer template version land (step 7). **Guard the user's edits:** a
+   template-sourced refresh would overwrite a range or a `Discrete steps` list they filled in by
+   hand, and Notion has no undo. So **diff before writing** — for any existing row whose `Min`,
+   `Max`, `Unit` or `Discrete steps` disagrees with the template, list those rows (old → new) and
+   **ask which to keep** rather than silently resolving it, exactly as identity facts do. Rows
+   that match, and rows that only gain a value where Notion was blank, are written without asking.
+   Most refreshes have zero divergence and so ask nothing.
+   **Corrupted compound-gear values are a repair, not a divergence** — a Notion value that matches
+   the template once the `*`s are stripped from both (`35//3033//28` vs. `35//30*33//28`) is
+   markdown damage, not a user edit (`SKILL.md` → *Compound gear values*). Overwrite it with the
+   template's spelling **without asking**, and note the repair in the report. A refresh is the
+   intended way to clean these out of a catalog that already has them.
+4. **The `Catalog snapshot`** — rebuilt from the rows just written, replacing the existing toggle
+   (step 7).
+
+**What a refresh never touches:** `Setups` rows (append-only, as always) and anything the user
+hand-wrote — the `Guidelines` section, and identity facts they've edited themselves.
+
+**For one of the 14 bundled cars a refresh needs no screenshots** — the template on disk is the
+source for both the catalog and the charts, so run it straight through: **skip step 1's "Use it?"
+prompt** (the car is already onboarded; the template is the only non-screenshot source there is)
+and take the template automatically, saying so rather than asking. The **only** question a refresh
+may ask is the divergence one in item 3 above, and only when there is real divergence to resolve.
+Say what changed in the report; if nothing was stale, say that too rather than inventing work.
+
 ## Inputs
 - **Car name** (e.g. `Lancia Stratos HF`).
 - The car's **drivetrain** (FWD / RWD / AWD) — read it off the **car information screenshot**
@@ -49,6 +94,9 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
      > "Found a bundled parameter template for {Car}. It includes all parameters with
      > Min/Max ranges and Discrete steps pre-filled — no screenshots needed. Use it?
      > (Yes / No — I'd rather use my own screenshots)"
+
+     **On a refresh of an already-onboarded car, don't ask** — take the template and say so
+     (*Refreshing an already-onboarded car*, above).
 
      - **User confirms (Yes):** Load every row from the template. Treat each entry as if it
        were an extracted row (same `Section`, `Adjustment`, `Min`, `Max`, `Unit`,
