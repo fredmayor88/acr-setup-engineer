@@ -108,7 +108,9 @@ Same precedence chain as `build-setup.md` / `review-setup.md` (lowest → highes
    name. If no file matches, skip this layer.
 3. **Global user guidelines** — `Tuning guidelines` page under `ACR Setup Engineer`.
 4. **Surface section** — that page's "Per surface" subsection matching the setup's `Surface`.
-5. **Per-car guidelines** — the car's `Guidelines` page.
+5. **Per-car guidelines** — the car's `Guidelines` page. **Fetch it** — it is its own page under
+   `{Car}`, not part of `Catalog`, so reading the identity facts does *not* give you this layer.
+   Batch that fetch with the other reads (`SKILL.md` → *Read efficiently*).
 The setup's own **driving intent** (its page-body summary) is the most specific layer. Apply only
 lines tagged `[All]` **or the car's drivetrain**.
 

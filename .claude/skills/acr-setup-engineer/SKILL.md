@@ -254,6 +254,11 @@ Bundled tools (stdlib Python, run via code execution):
   section (that page's
   "Per surface" subsection, not a separate page) → per-car guidelines (the car's **`Guidelines`**
   child page) → the setup's own driving intent (most specific).
+  **The per-car layer is its own page and its own fetch** — `Guidelines` sits beside `Catalog`
+  under `{Car}`, so fetching identity facts does **not** pick it up. Any workflow that chooses or
+  judges setup values (`build`, `tweak`, `review`, `ask`) must read it explicitly, batched with its
+  other reads. Missing it fails silently: the setup just quietly ignores everything the user
+  wrote about the car.
   Location/stage facts are objective inputs, not a guideline layer. More specific is the
   **default lean** — on a **material conflict between authored layers, ask the user** which to
   follow rather than silently picking one. Cite a user guideline when it drives a choice.

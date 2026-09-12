@@ -547,6 +547,9 @@ Free-text car-specific tuning notes and preferences. This is the **per-car guide
   here, *tell the user* and let them paste it.
 - A refresh **never touches this page**, which is exactly why the `Catalog` page can be
   overwritten without asking anything.
+- **Reading it is a separate fetch.** It used to be a section of the car page, so it arrived free
+  with the identity facts; now it doesn't. Every workflow that chooses or judges setup values must
+  fetch it in its own right (`SKILL.md` → *Layered guidelines*).
 
 ### `Catalog` page — the skill's, overwritten wholesale
 
