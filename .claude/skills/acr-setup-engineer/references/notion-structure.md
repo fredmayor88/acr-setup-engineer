@@ -501,8 +501,9 @@ the first place is a separate operation — see *Creating an inline linked view*
    The user may overwrite any of them at any time, and a later onboarding refresh **won't clobber a
    hand-edited value** — it fills blanks and `couldn't determine`s, and surfaces a conflict rather
    than silently resolving it.
-2. **The power/torque chart** — an image block, directly under the identity facts, when the car's
-   bundled template carries a `power_torque_chart:` URL. See *Power/torque chart* below.
+2. **The engine and gearing charts** — up to three image blocks, directly under the identity
+   facts, in order: power/torque, gearing, final-drive — each only when the car's bundled
+   template carries the matching URL. See *Engine and gearing charts* below.
 3. **H2 "Setups"** heading — immediately followed by the `Setups[Car=this]` filtered linked
    view (hide blank columns).
 4. **H2 "Guidelines"** heading — free-text car-specific preferences (seeded as a stub,
@@ -517,34 +518,53 @@ it is **not** inlined on the car page body to keep the page short.
 Setups section must appear before Guidelines so it is the first thing visible on mobile, and
 the `Catalog snapshot` toggle always goes last.
 
-### Power/torque chart
+### Engine and gearing charts
 
 Every bundled `car-templates/*.yaml` carries a **`power_torque_chart:`** URL (a PNG in the
 project's public repo) plus an **`engine_curve:`** block holding the same data as numbers —
-peak torque, peak power, and the raw `[rpm, Nm]` points. Both are read
-straight out of the ACR game files, so they describe **what the car actually makes in-game**,
-not a manufacturer brochure figure.
+peak torque, peak power, and the raw `[rpm, Nm]` points. Most also carry a **`gearing_chart:`**
+URL (speed against revs, every gear of every gear set) and, when the car's final drive is
+adjustable, a **`final_drive_chart:`** URL (what each primary × differential-ratio combination
+does to the whole ladder). All three PNGs are read straight out of the ACR game files, so they
+describe **what the car actually makes and does in-game**, not a manufacturer brochure figure or
+a guess.
 
-**Putting it on the `{Car}` page.** Attach it once, when the identity facts are written —
-before the linked view exists, since `notion-create-view` appends to the end of the page:
+**Putting them on the `{Car}` page.** Attach whichever of the three URLs the template carries,
+**once**, when the identity facts are written — before the linked view exists, since
+`notion-create-view` appends to the end of the page. Do all three (when present) in the same page
+update, **in this order**: power/torque, then gearing, then final-drive.
 
-1. **`notion-create-attachment`** with `source_url` = the template's `power_torque_chart:` URL and
-   `filename` = the last path segment (e.g. `lancia-stratos-power-torque.png`). Notion downloads a
-   copy, so the page keeps working if the URL ever moves.
+For each URL:
+1. **`notion-create-attachment`** with `source_url` = the template's URL and `filename` = the
+   last path segment (e.g. `lancia-stratos-power-torque.png`, `lancia-stratos-gearing.png`,
+   `lancia-stratos-final-drive.png`). Notion downloads a copy, so the page keeps working if the
+   URL ever moves.
 2. Put the returned **`markdown_source`** in the page update as an image block:
-   `![Power and torque — {Car}](<markdown_source>)`.
+   `![Power and torque — {Car}](<markdown_source>)` / `![Gearing — {Car}](<markdown_source>)` /
+   `![Final drive — {Car}](<markdown_source>)`.
 
-If the attachment call fails or isn't available, **fall back to embedding the URL directly** —
-`![Power and torque — {Car}](<power_torque_chart URL>)` — which renders the same, just hosted
-externally. If the car has no bundled template, there's no chart; skip the block entirely rather
-than inventing one, and **never** substitute a chart from a different car.
+If an attachment call fails or isn't available, **fall back to embedding that URL directly** —
+e.g. `![Gearing — {Car}](<gearing_chart URL>)` — which renders the same, just hosted externally.
+If the car has no bundled template, there are no charts at all; if it has one but a particular
+field is missing (a car with no bundled template has none of the three; a car whose final drive
+isn't adjustable simply has no `final_drive_chart:`), skip **only that block** rather than
+inventing one, and **never** substitute a chart from a different car.
 
-**The chart is not a fact source for `Max power` / `Max torque`.** Those nine identity facts keep
-their own ladder (`onboard-car.md` step 5). Where they disagree with the curve — which happens on
-forced-induction cars, whose quoted figures are usually real-world specs — leave both standing and
-say so in the report; the curve is what the game simulates, the fact line is what the car is
-advertised as. Reason about gearing, shift points and powerband from **`engine_curve:`**, not from
-the `Max power` line.
+**The power/torque chart is not a fact source for `Max power` / `Max torque`.** Those nine
+identity facts keep their own ladder (`onboard-car.md` step 5). Where they disagree with the
+curve — which happens on forced-induction cars, whose quoted figures are usually real-world
+specs — leave both standing and say so in the report; the curve is what the game simulates, the
+fact line is what the car is advertised as. Reason about gearing, shift points and powerband from
+**`engine_curve:`** and the gearing/final-drive charts, not from the `Max power` line.
+
+**Updating an already-onboarded car to add the gearing/final-drive charts.** These two chart
+fields were added to the template format after some cars were already onboarded — a car onboarded
+before then has only the power/torque chart on its page, even though its bundled template may
+since have gained `gearing_chart:` / `final_drive_chart:` URLs. Re-run onboarding for that car
+(`onboard-car.md`, "refresh" path) — it's a normal refresh, not a special case: it re-reads the
+bundled template, finds the two new URLs the page is missing, and attaches them in the correct
+order below the existing power/torque chart. Nothing else on the page is touched (identity facts
+already resolved are left alone, existing `Setups`/`Guidelines`/`Catalog snapshot` are untouched).
 
 **The car page never holds stage sub-pages.** Stage and location facts live in the shared
 catalogue below, not nested under any one car — a stage is referenced by `Stage` (and `Location`)

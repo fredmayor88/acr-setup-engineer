@@ -16,6 +16,7 @@ another layer of unversioned physics data.
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -32,6 +33,7 @@ from acrpkg import Package                  # noqa: E402
 from datatable import tagged_rows           # noqa: E402
 from gearing import (gear_set, ratio, tyre_geometry,   # noqa: E402
                      rolling_circumference, drivetrain_chain, axle_final_drive)
+from extract_torque_curves import CHART_URL_BASE, BLOCK_START, BLOCK_END  # noqa: E402
 
 DEFAULT_PAKS = ('C:/Program Files (x86)/Steam/steamapps/common/'
                 'Assetto Corsa Rally/acr/Content/Paks')
@@ -80,6 +82,39 @@ CARS = {
 
 SURFACE_LABEL = {'Tarmac_Dry': 'dry tarmac', 'Tarmac_Wet': 'wet tarmac',
                  'Gravel': 'gravel', 'Sweden': 'snow', 'Montecarlo': 'winter'}
+
+
+def update_yaml_chart_urls(car, has_gearing, has_final_drive):
+    """Add/refresh gearing_chart and final_drive_chart lines inside the generated engine-curve
+    block (extract_torque_curves.py owns power_torque_chart in the same block). Idempotent:
+    re-running just replaces the two lines in place. final_drive_chart is omitted entirely for a
+    car whose final drive isn't adjustable, matching the "no final-drive chart" case."""
+    path = os.path.join(TEMPLATES, car + '.yaml')
+    text = open(path, encoding='utf-8').read()
+    block_re = re.compile(re.escape(BLOCK_START) + r'.*?' + re.escape(BLOCK_END) + r'\n',
+                          re.DOTALL)
+    m = block_re.search(text)
+    if not m:
+        return  # no engine-curve block yet (extract_torque_curves.py hasn't run for this car)
+    block = m.group(0)
+    # Strip any existing lines for both fields first, then re-append the ones that apply, in a
+    # fixed order (gearing_chart, final_drive_chart) right after power_torque_chart — so
+    # re-running is idempotent and the order never depends on call order or prior content.
+    for field in ('gearing_chart', 'final_drive_chart'):
+        block = re.sub(rf'^{field}: .*\n', '', block, flags=re.MULTILINE)
+    new_lines = ''
+    for field, present in (('gearing_chart', has_gearing), ('final_drive_chart', has_final_drive)):
+        if present:
+            slug = field.replace('_chart', '')
+            new_lines += f'{field}: "{CHART_URL_BASE}/{car}-{slug.replace("_", "-")}.png"\n'
+    if new_lines:
+        anchor_re = re.compile(r'power_torque_chart: .*\n')
+        if anchor_re.search(block):
+            block = anchor_re.sub(lambda mm: mm.group(0) + new_lines, block, count=1)
+        else:
+            block = block.replace(BLOCK_START + '\n', BLOCK_START + '\n' + new_lines, 1)
+    text = block_re.sub(block, text)
+    open(path, 'w', encoding='utf-8', newline='\n').write(text)
 
 
 def extract(paks, prefix, out_dir):
@@ -551,12 +586,19 @@ def render_car(args):
         else:
             chart_speed_vs_revs(sets, cal, t_rpm, p_rpm, redline, display, a)
         print(f'wrote {a}')
-    if args.charts in ('both', 'final-drive') and len(primaries) * len(options) > 1:
+    adjustable = len(primaries) * len(options) > 1
+    if args.charts in ('both', 'final-drive') and adjustable:
         chart_final_drive(sets, cal, primaries, options, stock_option, ratio_name,
                           redline, display, b)
         print(f'wrote {b}   (varying {ratio_name})')
-    else:
+    elif args.charts in ('both', 'final-drive'):
         print('  no final-drive chart: this car\'s final drive is not adjustable')
+
+    # Every car reaching here has a gearing chart; the final-drive one only if adjustable.
+    # Only wire the yaml to the canonical hosted path when rendering into the real car-charts
+    # dir — a custom --out is a local/scratch render and shouldn't repoint the template's URL.
+    if os.path.abspath(args.out) == os.path.join(REPO, 'car-charts'):
+        update_yaml_chart_urls(args.car, has_gearing=True, has_final_drive=adjustable)
 
     print(f'  tyre: {cal["tyre"]}, {cal["circumference"]:.4f} m rolling circumference')
     print(f'  final drive: primary {cal["primary"]} x {cal["diff"]} = {final_of(cal):.4f}')
