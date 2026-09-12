@@ -7,6 +7,7 @@
 # Targets:
 #   make test        run the full test suite
 #   make charts      regenerate every car chart (all three kinds)
+#   make car-lab     regenerate the ACR Car Lab data in ../acr-car-lab
 #   make charts-power        power/torque curves, and each template's engine_curve block
 #   make charts-gearing      "where each gear tops out" ladders
 #   make charts-final-drive  primary gear x differential ratio
@@ -31,7 +32,7 @@ SKILL_VERSION = $(shell python -c "import subprocess as s; r = s.run(['git','sho
 ZIP = dist/acr-setup-engineer-skill-$(SKILL_VERSION).zip
 
 .PHONY: all test zip check-zip release stamp-version clean charts charts-power \
-        charts-gearing charts-final-drive
+        charts-gearing charts-final-drive car-lab
 
 all: test zip
 
@@ -63,6 +64,12 @@ charts-gearing:
 
 charts-final-drive:
 	python tools/gearing-charts/make_gearing_chart.py --all --charts final-drive
+
+# Regenerates every ACR Car Lab JSON and page shell into the sibling acr-car-lab
+# checkout. Reads the installed game's paks, so it only runs on a machine with
+# Assetto Corsa Rally. Re-run after a game update, then commit in acr-car-lab.
+car-lab:
+	python tools/gearing-charts/export_car_data.py --all
 
 # Stamps the release tag into VERSION and commits it, so the archived ZIP (built from HEAD's
 # committed tree, not from a tag ref) self-reports the released version instead of "dev".
