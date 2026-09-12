@@ -41,15 +41,16 @@ CAR_MAP = {
     "Fiat131Abarth":                ("fiat-131-abarth-1976", "Fiat 131 Abarth 1976"),
     "HyundaiI20NRally2":            ("hyundai-i20-rally2-2021", "Hyundai i20 Rally2 2021"),
     "LanciaDeltaHFIntegraleEvo":    ("lancia-delta-integrale-evoluzione-1992", "Lancia Delta Integrale Evoluzione 1992"),
-    "LanciaFulviaCoupeHF": ("lancia-fulvia-coupe-hf-1970", "Lancia Fulvia Coupe HF 1970"),
+    # accent matches the template's own car: field - see the note under CAR_MAP
+    "LanciaFulviaCoupeHF": ("lancia-fulvia-coupe-hf-1970", "Lancia Fulvia Coupé HF 1970"),
     "LanciaRally037Evo2":           ("lancia-037-evoluzione-2-1984", "Lancia 037 Evoluzione 2 1984"),
     "LanciaStratosHF":              ("lancia-stratos", "Lancia Stratos HF 1976"),
     "MiniCooperS1275":              ("mini-cooper-s-1964", "Mini Cooper S 1964"),
-    "Peugeot208Rally4":             ("peugeot-208-rally4", "Peugeot 208 Rally4"),
+    "Peugeot208Rally4":             ("peugeot-208-rally4", "Peugeot 208 Rally4 2020"),
     "Peugeot306IIMaxi":       ("peugeot-306-ii-maxi-1997", "Peugeot 306 II Maxi 1997"),
     "SkodaFabiaRSRally2":           ("skoda-fabia-rs-rally2-2022", "Skoda Fabia RS Rally2 2022"),
     "SubaruImprezaS3":           ("subaru-impreza-555-s3-1993", "Subaru Impreza 555 (S3) 1993"),
-    "AudiQuattroGr4":               ("audi-quattro-gr4-1981", "Audi Quattro Gr4 1981"),
+    "AudiQuattroGr4":               ("audi-quattro-gr4-1981", "Audi Quattro Gr.4 1981"),
     "VWPoloGTIR5":                  ("volkswagen-polo-gti-r5-2018", "Volkswagen Polo GTI R5 2018"),
     # Peugeot206WRC has no FC_*_Torque asset in the game files yet (see
     # car-catalog/README.md - Car identity facts / the Peugeot 206 WRC note) -
@@ -57,6 +58,10 @@ CAR_MAP = {
     # picks it up automatically.
     "Peugeot206WRC":                ("peugeot-206-wrc-1999", "Peugeot 206 WRC 1999"),
 }
+
+# The display name above titles the chart, and must stay identical to the template's
+# own `car:` field - ../gearing-charts/make_gearing_chart.py titles its charts from
+# that field instead, so a mismatch ships two charts for one car under two names.
 
 # Brand palette (yt-writing/brand-palette.md)
 WARM_WHITE, GRAPHITE, DARK_GRAPHITE = "#F5F2EB", "#30353A", "#212529"
@@ -293,10 +298,14 @@ def main():
     ap.add_argument("--templates",
                     default=os.path.join(REPO, ".claude", "skills", "acr-setup-engineer", "car-templates"))
     ap.add_argument("--dry-run", action="store_true", help="report only; write nothing")
+    ap.add_argument("--car", help="only this template slug (default: every car). Use it when "
+                                  "re-rendering one car so the other templates aren't rewritten.")
     args = ap.parse_args()
 
     if not os.path.isdir(args.paks):
         sys.exit(f"ACR paks not found at {args.paks} (pass --paks)")
+    if args.car and args.car not in {slug for slug, _ in CAR_MAP.values()}:
+        sys.exit(f"unknown slug {args.car} - add it to CAR_MAP first")
 
     assets = find_curve_assets(args.paks)
     print(f"found {len(assets)} torque curves in {args.paks}\n")
@@ -324,6 +333,8 @@ def main():
             print(f"  !! {car}: not in CAR_MAP - add it and re-run")
             continue
         slug, display = CAR_MAP[car]
+        if args.car and slug != args.car:
+            continue
 
         if not args.dry_run:
             render_chart(display, s, os.path.join(args.charts, f"{slug}-power-torque.png"))

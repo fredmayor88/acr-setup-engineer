@@ -51,7 +51,6 @@ CAR_MAP = {
     'peugeot-306-ii-maxi-1997':               'DA_Peugeot306IIMaxiPresets',
     'skoda-fabia-rs-rally2-2022':             'DA_SkodaFabiaRSRally2Presets',
     'subaru-impreza-555-s3-1993':             'DA_SubaruImprezaS3Presets',
-    # queued, no bundled template yet - onboarding backlog
     'audi-quattro-gr4-1981':                  'DA_AudiQuattroGr4Presets',
     'volkswagen-polo-gti-r5-2018':            'DA_VWPoloGTIR5Presets',
     'peugeot-208-rally4':                     'DA_Peugeot208Rally4Presets',
@@ -457,13 +456,24 @@ def bootstrap_header(slug):
     Everything else DT_Cars doesn't hold as a plain FName - the exact display
     name/year, weight, weight distribution, steering lock, and the precise
     engine_layout prose (orientation, displacement, valve gear) - stays a `TODO`
-    placeholder for one look at the game's car-info screen. Steering lock in
-    particular was searched for and not found: neither `DT_Cars`' `SteeringAngle`
-    field nor the `DT_SteeringAngles` table it points into holds a plain lock-angle
-    number for any car (a byte-level scan for every existing template's known
+    placeholder for one look at the game's car-info screen, which shows the
+    display name, year, engine, max power, max torque, weight and steering lock
+    directly. Two cautions when reading that screen:
+
+    - **The steering-lock figure can be a per-side angle.** The VW Polo GTI R5's
+      screen reads `280°` where the real lock-to-lock is `560°`. Sanity-check it
+      against the other cars (most read 720-1170) and double it when it looks
+      half-sized.
+    - **The engine description can be wrong.** The Audi Quattro Gr.4's screen
+      says `Inline 4`; the real car is a 2.1L inline-5. Write the real layout in
+      `engine_layout` and note the disagreement.
+
+    Steering lock is *not* in the game data as a plain number: neither `DT_Cars`'
+    `SteeringAngle` field nor the `DT_SteeringAngles` table it points into holds a
+    lock-angle for any car (a byte-level scan for every existing template's known
     `steering_lock` value found zero matches) - `DT_SteeringAngles` looks to be
-    about the visual wheel prop, not the tunable spec. Don't re-check those two
-    tables for this without new evidence; it's a dead end.
+    about the visual wheel prop. Don't re-check those two tables for it; read the
+    car-info screen instead.
     """
     key = {v: k for k, v in CI.SLUGS.items()}.get(slug)
     folder = {v[0]: k for k, v in TC.CAR_MAP.items()}.get(slug, 'TODO-folder-name')
@@ -481,8 +491,8 @@ def bootstrap_header(slug):
         'max_torque: "TODO - real-world spec (see README.md: this is not game output)"',
         f'class: "{facts.get("class") or "TODO"}"',
         f'gearbox: "{facts.get("gearbox") or "TODO"}"',
-        'steering_lock: "TODO - from the car-info screen '
-        '(not in DT_Cars/DT_SteeringAngles - checked, see bootstrap_header docstring)"',
+        'steering_lock: "TODO - from the car-info screen; double it if it reads '
+        'half-sized (that screen sometimes shows the per-side angle - see bootstrap_header)"',
         f'version: "{GAME_VERSION}"',
     ]
     return '\n'.join(lines)

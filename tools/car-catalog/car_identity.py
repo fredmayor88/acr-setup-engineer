@@ -49,8 +49,6 @@ SLUGS = {
     'Peugeot306IIMaxiKitCar':  'peugeot-306-ii-maxi-1997',
     'SkodaFabiaRSRally2':      'skoda-fabia-rs-rally2-2022',
     'SubaruImprezaS3':         'subaru-impreza-555-s3-1993',
-    # queued, no bundled template yet - see car-templates/README or the skill's
-    # onboarding backlog
     'AudiQuattroGr4':          'audi-quattro-gr4-1981',
     'VWPoloGTIR5':             'volkswagen-polo-gti-r5-2018',
     'Peugeot208Rally4':        'peugeot-208-rally4',

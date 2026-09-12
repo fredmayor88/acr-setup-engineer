@@ -78,7 +78,6 @@ CARS = {
                                                'SkodaFabiaRSRally2'),
     'subaru-impreza-555-s3-1993':             ('SubaruImprezaS3', 'SubaruImprezaS3555',
                                                'SubaruImprezaS3'),
-    # queued, no bundled template yet - onboarding backlog
     'audi-quattro-gr4-1981':                  ('AudiQuattroGr4', 'AudiQuattroGr.4',
                                                'AudiQuattroGr4'),
     'volkswagen-polo-gti-r5-2018':            ('VWPoloGTIR5', 'VolkswagenPoloGTIR5',

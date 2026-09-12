@@ -164,11 +164,46 @@ bootstrapped this way):
    final-drive chart, if the car's final drive is adjustable — the tool says so on the cars that
    aren't, e.g. Peugeot 208 Rally4 and VW Polo GTI R5). Needs step 3's `engine_curve:` block first
    (it reads the redline from it) — a car with no engine curve (206 WRC) can't get one yet either.
-5. **Finish by hand — down to a small, bounded list:** `car` (exact display name/year), `weight`,
-   `weight_bias`, `steering_lock`, and the precise `engine_layout` wording (orientation,
-   displacement, valve gear) from the car-info screen; confirm or correct `max_power`/`max_torque`
-   against a real spec sheet; and the `NEEDS SCREENSHOT` parameters from one look at the min/max
-   setup screens. `steering_lock` specifically was searched for in the game files and not found —
-   see `bootstrap_header()`'s docstring before spending time re-checking `DT_Cars` or
-   `DT_SteeringAngles` for it. Until `car:` stops being the literal string `"TODO"`, the template
-   is a draft — don't let the skill auto-onboard a car from it.
+5. **Finish from the in-game car-info screen — one screenshot per car.** That screen carries
+   `car` (display name + year), `engine`, `max_power`, `max_torque`, `weight` and `steering_lock`
+   in one place, so the header comes down to a single capture. Two traps, both hit on real cars:
+   - **The steering-lock figure is sometimes the per-side angle.** The VW Polo GTI R5 reads
+     `280°` where lock-to-lock is `560°`. Every other car so far reads a sane 720–1170, so a
+     half-sized number is the tell — double it.
+   - **The engine description can be wrong.** The Audi Quattro Gr.4 screen says `Inline 4`; the
+     real car is a 2.1L inline-5. Write the true layout in `engine_layout` and note the
+     disagreement in the same line, the way that template does.
+
+   Two fields the screen does *not* carry: `weight_bias` (rarely published for rally cars — an
+   estimate marked `(estimated — no published figure)` is the established convention, see the
+   Fiat 131 template) and the `engine_layout` detail beyond cylinder count (orientation,
+   displacement, valve gear) — a quick spec-sheet lookup. Finally, fill the `NEEDS SCREENSHOT`
+   parameters from the min/max setup screens. Until `car:` stops being the literal string
+   `"TODO"`, the template is a draft — don't let the skill auto-onboard a car from it, and note
+   that the gearing charts title themselves from `car:`, so rendering them before this step puts
+   the word "TODO" on the chart.
+
+## Chart titles come from two places — keep them in sync
+
+`extract_torque_curves.py` titles the power/torque chart from its `CAR_MAP` display name;
+`../gearing-charts/make_gearing_chart.py` titles its charts from the template's own `car:` field.
+They must match exactly or one car ships charts under two names (the Lancia Fulvia ran for a
+while with `Coupé` in the template and `Coupe` on its chart). After changing either, re-check:
+
+```bash
+python - <<'PY'
+import os, re, sys; sys.path.insert(0, '../torque-curves')
+from extract_torque_curves import CAR_MAP
+T = '../../.claude/skills/acr-setup-engineer/car-templates'
+for _, (slug, display) in sorted(CAR_MAP.items()):
+    p = os.path.join(T, slug + '.yaml')
+    if not os.path.exists(p):
+        continue
+    car = re.search(r'car: "([^"]+)"', open(p, encoding='utf-8').read()).group(1)
+    if car != display:
+        print(f'MISMATCH {slug}: chart="{display}" yaml="{car}"')
+PY
+```
+
+Both chart tools take `--car <slug>` to re-render a single car, which is how you avoid rewriting
+the other templates (and spraying phantom line-ending diffs) when only one car changed.
