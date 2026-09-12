@@ -228,6 +228,14 @@ class RenderPages(unittest.TestCase):
                                 {'slug': 'a', 'name': 'Alpha'}])
         self.assertEqual([c['slug'] for c in doc['cars']], ['a', 'b'])
 
+    def test_index_page_states_the_car_count_it_actually_lists(self):
+        # the 206 WRC is not exported, so "every car in the game" would be untrue
+        cars = [{'slug': f's{i}', 'name': f'Car {i}'} for i in range(3)]
+        html = render_index_page(cars)
+        self.assertIn('<h1>3 cars, gear by gear</h1>', html)
+        self.assertIn('charts for 3 cars in', html)
+        self.assertNotIn('every car', html.lower())
+
     def test_index_page_links_every_car(self):
         html = render_index_page([{'slug': 'lancia-stratos',
                                    'name': 'Lancia Stratos HF'}])

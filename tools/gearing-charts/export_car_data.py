@@ -143,7 +143,7 @@ INDEX_PAGE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ACR Car Lab</title>
-<meta name="description" content="Interactive gearing and power charts for every car in \
+<meta name="description" content="Interactive gearing and power charts for {count} cars in \
 Assetto Corsa Rally.">
 <link rel="stylesheet" href="app.css">
 <script data-goatcounter="https://acr-car-lab.goatcounter.com/count"
@@ -153,7 +153,7 @@ Assetto Corsa Rally.">
 <div class="wrap">
   <header>
     <div class="brandrow"><span class="brand">ACR <b>Car Lab</b></span></div>
-    <h1>Every car, gear by gear</h1>
+    <h1>{count} cars, gear by gear</h1>
     <p class="sub">Gearing, final drive and power, read from the game files.</p>
   </header>
   <ul class="carlist">
@@ -188,7 +188,7 @@ def render_index_page(cars):
     items = '\n'.join(
         f'    <li><a href="{_html.escape(c["slug"])}/">{_html.escape(c["name"])}</a></li>'
         for c in build_index_json(cars)['cars'])
-    return INDEX_PAGE.format(items=items)
+    return INDEX_PAGE.format(items=items, count=len(cars))
 
 
 def car_record(paks, slug, tmp):
