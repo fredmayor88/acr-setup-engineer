@@ -329,8 +329,9 @@ catalog — without touching your setups.
 
 **Contributing it back.** If your car had no bundled template, you've just built its catalog by
 hand — and you're the only person who can hand it to the next driver of that car. So at the end it
-offers to turn your catalog into a shareable template (one green button on GitHub, free account,
-nothing to install). If any parameters are still flagged as needing your input, it waits and simply
+offers to turn your catalog into a shareable template (paste it into a form on GitHub, free
+account, nothing to install). If any parameters are still flagged as needing your input, it waits
+and simply
 tells you that once you've filled them in, *"contribute my car"* will do it. Always optional, never
 nagged.
 
@@ -410,7 +411,8 @@ forums.
 ### Export a car template
 
 *"Export a template for the Lancia Stratos."* → a YAML file plus a one-click share link. You sign
-in to GitHub, paste, press one green button. No command line, no tokens.
+in to GitHub, paste it into the submission form, press Create. No fork, no pull request, no command
+line, no tokens.
 
 ## The workflows
 
@@ -705,9 +707,10 @@ Don't see your car? Onboard it from screenshots — and if you feel like it, con
 back so the next driver gets it for free.
 
 **Contributing a car.** Once onboarded, say *"Export a template for the Lancia Stratos"* and you
-get the YAML plus a share link. Sign in to GitHub, paste, press the green button — GitHub makes
-your own copy of the project and opens the contribution for you. No command line, no tokens; a free
-GitHub account is all it takes. Not in the mood? Skip it — everything still works.
+get the YAML plus a share link. It opens a short submission form: sign in to GitHub, paste the
+YAML into one box, answer two questions, press Create. Nothing to fork, no pull request to open, no
+command line, no tokens; a free GitHub account is all it takes. Not in the mood? Skip it —
+everything still works.
 
 ## How it reads and writes Notion
 

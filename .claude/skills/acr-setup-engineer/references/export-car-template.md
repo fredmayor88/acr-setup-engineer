@@ -204,34 +204,36 @@ pressure:
 > (It just needs a free GitHub account. If you already have one, it'd be a lovely thing to give
 > back to the community. No account, or not in the mood? No problem at all — we'll skip it.)"
 
-- **If the user says yes:** Give them a **filename-prefilled link** to the project's web editor.
-  They sign in to GitHub (if asked), **paste** the YAML into the editor, and click one green
-  button — GitHub quietly makes their own copy of the project and opens the share request for
-  them. No tokens, no command line, nothing to install.
-
-  **Do NOT prefill the file *contents* in the URL.** A template is several KB, and a
-  contents-prefilled link exceeds GitHub's URL length limit — the user gets *"Your request URL is
-  too long."* Prefill **only the filename** (short and safe); the user pastes the body, which you
-  already showed in the code block above.
-
-  The link is just (no code sandbox needed — the filename is short):
+- **If the user says yes:** Give them the **submission form link**. They sign in to GitHub (if
+  asked), paste the YAML into one box, and click Submit. Nothing to install, no command line,
+  and — this is the point — **no fork and no pull request**.
 
   ```
-  https://github.com/fredmayor88/acr-setup-engineer/new/main?filename=.claude/skills/acr-setup-engineer/car-templates/{slug}.yaml
+  https://github.com/fredmayor88/acr-setup-engineer/issues/new?template=car-template.yml&title=%5BCar+template%5D+{Car}
   ```
 
-  where `{slug}` is the car name lowercased with spaces and special characters replaced by hyphens
-  (e.g. `lancia-stratos-hf`). **Use the full `.claude/skills/acr-setup-engineer/car-templates/` path** —
-  that's where the bundled templates live and where the skill loads them from; a bare
-  `car-templates/` at the repo root is the wrong place and won't be picked up.
+  where `{Car}` is the car name URL-encoded (spaces as `+`), e.g.
+  `%5BCar+template%5D+Peugeot+208+Rally4+2020`. The form fills in the title and asks for the car
+  name, game version, the YAML, and where the values came from.
+
+  **Do NOT prefill the YAML body in the URL.** A template runs to several KB and a
+  contents-prefilled link blows past GitHub's URL length limit — the user gets *"Your request URL
+  is too long."* Prefill only the title; the user pastes the body, which you already showed in the
+  code block above.
+
+  **Do NOT send users to the `/new/main?filename=...` web-editor link.** Writing a file directly
+  requires push access to this repo, which contributors don't have, so GitHub stops them with
+  *"You need to fork this repository to propose changes."* The inline **Fork this repository**
+  button on that screen fails outright for accounts that have never created a repo. That path
+  loses people; the form doesn't.
 
   Then hand the user the link with friendly, jargon-free steps:
   > "Here's your share link: {link}
   >
   > 1. Click it (sign in to GitHub if it asks).
-  > 2. **Paste the YAML I showed above** into the editor box.
-  > 3. Scroll down and click the green **Commit changes** / **Propose new file** button.
-  > 4. Click the green button once more on the next screen to open the request.
+  > 2. **Paste the YAML I showed above** into the big *The YAML* box.
+  > 3. Answer the two short questions above it, tick the two boxes at the bottom.
+  > 4. Click the green **Create** button.
   >
   > That's it — the maintainers will review it and bundle it into the next release. Thank you 🙏"
 

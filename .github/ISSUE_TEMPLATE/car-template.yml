@@ -1,0 +1,75 @@
+name: Submit a car template
+description: Share a car catalogue you built so the next driver can onboard it in one click. No fork, no pull request, no git.
+title: "[Car template] "
+labels: ["car-template", "community"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for giving this back 🙏
+
+        You built this catalogue from screenshots so nobody else has to. Paste it below and it
+        gets reviewed and bundled into a release — that's the whole job. You don't need to fork
+        anything, you don't need git, and you don't need to know what a pull request is.
+
+  - type: input
+    id: car
+    attributes:
+      label: Car
+      description: Exactly as it appears in the `car:` line of the YAML.
+      placeholder: Peugeot 208 Rally4 2020
+    validations:
+      required: true
+
+  - type: input
+    id: game-version
+    attributes:
+      label: Game version the values were captured on
+      description: From the `version:` line. Write `unknown` if you're not sure — that's fine.
+      placeholder: "0.6"
+    validations:
+      required: true
+
+  - type: textarea
+    id: yaml
+    attributes:
+      label: The YAML
+      description: |
+        Paste the whole thing the skill showed you, top to bottom — starting at `car:` and
+        including every parameter. Don't worry about formatting; the box below keeps it intact.
+      render: yaml
+    validations:
+      required: true
+
+  - type: dropdown
+    id: source
+    attributes:
+      label: Where did the values come from?
+      options:
+        - The skill built it from my min/max setup-screen screenshots
+        - I typed or corrected the values by hand
+        - A mix of both
+        - Something else (explained below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything worth flagging
+      description: |
+        Optional. Values you weren't certain about, parameters the game wouldn't show you,
+        a section you had to guess at. Honest gaps are more useful than silent ones — say so
+        here and it gets checked before merge rather than shipping wrong.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Quick sanity check
+      options:
+        - label: The values are the **min and max** from the setup screen, not one particular setup I like.
+          required: true
+        - label: There's no personal data in there (my name, email, Notion IDs).
+          required: true
