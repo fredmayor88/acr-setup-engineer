@@ -371,7 +371,10 @@ def chart_gear_ladder(sets, cal, redline, title, out_path):
 
     ys = list(range(len(sets)))[::-1]
     for y, row in zip(ys, tops):
-        ax.plot(row, [y] * len(row), color=STEEL, lw=1.3, alpha=0.5, zorder=1)
+        # the line runs from a standing start, so first gear reads as a span like
+        # every other gear rather than as a bare dot floating in space
+        ax.plot([0] + row, [y] * (len(row) + 1), color=STEEL, lw=1.3, alpha=0.5,
+                zorder=1)
         ax.scatter(row, [y] * len(row), s=205, color=WALNUT, zorder=3,
                    edgecolor=WARM_WHITE, linewidth=1.6)
         for i, x in enumerate(row):
@@ -384,8 +387,8 @@ def chart_gear_ladder(sets, cal, redline, title, out_path):
     ax.set_yticklabels([f'Gear set {i + 1}   ({len(s[0])}-speed)'
                         for i, s in enumerate(sets)], fontsize=10)
     ax.set_ylim(-0.7, len(sets) - 0.15)
-    span = max(max(t) for t in tops) - base
-    ax.set_xlim(base - span * 0.07, max(max(t) for t in tops) + span * 0.06)
+    top_speed = max(max(t) for t in tops)
+    ax.set_xlim(0, top_speed * 1.04)
     ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f'{int(v)}'))
     ax.set_xlabel(f'Speed at the {redline:,} rpm rev limit  (km/h)',
                   color=GRAPHITE, fontsize=10.5, labelpad=8)
@@ -475,6 +478,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--paks', default=DEFAULT_PAKS)
     ap.add_argument('--car', default='lancia-stratos')
+    ap.add_argument('--all', action='store_true', help='every car in CARS')
+    ap.add_argument('--charts', default='both',
+                    choices=('both', 'gearing', 'final-drive'))
     ap.add_argument('--out', default=os.path.join(REPO, 'car-charts'))
     ap.add_argument('--style', default='ladder', choices=('auto', 'lines', 'ladder'),
                     help='ladder is the default; lines is only readable for a few sets')
@@ -482,6 +488,22 @@ def main():
                     help='Tarmac_Dry, Tarmac_Wet, Gravel, Sweden, Montecarlo')
     args = ap.parse_args()
 
+    if args.all:
+        failed = []
+        for slug in sorted(CARS):
+            args.car = slug
+            try:
+                render_car(args)
+            except SystemExit as e:          # one unreadable car must not stop the batch
+                failed.append(f'{slug}: {e}')
+        for f in failed:
+            print(f'  !! {f}')
+        print(f'{len(CARS) - len(failed)}/{len(CARS)} cars rendered')
+        return
+    render_car(args)
+
+
+def render_car(args):
     asset, wheel_key, car_asset = CARS[args.car]
     import re as _re
     txt = open(os.path.join(TEMPLATES, args.car + '.yaml'), encoding='utf-8').read()
@@ -522,13 +544,14 @@ def main():
 
     a = os.path.join(args.out, f'{args.car}-gearing.png')
     b = os.path.join(args.out, f'{args.car}-final-drive.png')
-    if args.style == 'ladder' or (args.style == 'auto'
-                                  and sum(len(g) for g, _, _ in sets) > 18):
-        chart_gear_ladder(sets, cal, redline, display, a)
-    else:
-        chart_speed_vs_revs(sets, cal, t_rpm, p_rpm, redline, display, a)
-    print(f'wrote {a}')
-    if len(primaries) * len(options) > 1:
+    if args.charts in ('both', 'gearing'):
+        if args.style == 'ladder' or (args.style == 'auto'
+                                      and sum(len(g) for g, _, _ in sets) > 18):
+            chart_gear_ladder(sets, cal, redline, display, a)
+        else:
+            chart_speed_vs_revs(sets, cal, t_rpm, p_rpm, redline, display, a)
+        print(f'wrote {a}')
+    if args.charts in ('both', 'final-drive') and len(primaries) * len(options) > 1:
         chart_final_drive(sets, cal, primaries, options, stock_option, ratio_name,
                           redline, display, b)
         print(f'wrote {b}   (varying {ratio_name})')

@@ -6,6 +6,10 @@
 #
 # Targets:
 #   make test        run the full test suite
+#   make charts      regenerate every car chart (all three kinds)
+#   make charts-power        power/torque curves, and each template's engine_curve block
+#   make charts-gearing      "where each gear tops out" ladders
+#   make charts-final-drive  primary gear x differential ratio
 #   make zip         rebuild dist/acr-setup-engineer-skill-<version>.zip (commit changes first)
 #   make check-zip   verify ZIP entries + that the filename version matches VERSION inside
 #   make release     create a GitHub draft release with the ZIP asset (edit TAG first)
@@ -26,7 +30,8 @@ VERSION_FILE := .claude/skills/acr-setup-engineer/VERSION
 SKILL_VERSION = $(shell python -c "import subprocess as s; r = s.run(['git','show','HEAD:$(VERSION_FILE)'], capture_output=True, text=True); print(r.stdout.strip() or 'dev')")
 ZIP = dist/acr-setup-engineer-skill-$(SKILL_VERSION).zip
 
-.PHONY: all test zip check-zip release stamp-version clean
+.PHONY: all test zip check-zip release stamp-version clean charts charts-power \
+        charts-gearing charts-final-drive
 
 all: test zip
 
@@ -44,6 +49,20 @@ check-zip:
 
 clean:
 	python -c "import shutil; shutil.rmtree('dist', ignore_errors=True)"
+
+# Chart regeneration. All three read the installed game's pak files, so they only run on a
+# machine with Assetto Corsa Rally; pass --paks to either script if it is not at the default
+# Steam location. Re-run after a game update, then read the diff.
+charts: charts-power charts-gearing charts-final-drive
+
+charts-power:
+	python tools/torque-curves/extract_torque_curves.py
+
+charts-gearing:
+	python tools/gearing-charts/make_gearing_chart.py --all --charts gearing
+
+charts-final-drive:
+	python tools/gearing-charts/make_gearing_chart.py --all --charts final-drive
 
 # Stamps the release tag into VERSION and commits it, so the archived ZIP (built from HEAD's
 # committed tree, not from a tag ref) self-reports the released version instead of "dev".
