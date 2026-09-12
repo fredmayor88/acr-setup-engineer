@@ -82,6 +82,32 @@ class BuildCarJson(unittest.TestCase):
         doc = build_car_json('x', 'X', 'Front', sets, curve, None, tyres, '2026-09-12')
         self.assertIsNone(doc['final_drive'])
 
+    def test_adjustable_car_has_no_fixed_final_drive(self):
+        # the primary x option combinations already carry the ratio; a second copy
+        # could drift out of step with them
+        self.assertIsNone(self.doc['fixed_final_drive'])
+
+    def test_non_adjustable_car_carries_its_fixed_final_drive(self):
+        # without this the document has nothing below the gearbox at all, and no
+        # absolute km/h is reachable for the car
+        sets, curve, _, tyres = stratos_inputs()
+        doc = build_car_json('x', 'X', 'Front', sets, curve, None, tyres, '2026-09-12',
+                             fixed_final_drive=4.230769)
+        self.assertIsNone(doc['final_drive'])
+        self.assertAlmostEqual(doc['fixed_final_drive'], 4.230769, places=6)
+
+    def test_fixed_final_drive_is_dropped_when_the_car_is_adjustable(self):
+        # the two fields are mutually exclusive whatever the caller passes
+        sets, curve, fd, tyres = stratos_inputs()
+        doc = build_car_json('x', 'X', 'Rear', sets, curve, fd, tyres, '2026-09-12',
+                             fixed_final_drive=4.230769)
+        self.assertIsNotNone(doc['final_drive'])
+        self.assertIsNone(doc['fixed_final_drive'])
+
+    def test_fixed_final_drive_key_is_always_present(self):
+        # the browser reads the key unconditionally, so it must exist on every car
+        self.assertIn('fixed_final_drive', self.doc)
+
 
 from export_car_data import (build_index_json, render_car_page,  # noqa: E402
                              render_index_page)

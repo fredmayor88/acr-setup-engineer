@@ -40,12 +40,22 @@ def _kw(torque_nm, rpm):
 
 
 def build_car_json(slug, name, axle, gear_sets, engine_curve, final_drive, tyres,
-                   generated):
+                   generated, fixed_final_drive=None):
     """One car's complete published record.
 
     Every downstream number on the site is derived from this document, so anything the
     browser cannot recompute has to be in here.
+
+    `fixed_final_drive` covers the cars whose final drive cannot be adjusted, where
+    `final_drive` is None and the combinations that would otherwise carry the ratio do
+    not exist. It is the whole engine-to-wheel ratio below the gearbox — primary gear
+    included — so speed is always `rpm * circumference * 0.06 / (gear * fixed)`, the
+    same shape as the adjustable case. The two fields are mutually exclusive: when
+    `final_drive` is present this is forced to None, because those combinations already
+    carry the ratio and a second copy could drift out of step with them.
     """
+    if final_drive is not None:
+        fixed_final_drive = None
     curve = [[rpm, torque, _kw(torque, rpm)] for rpm, torque in engine_curve]
     peak_torque = max(curve, key=lambda r: r[1])
     peak_power = max(curve, key=lambda r: r[2])
@@ -66,6 +76,7 @@ def build_car_json(slug, name, axle, gear_sets, engine_curve, final_drive, tyres
             for i, gears in enumerate(gear_sets)
         ],
         'final_drive': None,
+        'fixed_final_drive': fixed_final_drive,
         'tyres': {key: {'asset': asset, 'free_radius': radius}
                   for key, (asset, radius) in tyres.items()},
         'defaults': {'loaded_radius_factor': LOADED_RADIUS_FACTOR},
@@ -190,8 +201,17 @@ def car_record(paks, slug, tmp):
         # published axle and tyre stay truthful rather than reporting the last probe
 
     final_drive = None
-    if options:
-        stock_primary = sets[0][1]
+    fixed_final_drive = None
+    stock_primary = sets[0][1]
+    if not options:
+        # Nothing below the gearbox is adjustable, so there are no combinations to carry
+        # the ratio — publish it on its own or the site has no way to reach an absolute
+        # km/h for this car. Primary gear folded in, so it is the same quantity
+        # make_gearing_chart's final_of() draws these cars with. Every car on this branch
+        # today has a 1:1 primary (25//25), so the multiply is a no-op now and insurance
+        # against a future car that isn't.
+        fixed_final_drive = ratio(stock_primary) * fd_value
+    else:
         # the part of the chain that never moves: everything below the gearbox with the
         # adjustable ratio divided back out. Same quantity chart_final_drive computes.
         rest = fd_value / ratio(stock)
@@ -222,7 +242,7 @@ def car_record(paks, slug, tmp):
     display = re.search(r'^car: "(.*)"', text, re.MULTILINE)
     display_name = display.group(1) if display else slug
 
-    return display_name, axle, sets, curve, final_drive, tyres
+    return display_name, axle, sets, curve, final_drive, fixed_final_drive, tyres
 
 
 def main():
@@ -248,14 +268,16 @@ def main():
             # template (the 206 WRC today) has no chart either, so it is simply absent
             # from the site rather than published with a missing power curve.
             try:
-                name, axle, sets, curve, fd, tyres = car_record(args.paks, slug, tmp)
+                name, axle, sets, curve, fd, fixed_fd, tyres = car_record(
+                    args.paks, slug, tmp)
             except SystemExit as e:
                 if not args.all:
                     raise
                 failed.append(f'{slug}: {e}')
                 continue
             gears = [[(g, ratio(g)) for g in forward] for forward, _p, _r in sets]
-            doc = build_car_json(slug, name, axle, gears, curve, fd, tyres, today)
+            doc = build_car_json(slug, name, axle, gears, curve, fd, tyres, today,
+                                 fixed_final_drive=fixed_fd)
             with open(os.path.join(out, 'data', slug + '.json'), 'w',
                       encoding='utf-8', newline='\n') as fh:
                 json.dump(doc, fh, indent=1)
