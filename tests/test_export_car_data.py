@@ -198,8 +198,8 @@ class GeneratedDate(unittest.TestCase):
         self.assertNotIn('generated', build_index_json([{'slug': 'a', 'name': 'A'}]))
 
 
-from export_car_data import (build_index_json, render_car_page,  # noqa: E402
-                             render_index_page)
+from export_car_data import (build_index_json, prune,  # noqa: E402
+                             render_car_page, render_index_page)
 
 
 class RenderPages(unittest.TestCase):
@@ -233,6 +233,72 @@ class RenderPages(unittest.TestCase):
                                    'name': 'Lancia Stratos HF'}])
         self.assertIn('href="lancia-stratos/"', html)
         self.assertIn('Lancia Stratos HF', html)
+
+
+class Prune(unittest.TestCase):
+    """prune() deletes files, so what it may touch is pinned down exactly."""
+
+    def setUp(self):
+        import tempfile
+        self._tmp = tempfile.TemporaryDirectory()
+        self.out = self._tmp.name
+        self.addCleanup(self._tmp.cleanup)
+
+        def write(*parts):
+            path = os.path.join(self.out, *parts)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, 'w', encoding='utf-8') as fh:
+                fh.write('x')
+
+        for slug in ('kept', 'stale'):
+            write('data', slug + '.json')
+            write(slug, 'index.html')
+        write('data', 'index.json')
+        write('data', 'notes.txt')                 # not JSON: out of scope
+        write('shared', 'extra.css')               # stale car folder with other files
+        write('data', 'shared.json')
+        write('shared', 'index.html')
+        write('app.css')
+        write('js', 'app.js')
+        write('index.html')
+
+    def exists(self, *parts):
+        return os.path.exists(os.path.join(self.out, *parts))
+
+    def test_stale_car_files_and_empty_folder_are_removed(self):
+        removed = prune(self.out, {'kept'})
+        self.assertFalse(self.exists('data', 'stale.json'))
+        self.assertFalse(self.exists('stale', 'index.html'))
+        self.assertFalse(self.exists('stale'))
+        self.assertIn('data/stale.json', removed)
+        self.assertIn('stale/index.html', removed)
+
+    def test_current_cars_are_kept(self):
+        prune(self.out, {'kept'})
+        self.assertTrue(self.exists('data', 'kept.json'))
+        self.assertTrue(self.exists('kept', 'index.html'))
+
+    def test_nothing_else_is_touched(self):
+        prune(self.out, {'kept'})
+        for parts in (('data', 'index.json'), ('data', 'notes.txt'), ('app.css',),
+                      ('js', 'app.js'), ('index.html',), ('shared', 'extra.css')):
+            self.assertTrue(self.exists(*parts), os.path.join(*parts))
+
+    def test_a_stale_folder_holding_other_files_keeps_them(self):
+        prune(self.out, {'kept'})
+        self.assertFalse(self.exists('data', 'shared.json'))
+        self.assertFalse(self.exists('shared', 'index.html'))
+        self.assertTrue(self.exists('shared', 'extra.css'))
+
+    def test_the_parent_of_the_target_is_not_touched(self):
+        sibling = os.path.join(os.path.dirname(self.out),
+                               os.path.basename(self.out) + '-sibling.json')
+        with open(sibling, 'w') as fh:
+            fh.write('x')
+        self.addCleanup(os.remove, sibling)
+        prune(self.out, set())
+        self.assertTrue(os.path.exists(sibling))
+        self.assertTrue(self.exists('data', 'index.json'))
 
 
 if __name__ == '__main__':
