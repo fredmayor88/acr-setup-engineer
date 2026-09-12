@@ -1,5 +1,6 @@
 car: "Fiat 131 Abarth 1976"
 game: "ACR"
+save_ids: ["Fiat131Abarth"]
 drivetrain: "RWD"
 engine_layout: "front-mounted longitudinal DOHC inline-4 (2.0 L, 16-valve Abarth competition head), driving the rear wheels"
 weight_bias: "~55% front / ~45% rear (estimated — no published figure)"

@@ -1,6 +1,6 @@
 car: "Peugeot 206 WRC 1999"
 game: "ACR"
-save_ids: ["Peugeot206WRC"]
+save_ids: ["Peugeot206"]
 drivetrain: "AWD"
 engine_layout: "front transverse turbocharged 2.0L inline-4, with the gearbox mounted longitudinally behind it"
 weight_bias: "~58% front / ~42% rear (estimated — no published figure)"

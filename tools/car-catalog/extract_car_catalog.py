@@ -28,7 +28,6 @@ from acrpkg import Package                   # noqa: E402
 from datatable import rows as dt_rows        # noqa: E402
 import mapping as M                          # noqa: E402
 import car_identity as CI                    # noqa: E402  (bootstrap_header only)
-import extract_torque_curves as TC           # noqa: E402  (folder name for save_ids)
 sys.path.insert(0, os.path.join(REPO, 'tools', 'gearing-charts'))
 import make_gearing_chart as GC              # noqa: E402  (DT_Wheels prefix per slug)
 
@@ -508,13 +507,18 @@ def bootstrap_header(slug):
     about the visual wheel prop. Don't re-check those two tables for it; read the
     car-info screen instead.
     """
+    # save_ids is the string ACR writes into a .sav, which is the DT_Cars ROW KEY - not the
+    # Vehicles/ folder name. The two differ on several cars (folder AlfaRomeoGiuliaGTA1300Junior
+    # vs key AlfaRomeoGTA1300, LanciaDeltaHFIntegraleEvo vs LanciaDeltaIntegraleEvo,
+    # LanciaFulviaCoupeHF vs LanciaFulviaHF, Peugeot306IIMaxi vs Peugeot306IIMaxiKitCar,
+    # Peugeot206WRC vs Peugeot206). Verified: every car id in the repo's sample .sav files is a
+    # DT_Cars key, 13 for 13, including all four discriminating cases.
     key = {v: k for k, v in CI.SLUGS.items()}.get(slug)
-    folder = {v[0]: k for k, v in TC.CAR_MAP.items()}.get(slug, 'TODO-folder-name')
     facts = (CI.facts_for(_dt_cars_pkg[0], key) if key and _dt_cars_pkg[0] else None) or {}
     lines = [
         f'car: "TODO - exact display name + year (see the car-info screen)"',
         'game: "ACR"',
-        f'save_ids: ["{folder}"]',
+        f'save_ids: ["{key or "TODO - the car\'s DT_Cars row key"}"]',
         f'drivetrain: "{facts.get("drivetrain") or "TODO"}"',
         f'engine_layout: "{facts.get("engine_layout_draft") or "TODO"} '
         f'- TODO verify orientation/displacement/valve gear from the car-info screen"',

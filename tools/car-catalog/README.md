@@ -150,6 +150,12 @@ possible — see `class_label()`/`gearbox_label()` in `car_identity.py` for the 
 mappings that reproduce each template's existing spelling (`A8_Evo2` → `Group A · A8 EV02`,
 `Sequential6_7_Lever` → `Sequential 6-speed`, …).
 
+**The row key is also the `save_ids` value.** The string ACR writes into a `.sav` is the `DT_Cars`
+row key, *not* the `Vehicles/` folder name — checked against every car id in the repo's sample save
+files, 13 for 13, including all four cars where the two differ. Deriving `save_ids` from the folder
+name silently produces an id that no save will ever match (it put `Peugeot206WRC` in the 206's
+template when the real id is `Peugeot206`).
+
 `DT_Cars`'s row key usually equals the `Vehicles/` folder name (`AudiQuattroGr4`,
 `VWPoloGTIR5`, …) but not always — `Peugeot206WRC`'s row is keyed `Peugeot206`,
 `LanciaFulviaCoupeHF`'s is `LanciaFulviaHF`, `LanciaDeltaHFIntegraleEvo`'s is
