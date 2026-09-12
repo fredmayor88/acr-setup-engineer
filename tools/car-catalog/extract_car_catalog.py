@@ -27,6 +27,8 @@ from iostore import Toc                      # noqa: E402  (shared with torque-c
 from acrpkg import Package                   # noqa: E402
 from datatable import rows as dt_rows        # noqa: E402
 import mapping as M                          # noqa: E402
+import car_identity as CI                    # noqa: E402  (bootstrap_header only)
+import extract_torque_curves as TC           # noqa: E402  (folder name for save_ids)
 
 DEFAULT_PAKS = ('C:/Program Files (x86)/Steam/steamapps/common/'
                 'Assetto Corsa Rally/acr/Content/Paks')
@@ -49,6 +51,11 @@ CAR_MAP = {
     'peugeot-306-ii-maxi-1997':               'DA_Peugeot306IIMaxiPresets',
     'skoda-fabia-rs-rally2-2022':             'DA_SkodaFabiaRSRally2Presets',
     'subaru-impreza-555-s3-1993':             'DA_SubaruImprezaS3Presets',
+    # queued, no bundled template yet - onboarding backlog
+    'audi-quattro-gr4-1981':                  'DA_AudiQuattroGr4Presets',
+    'volkswagen-polo-gti-r5-2018':            'DA_VWPoloGTIR5Presets',
+    'peugeot-208-rally4':                     'DA_Peugeot208Rally4Presets',
+    'peugeot-206-wrc-1999':                   'DA_Peugeot206WRCPresets',
 }
 
 # the hint FName inside a DB-set override -> the DataTable that actually holds it
@@ -364,6 +371,9 @@ def quoted(v):
 
 
 def read_old(path):
+    """('', []) for a car with no bundled template yet - see bootstrap_header()."""
+    if not os.path.exists(path):
+        return '', []
     txt = open(path, encoding='utf-8').read()
     out = []
     for m in PARAM_RE.finditer(txt):
@@ -435,6 +445,54 @@ def merge(new_rows, old_rows, merged):
     return out, carried, missing
 
 
+def bootstrap_header(slug):
+    """A starter header for a car with no bundled template yet.
+
+    Pre-fills what DT_Cars gives cleanly (drivetrain, class, gearbox - see
+    car_identity.py, validated against every existing template). `max_power` /
+    `max_torque` start as a TODO here too, but `../torque-curves/extract_torque_curves.py`
+    fills them in from the engine curve's own peaks on the very next step of the
+    onboarding recipe (see README.md - Onboarding a brand-new car) - run that
+    tool second and these two are no longer TODO when you open the file.
+    Everything else DT_Cars doesn't hold as a plain FName - the exact display
+    name/year, weight, weight distribution, steering lock, and the precise
+    engine_layout prose (orientation, displacement, valve gear) - stays a `TODO`
+    placeholder for one look at the game's car-info screen. Steering lock in
+    particular was searched for and not found: neither `DT_Cars`' `SteeringAngle`
+    field nor the `DT_SteeringAngles` table it points into holds a plain lock-angle
+    number for any car (a byte-level scan for every existing template's known
+    `steering_lock` value found zero matches) - `DT_SteeringAngles` looks to be
+    about the visual wheel prop, not the tunable spec. Don't re-check those two
+    tables for this without new evidence; it's a dead end.
+    """
+    key = {v: k for k, v in CI.SLUGS.items()}.get(slug)
+    folder = {v[0]: k for k, v in TC.CAR_MAP.items()}.get(slug, 'TODO-folder-name')
+    facts = (CI.facts_for(_dt_cars_pkg[0], key) if key and _dt_cars_pkg[0] else None) or {}
+    lines = [
+        f'car: "TODO - exact display name + year (see the car-info screen)"',
+        'game: "ACR"',
+        f'save_ids: ["{folder}"]',
+        f'drivetrain: "{facts.get("drivetrain") or "TODO"}"',
+        f'engine_layout: "{facts.get("engine_layout_draft") or "TODO"} '
+        f'- TODO verify orientation/displacement/valve gear from the car-info screen"',
+        'weight_bias: "TODO - from the car-info screen"',
+        'weight: "TODO - real-world spec (see README.md: this is not game output)"',
+        'max_power: "TODO - real-world spec (see README.md: this is not game output)"',
+        'max_torque: "TODO - real-world spec (see README.md: this is not game output)"',
+        f'class: "{facts.get("class") or "TODO"}"',
+        f'gearbox: "{facts.get("gearbox") or "TODO"}"',
+        'steering_lock: "TODO - from the car-info screen '
+        '(not in DT_Cars/DT_SteeringAngles - checked, see bootstrap_header docstring)"',
+        f'version: "{GAME_VERSION}"',
+    ]
+    return '\n'.join(lines)
+
+
+# populated by main() once, only when at least one requested slug is new;
+# a single-item list so bootstrap_header can see it without a global rebind
+_dt_cars_pkg = [None]
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--paks', default=DEFAULT_PAKS)
@@ -443,13 +501,18 @@ def main():
     args = ap.parse_args()
 
     slugs = [args.car] if args.car else sorted(CAR_MAP)
+    new_slugs = {s for s in slugs if not os.path.exists(os.path.join(TEMPLATES, s + '.yaml'))}
     wanted = set(WANTED_TABLES) | {CAR_MAP[s] for s in slugs}
+    if new_slugs:
+        wanted.add('DT_Cars')
     with tempfile.TemporaryDirectory() as tmp:
         paths = extract(args.paks, wanted, tmp)
         tables = {}
         for t in WANTED_TABLES:
             if t in paths:
                 tables[t] = dt_rows(Package(open(paths[t], 'rb').read()))
+        if 'DT_Cars' in paths:
+            _dt_cars_pkg[0] = Package(open(paths['DT_Cars'], 'rb').read())
 
         total_changed = 0
         for slug in slugs:
@@ -457,6 +520,7 @@ def main():
             pkg = Package(open(paths[asset], 'rb').read())
             new_rows, notes, merged = build_rows(pkg, tables)
             path = os.path.join(TEMPLATES, slug + '.yaml')
+            is_new = slug in new_slugs
             txt, old_rows = read_old(path)
             rows, carried, missing = merge(new_rows, old_rows, merged)
 
@@ -471,7 +535,8 @@ def main():
                        != (old_by[n]['min'], old_by[n]['max'], old_by[n]['discrete_steps'])]
             total_changed += len(changed) + len(added) + len(dropped)
 
-            print(f'\n{slug}  ({len(rows)} params, was {len(old_rows)})')
+            print(f'\n{slug}  ({len(rows)} params, was {len(old_rows)})'
+                  + ('  [NEW - no bundled template yet]' if is_new else ''))
             for n in changed:
                 o, w = old_by[n], new_by[n]
                 if (o['min'], o['max']) != (w['min'], w['max']):
@@ -485,14 +550,23 @@ def main():
                 print(f'    - {n}')
             for n in notes:
                 print(f'    ! {n}')
-            for n in missing:
-                print(f'    ! no game range and no previous value: {n}')
+            if is_new:
+                for n in missing:
+                    print(f'    ! NEEDS SCREENSHOT (no previous template to carry it from): {n}')
+            else:
+                for n in missing:
+                    print(f'    ! no game range and no previous value: {n}')
             if carried:
                 print(f'    = carried over from the previous template: {", ".join(sorted(carried))}')
 
-            head = txt.split('\nparameters:')[0].rstrip('\n')
-            head = re.sub(r'^version: ".*"$', f'version: "{GAME_VERSION}"',
-                          head, flags=re.M)
+            if is_new:
+                head = bootstrap_header(slug)
+                print(f'    = new template header pre-filled from DT_Cars: drivetrain, class, '
+                      f'gearbox - the rest is TODO, see the written file')
+            else:
+                head = txt.split('\nparameters:')[0].rstrip('\n')
+                head = re.sub(r'^version: ".*"$', f'version: "{GAME_VERSION}"',
+                              head, flags=re.M)
             out = head + '\n\n' + render(rows)
             if not args.dry_run:
                 open(path, 'w', encoding='utf-8', newline='\n').write(out)

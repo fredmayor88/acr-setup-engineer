@@ -74,9 +74,101 @@ These stay as the previous template had them, and the run prints which ones were
   on screen, so the human-readable lists are kept.
 - **Proportioning preload, front cylinder, rear cylinder.** The per-car asset stores no bound
   for these; the displayed range is derived from the fitted master cylinder.
-- **Identity facts** (`weight`, `class`, `max_power`, …). `DT_Cars` holds them and they parse,
-  but wiring that up is a separate job. `max_power` / `max_torque` are real-world specs anyway,
-  not game output — compare them against the `engine_curve:` peaks, not against each other.
 - **`Front Bias` (0.25–0.75), `Proportioning Ratio` (0–1), `ABS Map` / `TCS Map` (1–3).**
   Definition-level constants: every car's asset overrides only the *step*, so the bounds live
   in the shared setting definition. They're pinned in `mapping.py`'s `DEFINITION_RANGES`.
+- **`weight`, `weight_bias`, `max_power`, `max_torque`, `steering_lock`, and the precise
+  `engine_layout` prose** (orientation, displacement, valve gear). Not FName-tagged fields in
+  `DT_Cars` — see *Car identity facts* below for what *is* — and `max_power`/`max_torque` are
+  real-world specs anyway, not game output; compare them against the `engine_curve:` peaks,
+  not against each other. One look at the game's car-info screen (plus a spec sheet for the
+  power/torque numbers) fills these in.
+
+## Car identity facts
+
+`car_identity.py` reads `DT_Cars` (`acr/Content/Data/Database/Main/CarSelection/DT_Cars.uasset`)
+for the identity-header fields that *do* come out clean as plain `FName` values: `drivetrain`
+(from `WheelDrives`), `class` (from `CarsClasses`), `gearbox` (from `GearsTypes`), plus
+manufacturer and enough engine metadata (`EngineTypes`/`EnginePositions`/`Inductions`) for a
+starting `engine_layout` draft. It does **not** give you weight, power/torque, steering lock, or
+engine orientation/displacement — those aren't stored as named fields in this table (they're
+either real-world specs or raw numeric properties whose per-row schema layout hasn't been
+reverse-engineered).
+
+```bash
+python car_identity.py                       # every car DT_Cars has a row for
+python car_identity.py --car AudiQuattroGr4   # one row, by its DT_Cars row key
+```
+
+**Why a new extractor instead of reusing `tagged_rows()`:** `DT_Cars` rows interleave the tags
+above with a lot of unrelated untagged names (asset paths, localization keys, livery lists), and
+`tagged_rows()`'s "any untagged name becomes the new current row" heuristic — fine for the
+uniform `DT_Wheels` rows it was written for — silently attributes a tag to the wrong row when one
+of those untagged names sits between the real row key and its tags (this bit `Peugeot206WRC`
+during validation). `datatable.struct_rows()` instead anchors each row's boundary on the first
+occurrence of a designated anchor tag (`Manufacturers`, which the game always writes immediately
+after the row's own key with nothing between them) and only reads tags from within that row's
+own slice. **Validated against all 14 bundled templates**: drivetrain, class and gearbox came
+back matching the hand-written value for every one, which is what makes trusting it for new cars
+possible — see `class_label()`/`gearbox_label()` in `car_identity.py` for the exact string
+mappings that reproduce each template's existing spelling (`A8_Evo2` → `Group A · A8 EV02`,
+`Sequential6_7_Lever` → `Sequential 6-speed`, …).
+
+`DT_Cars`'s row key usually equals the `Vehicles/` folder name (`AudiQuattroGr4`,
+`VWPoloGTIR5`, …) but not always — `Peugeot206WRC`'s row is keyed `Peugeot206`,
+`LanciaFulviaCoupeHF`'s is `LanciaFulviaHF`, `LanciaDeltaHFIntegraleEvo`'s is
+`LanciaDeltaIntegraleEvo`, `Peugeot306IIMaxi`'s is `Peugeot306IIMaxiKitCar`. `car_identity.py`'s
+`SLUGS` dict carries the known row-key → template-slug mapping; add a new car there when you
+onboard it (a wrong-guessed key just falls through as "not a DT_Cars row" — the error names the
+actual key list).
+
+## Onboarding a brand-new car (no bundled template yet)
+
+Confirmed working (Audi Quattro Gr4, VW Polo GTI R5, Peugeot 208 Rally4, Peugeot 206 WRC were
+bootstrapped this way):
+
+1. **Add the car everywhere it needs a map entry** — four separate per-tool maps, each keyed for
+   that tool's own job (not yet unified, and the duplication is intentional per the existing
+   pattern rather than a shared table to invent):
+   - `extract_car_catalog.py`'s `CAR_MAP`: slug → `DA_<Car>Presets` asset basename
+     (`acr/Content/Data/CarSetups/`).
+   - `car_identity.py`'s `SLUGS`: `DT_Cars` row key → slug (see above for why the key can
+     differ from the folder name).
+   - `../torque-curves/extract_torque_curves.py`'s `CAR_MAP`: `Vehicles/` folder name →
+     (slug, display name) — for the engine curve chart. A car whose game files don't have an
+     `FC_*_Torque.uasset` yet (Peugeot 206 WRC, currently) still gets an entry; it's a no-op
+     until the game ships that asset.
+   - `../gearing-charts/make_gearing_chart.py`'s `CARS`: slug → (gear-set asset prefix, `DT_Wheels`
+     row prefix, car data asset — the first and third are almost always identical; look up the
+     `DT_Wheels` prefix by grepping that table's row names for the car, since it can differ
+     arbitrarily from the folder name, e.g. `AudiQuattroGr4` → `AudiQuattroGr.4`, literal dot).
+2. **Run `python extract_car_catalog.py --car <slug>`** (drop `--car` for a full pass; add
+   `--dry-run` to preview). With no existing `<slug>.yaml`, it now bootstraps one from scratch
+   instead of erroring: the full `parameters:` block from the game files (identical machinery to
+   a refresh), plus a header pre-filled from `car_identity.py` (`drivetrain`, `class`, `gearbox`).
+   Everything else is left as an explicit `TODO` string for now. The console output is tagged
+   `[NEW - no bundled template yet]` and lists every parameter that **needs one screenshot** to
+   fill in (`NEEDS SCREENSHOT` instead of the refresh-path's silent carry-over) — always the same
+   bounded set: `Tyre Type`, the six brake-part display strings, the master-cylinder fields, and
+   any per-car setting the game leaves at a shared definition default with no previous template
+   to inherit it from.
+3. **Run `python ../torque-curves/extract_torque_curves.py`** (it only writes into templates that
+   already exist, so this must come *after* step 2). Renders the power/torque chart, writes the
+   `engine_curve:` block, and **backfills the `max_power`/`max_torque` TODOs** with the engine
+   curve's own peaks (clearly labelled `ACR engine-curve peak`, never silently — see
+   `backfill_todo_specs()`). Treat those as a starting value to confirm against a real spec sheet,
+   not a final one — README.md's own note about forced-induction disagreement applies. A car with
+   no `FC_*_Torque` asset (Peugeot 206 WRC) gets no chart, no `engine_curve:` block, and its
+   `max_power`/`max_torque` stay `TODO` — there's no game data to backfill from.
+4. **Run `python ../gearing-charts/make_gearing_chart.py --car <slug>`** for the gearing chart (and
+   final-drive chart, if the car's final drive is adjustable — the tool says so on the cars that
+   aren't, e.g. Peugeot 208 Rally4 and VW Polo GTI R5). Needs step 3's `engine_curve:` block first
+   (it reads the redline from it) — a car with no engine curve (206 WRC) can't get one yet either.
+5. **Finish by hand — down to a small, bounded list:** `car` (exact display name/year), `weight`,
+   `weight_bias`, `steering_lock`, and the precise `engine_layout` wording (orientation,
+   displacement, valve gear) from the car-info screen; confirm or correct `max_power`/`max_torque`
+   against a real spec sheet; and the `NEEDS SCREENSHOT` parameters from one look at the min/max
+   setup screens. `steering_lock` specifically was searched for in the game files and not found —
+   see `bootstrap_header()`'s docstring before spending time re-checking `DT_Cars` or
+   `DT_SteeringAngles` for it. Until `car:` stops being the literal string `"TODO"`, the template
+   is a draft — don't let the skill auto-onboard a car from it.

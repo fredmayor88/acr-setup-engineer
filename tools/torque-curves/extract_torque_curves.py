@@ -49,6 +49,13 @@ CAR_MAP = {
     "Peugeot306IIMaxi":       ("peugeot-306-ii-maxi-1997", "Peugeot 306 II Maxi 1997"),
     "SkodaFabiaRSRally2":           ("skoda-fabia-rs-rally2-2022", "Skoda Fabia RS Rally2 2022"),
     "SubaruImprezaS3":           ("subaru-impreza-555-s3-1993", "Subaru Impreza 555 (S3) 1993"),
+    "AudiQuattroGr4":               ("audi-quattro-gr4-1981", "Audi Quattro Gr4 1981"),
+    "VWPoloGTIR5":                  ("volkswagen-polo-gti-r5-2018", "Volkswagen Polo GTI R5 2018"),
+    # Peugeot206WRC has no FC_*_Torque asset in the game files yet (see
+    # car-catalog/README.md - Car identity facts / the Peugeot 206 WRC note) -
+    # this entry is a no-op until the game ships one, at which point charting
+    # picks it up automatically.
+    "Peugeot206WRC":                ("peugeot-206-wrc-1999", "Peugeot 206 WRC 1999"),
 }
 
 # Brand palette (yt-writing/brand-palette.md)
@@ -229,15 +236,53 @@ def yaml_block(slug, asset_name, s):
     return "\n".join(lines) + "\n"
 
 
-def write_template(path, block):
+# tools/gearing-charts writes these two lines into the same BLOCK_START..BLOCK_END
+# span (it imports BLOCK_START/BLOCK_END from here on purpose). yaml_block() never
+# emits them itself, so a plain regex swap of the whole span silently deletes them
+# if that tool ran first - carry them forward instead of overwriting them.
+CHART_LINE_RE = re.compile(r'^(gearing_chart|final_drive_chart): .*$\n?', re.MULTILINE)
+
+
+# The exact placeholder car-catalog's bootstrap_header() writes for a brand-new car -
+# matched verbatim so a real, human-entered spec is never overwritten.
+_TODO_POWER = 'max_power: "TODO - real-world spec (see README.md: this is not game output)"'
+_TODO_TORQUE = 'max_torque: "TODO - real-world spec (see README.md: this is not game output)"'
+
+
+def backfill_todo_specs(text, s):
+    """Replace car-catalog's bootstrap max_power/max_torque TODOs with the game's
+    own engine-curve peaks, clearly labelled as such - the numbers are real ACR
+    output, not a guess, but README.md's own note applies: on forced-induction
+    cars the game's simulated peak and the real-world spec can genuinely differ,
+    so this is a starting value to confirm against a spec sheet, not a final one.
+    Never touches a line a human has already filled in.
+    """
+    text = text.replace(_TODO_POWER,
+        f'max_power: "{s["peak_power_hp"]} hp at {s["peak_power_rpm"]} rpm '
+        f'(ACR engine-curve peak - see engine_curve: below; confirm against a real-world spec sheet)"')
+    text = text.replace(_TODO_TORQUE,
+        f'max_torque: "{s["peak_torque_nm"]} Nm at {s["peak_torque_rpm"]} rpm '
+        f'(ACR engine-curve peak - see engine_curve: below; confirm against a real-world spec sheet)"')
+    return text
+
+
+def write_template(path, block, s=None):
     text = open(path, encoding="utf-8").read()
-    pattern = re.compile(re.escape(BLOCK_START) + r".*?" + re.escape(BLOCK_END) + r"\n",
+    pattern = re.compile(re.escape(BLOCK_START) + r"(.*?)" + re.escape(BLOCK_END) + r"\n",
                          re.DOTALL)
-    if pattern.search(text):
-        text = pattern.sub(block, text)
+    m = pattern.search(text)
+    if m:
+        carried = [ln.group(0) for ln in CHART_LINE_RE.finditer(m.group(1))]
+        if carried:
+            after = f'power_torque_chart: "{CHART_URL_BASE}'
+            idx = block.index("\n", block.index(after)) + 1
+            block = block[:idx] + "".join(carried) + block[idx:]
+        text = text[:m.start()] + block + text[m.end():]
     else:
         # sits between the identity facts and the tunable parameter list
         text = text.replace("\nparameters:", "\n" + block + "\nparameters:", 1)
+    if s is not None:
+        text = backfill_todo_specs(text, s)
     open(path, "w", encoding="utf-8", newline="\n").write(text)
 
 
@@ -295,7 +340,7 @@ def main():
               f"{'' if has_tpl else '   (no template - chart only)'}")
 
         if has_tpl and not args.dry_run:
-            write_template(tpl, yaml_block(slug, asset_name, s))
+            write_template(tpl, yaml_block(slug, asset_name, s), s)
             written += 1
 
     # charts are only written for cars in CAR_MAP, so this is not len(order)

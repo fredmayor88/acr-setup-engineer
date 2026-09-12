@@ -25,7 +25,13 @@ are left alone.
 
 Run it after a game update that touches car physics, and whenever a new car is onboarded —
 add the car to `CAR_MAP` (in-game folder name → template slug) first, or the tool will say it
-doesn't recognise it.
+doesn't recognise it. This is one of three separate per-tool `CAR_MAP`s a brand-new car needs
+an entry in — see `../car-catalog/README.md` → *Onboarding a brand-new car*.
+
+**A car can be queued here with no `FC_*_Torque` asset yet.** `Peugeot206WRC` is one: the game
+files carry a full data folder for it (gear sets, wheel configs, gauges — it's playable) but no
+torque-curve asset, so `find_curve_assets` never surfaces it and the `CAR_MAP` entry is a no-op
+until the game ships one. Re-run after a game update to pick it up automatically.
 
 ## Where the data comes from
 

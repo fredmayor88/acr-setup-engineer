@@ -66,3 +66,39 @@ def tagged_rows(pkg, tag):
             continue
         cur = name
     return out
+
+
+def struct_rows(pkg, tags):
+    """{row name: {tag: value}} for a table whose rows carry several named
+    FName fields plus unrelated untagged names (asset paths, localization keys,
+    livery lists, ...) that `tagged_rows`'s cur-tracking would misattribute.
+
+    Used for DT_Cars: each row lists Manufacturers/EngineTypes/EnginePositions/
+    Inductions/WheelDrives/GearsTypes/CarsClasses side by side, interleaved with
+    plenty of other names tagged_rows would trip over. Row boundaries are found
+    by anchoring on `tags[0]`, which the game always writes immediately after
+    the row's own key with nothing between them — verified against every row in
+    DT_Cars (see tools/car-catalog/README.md - Car identity facts). A row with
+    no other known tags before the next anchor still comes back with whatever
+    subset it has; missing tags are simply absent from its dict.
+    """
+    _, blob = pkg.export_bytes(0)
+    seq = _fnames(pkg, blob)
+    names = [pkg.name(idx, num) for (_, idx, num) in seq]
+    tagset, anchor = set(tags), tags[0]
+    starts = [i - 1 for i, n in enumerate(names) if n == anchor and i > 0]
+    bounds = starts + [len(names)]
+    out = {}
+    for i in range(len(bounds) - 1):
+        s, e = bounds[i], bounds[i + 1]
+        key = names[s]
+        window = names[s:e]
+        facts, j = {}, 0
+        while j < len(window) - 1:
+            if window[j] in tagset and window[j] not in facts:
+                facts[window[j]] = window[j + 1]
+                j += 2
+            else:
+                j += 1
+        out[key] = facts
+    return out
