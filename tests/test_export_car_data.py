@@ -83,5 +83,42 @@ class BuildCarJson(unittest.TestCase):
         self.assertIsNone(doc['final_drive'])
 
 
+from export_car_data import (build_index_json, render_car_page,  # noqa: E402
+                             render_index_page)
+
+
+class RenderPages(unittest.TestCase):
+    def test_car_page_bakes_in_name_for_search(self):
+        html = render_car_page('lancia-stratos', 'Lancia Stratos HF')
+        self.assertIn('<title>Lancia Stratos HF — ACR Car Lab</title>', html)
+        self.assertIn('<h1>Lancia Stratos HF</h1>', html)
+
+    def test_car_page_names_its_own_slug_for_the_app_to_read(self):
+        html = render_car_page('lancia-stratos', 'Lancia Stratos HF')
+        self.assertIn('data-car="lancia-stratos"', html)
+
+    def test_car_page_uses_parent_relative_asset_paths(self):
+        # pages live at /<slug>/, so shared assets are one level up
+        html = render_car_page('lancia-stratos', 'Lancia Stratos HF')
+        self.assertIn('../app.css', html)
+        self.assertIn('../js/app.js', html)
+
+    def test_car_page_escapes_the_name(self):
+        html = render_car_page('x', 'A & B <script>')
+        self.assertNotIn('<script>A', html)
+        self.assertIn('A &amp; B &lt;script&gt;', html)
+
+    def test_index_json_lists_cars_sorted_by_name(self):
+        doc = build_index_json([{'slug': 'b', 'name': 'Zeta'},
+                                {'slug': 'a', 'name': 'Alpha'}])
+        self.assertEqual([c['slug'] for c in doc['cars']], ['a', 'b'])
+
+    def test_index_page_links_every_car(self):
+        html = render_index_page([{'slug': 'lancia-stratos',
+                                   'name': 'Lancia Stratos HF'}])
+        self.assertIn('href="lancia-stratos/"', html)
+        self.assertIn('Lancia Stratos HF', html)
+
+
 if __name__ == '__main__':
     unittest.main()

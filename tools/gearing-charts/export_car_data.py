@@ -8,6 +8,8 @@ baked into it.
     python export_car_data.py --all --out ../acr-car-lab
 """
 
+import html as _html
+
 LOADED_RADIUS_FACTOR = 0.9562
 
 
@@ -59,3 +61,75 @@ def build_car_json(slug, name, axle, gear_sets, engine_curve, final_drive, tyres
             'rest': final_drive['rest'],
         }
     return doc
+
+
+CAR_PAGE = """<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{name} — ACR Car Lab</title>
+<meta name="description" content="Gearing, final drive and power for the {name} in \
+Assetto Corsa Rally.">
+<link rel="stylesheet" href="../app.css">
+<script data-goatcounter="https://acr-car-lab.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+<div class="wrap" id="app" data-car="{slug}">
+  <header>
+    <div class="brandrow">
+      <span class="brand">ACR <b>Car Lab</b></span>
+      <a class="crumb" href="../">All cars →</a>
+    </div>
+    <h1>{name}</h1>
+  </header>
+  <p class="loading">Loading…</p>
+</div>
+<script type="module" src="../js/app.js"></script>
+</body></html>
+"""
+
+INDEX_PAGE = """<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ACR Car Lab</title>
+<meta name="description" content="Interactive gearing and power charts for every car in \
+Assetto Corsa Rally.">
+<link rel="stylesheet" href="app.css">
+<script data-goatcounter="https://acr-car-lab.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brandrow"><span class="brand">ACR <b>Car Lab</b></span></div>
+    <h1>Every car, gear by gear</h1>
+    <p class="sub">Gearing, final drive and power, read from the game files.</p>
+  </header>
+  <ul class="carlist">
+{items}
+  </ul>
+</div>
+</body></html>
+"""
+
+
+def render_car_page(slug, name):
+    """The generated shell for one car. Title and h1 are baked in so the page is
+    indexable without running the app."""
+    safe = _html.escape(name)
+    return CAR_PAGE.format(slug=_html.escape(slug), name=safe)
+
+
+def build_index_json(cars):
+    """The car list the picker reads, sorted by display name."""
+    return {'cars': sorted(({'slug': c['slug'], 'name': c['name']} for c in cars),
+                           key=lambda c: c['name'])}
+
+
+def render_index_page(cars):
+    items = '\n'.join(
+        f'    <li><a href="{_html.escape(c["slug"])}/">{_html.escape(c["name"])}</a></li>'
+        for c in build_index_json(cars)['cars'])
+    return INDEX_PAGE.format(items=items)
