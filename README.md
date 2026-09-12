@@ -613,10 +613,22 @@ ACR Setup Engineer (root page)
 ├── Locations
 │   └── {Location}
 │       └── {Stage}         facts only: surface, length, key corners, character
-└── {Car}                   drivetrain, weight bias, engine layout, weight,
-                            its power/torque, gearing and final-drive charts,
-                            a Guidelines section, and a filtered Setups view
+└── {Car}                   e.g. "Lancia Stratos HF" — an empty umbrella page holding four:
+    ├── Guidelines          YOURS. Your tuning notes for this car. The skill reads it
+    │                        and never writes to it.
+    ├── Catalog             Drivetrain, weight bias, engine layout, weight, the
+    │                        power/torque, gearing and final-drive charts, and a
+    │                        snapshot of the parameter catalog. Rebuilt on every refresh.
+    ├── Feedback            what you said about the car after each drive, dated.
+    │                        Only ever added to — nothing is edited or deleted.
+    └── Setups              a filtered view of your setups for this car
 ```
+
+**Why four pages?** So the skill never has to guess which words on a page are yours. `Catalog` is
+regenerated wholesale whenever you refresh a car — no comparing, no questions, no risk of it
+clobbering something you wrote — precisely because everything you write lives in `Guidelines`,
+which it only ever reads. `Feedback` is the opposite kind of page: the skill writes it, but only
+ever adds to it, because your driving history can't be regenerated from anything.
 
 Two databases only. Car, location and stage pages are **filtered linked views**, never new
 databases — a stage is shared reference data, created once and referenced by any number of setups

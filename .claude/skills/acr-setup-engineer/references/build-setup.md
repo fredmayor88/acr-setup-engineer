@@ -110,8 +110,8 @@ would rather just have a setup now, build one.
 
 > **Load steps 1–4 as one batched read** (`SKILL.md` → *Read efficiently*): after resolving the
 > structure, issue the independent reads together (parallel tool calls) and run the REST queries in
-> one code-execution block — and fetch the `{Car}` page **once** for both its identity facts (step 1)
-> and its Guidelines section (step 2), not twice. The `Setups` slices step 4 (default baseline) and
+> one code-execution block — and fetch the car's `Catalog` page (identity facts, step 1) and
+> `Guidelines` page (step 2) once each, in the same batch. The `Setups` slices step 4 (default baseline) and
 > step 7 (learn pool) need both go in that **same** code-execution block. (When step 0 just auto-onboarded
 > the car from a template, you already hold its catalog — don't re-fetch the `Parameters` rows.)
 
@@ -139,7 +139,7 @@ would rather just have a setup now, build one.
    3. **Global user guidelines** — the Notion `Tuning guidelines` page (under `ACR Setup Engineer`).
    4. **Surface section** of those guidelines — the page's "Per surface" subsection matching the
       build surface (step 3 fixes the surface; this is not a separate page).
-   5. **Per-car guidelines** — the car page's "Guidelines" section.
+   5. **Per-car guidelines** — the car's `Guidelines` page.
    The setup's own **driving intent** (Inputs) is the most specific layer, applied in step 8.
    Apply only base lines tagged `[All]` **or the car's drivetrain**. **More specific is the default
    lean** (base < troubleshooting < global < surface < per-car < intent), but this is not auto-resolved on a real
@@ -291,9 +291,9 @@ would rather just have a setup now, build one.
    symptom families and the gearing sub-interview, in small batches and plain language. Persist the
    result as that file's *Recording the outcome* section describes — a one-line dated verdict in the
    baseline row's `Notes`, the full record in a dated collapsed **"Driving feedback"** toggle in its
-   page body, and any **lasting** preference (not a one-off stage symptom) as a bullet in the
-   `{Car}` page's Guidelines section, with the raw log in that page's collapsed **"Driving feedback
-   log"** toggle. The symptom list is the most specific input to step 8, alongside the driving intent.
+   page body, a dated entry on the car's **`Feedback`** page (add-only, newest at the top), and any
+   **lasting** preference (not a one-off stage symptom) **offered in chat** for the user to paste
+   into their `Guidelines` page — the skill never writes there itself. The symptom list is the most specific input to step 8, alongside the driving intent.
 
 7. **Handle prior setups by mode.**
    - `learn` (default): fetch existing `Setups` rows for this car **where `Learn from this` is
@@ -424,7 +424,7 @@ would rather just have a setup now, build one.
      **after the row is written**. Get the `SHOW` list from the bundled script (don't build it by
      hand), then set `SHOW` (`notion-update-view`) on every projection:
      - **main `Setups` table view** → `… --all --show-order`;
-     - **this car's linked view** (on the `{Car}` page) → `… "{Car}" --show-order` (lists only this
+     - **this car's linked view** (on the car's `Setups` page) → `… "{Car}" --show-order` (lists only this
        car's value columns, hiding blanks);
      - **its `{Stage}` / `{Location}` linked view**, if a stage/location was referenced → `… --all
        --show-order` (no per-car filtering).

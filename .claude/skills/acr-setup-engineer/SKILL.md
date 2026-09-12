@@ -24,7 +24,7 @@ Pick the matching workflow and read its file before acting:
 | If the user wants to… | Follow |
 |---|---|
 | Onboard a car / capture its tunable parameters (from min & max screenshots, plus the car info screen for its identity facts) | `references/onboard-car.md` |
-| **Refresh an already-onboarded car** — *"refresh the {car} in my Notion"*, *"update {car}"*, *"re-onboard {car}"*: rewrites **everything static** about it (identity facts, the engine/gearing charts, the `Parameters` catalog, the `Catalog snapshot`), leaving `Setups` and hand-written guidelines alone | `references/onboard-car.md` (refresh path) |
+| **Refresh an already-onboarded car** — *"refresh the {car} in my Notion"*, *"update {car}"*, *"re-onboard {car}"*: rebuilds the car's **`Catalog`** page wholesale (identity facts, the three charts, the `Parameters` catalog, the `Catalog snapshot`) and migrates a car still on the old one-page layout. Never touches the user's `Guidelines` page or `Setups` rows | `references/onboard-car.md` (refresh path) |
 | Build a setup for a stage | `references/build-setup.md` |
 | Tweak / refine a setup, or describe a handling problem to work through (problem → tweak → test loop) | `references/tweak-setup.md` |
 | Work out **what's actually wrong** with how the car feels — guided questions after a drive, when the user can't put it into words (then continue into `tweak-setup.md` / `build-setup.md` with the diagnosis) | `references/driving-feedback-interview.md` |
@@ -44,7 +44,7 @@ Shared knowledge (read as needed):
   filtered slice of `Setups`)**; the connector can't list rows, so query the data source over
   REST. Follow this wherever a workflow says "fetch the car's rows". It also carries the
   **fallback ladder** for when the sandbox can't reach `api.notion.com` (no network egress —
-  e.g. Claude's Free plan): catalog reads fall back to the `{Car}` page's `Catalog snapshot`
+  e.g. Claude's Free plan): catalog reads fall back to the car's `Catalog` page `Catalog snapshot`
   toggle; `Setups` slices degrade to empty, stated plainly.
 - `references/setup-tuning-principles.md` — the tuning reasoning base (drivetrain-tagged).
 - `references/driving-feedback-interview.md` — the shared **symptom → cause** question bank: how to
@@ -62,7 +62,7 @@ Shared knowledge (read as needed):
   `references/export-car-template.md` for the file format). Each also carries the car's
   **engine curve read out of the ACR game files** — a `power_torque_chart:` URL, a
   `gearing_chart:` URL, and (when the final drive is adjustable) a `final_drive_chart:` URL, all
-  three attached to the Notion car page, plus an `engine_curve:` block (peak torque, peak power,
+  three attached to the car's `Catalog` page, plus an `engine_curve:` block (peak torque, peak power,
   and the raw `[rpm, Nm]` points) to reason about gearing and shift points from. See
   `references/notion-structure.md` → *Engine and gearing charts*.
 - `car-troubleshooting/` — bundled per-car **symptom→fix** knowledge, one markdown file per car
@@ -197,6 +197,20 @@ Bundled tools (stdlib Python, run via code execution):
     there are no tags); otherwise record `dev`.
 - **Append-only.** Never modify or delete existing setups — only add rows. (Onboarding may
   update the parameter catalog.)
+- **A car's pages are split by ownership — respect it exactly.** Each `{Car}` umbrella page holds
+  three children (`notion-structure.md` → *Car page*):
+  - **`Guidelines` is the user's.** Create it once, empty, at onboarding; after that **read it and
+    never write to it** — not to append, tidy, reformat, or record what a build decided. If
+    something belongs there, tell the user and let them paste it.
+  - **`Catalog` is the skill's, and disposable.** It is **replaced wholesale** on every refresh —
+    no diffing, no merging, no asking, no preserving edits. It carries a banner saying so. This is
+    only safe *because* the user's writing lives on a different page, so never move user content
+    onto it.
+  - **`Feedback` is the skill's, and precious.** The dated record of what the driver reported
+    after drives. **Add-only:** append a new dated entry, newest at the top; never edit, reorder
+    or delete an existing one, and **never rewrite it on a refresh**. Unlike `Catalog` it can't be
+    regenerated from anything.
+  - **`Setups`** holds the car's filtered linked view and nothing else.
 - **Refining is an in-chat loop — save only when asked.** Describing a handling problem or asking
   for a tweak is **not** a request to build or save a setup. Work the *problem → tweak → test →
   feedback* cycle conversationally: propose legal value changes in chat and iterate as the user
@@ -238,8 +252,8 @@ Bundled tools (stdlib Python, run via code execution):
   bundled car troubleshooting (the matching file in `car-troubleshooting/`, if one exists —
   overrides the base for the symptoms it names) → global `Tuning guidelines` → matching surface
   section (that page's
-  "Per surface" subsection, not a separate page) → per-car guidelines → the setup's own driving
-  intent (most specific).
+  "Per surface" subsection, not a separate page) → per-car guidelines (the car's **`Guidelines`**
+  child page) → the setup's own driving intent (most specific).
   Location/stage facts are objective inputs, not a guideline layer. More specific is the
   **default lean** — on a **material conflict between authored layers, ask the user** which to
   follow rather than silently picking one. Cite a user guideline when it drives a choice.
@@ -248,15 +262,15 @@ Bundled tools (stdlib Python, run via code execution):
 - **Reading rows.** To read a car's `Parameters` rows or a filtered slice of `Setups`, follow
   `references/notion-rest-read.md` — the connector can't list database rows reliably. When the
   REST query can't run (no egress), that doc's **fallback ladder** applies: `Parameters` reads use
-  the `{Car}` page's `Catalog snapshot`; `Setups` reads proceed as empty and say so — never
+  the car's `Catalog` page snapshot; `Setups` reads proceed as empty and say so — never
   substitute connector row-listing, never guess.
 - **Read efficiently — collapse round-trips.** Seeding context is slow when reads are done one at a
   time. After resolving the structure once, the remaining reads are **independent**: issue them
   **together in a single step (parallel tool calls)** — e.g. the `Parameters`/`Setups` DB fetches
-  (for their `data_source_id`s), the `{Car}` page, the `Tuning guidelines` page, and any `{Stage}`/
+  (for their `data_source_id`s), the car's `Catalog` / `Guidelines` pages, the `Tuning guidelines` page, and any `{Stage}`/
   `{Location}` page — rather than one-by-one. Run **all** REST queries
   (`scripts/query_notion_parameters.py`) in **one code-execution block**. **Fetch each page once**
-  (the `{Car}` page carries *both* identity facts and the Guidelines section — one fetch), **reuse
+  (identity facts on `Catalog`, the user's notes on `Guidelines`), **reuse
   resolved IDs / `data_source_id`s** within the run, and **don't read anything already in the
   thread**.
 - **Batch Notion writes — never loop one row / one column per call** (it's slow and token-heavy).

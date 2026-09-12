@@ -42,8 +42,8 @@ car and its rows are **already in hand**; see the note in step 1.
   - **`Order`** is the display position — emitted as `order:` in the YAML.
   The REST read (`notion-rest-read.md`) returns these as row keys already, `Discrete steps` included
   (blank `""` means the cell is genuinely empty). Don't drop keys when building the in-memory catalog.
-- Read the car's `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page.
-- Also read the car-level identity fields from the `{Car}` page, when present: `Engine layout`
+- Read the car's `Drivetrain` (FWD/RWD/AWD) from its `Catalog` page.
+- Also read the car-level identity fields from the `Catalog` page, when present: `Engine layout`
   (front/mid/rear), `Weight bias` (front/balanced/rear), `Weight` (approximate kerb weight,
   e.g. `~950 kg`), `Max power` (e.g. `250 hp at 7700 rpm`), `Max torque` (e.g.
   `260 Nm at 6000 rpm`), `Class` (e.g. `Group 2/4 · H3`), `Gearbox` (e.g. `Manual 5-speed`), and
@@ -141,7 +141,7 @@ Rules:
   whose range differs on gravel appears as two entries: the baseline (no `surface`) and a second
   with `surface: "Gravel"`.
 - `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`, `class`, `gearbox`,
-  `steering_lock`: **optional** car-level header fields. Emit each only when the `{Car}` page has a
+  `steering_lock`: **optional** car-level header fields. Emit each only when the `Catalog` page has a
   value; omit the line entirely if blank. If the page holds the literal `couldn't determine`, carry
   it through as-is. These are not parameters. All are optional in both directions — a template
   predating any of them still imports cleanly, and onboarding fills the gaps from the car

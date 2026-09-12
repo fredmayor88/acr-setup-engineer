@@ -1,6 +1,6 @@
 # Workflow: refresh the catalog snapshot
 
-Create or refresh the **`Catalog snapshot`** toggle on a `{Car}` page (`notion-structure.md` →
+Create or refresh the **`Catalog snapshot`** toggle on a car's **`Catalog`** page (`notion-structure.md` →
 *Catalog snapshot*) **without touching anything else** — no `Parameters` rows, no `Setups` rows,
 no identity facts, no views. Made for cars onboarded before the snapshot existed (so they become
 readable without network egress — e.g. on Claude's Free plan), and for repairing a snapshot that
@@ -29,7 +29,9 @@ prevent.
 
 ## Procedure
 
-1. **Resolve the structure by name** (`notion-structure.md`) and fetch the `{Car}` page.
+1. **Resolve the structure by name** (`notion-structure.md`) and fetch the car's **`Catalog`**
+   page (under the `{Car}` umbrella page). If the car is still on the old one-page layout, this
+   workflow is the wrong one — a structural migration is a refresh (`onboard-car.md`).
 
 2. **Get the car's rows — first source that works, in this order:**
 

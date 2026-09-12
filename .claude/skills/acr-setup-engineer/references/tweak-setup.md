@@ -38,12 +38,12 @@ Decide what the iteration starts from — **don't immediately write anything**:
 ### 2. Load constraints + the car's identity facts
 > **Load steps 2–4 as one batched read** (`SKILL.md` → *Read efficiently*): once the structure is
 > resolved, issue the independent reads together (parallel tool calls) and run the REST queries in
-> one code-execution block, fetching the `{Car}` page **once** for both its identity facts (this
-> step) and its Guidelines section (step 3). Skip any read whose data is already in the thread.
+> one code-execution block, fetching the car's `Catalog` page (identity facts, this step) and
+> `Guidelines` page (step 3) once each, in the same batch. Skip any read whose data is already in the thread.
 
 Fetch the car's `Parameters` rows (within `ACR Setup Engineer → Parameters`):
 `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Order`, `Surface`. Read the car's identity
-facts from the `{Car}` page — `Drivetrain` (FWD/RWD/AWD), `Engine layout`, `Weight bias`, `Weight`
+facts from the car's `Catalog` page — `Drivetrain` (FWD/RWD/AWD), `Engine layout`, `Weight bias`, `Weight`
 — and feed them into the balance reasoning (same facts a build loads; not drivetrain alone). If a
 field is blank, infer the bias from drivetrain + engine layout, or proceed drivetrain-only.
 **Resolve each parameter's legal range for the working setup's `Surface`** — use the
@@ -64,7 +64,7 @@ Same precedence chain as `build-setup.md` (lowest → highest):
 3. **Global user guidelines** — Notion `Tuning guidelines` page under `ACR Setup Engineer`.
 4. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
    `Surface` (not a separate page).
-5. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
+5. **Per-car guidelines** — the car's `Guidelines` page.
 The working setup's own **driving intent/goal** (from its page body, plus the user's feedback this
 round) is the most specific layer. Apply only lines tagged `[All]` **or the car's drivetrain**.
 **More specific is the default lean**, not an auto-resolution: if an authored layer materially

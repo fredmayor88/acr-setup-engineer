@@ -94,7 +94,7 @@ Read the car's rows via **`notion-rest-read.md`** (`scripts/query_notion_paramet
 
 ### 3b. Load constraints + drivetrain
 Fetch the car's `Parameters` rows: `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Order`,
-`Surface`. Read `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page. **Resolve each parameter's legal
+`Surface`. Read `Drivetrain` (FWD/RWD/AWD) from the car's `Catalog` page. **Resolve each parameter's legal
 range for the setup's `Surface`** — the surface-specific row if one exists; for `Snow`, fall back
 to a `Gravel` row before the baseline (see `notion-rest-read.md`).
 
@@ -108,7 +108,7 @@ Same precedence chain as `build-setup.md` / `review-setup.md` (lowest → highes
    name. If no file matches, skip this layer.
 3. **Global user guidelines** — `Tuning guidelines` page under `ACR Setup Engineer`.
 4. **Surface section** — that page's "Per surface" subsection matching the setup's `Surface`.
-5. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
+5. **Per-car guidelines** — the car's `Guidelines` page.
 The setup's own **driving intent** (its page-body summary) is the most specific layer. Apply only
 lines tagged `[All]` **or the car's drivetrain**.
 

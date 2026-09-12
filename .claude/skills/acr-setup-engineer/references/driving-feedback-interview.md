@@ -340,11 +340,22 @@ severity, and **the user's own words**. The caller persists it (`build-setup.md`
   the page.
 - **The full record** into a **dated collapsed toggle** ("Driving feedback — {date}") in the setup's
   page body. Repeat interviews **stack chronologically**; never overwrite an earlier one.
-- **Lasting preferences only** (things true of how this user drives *this car*, not one-off stage
-  symptoms) as normal bullets in the `{Car}` page's **Guidelines** section, where they join the
-  per-car guideline layer. The raw symptom log goes in a separate collapsed, dated **"Driving
-  feedback log"** toggle on the same page — that log is an objective record, **not** a guideline
-  layer.
+- **The car-level record** into the car's **`Feedback`** page: one **dated collapsed toggle**
+  (`Driving feedback — {date}`) holding this session's symptoms and what they pointed at, added at
+  the **top** of the page. This page is **add-only** — never edit, reorder or delete an earlier
+  entry (`notion-structure.md` → *`Feedback` page*). This is the running history of how this driver
+  describes this car, and it accumulates automatically.
+- **Lasting preferences** (things true of how this user drives *this car*, not one-off stage
+  symptoms) are **noted in that `Feedback` entry** and then **offered to the user** for their
+  `Guidelines` page. The skill never writes to `Guidelines` (`SKILL.md` → *A car's pages are split
+  by ownership*), so propose the bullet in chat, written exactly as they'd paste it:
+
+  > Worth adding to your Guidelines for this car, if you agree:
+  > - Wants the rear settled on turn-in; prefers understeer to a loose rear at corner entry.
+
+  Say it once and move on — don't nag, don't re-offer a bullet they declined. Nothing is lost if
+  they never paste it: the observation is already in `Feedback`. The difference is that
+  `Guidelines` **steers tuning decisions** as a guideline layer, while `Feedback` is evidence.
 
 Get every date from the deterministic Python one-liner in `notion-structure.md` → `Date`, never from
 a guess at the wall clock.

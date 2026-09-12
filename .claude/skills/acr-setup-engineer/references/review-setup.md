@@ -15,8 +15,8 @@ base) before starting.
 
 > **Load steps 1–3 as one batched read** (`SKILL.md` → *Read efficiently*): after resolving the
 > structure, issue the independent reads together (parallel tool calls) and run the REST queries in
-> one code-execution block — fetching the `{Car}` page **once** for both its `Drivetrain`/identity
-> facts (step 2) and its Guidelines section (step 3).
+> one code-execution block — fetching the car's `Catalog` page (`Drivetrain`/identity facts,
+> step 2) and `Guidelines` page (step 3) once each, in the same batch.
 
 ### 1. Identify the setup
 Navigate to `ACR Setup Engineer → Setups` DB and find the row matching the given name. Stay
@@ -35,7 +35,7 @@ There is nothing to review without values.
 ### 2. Load constraints + drivetrain
 Fetch the car's `Parameters` rows **via [notion-rest-read.md](notion-rest-read.md)** (stay within
 `ACR Setup Engineer → Parameters`): `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`,
-`Order`, `Surface`. Also read the `Drivetrain` (FWD/RWD/AWD) from the `{Car}` page attribute.
+`Order`, `Surface`. Also read the `Drivetrain` (FWD/RWD/AWD) from the car's `Catalog` page.
 When the review lists several parameters together, present them in `Order` sequence
 (`notion-structure.md` → *Setups column order*). This workflow is read-only — it never reorders
 Notion columns. **Resolve
@@ -54,7 +54,7 @@ Same precedence chain as `build-setup.md` (lowest → highest priority):
 3. **Global user guidelines** — Notion `Tuning guidelines` page under `ACR Setup Engineer`.
 4. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
    `Surface` (not a separate page).
-5. **Per-car guidelines** — the `{Car}` page's "Guidelines" section.
+5. **Per-car guidelines** — the car's `Guidelines` page.
 The setup's own **driving intent** (its page-body summary) is the most specific layer. Apply only
 lines tagged `[All]` **or the car's drivetrain**. More specific is the default lean, not an
 auto-resolution — if reviewing surfaces a real contradiction between authored layers, note it as

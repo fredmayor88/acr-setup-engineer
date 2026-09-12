@@ -15,7 +15,7 @@ layers, in increasing priority:
 2. **Global user guidelines** (Notion: `ACR Setup Engineer / Tuning guidelines`)
 3. **Surface section** of that same page (its "Per surface" subsection matching the build
    surface) — not a separate page
-4. **Per-car guidelines** (the car page's "Guidelines" section)
+4. **Per-car guidelines** (the car's `Guidelines` page)
 
 The **setup's own driving intent** (what the driver wants from *this* build — rotation,
 stability, braking, bumps, conditions) is the most specific layer of all, supplied with the build

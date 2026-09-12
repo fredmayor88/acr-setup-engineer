@@ -18,39 +18,64 @@ lands here — **not** in `refresh-catalog-snapshot.md`, which is only for a req
 
 ## Refreshing an already-onboarded car
 
-A refresh rewrites **everything static** about the car, and the run isn't finished until all four
-have been brought up to date:
+A refresh brings **everything the skill owns** back in line with the bundled template. It is
+deliberately cheap: the car's `Catalog` page is **regenerated and replaced wholesale**, with **no
+field-by-field comparison and no questions**, because nothing the user wrote lives on it.
 
-1. **Identity facts** — fill blanks and `couldn't determine`s; never clobber a hand-edited value
-   (step 7).
-2. **The engine/gearing charts** — attach any of `power_torque_chart:` / `gearing_chart:` /
-   `final_drive_chart:` the template carries that aren't on the page yet (step 7). This is how a
-   car onboarded before a chart existed picks it up.
-3. **The `Parameters` catalog** — upsert rows from the bundled template (or screenshots), so
-   corrected ranges from a newer template version land (step 7). **Guard the user's edits:** a
-   template-sourced refresh would overwrite a range or a `Discrete steps` list they filled in by
-   hand, and Notion has no undo. So **diff before writing** — for any existing row whose `Min`,
-   `Max`, `Unit` or `Discrete steps` disagrees with the template, list those rows (old → new) and
-   **ask which to keep** rather than silently resolving it, exactly as identity facts do. Rows
-   that match, and rows that only gain a value where Notion was blank, are written without asking.
-   Most refreshes have zero divergence and so ask nothing.
-   **Corrupted compound-gear values are a repair, not a divergence** — a Notion value that matches
-   the template once the `*`s are stripped from both (`35//3033//28` vs. `35//30*33//28`) is
-   markdown damage, not a user edit (`SKILL.md` → *Compound gear values*). Overwrite it with the
-   template's spelling **without asking**, and note the repair in the report. A refresh is the
-   intended way to clean these out of a catalog that already has them.
-4. **The `Catalog snapshot`** — rebuilt from the rows just written, replacing the existing toggle
-   (step 7).
+1. **Migrate the page structure if it's still the old one-page layout** — see *Migration* below.
+   Do this first; everything after assumes the four-page structure.
+2. **Rebuild the `Catalog` page in full** — maintenance line, identity facts, the charts the template
+   carries, the `Catalog snapshot` toggle — as **one replacement** of the page body. Don't read
+   the old values to compare them; don't ask about anything; don't preserve edits. The page's own
+   maintenance line says this will happen.
+3. **Upsert the `Parameters` rows** from the template (step 7). These are database rows, not page
+   content, so they follow the normal upsert — but the same principle applies: the template is
+   the source, so write it and move on.
+4. **Leave `Guidelines` and `Feedback` completely alone.** Never read-modify-write, append to, or
+   reformat either. Create whichever is missing (`Guidelines` with its seed stub, `Feedback`
+   empty); otherwise don't touch them. `Feedback` is skill-written but **add-only** and holds
+   history that can't be regenerated — a refresh never rewrites it.
+5. **Re-assert the `Setups` view's column order** on the car's `Setups` page (`SKILL.md` →
+   *Assert column order*).
 
-**What a refresh never touches:** `Setups` rows (append-only, as always) and anything the user
-hand-wrote — the `Guidelines` section, and identity facts they've edited themselves.
+**What a refresh never touches:** the `Guidelines` page, the `Feedback` page, and `Setups` rows
+(append-only, as always).
 
-**For one of the 14 bundled cars a refresh needs no screenshots** — the template on disk is the
-source for both the catalog and the charts, so run it straight through: **skip step 1's "Use it?"
-prompt** (the car is already onboarded; the template is the only non-screenshot source there is)
-and take the template automatically, saying so rather than asking. The **only** question a refresh
-may ask is the divergence one in item 3 above, and only when there is real divergence to resolve.
-Say what changed in the report; if nothing was stale, say that too rather than inventing work.
+**For one of the 14 bundled cars a refresh needs no screenshots and asks nothing at all** — the
+template on disk is the source for the catalog, the facts and the charts, so **skip step 1's
+"Use it?" prompt** and run straight through. Report what it rebuilt in a line or two; if the car
+was already current, say so rather than inventing work.
+
+### Migration — old one-page car → four-page structure
+
+Cars onboarded before the multi-page layout have a single `{Car}` page holding identity facts,
+charts, an H2 `Setups` section with the linked view, an H2 `Guidelines` section, possibly a
+"Driving feedback log" toggle, and the `Catalog snapshot` toggle. A refresh migrates it in place. **The user's writing is the only thing
+that can't be regenerated, so it is the only thing handled carefully:**
+
+1. **Fetch the old `{Car}` page** and extract the body of its **`Guidelines`** section verbatim —
+   everything under that H2, exactly as written.
+2. **Create the four child pages** under `{Car}`: `Guidelines`, `Catalog`, `Feedback`, `Setups`.
+3. **Move the user's text into the new `Guidelines` page**, verbatim. If the old section held
+   nothing but the seeded stub (or is empty), seed the new page with the stub instead. **Never
+   summarize, reformat, or "improve" it in transit** — copy it.
+4. **Move any existing driving-feedback record onto `Feedback`**, verbatim — older car pages kept
+   a collapsed **"Driving feedback log"** toggle. Carry its dated entries across unchanged; like
+   `Guidelines` text, this is history that can't be regenerated. If there is none, leave the new
+   page empty.
+5. **Build `Catalog` and `Setups` from scratch** from the template and the `Parameters` rows.
+   Nothing is carried over from the old page: identity facts, charts and the snapshot are all
+   regenerated, and the linked view is recreated on the `Setups` page.
+6. **Clear the old `{Car}` page body** so the umbrella page is empty and only the four children
+   remain. **Don't delete the `{Car}` page itself** — it keeps its identity, its URL, and any
+   links the user has to it.
+7. **Say what happened** in the report: that the car moved to the four-page layout, and explicitly
+   what was carried across — their `Guidelines` text and any feedback log (or that there was
+   none of either).
+
+**If anything about the migration is ambiguous — two `Guidelines`-looking sections, an unfamiliar
+page layout, content that doesn't fit any of the three buckets — stop and ask** rather than
+guessing. Regenerating the skill's own data is free; losing the user's notes is not.
 
 ## Inputs
 - **Car name** (e.g. `Lancia Stratos HF`).
@@ -341,51 +366,46 @@ Say what changed in the report; if nothing was stale, say that too rather than i
      `SHOW` list from the bundled script (`… --all --show-order`) and set the main `Setups` table
      view's `SHOW` to it.
      Creation order does **not** drive the rendered table — the view's `SHOW` directive does.
-   - **Record the car's identity facts** on the `{Car}` page — **all nine resolved in step 5**:
-     `Drivetrain`, `Engine layout`, `Weight bias`, `Weight`, `Max power`, `Max torque`, `Class`,
-     `Gearbox`, `Steering lock` (write the literal `couldn't determine` for any the ladder didn't
-     resolve). Write them **together in one page update**, not field by field. They live on the
-     page next to each other — never as `Parameters` rows. On a **refresh** of an
-     already-onboarded car, fill in fields that are blank or hold `couldn't determine`, and update
-     any the info screenshot now answers outright; **don't overwrite a value the user has edited
-     by hand** unless the screenshot contradicts it, in which case show both and let them choose.
-   - **Attach the engine/gearing charts** — the power/torque chart, then the gearing chart, then
-     the final-drive chart (when present) — for each URL the car's bundled template carries
-     (`power_torque_chart:`, `gearing_chart:`, `final_drive_chart:`): `notion-create-attachment`
-     with that `source_url`, then an image block directly under the identity facts, in that order
-     (`notion-structure.md` → *Engine and gearing charts*, which also carries the fallback). Do it
-     **now**, in the same page update as the facts: the linked view created below is appended to
-     the end of the page, so anything added afterwards lands beneath it. A car missing any of the
-     three URLs (no bundled template, or a final drive that isn't adjustable) just skips that one
-     chart silently — never invent one or substitute another car's. On a **refresh** of an
-     already-onboarded car, attach **only the charts not already on the page** (check the page body
-     first) — never re-attach one that's already there, and never remove one that no longer has a
-     matching URL. This is how a car onboarded before `gearing_chart:`/`final_drive_chart:` existed
-     picks them up: the power/torque chart is left alone and the two new ones are appended right
-     after it, in order.
-   - **Seed the `{Car}` page body in this order** (create sections that are missing; never
-     overwrite existing content). The linked view is **not** page markdown — create it with
-     `notion-create-view`, never as a `<linked-view />`-style placeholder (`notion-structure.md` →
-     *Creating an inline linked view*). Because that tool appends the view to the **end** of the
-     page, do these in sequence:
-     1. **H2 "Setups"** heading (markdown). This section must come first so it's the first thing
-        visible on mobile.
-     2. The `Setups[Car=this]` filtered linked view — `notion-create-view` with
-        `parent_page_id` = the `{Car}` page, `data_source_id` = the `Setups` data source
-        (`notion-fetch` it for the id), `type: "table"`, and
+   - **Build the car's four pages** (`notion-structure.md` → *Car page*). The `{Car}` page itself
+     is an **umbrella with an empty body** — everything below hangs off it as a child page. **Each
+     of the four opens with its one-line maintenance note**, verbatim from the table in
+     `notion-structure.md` → *Car page*. On a
+     refresh of a car still on the old one-page layout, migrate it first
+     (*Refreshing an already-onboarded car* → *Migration*, above).
+
+     1. **`Guidelines`** — create it if missing, with its maintenance line and a short stub
+        inviting car-specific tuning preferences (tone per `tuning-guidelines-template.md`). **If it already exists, do
+        nothing at all to it.** The skill never writes here again.
+     2. **`Catalog`** — write the whole page body in **one update**, in this order:
+        1. its **maintenance line** (exact wording in `notion-structure.md` → *Car page*);
+        2. the **nine identity facts** resolved in step 5 — `Drivetrain`, `Engine layout`,
+           `Weight bias`, `Weight`, `Max power`, `Max torque`, `Class`, `Gearbox`,
+           `Steering lock`, writing the literal `couldn't determine` for any the ladder didn't
+           resolve. Never as `Parameters` rows;
+        3. the **charts** the template carries — power/torque, then gearing, then final-drive —
+           each via `notion-create-attachment` on its `source_url` then an image block
+           (`notion-structure.md` → *Engine and gearing charts*, which carries the fallback). A
+           URL the template doesn't have is simply absent: skip that block, never invent one or
+           borrow another car's;
+        4. the **`Catalog snapshot` toggle** last — the car's full `Parameters` catalog as YAML
+           (`notion-structure.md` → *Catalog snapshot*). Build it from the rows written in this
+           run — no read-back. It's what keeps reads working with no network egress (Claude's
+           Free plan), so the write isn't finished without it.
+
+        **On a refresh this page is replaced wholesale** — one write, no reading the old body, no
+        comparing, no asking. That is the entire point of the split.
+     3. **`Feedback`** — create it with its maintenance line if missing, and **otherwise leave it
+        alone**. Driving
+        interviews add dated entries to it later (`driving-feedback-interview.md` → *Recording the
+        outcome*); it is **add-only** and a refresh never rewrites it.
+     4. **`Setups`** — its maintenance line, then the `Setups[Car=this]` filtered linked view. Create it
+        with `notion-create-view` (never a `<linked-view />`-style placeholder): `parent_page_id`
+        = the `Setups` child page, `data_source_id` = the `Setups` data source (`notion-fetch` it
+        for the id), `type: "table"`, and
         `configure: 'FILTER "Car" = "{Car}"; SHOW <output of `… "{Car}" --show-order`>'` (get the
         `SHOW` list from the bundled script, per `notion-structure.md` → *Applying the order*).
-        `SHOW` orders the columns **and** hides blank ones in one step. It lands directly under the
-        heading from step 1.
-     3. **H2 "Guidelines"** heading + a short stub inviting car-specific tuning preferences
-        (tone per `tuning-guidelines-template.md`) — appended **after** the view.
-     4. **The `Catalog snapshot` toggle** — appended last, so it sits at the very end of the page:
-        the car's full `Parameters` catalog as YAML inside a collapsed toggle
-        (`notion-structure.md` → *Catalog snapshot* for the exact format). Build it from the rows
-        you just wrote in this run — no read-back. This copy is what keeps reads working when the
-        REST path isn't available (no network egress, e.g. Claude's Free plan), so the write isn't
-        finished without it. On a **refresh** of an already-onboarded car, replace the existing
-        toggle's contents instead of appending a second one.
+        `SHOW` orders the columns **and** hides blank ones in one step. If the view already
+        exists, re-assert it with `notion-update-view` rather than appending a duplicate.
 
 8. **Check for surface-specific ranges (optional gravel pass).**
 

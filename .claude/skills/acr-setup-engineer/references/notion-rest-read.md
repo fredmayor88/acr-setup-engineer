@@ -32,12 +32,14 @@ the database directly through Notion's REST API, which supports an exact filter 
 ## Do the reads in one pass (don't seed context one round-trip at a time)
 Resolve the structure **once**, then collapse the rest (`SKILL.md` → *Read efficiently*):
 - Fire the independent reads **together in a single step (parallel tool calls)** — the
-  `Parameters`/`Setups` DB `notion-fetch`es (for their `data_source_id`s), the `{Car}` page, the
+  `Parameters`/`Setups` DB `notion-fetch`es (for their `data_source_id`s), the car's `Catalog` and
+  `Guidelines` pages, the
   `Tuning guidelines` page, and any `{Stage}`/`{Location}` page. `notion-fetch` is one entity per
   call, so issue them in parallel rather than sequentially.
 - Run **all** the REST queries below (e.g. the car's `Parameters` **and** a `Setups` slice) in **one
   code-execution block**, not a separate block each.
-- **Fetch each page once** (the `{Car}` page has both identity facts and Guidelines), reuse the
+- **Fetch each page once** (identity facts are on `Catalog`, the user's notes on `Guidelines`),
+  reuse the
   `data_source_id`s within the run, and skip anything already loaded in the thread.
 
 ## The query — run the bundled script
@@ -102,7 +104,7 @@ and produces silently wrong setups. When the query can't run, walk this ladder i
    network to `api.notion.com` (egress is restricted by default — and on **Claude's Free plan it
    can't be widened at all**: the "All domains" egress setting doesn't exist there). Don't retry
    endlessly and don't guess values:
-   - **`Parameters` catalog reads** fall back to the `{Car}` page's **catalog snapshot** — next
+   - **`Parameters` catalog reads** fall back to the car's `Catalog` page **snapshot** — next
      section.
    - **`Setups` slice reads have no fallback** (setups accumulate; no snapshot can stay current).
      Proceed as if the slice came back **empty**, and say plainly which feature was skipped and
@@ -118,11 +120,11 @@ control the fix is Settings → Capabilities → Network egress → **All domain
 (settings changes don't apply to an already-open conversation).
 
 ## The catalog snapshot fallback
-Every `{Car}` page ends with an auto-maintained **`Catalog snapshot`** toggle — the car's full
+Every car's **`Catalog`** page ends with an auto-maintained **`Catalog snapshot`** toggle — the car's full
 `Parameters` catalog as YAML, refreshed by every workflow that writes the catalog
 (`notion-structure.md` → *Catalog snapshot* has the format and refresh rules). To read from it:
 
-1. `notion-fetch` the `{Car}` page (you usually hold it already — `SKILL.md` → *Read
+1. `notion-fetch` the car's `Catalog` page (you usually hold it already — `SKILL.md` → *Read
    efficiently*). **Check the response's `truncated` / `unknown_block_count` indicators first**:
    if the page came back incomplete, treat the snapshot as unavailable rather than parsing a
    partial block.
