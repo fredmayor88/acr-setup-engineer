@@ -31,6 +31,12 @@ from acrpkg import Package                                        # noqa: E402
 # DA_PirelliTM00Studded does not exist under the name DT_Wheels gives it.
 SURFACES = ('Tarmac_Dry', 'Tarmac_Wet', 'Gravel', 'Sweden', 'Montecarlo')
 
+# Cars known to be unexportable for a reason that is not a regression, so a partial
+# export is still a successful one. The 206 WRC has no engine_curve block in its car
+# template and has never had PNG charts either; generating that curve is a separate job.
+# Any car failing that is NOT listed here fails the run — see the end of main().
+KNOWN_MISSING = {'peugeot-206-wrc-1999'}
+
 LOADED_RADIUS_FACTOR = 0.9562
 
 
@@ -40,19 +46,30 @@ def _kw(torque_nm, rpm):
 
 
 def build_car_json(slug, name, axle, gear_sets, engine_curve, final_drive, tyres,
-                   generated, fixed_final_drive=None):
+                   fixed_final_drive=None):
     """One car's complete published record.
 
     Every downstream number on the site is derived from this document, so anything the
     browser cannot recompute has to be in here.
 
+    `gear_sets` is a list of `(gears, primary)`, where `primary` is that set's own
+    `(spelling, value)`. The primary belongs to the gear set, not to the car: four cars
+    ship a different primary in each set, so a single car-level primary is only true for
+    set 1 and overstates the others by up to 26%. Speed therefore composes as
+    `gear * set primary * rest * option`.
+
+    `final_drive['primaries']` is a different thing and stays separate: it is the list of
+    primaries the player can *select*, which only one car in the game has. When it is
+    empty the primary is fixed at the gear set's own, and `gear_sets[i]['primary']` is
+    also the default selection when it is not.
+
     `fixed_final_drive` covers the cars whose final drive cannot be adjusted, where
     `final_drive` is None and the combinations that would otherwise carry the ratio do
-    not exist. It is the whole engine-to-wheel ratio below the gearbox — primary gear
-    included — so speed is always `rpm * circumference * 0.06 / (gear * fixed)`, the
-    same shape as the adjustable case. The two fields are mutually exclusive: when
-    `final_drive` is present this is forced to None, because those combinations already
-    carry the ratio and a second copy could drift out of step with them.
+    not exist. It is the engine-to-wheel ratio below the gearbox *excluding* the primary,
+    exactly like `final_drive['rest']`, because the primary now travels with the gear
+    set — so speed is `rpm * circ * 0.06 / (gear * set primary * fixed)`. The two fields
+    are mutually exclusive: when `final_drive` is present this is forced to None, because
+    those combinations already carry the ratio and a second copy could drift out of step.
     """
     if final_drive is not None:
         fixed_final_drive = None
@@ -72,15 +89,15 @@ def build_car_json(slug, name, axle, gear_sets, engine_curve, final_drive, tyres
         },
         'gear_sets': [
             {'label': f'Gear set {i + 1}',
+             'primary': {'name': primary[0], 'value': primary[1]},
              'gears': [{'name': n, 'value': v} for n, v in gears]}
-            for i, gears in enumerate(gear_sets)
+            for i, (gears, primary) in enumerate(gear_sets)
         ],
         'final_drive': None,
         'fixed_final_drive': fixed_final_drive,
         'tyres': {key: {'asset': asset, 'free_radius': radius}
                   for key, (asset, radius) in tyres.items()},
         'defaults': {'loaded_radius_factor': LOADED_RADIUS_FACTOR},
-        'generated': generated,
     }
 
     if final_drive is not None:
@@ -154,10 +171,17 @@ def render_car_page(slug, name):
     return CAR_PAGE.format(slug=_html.escape(slug), name=safe)
 
 
-def build_index_json(cars):
-    """The car list the picker reads, sorted by display name."""
-    return {'cars': sorted(({'slug': c['slug'], 'name': c['name']} for c in cars),
-                           key=lambda c: c['name'])}
+def build_index_json(cars, generated=None):
+    """The car list the picker reads, sorted by display name.
+
+    The build date lives here and nowhere else. Stamping it into all 17 car documents
+    made a no-op re-run on a later day a 17-file diff, which buries a real change.
+    """
+    doc = {'cars': sorted(({'slug': c['slug'], 'name': c['name']} for c in cars),
+                          key=lambda c: c['name'])}
+    if generated is not None:
+        doc['generated'] = generated
+    return doc
 
 
 def render_index_page(cars):
@@ -202,22 +226,24 @@ def car_record(paks, slug, tmp):
 
     final_drive = None
     fixed_final_drive = None
-    stock_primary = sets[0][1]
     if not options:
         # Nothing below the gearbox is adjustable, so there are no combinations to carry
         # the ratio — publish it on its own or the site has no way to reach an absolute
-        # km/h for this car. Primary gear folded in, so it is the same quantity
-        # make_gearing_chart's final_of() draws these cars with. Every car on this branch
-        # today has a 1:1 primary (25//25), so the multiply is a no-op now and insurance
-        # against a future car that isn't.
-        fixed_final_drive = ratio(stock_primary) * fd_value
+        # km/h for this car. The primary is NOT folded in: it travels on each gear set
+        # now, so folding it here would double-count it.
+        fixed_final_drive = fd_value
     else:
         # the part of the chain that never moves: everything below the gearbox with the
-        # adjustable ratio divided back out. Same quantity chart_final_drive computes.
+        # adjustable ratio divided back out. Same quantity chart_final_drive computes,
+        # and like fixed_final_drive it excludes the primary.
         rest = fd_value / ratio(stock)
         final_drive = {
             'adjustment': name,
-            'primaries': [(p, ratio(p)) for p in (primaries or [stock_primary])],
+            # Only genuinely selectable primaries. The old `or [stock_primary]` fallback
+            # published set 1's primary as if it were the car's, which is the bug that
+            # overstated the other gear sets. An empty list means "not selectable" and
+            # the gear set's own primary stands.
+            'primaries': [(p, ratio(p)) for p in primaries],
             'options': [(o, ratio(o)) for o in options],
             'stock_option': stock,
             'rest': rest,
@@ -232,17 +258,58 @@ def car_record(paks, slug, tmp):
         hits = M.extract(paks, f'DA_{tyre_name}', tmp)
         # DA_<name> is a prefix, so it also catches longer siblings (…Studded). Pick the
         # same file M.tyre picks — soft compound first, then the bare asset.
+        #
+        # THIS MUST STAY IN LOCKSTEP WITH M.tyre's selection rule (make_gearing_chart.py,
+        # the `soft`/`exact` lines in tyre()). The duplication is deliberate: M.tyre
+        # returns a rolling circumference and the site needs the free radius, and
+        # changing its return signature would break the PNG generator that depends on it.
+        # If that rule ever changes there, change it here too or the site and the charts
+        # will quietly quote different tyres.
         soft = [h for h in hits if os.path.basename(h) == f'DA_{tyre_name}_S.uasset']
         exact = [h for h in hits if os.path.basename(h) == f'DA_{tyre_name}.uasset']
         pkg = Package(open((soft or exact or hits)[0], 'rb').read())
         geo = tyre_geometry(pkg.export_bytes(0)[1])
         tyres[surface] = (tyre_name, round(geo[1], 6))
 
+    # A car with no winter tyre is normal; a car with no tyre at all is not. Without this
+    # floor a pak rename turns "DT_Wheels not found" — a batch-wide failure — into 17
+    # documents with an empty tyres map and a clean exit.
+    if not tyres:
+        raise SystemExit(f'{slug}: no tyre resolved on any of {len(SURFACES)} surfaces')
+
     curve = [(int(r), float(v)) for r, v in re.findall(r'\[(\d+), ([\d.]+)\]', text)]
     display = re.search(r'^car: "(.*)"', text, re.MULTILINE)
     display_name = display.group(1) if display else slug
 
     return display_name, axle, sets, curve, final_drive, fixed_final_drive, tyres
+
+
+def prune(out, exported):
+    """Delete the generated files of cars this run did not export.
+
+    Step 7 of the build commits with `git add -A`, so a car that drops out — removed from
+    CARS, or broken by a game patch — would otherwise leave a stale data/<slug>.json and
+    an orphaned <slug>/index.html committed and reachable while being absent from the
+    index. Only `data/*.json` and the matching page shell are considered, so nothing
+    hand-written (app.css, js/, anything Task 4 adds) is ever in scope.
+    """
+    removed = []
+    data = os.path.join(out, 'data')
+    for entry in sorted(os.listdir(data)):
+        stem, ext = os.path.splitext(entry)
+        if ext != '.json' or stem == 'index' or stem in exported:
+            continue
+        os.remove(os.path.join(data, entry))
+        removed.append(f'data/{entry}')
+        page = os.path.join(out, stem, 'index.html')
+        if os.path.isfile(page):
+            os.remove(page)
+            removed.append(f'{stem}/index.html')
+        try:
+            os.rmdir(os.path.join(out, stem))
+        except OSError:
+            pass                       # not empty: something else lives there, leave it
+    return removed
 
 
 def main():
@@ -275,8 +342,10 @@ def main():
                     raise
                 failed.append(f'{slug}: {e}')
                 continue
-            gears = [[(g, ratio(g)) for g in forward] for forward, _p, _r in sets]
-            doc = build_car_json(slug, name, axle, gears, curve, fd, tyres, today,
+            # each set keeps its own primary — four cars ship a different one per set
+            gears = [([(g, ratio(g)) for g in forward], (p, ratio(p)))
+                     for forward, p, _r in sets]
+            doc = build_car_json(slug, name, axle, gears, curve, fd, tyres,
                                  fixed_final_drive=fixed_fd)
             with open(os.path.join(out, 'data', slug + '.json'), 'w',
                       encoding='utf-8', newline='\n') as fh:
@@ -290,16 +359,29 @@ def main():
             print(f'{slug}: {len(gears)} gear sets, {len(tyres)} surfaces')
 
     if args.all:
+        pruned = prune(out, {c['slug'] for c in cars})
         with open(os.path.join(out, 'data', 'index.json'), 'w',
                   encoding='utf-8', newline='\n') as fh:
-            json.dump(build_index_json(cars), fh, indent=1)
+            json.dump(build_index_json(cars, today), fh, indent=1)
             fh.write('\n')
         with open(os.path.join(out, 'index.html'), 'w',
                   encoding='utf-8', newline='\n') as fh:
             fh.write(render_index_page(cars))
+        for p in pruned:
+            print(f'  -- pruned {p}')
         for f in failed:
             print(f'  !! skipped {f}')
         print(f'{len(cars)}/{len(slugs)} cars exported')
+
+        # A partial export must not look like a complete one. index.json and index.html
+        # have just been rebuilt from the survivors, so a car that broke in a game patch
+        # would otherwise vanish from the site with `make car-lab` still reporting
+        # success. KNOWN_MISSING keeps the one documented, long-standing gap from making
+        # the target permanently red — anything else is a real regression and fails.
+        unexpected = [f for f in failed if f.split(':')[0] not in KNOWN_MISSING]
+        if unexpected:
+            raise SystemExit('export incomplete: '
+                             + '; '.join(unexpected))
 
 
 if __name__ == '__main__':

@@ -11,10 +11,10 @@ from export_car_data import build_car_json  # noqa: E402
 def stratos_inputs():
     """A trimmed but real Lancia Stratos, read from the game files on 2026-09-12."""
     sets = [
-        [('42//15', 2.800), ('40//19', 2.053), ('37//23', 1.619),
-         ('33//25', 1.320), ('30//26', 1.154)],
-        [('44//14', 3.143), ('38//17', 2.235), ('37//21', 1.762),
-         ('34//24', 1.417), ('30//26', 1.154)],
+        ([('42//15', 2.800), ('40//19', 2.053), ('37//23', 1.619),
+          ('33//25', 1.320), ('30//26', 1.154)], ('33//31*31//30', 1.100)),
+        ([('44//14', 3.143), ('38//17', 2.235), ('37//21', 1.762),
+          ('34//24', 1.417), ('30//26', 1.154)], ('33//31*31//30', 1.100)),
     ]
     curve = [(3000, 198.0), (6000, 260.0), (7750, 240.0), (8750, 192.0)]
     fd = {
@@ -33,13 +33,12 @@ class BuildCarJson(unittest.TestCase):
     def setUp(self):
         sets, curve, fd, tyres = stratos_inputs()
         self.doc = build_car_json('lancia-stratos', 'Lancia Stratos HF', 'Rear',
-                                  sets, curve, fd, tyres, '2026-09-12')
+                                  sets, curve, fd, tyres)
 
     def test_identity_fields(self):
         self.assertEqual(self.doc['slug'], 'lancia-stratos')
         self.assertEqual(self.doc['name'], 'Lancia Stratos HF')
         self.assertEqual(self.doc['axle'], 'Rear')
-        self.assertEqual(self.doc['generated'], '2026-09-12')
 
     def test_redline_is_the_highest_rpm_in_the_curve(self):
         self.assertEqual(self.doc['engine']['redline'], 8750)
@@ -59,6 +58,7 @@ class BuildCarJson(unittest.TestCase):
         self.assertEqual(first['label'], 'Gear set 1')
         self.assertEqual(first['gears'][0], {'name': '42//15', 'value': 2.800})
         self.assertEqual(len(self.doc['gear_sets'][1]['gears']), 5)
+        self.assertEqual(first['primary'], {'name': '33//31*31//30', 'value': 1.100})
 
     def test_tyres_carry_free_radius_not_circumference(self):
         # the browser applies the loaded-radius factor, so the stored value is the
@@ -79,7 +79,7 @@ class BuildCarJson(unittest.TestCase):
 
     def test_non_adjustable_final_drive_is_null(self):
         sets, curve, _, tyres = stratos_inputs()
-        doc = build_car_json('x', 'X', 'Front', sets, curve, None, tyres, '2026-09-12')
+        doc = build_car_json('x', 'X', 'Front', sets, curve, None, tyres)
         self.assertIsNone(doc['final_drive'])
 
     def test_adjustable_car_has_no_fixed_final_drive(self):
@@ -91,7 +91,7 @@ class BuildCarJson(unittest.TestCase):
         # without this the document has nothing below the gearbox at all, and no
         # absolute km/h is reachable for the car
         sets, curve, _, tyres = stratos_inputs()
-        doc = build_car_json('x', 'X', 'Front', sets, curve, None, tyres, '2026-09-12',
+        doc = build_car_json('x', 'X', 'Front', sets, curve, None, tyres,
                              fixed_final_drive=4.230769)
         self.assertIsNone(doc['final_drive'])
         self.assertAlmostEqual(doc['fixed_final_drive'], 4.230769, places=6)
@@ -99,7 +99,7 @@ class BuildCarJson(unittest.TestCase):
     def test_fixed_final_drive_is_dropped_when_the_car_is_adjustable(self):
         # the two fields are mutually exclusive whatever the caller passes
         sets, curve, fd, tyres = stratos_inputs()
-        doc = build_car_json('x', 'X', 'Rear', sets, curve, fd, tyres, '2026-09-12',
+        doc = build_car_json('x', 'X', 'Rear', sets, curve, fd, tyres,
                              fixed_final_drive=4.230769)
         self.assertIsNotNone(doc['final_drive'])
         self.assertIsNone(doc['fixed_final_drive'])
@@ -107,6 +107,95 @@ class BuildCarJson(unittest.TestCase):
     def test_fixed_final_drive_key_is_always_present(self):
         # the browser reads the key unconditionally, so it must exist on every car
         self.assertIn('fixed_final_drive', self.doc)
+
+
+def mini_inputs():
+    """The Mini Cooper S, whose four gear sets each ship a different primary.
+
+    Read from DA_MiniCooperS1275_Gearset_0..3 on 2026-09-12. First gear is 32//13 in
+    every set, so the primary is the only thing distinguishing them — publish one
+    car-level primary and all four sets collapse onto the same speeds.
+    """
+    sets = [
+        ([('32//13', 2.4615), ('29//17', 1.7059), ('25//21', 1.1905),
+          ('23//24', 0.9583)], ('24//23', 1.043478)),
+        ([('32//13', 2.4615), ('28//17', 1.6471), ('24//20', 1.2000),
+          ('22//23', 0.9565)], ('23//22', 1.045455)),
+        ([('32//13', 2.4615), ('27//18', 1.5000), ('23//22', 1.0455),
+          ('20//25', 0.8000)], ('25//20', 1.250000)),
+        ([('32//13', 2.4615), ('28//19', 1.4737), ('24//23', 1.0435),
+          ('20//26', 0.7692)], ('26//20', 1.300000)),
+    ]
+    curve = [(3000, 90.0), (6000, 110.0)]
+    tyres = {'Tarmac_Dry': ('DunlopT00', 0.2600)}
+    return sets, curve, tyres
+
+
+class PerGearSetPrimary(unittest.TestCase):
+    """The primary belongs to the gear set, not to the car."""
+
+    def setUp(self):
+        sets, curve, tyres = mini_inputs()
+        self.doc = build_car_json('mini-cooper-s-1964', 'Mini Cooper S 1964', 'Front',
+                                  sets, curve, None, tyres, fixed_final_drive=3.7647)
+
+    def test_each_gear_set_carries_its_own_primary(self):
+        got = [(gs['primary']['name'], gs['primary']['value'])
+               for gs in self.doc['gear_sets']]
+        self.assertEqual(got, [('24//23', 1.043478), ('23//22', 1.045455),
+                               ('25//20', 1.250000), ('26//20', 1.300000)])
+
+    def test_the_primaries_are_not_all_the_same(self):
+        # the regression this guards: publishing set 1's primary for every set
+        values = {gs['primary']['value'] for gs in self.doc['gear_sets']}
+        self.assertEqual(len(values), 4)
+
+    def test_a_car_level_primary_would_overstate_the_last_set(self):
+        # set 4's primary is 24.6% taller than set 1's, so reusing set 1's would put
+        # set 4's speeds 24.6% high
+        first = self.doc['gear_sets'][0]['primary']['value']
+        last = self.doc['gear_sets'][3]['primary']['value']
+        self.assertAlmostEqual(last / first, 1.24583, places=4)
+
+    def test_no_selectable_primaries_means_an_empty_list_not_a_fake_one(self):
+        # this car has no adjustable Primary Gear; the gear set's own primary stands
+        self.assertIsNone(self.doc['final_drive'])
+
+    def test_speed_composes_from_the_set_primary(self):
+        # gear * set primary * fixed_final_drive, per the documented formula
+        import math
+        d = self.doc
+        circ = 2 * math.pi * d['tyres']['Tarmac_Dry']['free_radius'] * \
+            d['defaults']['loaded_radius_factor']
+        rl = d['engine']['redline']
+
+        def speed(i, gear_index):
+            gs = d['gear_sets'][i]
+            g = gs['gears'][gear_index]['value']
+            return rl * circ * 0.06 / (g * gs['primary']['value']
+                                       * d['fixed_final_drive'])
+
+        # First gear is the identical 32//13 in all four sets, so the primary is the
+        # only thing that can separate them. Set 4's is 24.6% taller, so its first gear
+        # must top out 24.6% slower — under the old car-level primary all four sets
+        # reported exactly the same first-gear speed, which is the visible symptom.
+        self.assertAlmostEqual(speed(0, 0) / speed(3, 0), 1.24583, places=4)
+        self.assertNotAlmostEqual(speed(0, 0), speed(3, 0), places=1)
+
+
+class GeneratedDate(unittest.TestCase):
+    def test_car_documents_do_not_carry_a_build_date(self):
+        # stamping it into every car turned a no-op re-run into a 17-file diff
+        sets, curve, fd, tyres = stratos_inputs()
+        doc = build_car_json('x', 'X', 'Rear', sets, curve, fd, tyres)
+        self.assertNotIn('generated', doc)
+
+    def test_the_index_carries_the_build_date(self):
+        doc = build_index_json([{'slug': 'a', 'name': 'A'}], '2026-09-12')
+        self.assertEqual(doc['generated'], '2026-09-12')
+
+    def test_the_index_omits_it_when_not_given(self):
+        self.assertNotIn('generated', build_index_json([{'slug': 'a', 'name': 'A'}]))
 
 
 from export_car_data import (build_index_json, render_car_page,  # noqa: E402
