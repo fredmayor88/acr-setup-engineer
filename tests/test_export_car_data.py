@@ -287,6 +287,11 @@ class RedirectStub(unittest.TestCase):
         self.assertIn("<script>location.replace('gears/'+location.search+location.hash)"
                       '</script>', self.html)
 
+    def test_it_paints_in_the_readers_theme_while_it_forwards(self):
+        # without it a dark-theme reader sees a white flash before gears/ loads
+        head = self.html[:self.html.index('</head>')]
+        self.assertIn('<meta name="color-scheme" content="light dark">', head)
+
     def test_it_redirects_without_script_too(self):
         self.assertIn('<meta http-equiv="refresh" content="0; url=gears/">', self.html)
 

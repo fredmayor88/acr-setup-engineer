@@ -182,6 +182,7 @@ Assetto Corsa Rally.">
 REDIRECT_PAGE = """<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
+<meta name="color-scheme" content="light dark">
 <title>{name} — ACR Car Lab</title>
 <link rel="canonical" href="{page}/">
 <script>location.replace('{page}/'+location.search+location.hash)</script>
