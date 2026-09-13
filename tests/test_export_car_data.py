@@ -217,6 +217,155 @@ class PerGearSetPrimary(unittest.TestCase):
         self.assertNotAlmostEqual(speed(0, 0), speed(3, 0), places=1)
 
 
+def template(*blocks):
+    """A car template's adjustment list: (adjustment, discrete_steps) in setup-screen order."""
+    head = 'car: "Test"\ndrivetrain: "AWD"\nparameters:\n'
+    return head + ''.join(
+        f'  - section: "Differentials"\n    adjustment: "{name}"\n    order: {5000 + i}\n'
+        f'    min: "\u2014"\n    max: "\u2014"\n    unit: ""\n    discrete_steps: "{steps}"\n'
+        for i, (name, steps) in enumerate(blocks))
+
+
+# Stock drivetrain chains as DA_<car> stores them (centre diff, centre->front, centre->rear,
+# front diff, rear diff), read from the ACR 0.6 game files on 2026-09-13.
+DELTA_CHAIN = ['51//13', '25//25', '13//34', '25//25', '30//12']
+XSARA_CHAIN = ['37//26', '(27+48)//27', '26//28', '25//25', '27//9']
+P206_CHAIN = ['24//24', '25//25', '25//25', '46//14*26//16', '46//14*26//16']
+IMPREZA_CHAIN = ['25//25', '25//25', '31//31', '35//9', '35//9']
+
+DELTA_TEMPLATE = template(
+    ('Plates Number Front', ''),
+    ('Center Differential Ratio', '55//12, 51//13, 53//18'),
+    ('Center Ratio to Rear', '13//34, 17//38'),
+    ('Differential Ratio Rear', '34//13, 30//12, 34//14'),
+    ('LSD Power/Coast Ramp Rear', '30//50, 45//60'))
+P206_TEMPLATE = template(
+    ('Primary Gear', '21//24, 22//24, 21//25'),
+    ('Differential Ratio Front', '43//13*21//13, 46//14*26//16, 40//18*26//16'),
+    ('Center Differential Ratio', '31//21, 24//24'),
+    ('Differential Ratio Rear', '46//14*26//16, 40//18*26//16'))
+
+
+class AveragedAxles(unittest.TestCase):
+    """Ruling R51: the ratio below the gearbox is the mean of the front and rear chains."""
+
+    def test_only_the_five_measured_or_assumed_cars(self):
+        import export_car_data as E
+        self.assertEqual(E.AVERAGED_AXLE_CARS, {
+            'lancia-delta-integrale-evoluzione-1992', 'peugeot-206-wrc-1999',
+            'subaru-impreza-555-s3-1993', 'citroen-xsara-wrc-2003', 'audi-quattro-gr4-1981'})
+
+    def test_the_template_settings_are_the_chain_ratios_in_screen_order(self):
+        import export_car_data as E
+        self.assertEqual([n for n, _ in E.template_ratio_settings(P206_TEMPLATE)],
+                         ['Differential Ratio Front', 'Center Differential Ratio',
+                          'Differential Ratio Rear'])
+        self.assertEqual(E.template_ratio_settings(DELTA_TEMPLATE)[1],
+                         ('Center Ratio to Rear', ['13//34', '17//38']))
+
+    def test_the_delta_puts_the_centre_diff_before_the_split(self):
+        import export_car_data as E
+        fd = E.averaged_final_drive(DELTA_TEMPLATE, DELTA_CHAIN, [])
+        self.assertEqual([(s['key'], s['adjustment'], s['stock']) for s in fd['settings']], [
+            ('cdr', 'Center Differential Ratio', '51//13'),
+            ('ctr', 'Center Ratio to Rear', '13//34'),
+            ('drr', 'Differential Ratio Rear', '30//12')])
+        self.assertEqual(fd['settings'][0]['steps'][0], {'name': '55//12', 'value': 55 / 12})
+        self.assertEqual(fd['formula'], {'pre': ['cdr'], 'front': [], 'rear': ['ctr', 'drr'],
+                                         'fixed_pre': 1.0, 'fixed_front': 1.0,
+                                         'fixed_rear': 1.0})
+        self.assertEqual(fd['rows'], ['cdr'])
+        self.assertEqual([o for o, _v in fd['options']], ['55//12', '51//13', '53//18'])
+
+    def test_stock_below_is_the_mean_of_the_two_chains(self):
+        import export_car_data as E
+        from gearing import averaged_final_drive
+        fd = E.averaged_final_drive(DELTA_TEMPLATE, DELTA_CHAIN, [])
+        want = 51 / 13 * (1 + 13 / 34 * 30 / 12) / 2
+        self.assertAlmostEqual(averaged_final_drive(DELTA_CHAIN), want, places=12)
+        # rest * option keeps its meaning with every other setting at stock
+        self.assertAlmostEqual(fd['rest'] * 51 / 13, want, places=12)
+
+    def test_the_formula_follows_any_setting(self):
+        import export_car_data as E
+        fd = E.averaged_final_drive(DELTA_TEMPLATE, DELTA_CHAIN, [])
+        values = {'cdr': 55 / 12, 'ctr': 17 / 38, 'drr': 34 / 13}
+        self.assertAlmostEqual(E.averaged_below(fd['formula'], values),
+                               55 / 12 * (1 + 17 / 38 * 34 / 13) / 2, places=12)
+
+    def test_the_xsara_keeps_its_fixed_front_and_rear_chains_apart(self):
+        import export_car_data as E
+        fd = E.averaged_final_drive(template(('Center Differential Ratio', '39//24, 37//26')),
+                                    XSARA_CHAIN, [])
+        f = fd['formula']
+        self.assertEqual((f['pre'], f['front'], f['rear']), (['cdr'], [], []))
+        self.assertAlmostEqual(f['fixed_front'], 75 / 27, places=12)
+        self.assertAlmostEqual(f['fixed_rear'], 26 / 28 * 27 / 9, places=12)
+        self.assertAlmostEqual(fd['rest'], (75 / 27 + 26 / 28 * 3) / 2, places=12)
+
+    def test_the_206_rows_set_both_differentials_over_the_steps_they_share(self):
+        import export_car_data as E
+        fd = E.averaged_final_drive(P206_TEMPLATE, P206_CHAIN, ['21//24', '22//24', '21//25'])
+        self.assertEqual(fd['rows'], ['dfr', 'drr'])
+        self.assertEqual([o for o, _v in fd['options']], ['46//14*26//16', '40//18*26//16'])
+        self.assertEqual(fd['stock_option'], '46//14*26//16')
+        self.assertEqual(fd['formula']['pre'], ['cdr'])
+        self.assertEqual(fd['adjustment'], 'Differential Ratio Front + Differential Ratio Rear')
+        self.assertEqual([p for p, _v in fd['primaries']], ['21//24', '22//24', '21//25'])
+        self.assertAlmostEqual(fd['rest'], 1.0, places=12)
+
+    def test_a_stock_ratio_that_is_not_a_step_fails_the_car(self):
+        import export_car_data as E
+        with self.assertRaises(SystemExit):
+            E.averaged_final_drive(DELTA_TEMPLATE, ['59//14'] + DELTA_CHAIN[1:], [])
+
+    def test_the_new_fields_reach_the_document_and_no_other_car_gains_them(self):
+        import export_car_data as E
+        sets, curve, fd, tyres = stratos_inputs()
+        plain = build_car_json('x', 'X', 'Rear', sets, curve, fd, tyres, rev_limit=RL)
+        self.assertEqual(sorted(plain['final_drive']), sorted(
+            ['adjustment', 'primaries', 'options', 'stock_option', 'rest']))
+        averaged = E.averaged_final_drive(DELTA_TEMPLATE, DELTA_CHAIN, [])
+        doc = build_car_json('x', 'X', 'Rear', sets, curve, averaged, tyres, rev_limit=RL)
+        self.assertEqual(doc['final_drive']['rows'], ['cdr'])
+        self.assertEqual(doc['final_drive']['formula'], averaged['formula'])
+        self.assertEqual(len(doc['final_drive']['settings']), 3)
+
+
+import make_gearing_chart as _M  # noqa: E402
+GAME_PAKS = _M.DEFAULT_PAKS if os.path.isdir(_M.DEFAULT_PAKS) else None
+
+
+@unittest.skipUnless(GAME_PAKS, 'Assetto Corsa Rally is not installed')
+class AveragedAxlesInTheGame(unittest.TestCase):
+    def test_each_cars_chain_and_template_agree(self):
+        import tempfile
+        import export_car_data as E
+        import calibration as CAL
+        from acrpkg import Package
+        from gearing import averaged_final_drive, drivetrain_chain
+        chains = {}
+        with tempfile.TemporaryDirectory() as tmp:
+            for slug in sorted(E.AVERAGED_AXLE_CARS):
+                with self.subTest(car=slug):
+                    with open(CAL.car_asset(GAME_PAKS, _M.CARS[slug][2], tmp), 'rb') as fh:
+                        chain = drivetrain_chain(Package(fh.read()))
+                    chains[slug] = chain
+                    with open(os.path.join(_M.TEMPLATES, slug + '.yaml'),
+                              encoding='utf-8') as fh:
+                        text = fh.read()
+                    # raises when a stock ratio is not one of its setting's steps
+                    fd = E.averaged_final_drive(text, chain, [])
+                    stock = {s['key']: E.ratio(s['stock']) for s in fd['settings']}
+                    self.assertAlmostEqual(E.averaged_below(fd['formula'], stock),
+                                           averaged_final_drive(chain), places=12)
+        # the fixtures above are what the game files hold
+        self.assertEqual(chains['lancia-delta-integrale-evoluzione-1992'], DELTA_CHAIN)
+        self.assertEqual(chains['citroen-xsara-wrc-2003'], XSARA_CHAIN)
+        self.assertEqual(chains['peugeot-206-wrc-1999'], P206_CHAIN)
+        self.assertEqual(chains['subaru-impreza-555-s3-1993'], IMPREZA_CHAIN)
+
+
 class GeneratedDate(unittest.TestCase):
     def test_car_documents_do_not_carry_a_build_date(self):
         # stamping it into every car turned a no-op re-run into an 18-file diff

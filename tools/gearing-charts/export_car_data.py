@@ -24,8 +24,8 @@ sys.path.insert(0, os.path.join(REPO, 'tools', 'car-catalog'))
 sys.path.insert(0, os.path.join(REPO, 'tools', 'torque-curves'))
 
 import make_gearing_chart as M                                    # noqa: E402
-from gearing import (LOADED_RADIUS_FACTOR, gear_set, ratio,       # noqa: E402
-                     tyre_geometry)
+from gearing import (CHAIN_SLOTS, LOADED_RADIUS_FACTOR, gear_set,  # noqa: E402
+                     ratio, tyre_geometry)
 from acrpkg import Package                                        # noqa: E402
 from game_version import read_game_version                        # noqa: E402
 import calibration as CAL                                         # noqa: E402
@@ -128,7 +128,122 @@ def build_car_json(slug, name, axle, gear_sets, engine_curve, final_drive, tyres
             'stock_option': final_drive['stock_option'],
             'rest': final_drive['rest'],
         }
+        # the averaged-axle cars only (see averaged_final_drive); every other car's
+        # document keeps exactly the five fields above
+        for field in ('settings', 'formula', 'rows'):
+            if field in final_drive:
+                doc['final_drive'][field] = final_drive[field]
     return doc
+
+
+# Ruling R51, measured in game: on these cars the centre differential averages its two
+# outputs, so the ratio below the gearbox is
+#     fixed_pre * prod(pre) * (fixed_front * prod(front) + fixed_rear * prod(rear)) / 2
+# and every ratio the setup screen offers on the chain is published as its own setting. The
+# Audi has no centre differential and cannot be measured (it is undriveable with front and
+# rear apart); the same formula is assumed. Not generalised to any other car.
+AVERAGED_AXLE_CARS = frozenset({
+    'lancia-delta-integrale-evoluzione-1992',
+    'peugeot-206-wrc-1999',
+    'subaru-impreza-555-s3-1993',
+    'citroen-xsara-wrc-2003',
+    'audi-quattro-gr4-1981',
+})
+
+# Short, stable URL-hash keys for the ratio settings. Never rename one: links carry them.
+SETTING_KEYS = {
+    'Center Differential Ratio': 'cdr',
+    'Center Ratio to Front': 'ctf',
+    'Center Ratio to Rear': 'ctr',
+    'Differential Ratio Front': 'dfr',
+    'Differential Ratio Rear': 'drr',
+}
+
+
+def template_ratio_settings(text):
+    """[(adjustment, [step spellings])] for every drivetrain-chain ratio a car template makes
+    selectable, in the template's (setup screen) order. Primary Gear is not a chain ratio."""
+    out = []
+    for block in re.split(r'\n\s*- section: ', text)[1:]:
+        name = re.search(r'adjustment: "([^"]+)"', block)
+        steps = re.search(r'discrete_steps: "(.*)"', block)
+        if name and name.group(1) in CHAIN_SLOTS and steps and steps.group(1).strip():
+            out.append((name.group(1), [s.strip() for s in steps.group(1).split(',')]))
+    return out
+
+
+def averaged_final_drive(text, chain, primaries):
+    """The `final_drive` record of an averaged-axle car, from its template and the drivetrain
+    chain in its DA_<car> asset (drivetrain_chain: centre diff, centre->front, centre->rear,
+    front diff, rear diff).
+
+    - `settings`: every selectable chain ratio in template order, `{key, adjustment, steps:
+      [{name, value}], stock}`; `stock` is the spelling in the car's own chain.
+    - `formula`: which setting keys sit before the split (`pre`), on the front path and on the
+      rear path, and the product of the chain ratios on each part that are not selectable.
+    - `rows`: the setting keys a Final drive chart row sets together — both differentials
+      where both are selectable, otherwise the centre differential. `options` are the steps
+      those settings share by name, in the first one's order.
+    - `adjustment`, `options`, `stock_option` and `rest` keep their meaning for every other
+      car, with every other setting at stock: below = rest * option.
+    """
+    settings = []
+    for adjustment, steps in template_ratio_settings(text):
+        stock = chain[CHAIN_SLOTS[adjustment]]
+        if stock not in steps:
+            raise SystemExit(f'{adjustment}: the car ships with {stock}, which is not one of '
+                             f'its steps')
+        settings.append({'key': SETTING_KEYS[adjustment], 'adjustment': adjustment,
+                         'steps': [{'name': s, 'value': ratio(s)} for s in steps],
+                         'stock': stock})
+    by_slot = {CHAIN_SLOTS[s['adjustment']]: s['key'] for s in settings}
+
+    def part(slots):
+        fixed = 1.0
+        for i in slots:
+            if i not in by_slot:
+                fixed *= ratio(chain[i])
+        return [by_slot[i] for i in slots if i in by_slot], fixed
+
+    pre, fixed_pre = part([0])
+    front, fixed_front = part([1, 3])
+    rear, fixed_rear = part([2, 4])
+    formula = {'pre': pre, 'front': front, 'rear': rear,
+               'fixed_pre': fixed_pre, 'fixed_front': fixed_front, 'fixed_rear': fixed_rear}
+
+    keyed = {s['key']: s for s in settings}
+    rows = ['dfr', 'drr'] if 'dfr' in keyed and 'drr' in keyed else ['cdr']
+    if any(k not in keyed for k in rows):
+        raise SystemExit(f'no selectable {rows} to build the final drive rows from')
+    names = [{st['name'] for st in keyed[k]['steps']} for k in rows]
+    shared = [st['name'] for st in keyed[rows[0]]['steps']
+              if all(st['name'] in n for n in names)]
+    stock_row = keyed[rows[0]]['stock']
+    if any(keyed[k]['stock'] != stock_row for k in rows):
+        raise SystemExit(f'the car ships with different {rows} ratios, so no row is stock')
+    return {
+        'adjustment': ' + '.join(keyed[k]['adjustment'] for k in rows),
+        'primaries': [(p, ratio(p)) for p in primaries],
+        'options': [(o, ratio(o)) for o in shared],
+        'stock_option': stock_row,
+        'rest': averaged_below(formula, {s['key']: ratio(s['stock']) for s in settings})
+        / ratio(stock_row),
+        'settings': settings,
+        'formula': formula,
+        'rows': rows,
+    }
+
+
+def averaged_below(formula, values):
+    """below the gearbox from a `formula` record and `{key: ratio}` for its settings."""
+    def prod(keys):
+        out = 1.0
+        for k in keys:
+            out *= values[k]
+        return out
+    return (formula['fixed_pre'] * prod(formula['pre'])
+            * (formula['fixed_front'] * prod(formula['front'])
+               + formula['fixed_rear'] * prod(formula['rear'])) / 2)
 
 
 # The site's theme key. js/theme.js in acr-car-lab writes the same one.
@@ -328,15 +443,15 @@ def car_record(paks, slug, tmp):
     def read(ax):
         primaries, candidates, _t, _p, _max = M.template_facts(slug, ax, require_curve=False)
         fd_value, spelled, chain = M.stock_final_drive(paks, car_asset, ax, tmp)
-        return (primaries, fd_value) + M.pick_ratio(candidates, chain, ax)
+        return (primaries, fd_value, chain) + M.pick_ratio(candidates, chain, ax)
 
-    primaries, fd_value, name, options, stock = read(axle)
+    primaries, fd_value, chain, name, options, stock = read(axle)
     if not options:
         other = 'Rear' if axle == 'Front' else 'Front'
         probe = read(other)
-        if probe[3]:                    # the far branch is where the adjustment lives
+        if probe[4]:                    # the far branch is where the adjustment lives
             axle = other
-            primaries, fd_value, name, options, stock = probe
+            primaries, fd_value, chain, name, options, stock = probe
         # else: nothing is adjustable either way — keep the declared axle, so the
         # published axle and tyre stay truthful rather than reporting the last probe
 
@@ -364,6 +479,10 @@ def car_record(paks, slug, tmp):
             'stock_option': stock,
             'rest': rest,
         }
+    if slug in AVERAGED_AXLE_CARS:
+        # the axle and tyre row above stay as they were: every one of these reads Rear
+        final_drive = averaged_final_drive(text, chain, primaries)
+        fixed_final_drive = None
 
     tyres = {}
     for surface in SURFACES:

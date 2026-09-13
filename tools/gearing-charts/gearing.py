@@ -64,6 +64,40 @@ def axle_final_drive(chain, axle):
     return r[0] * (r[1] * r[3] if axle == 'Front' else r[2] * r[4])
 
 
+# Which slot of drivetrain_chain each ratio adjustment on the setup screen replaces.
+CHAIN_SLOTS = {
+    'Center Differential Ratio': 0,
+    'Center Ratio to Front': 1,
+    'Center Ratio to Rear': 2,
+    'Differential Ratio Front': 3,
+    'Differential Ratio Rear': 4,
+}
+
+
+def with_settings(chain, settings):
+    """The chain with each named ratio setting (`{adjustment: spelling}`) put in its slot.
+    Names that are not chain ratios (Primary Gear) are ignored."""
+    out = list(chain)
+    for name, spelling in settings.items():
+        if name in CHAIN_SLOTS:
+            out[CHAIN_SLOTS[name]] = spelling
+    return out
+
+
+def averaged_final_drive(chain):
+    """Engine-to-wheel ratio below the gearbox on a car whose centre differential averages its
+    two outputs (ruling R51, measured in game on the Delta, 206 WRC, Impreza and Xsara WRC):
+    with every wheel at the same road speed the gearbox output turns at the mean of the front
+    and rear chains.
+
+        centre diff * (centre->front * front diff + centre->rear * rear diff) / 2
+    """
+    r = [ratio(c) if isinstance(c, str) else c for c in chain]
+    if len(r) != 5:
+        raise ValueError(f'expected 5 drivetrain ratios, got {len(r)}')
+    return r[0] * (r[1] * r[3] + r[2] * r[4]) / 2
+
+
 def gear_set(path):
     """-> (forward gear ratio names, primary name, reverse name)."""
     pkg = Package(open(path, 'rb').read())
