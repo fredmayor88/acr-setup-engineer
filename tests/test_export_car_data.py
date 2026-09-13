@@ -198,6 +198,34 @@ class GeneratedDate(unittest.TestCase):
         self.assertNotIn('generated', build_index_json([{'slug': 'a', 'name': 'A'}]))
 
 
+class GameVersion(unittest.TestCase):
+    def test_the_index_carries_the_game_version_next_to_the_date(self):
+        doc = build_index_json([{'slug': 'a', 'name': 'A'}], '2026-09-12', '0.6')
+        self.assertEqual(doc['game_version'], '0.6')
+        self.assertEqual(doc['generated'], '2026-09-12')
+
+    def test_the_index_omits_it_when_not_given(self):
+        self.assertNotIn('game_version',
+                         build_index_json([{'slug': 'a', 'name': 'A'}], '2026-09-12'))
+
+    def test_a_site_export_reads_the_version_from_the_paks(self):
+        from unittest import mock
+        import export_car_data as E
+        calls = []
+        with mock.patch.object(E, 'read_game_version',
+                               side_effect=lambda paks, tmp: calls.append(paks) or '0.6'):
+            self.assertEqual(E.site_game_version('/paks', True), '0.6')
+            self.assertIsNone(E.site_game_version('/paks', False))
+        self.assertEqual(calls, ['/paks'])
+
+    def test_an_unreadable_version_fails_the_site_export(self):
+        from unittest import mock
+        import export_car_data as E
+        with mock.patch.object(E, 'read_game_version', side_effect=SystemExit('no version')):
+            with self.assertRaises(SystemExit):
+                E.site_game_version('/paks', True)
+
+
 from export_car_data import (THEME_KEY, build_index_json, prune,  # noqa: E402
                              render_car_page, render_index_page)
 

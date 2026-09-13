@@ -26,6 +26,7 @@ sys.path.insert(0, os.path.join(REPO, 'tools', 'torque-curves'))
 import make_gearing_chart as M                                    # noqa: E402
 from gearing import gear_set, ratio, tyre_geometry                # noqa: E402
 from acrpkg import Package                                        # noqa: E402
+from game_version import read_game_version                        # noqa: E402
 
 # Only the surfaces that resolve to a real tyre asset. MontecarloStudded is excluded:
 # DA_PirelliTM00Studded does not exist under the name DT_Wheels gives it.
@@ -195,17 +196,32 @@ def render_car_page(slug, name):
                            theme_head=THEME_HEAD, theme_button=THEME_BUTTON)
 
 
-def build_index_json(cars, generated=None):
+def build_index_json(cars, generated=None, game_version=None):
     """The car list the picker reads, sorted by display name.
 
-    The build date lives here and nowhere else. Stamping it into all 17 car documents
-    made a no-op re-run on a later day a 17-file diff, which buries a real change.
+    The build date and game version live here and nowhere else. Stamping the date into
+    all 17 car documents made a no-op re-run on a later day a 17-file diff, which buries
+    a real change.
     """
     doc = {'cars': sorted(({'slug': c['slug'], 'name': c['name']} for c in cars),
                           key=lambda c: c['name'])}
     if generated is not None:
         doc['generated'] = generated
+    if game_version is not None:
+        doc['game_version'] = game_version
     return doc
+
+
+def site_game_version(paks, whole_site):
+    """The game version the site's footer names, read from the install ('0.6').
+
+    Only a whole-site export writes index.json, so only that needs it. It is read before
+    any car, so a version that cannot be read fails the run before anything is written.
+    """
+    if not whole_site:
+        return None
+    with tempfile.TemporaryDirectory() as tmp:
+        return read_game_version(paks, tmp)
 
 
 def render_index_page(cars):
@@ -350,6 +366,7 @@ def main():
         raise SystemExit(f'no acr-car-lab checkout at {out}')
     os.makedirs(os.path.join(out, 'data'), exist_ok=True)
 
+    game_version = site_game_version(args.paks, args.all)
     slugs = sorted(M.CARS) if args.all else [args.car]
     today = datetime.date.today().isoformat()
     cars, failed = [], []
@@ -387,7 +404,7 @@ def main():
         pruned = prune(out, {c['slug'] for c in cars})
         with open(os.path.join(out, 'data', 'index.json'), 'w',
                   encoding='utf-8', newline='\n') as fh:
-            json.dump(build_index_json(cars, today), fh, indent=1)
+            json.dump(build_index_json(cars, today, game_version), fh, indent=1)
             fh.write('\n')
         with open(os.path.join(out, 'index.html'), 'w',
                   encoding='utf-8', newline='\n') as fh:
@@ -396,7 +413,7 @@ def main():
             print(f'  -- pruned {p}')
         for f in failed:
             print(f'  !! skipped {f}')
-        print(f'{len(cars)}/{len(slugs)} cars exported')
+        print(f'{len(cars)}/{len(slugs)} cars exported, game version {game_version}')
 
         # A partial export must not look like a complete one. index.json and index.html
         # have just been rebuilt from the survivors, so a car that broke in a game patch
