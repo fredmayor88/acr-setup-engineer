@@ -125,9 +125,21 @@ THEME_HEAD = (
     "if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}})()"
     '</script>')
 
-# The label names the theme a click switches to; app.css shows the right one.
-THEME_BUTTON = ('<button class="theme" type="button"><span class="to-dark">Dark</span>'
-                '<span class="to-light">Light</span></button>')
+# The label names the theme a click switches to; app.css shows the right one. Each label
+# carries its icon inside its own span, so the same CSS swaps both at first paint. The
+# icons draw in currentColor and are hidden from assistive tech: the button's aria-label
+# already says what a click does.
+_ICON = ('<svg class="icon {name}" viewBox="0 0 12 12" width="12" height="12" '
+         'aria-hidden="true" focusable="false" fill="none" stroke="currentColor" '
+         'stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">{shape}</svg>')
+MOON = _ICON.format(name='moon', shape='<path d="M10.2 7.6A4.6 4.6 0 0 1 4.4 1.8'
+                                       'a4.6 4.6 0 1 0 5.8 5.8z"/>')
+SUN = _ICON.format(name='sun', shape='<circle cx="6" cy="6" r="2.2"/>'
+                                     '<path d="M6 .9v1.2M6 9.9v1.2M.9 6h1.2M9.9 6h1.2'
+                                     'M2.4 2.4l.85.85M8.75 8.75l.85.85M2.4 9.6l.85-.85'
+                                     'M8.75 3.25l.85-.85"/>')
+THEME_BUTTON = (f'<button class="theme" type="button"><span class="to-dark">{MOON}Dark</span>'
+                f'<span class="to-light">{SUN}Light</span></button>')
 
 CAR_PAGE = """<!doctype html>
 <html lang="en"><head>

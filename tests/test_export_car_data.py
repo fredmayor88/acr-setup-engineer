@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import unittest
 
@@ -333,6 +334,30 @@ class ThemeInPages(unittest.TestCase):
             self.assertIn('<button class="theme" type="button">', row, kind)
             self.assertIn('>Dark</span>', row, kind)
             self.assertIn('>Light</span>', row, kind)
+
+    def test_both_toggle_labels_carry_their_icon(self):
+        # a moon beside "Dark", a sun beside "Light": the icon lives inside the label's span,
+        # so the CSS that picks the label picks the icon too, before any script runs
+        for kind, html in self.pages().items():
+            button = html[html.index('<button class="theme"'):html.index('</button>')]
+            dark = button[button.index('class="to-dark"'):button.index('>Dark</span>')]
+            light = button[button.index('class="to-light"'):button.index('>Light</span>')]
+            self.assertIn('class="icon moon"', dark, kind)
+            self.assertIn('class="icon sun"', light, kind)
+            self.assertEqual(button.count('<svg'), 2, kind)
+
+    def test_toggle_icons_are_decorative_and_follow_the_text_colour(self):
+        for kind, html in self.pages().items():
+            button = html[html.index('<button class="theme"'):html.index('</button>')]
+            svgs = re.findall(r'<svg[^>]*>', button)
+            self.assertEqual(len(svgs), 2, kind)
+            for svg in svgs:
+                self.assertIn('aria-hidden="true"', svg, kind)
+                self.assertIn('focusable="false"', svg, kind)
+                self.assertIn('stroke="currentColor"', svg, kind)
+            # no colour of its own, no emoji
+            self.assertNotRegex(button, r'#[0-9a-fA-F]{3,6}\b|rgba?\(', kind)
+            self.assertTrue(all(ord(ch) < 0x2000 for ch in button), kind)
 
     def test_car_toggle_sits_after_the_all_cars_link(self):
         html = self.pages()['car']
