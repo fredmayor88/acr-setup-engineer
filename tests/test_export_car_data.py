@@ -332,6 +332,17 @@ class AveragedAxles(unittest.TestCase):
         self.assertEqual((fd['formula']['centre_differential'], fd['formula']['measured']),
                          (False, False))
 
+    def test_a_fixed_ratio_on_a_path_with_settings_fails_the_car(self):
+        import export_car_data as E
+        # a fixed 27//25 centre-to-rear transfer on a path whose rear diff is a setting
+        rear_only = template(('Differential Ratio Rear', '34//13, 30//12'))
+        with self.assertRaises(SystemExit) as caught:
+            E.averaged_final_drive(rear_only, ['51//13', '25//25', '27//25', '25//25', '30//12'], [])
+        self.assertIn('rear', str(caught.exception))
+        # a fixed ratio before the split with no centre setting is fine, as on the Xsara
+        E.averaged_final_drive(template(('Center Differential Ratio', '39//24, 37//26')),
+                               XSARA_CHAIN, [])
+
     def test_a_stock_ratio_that_is_not_a_step_fails_the_car(self):
         import export_car_data as E
         with self.assertRaises(SystemExit):

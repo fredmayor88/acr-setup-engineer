@@ -215,6 +215,13 @@ def averaged_final_drive(text, chain, primaries, centre_differential=True, measu
     pre, fixed_pre = part([0])
     front, fixed_front = part([1, 3])
     rear, fixed_rear = part([2, 4])
+    # The notes on the site name a path by its settings alone, so a fixed ratio sharing a path
+    # with a setting would make them wrong while the numbers stayed right: fail instead.
+    for name, keys, fixed in (('pre', pre, fixed_pre), ('front', front, fixed_front),
+                              ('rear', rear, fixed_rear)):
+        if keys and abs(fixed - 1.0) > 1e-12:
+            raise SystemExit(f'the {name} path has settings {keys} and a fixed ratio {fixed}; '
+                             f'the site notes cannot describe that yet')
     formula = {'pre': pre, 'front': front, 'rear': rear,
                'fixed_pre': fixed_pre, 'fixed_front': fixed_front, 'fixed_rear': fixed_rear,
                'centre_differential': centre_differential, 'measured': measured}

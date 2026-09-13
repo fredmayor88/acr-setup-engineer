@@ -226,6 +226,7 @@
   {
    "car": "peugeot-206-wrc-1999",
    "gear_set": "Gear set 1",
+   "measured": "2026-09-13",
    "ruling": "R51",
    "surface": "Tarmac_Dry",
    "settings": {
@@ -263,6 +264,7 @@
   {
    "car": "peugeot-206-wrc-1999",
    "gear_set": "Gear set 3",
+   "measured": "2026-09-13",
    "ruling": "R51",
    "surface": "Tarmac_Dry",
    "settings": {
@@ -299,6 +301,7 @@
   {
    "car": "peugeot-206-wrc-1999",
    "gear_set": "Gear set 3",
+   "measured": "2026-09-13",
    "ruling": "R51",
    "surface": "Tarmac_Dry",
    "settings": {
@@ -336,6 +339,7 @@
   {
    "car": "peugeot-206-wrc-1999",
    "gear_set": "Gear set 3",
+   "measured": "2026-09-13",
    "ruling": "R51",
    "surface": "Tarmac_Dry",
    "settings": {
@@ -371,6 +375,7 @@
   {
    "car": "lancia-delta-integrale-evoluzione-1992",
    "gear_set": "Gear set 1",
+   "measured": "2026-09-13",
    "ruling": "R51",
    "surface": "Tarmac_Dry",
    "settings": {
@@ -407,6 +412,7 @@
   {
    "car": "lancia-delta-integrale-evoluzione-1992",
    "gear_set": "Gear set 1",
+   "measured": "2026-09-13",
    "ruling": "R51",
    "surface": "Tarmac_Dry",
    "settings": {
@@ -443,6 +449,7 @@
   {
    "car": "subaru-impreza-555-s3-1993",
    "gear_set": "Gear set 1",
+   "measured": "2026-09-13",
    "ruling": "R51",
    "surface": "Tarmac_Dry",
    "settings": {
@@ -478,6 +485,7 @@
   {
    "car": "subaru-impreza-555-s3-1993",
    "gear_set": "Gear set 1",
+   "measured": "2026-09-13",
    "ruling": "R51",
    "surface": "Tarmac_Dry",
    "settings": {

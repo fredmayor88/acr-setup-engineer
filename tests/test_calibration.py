@@ -144,6 +144,12 @@ class Fit(unittest.TestCase):
             ('subaru-impreza-555-s3-1993', 'Gear set 1', [81, 110, 136, 164]),
         ])
 
+    def test_every_run_is_dated(self):
+        for run in self.cal['speed_runs']:
+            with self.subTest(car=run['car'], set=run['gear_set']):
+                want = '2026-09-11' if run['car'] == 'lancia-stratos' else '2026-09-13'
+                self.assertEqual(run['measured'], want)
+
     def test_a_run_carrying_a_primary_gear_setting_is_driven_on_it(self):
         for run in self.cal['speed_runs']:
             if 'Primary Gear' in run.get('settings', {}):
