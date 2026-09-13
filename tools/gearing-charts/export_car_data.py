@@ -150,6 +150,11 @@ AVERAGED_AXLE_CARS = frozenset({
     'audi-quattro-gr4-1981',
 })
 
+# Of those, the cars with no centre differential: front and rear are geared together, and
+# ratios set apart make the axles fight. Fred's ruling for the Audi (R51); its template has no
+# centre adjustment of any kind.
+NO_CENTRE_DIFFERENTIAL = frozenset({'audi-quattro-gr4-1981'})
+
 # Short, stable URL-hash keys for the ratio settings. Never rename one: links carry them.
 SETTING_KEYS = {
     'Center Differential Ratio': 'cdr',
@@ -172,7 +177,7 @@ def template_ratio_settings(text):
     return out
 
 
-def averaged_final_drive(text, chain, primaries):
+def averaged_final_drive(text, chain, primaries, centre_differential=True, measured=True):
     """The `final_drive` record of an averaged-axle car, from its template and the drivetrain
     chain in its DA_<car> asset (drivetrain_chain: centre diff, centre->front, centre->rear,
     front diff, rear diff).
@@ -180,7 +185,9 @@ def averaged_final_drive(text, chain, primaries):
     - `settings`: every selectable chain ratio in template order, `{key, adjustment, steps:
       [{name, value}], stock}`; `stock` is the spelling in the car's own chain.
     - `formula`: which setting keys sit before the split (`pre`), on the front path and on the
-      rear path, and the product of the chain ratios on each part that are not selectable.
+      rear path, and the product of the chain ratios on each part that are not selectable;
+      `centre_differential` (False: the axles are locked together) and `measured` (False: the
+      formula is assumed for this car, no speed run backs it).
     - `rows`: the setting keys a Final drive chart row sets together — both differentials
       where both are selectable, otherwise the centre differential. `options` are the steps
       those settings share by name, in the first one's order.
@@ -209,7 +216,8 @@ def averaged_final_drive(text, chain, primaries):
     front, fixed_front = part([1, 3])
     rear, fixed_rear = part([2, 4])
     formula = {'pre': pre, 'front': front, 'rear': rear,
-               'fixed_pre': fixed_pre, 'fixed_front': fixed_front, 'fixed_rear': fixed_rear}
+               'fixed_pre': fixed_pre, 'fixed_front': fixed_front, 'fixed_rear': fixed_rear,
+               'centre_differential': centre_differential, 'measured': measured}
 
     keyed = {s['key']: s for s in settings}
     rows = ['dfr', 'drr'] if 'dfr' in keyed and 'drr' in keyed else ['cdr']
@@ -481,7 +489,10 @@ def car_record(paks, slug, tmp):
         }
     if slug in AVERAGED_AXLE_CARS:
         # the axle and tyre row above stay as they were: every one of these reads Rear
-        final_drive = averaged_final_drive(text, chain, primaries)
+        measured = any(r['car'] == slug for r in CAL.load_calibration()['speed_runs'])
+        final_drive = averaged_final_drive(text, chain, primaries,
+                                           centre_differential=slug not in NO_CENTRE_DIFFERENTIAL,
+                                           measured=measured)
         fixed_final_drive = None
 
     tyres = {}

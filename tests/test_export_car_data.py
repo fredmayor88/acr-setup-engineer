@@ -7,6 +7,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'tools', 'gearing-charts'))
 
 from export_car_data import build_car_json  # noqa: E402
+import make_gearing_chart as _M  # noqa: E402
 
 
 def stratos_inputs():
@@ -273,7 +274,8 @@ class AveragedAxles(unittest.TestCase):
         self.assertEqual(fd['settings'][0]['steps'][0], {'name': '55//12', 'value': 55 / 12})
         self.assertEqual(fd['formula'], {'pre': ['cdr'], 'front': [], 'rear': ['ctr', 'drr'],
                                          'fixed_pre': 1.0, 'fixed_front': 1.0,
-                                         'fixed_rear': 1.0})
+                                         'fixed_rear': 1.0, 'centre_differential': True,
+                                         'measured': True})
         self.assertEqual(fd['rows'], ['cdr'])
         self.assertEqual([o for o, _v in fd['options']], ['55//12', '51//13', '53//18'])
 
@@ -314,6 +316,22 @@ class AveragedAxles(unittest.TestCase):
         self.assertEqual([p for p, _v in fd['primaries']], ['21//24', '22//24', '21//25'])
         self.assertAlmostEqual(fd['rest'], 1.0, places=12)
 
+    def test_the_audi_alone_has_no_centre_differential_and_is_not_measured(self):
+        import export_car_data as E
+        import calibration as CAL
+        self.assertEqual(E.NO_CENTRE_DIFFERENTIAL, {'audi-quattro-gr4-1981'})
+        with open(os.path.join(_M.TEMPLATES, 'audi-quattro-gr4-1981.yaml'),
+                  encoding='utf-8') as fh:
+            self.assertNotIn('adjustment: "Center', fh.read())
+        measured = {r['car'] for r in CAL.load_calibration()['speed_runs']}
+        self.assertEqual(sorted(E.AVERAGED_AXLE_CARS - measured), ['audi-quattro-gr4-1981'])
+        audi = template(('Differential Ratio Front', '39//8, 37//10'),
+                        ('Differential Ratio Rear', '39//8, 37//10'))
+        fd = E.averaged_final_drive(audi, ['25//25', '25//25', '25//25', '37//10', '37//10'], [],
+                                    centre_differential=False, measured=False)
+        self.assertEqual((fd['formula']['centre_differential'], fd['formula']['measured']),
+                         (False, False))
+
     def test_a_stock_ratio_that_is_not_a_step_fails_the_car(self):
         import export_car_data as E
         with self.assertRaises(SystemExit):
@@ -332,7 +350,6 @@ class AveragedAxles(unittest.TestCase):
         self.assertEqual(len(doc['final_drive']['settings']), 3)
 
 
-import make_gearing_chart as _M  # noqa: E402
 GAME_PAKS = _M.DEFAULT_PAKS if os.path.isdir(_M.DEFAULT_PAKS) else None
 
 
