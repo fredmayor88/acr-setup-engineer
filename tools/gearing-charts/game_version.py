@@ -32,11 +32,23 @@ def project_version(ini_text):
     return m.group(1).strip() if m else None
 
 
+def version_problem(version):
+    """Why `version` is not a usable ProjectVersion, or None when it is."""
+    parts = (version or '').split('.')
+    bad = next((p for p in parts if not p.isdigit()), None)
+    if bad is not None:
+        return f'part {bad!r} is not a whole number'
+    if len(parts) < 2:
+        return f'has {len(parts)} part, needs at least major.minor'
+    return None
+
+
 def display_version(version):
     """'0.6.0.100866' -> '0.6'. The build number is dropped; a patch is kept when set."""
-    parts = (version or '').split('.')
-    if len(parts) < 2 or not all(p.isdigit() for p in parts):
-        raise ValueError(f'not a version: {version!r}')
+    problem = version_problem(version)
+    if problem:
+        raise ValueError(f'not a version: {version!r}: {problem}')
+    parts = version.split('.')
     shown = parts[:2]
     if len(parts) > 2 and int(parts[2]):
         shown.append(parts[2])
@@ -224,9 +236,8 @@ def read_game_version(paks, tmp):
         pak, version = select_source(found)
         if not version:
             raise SystemExit(f'{pak}: no ProjectVersion in {INI_PATH}')
-        try:
-            return display_version(version)
-        except ValueError:
-            raise SystemExit(f'{pak}: ProjectVersion {version!r} in {INI_PATH} is not '
-                             'dotted integers') from None
+        problem = version_problem(version)
+        if problem:
+            raise SystemExit(f'{pak}: ProjectVersion {version!r} in {INI_PATH} {problem}')
+        return display_version(version)
     raise SystemExit(f'no {INI_PATH} in any .pak under {paks}')

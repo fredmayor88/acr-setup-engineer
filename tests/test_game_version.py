@@ -175,12 +175,24 @@ class SyntheticPak(unittest.TestCase):
         self.write('pakchunk0-Windows_0_P.pak', {'acr/Config/DefaultGame.ini': ini('0.6.2.101200')})
         self.assertEqual(read_game_version(self.dir, self.dir), '0.6.2')
 
-    def test_a_version_that_is_not_dotted_integers_names_the_value_and_the_pak(self):
+    def test_a_version_part_that_is_not_a_whole_number_names_it_the_value_and_the_pak(self):
         self.write('pakchunk0-Windows.pak', {'acr/Config/DefaultGame.ini': ini('0.6.0-hotfix')})
         with self.assertRaises(SystemExit) as ctx:
             read_game_version(self.dir, self.dir)
         self.assertIn("'0.6.0-hotfix'", str(ctx.exception))
         self.assertIn('pakchunk0-Windows.pak', str(ctx.exception))
+        self.assertIn("part '0-hotfix' is not a whole number", str(ctx.exception))
+
+    def test_a_single_part_version_says_it_is_missing_the_minor(self):
+        # '6' is made of integers, so "not dotted integers" would send you looking wrongly
+        self.write('pakchunk0-Windows.pak', {'acr/Config/DefaultGame.ini': ini('6')})
+        with self.assertRaises(SystemExit) as ctx:
+            read_game_version(self.dir, self.dir)
+        message = str(ctx.exception)
+        self.assertIn("ProjectVersion '6'", message)
+        self.assertIn('pakchunk0-Windows.pak', message)
+        self.assertIn('has 1 part, needs at least major.minor', message)
+        self.assertNotIn('whole number', message)
 
     def test_equal_priority_paks_that_disagree_fail(self):
         self.write('pakchunk0-Windows_1_P.pak', {'acr/Config/DefaultGame.ini': ini('0.6.1.1')})
