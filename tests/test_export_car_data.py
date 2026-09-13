@@ -339,11 +339,24 @@ class PickerPromo(unittest.TestCase):
 
     def test_the_picker_ends_with_the_approved_line(self):
         html = self.page()
-        self.assertIn(f'<p class="promo">{self.COPY}</p>', html)
+        self.assertIn(f'<p class="promo">{self.COPY}', html)
         self.assertGreater(html.index('class="promo"'), html.index('</ul>'))
 
     def test_it_opens_in_the_same_tab(self):
         self.assertNotIn('target=', self.page())
+
+    ISSUES = ' · <a href="https://github.com/fredmayor88/acr-car-lab/issues">Issues and feedback</a>'
+
+    def test_the_issues_link_follows_the_promo_on_the_same_line(self):
+        # the promo copy stays word for word; the issues link closes the same paragraph
+        self.assertIn(f'<p class="promo">{self.COPY}{self.ISSUES}</p>', self.page())
+
+    def test_the_issues_link_is_untracked_like_the_promo(self):
+        html = self.page()
+        line = html[html.index('<p class="promo">'):]
+        line = line[:line.index('</p>')]
+        self.assertNotIn('data-goatcounter-click', line)
+        self.assertNotIn('onclick', line)
 
 
 class ThemeInPages(unittest.TestCase):
