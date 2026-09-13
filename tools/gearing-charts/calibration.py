@@ -89,8 +89,9 @@ def resolve_rev_limit(slug, v4, calibration):
 
     measured       — a telemetry limiter is stored and the game's v4 still matches the one it
                      was measured against.
-    measured-stale — the limiter is stored but v4 has changed since: the value is still the
-                     best there is, and the warning says to re-measure.
+    measured-stale — the limiter is stored but v4 has changed since, or the rev-stage block
+                     can no longer be read (v4 None, so the change detector is blind): the
+                     value is still the best there is, and the warning says to re-measure.
     estimated      — nothing measured: v4 + ESTIMATE_OVER_V4.
     """
     entry = calibration.get('rev_limiters', {}).get(slug)
@@ -98,7 +99,11 @@ def resolve_rev_limit(slug, v4, calibration):
         if v4 is None:
             raise SystemExit(f'{slug}: no measured rev limit and no rev stages in the game files')
         return int(round(v4)) + ESTIMATE_OVER_V4, 'estimated', None
-    if v4 is not None and int(round(v4)) != entry['game_v4']:
+    if v4 is None:
+        return (entry['rpm'], 'measured-stale',
+                f'{slug}: the rev-stage block in the car asset could not be read, so a change '
+                f'since the rev limit was measured cannot be ruled out - re-measure')
+    if int(round(v4)) != entry['game_v4']:
         return (entry['rpm'], 'measured-stale',
                 f'{slug}: game v4 changed from {entry["game_v4"]} to {int(round(v4))} since '
                 f'the rev limit was measured - re-measure')

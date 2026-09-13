@@ -61,6 +61,12 @@ class ResolveRevLimit(unittest.TestCase):
         for part in ('lancia-stratos', '8000', '8200', 're-measure'):
             self.assertIn(part, warning)
 
+    def test_an_unreadable_v4_on_a_measured_car_is_stale_and_warns(self):
+        rpm, source, warning = C.resolve_rev_limit('lancia-stratos', None, self.cal)
+        self.assertEqual((rpm, source), (8450, 'measured-stale'))
+        for part in ('lancia-stratos', 'rev-stage block', 'could not be read', 're-measure'):
+            self.assertIn(part, warning)
+
     def test_estimated_is_v4_plus_100(self):
         self.assertEqual(C.resolve_rev_limit('new-car', 7300.0, self.cal),
                          (7400, 'estimated', None))
@@ -112,6 +118,36 @@ class Fit(unittest.TestCase):
     def test_gear_1_is_not_fitted(self):
         gears = {g for _i, g, _f in C.implied_factors(self.cal)}
         self.assertNotIn(1, gears)
+
+
+SITE_DATA = os.path.join(HERE, '..', '..', 'acr-car-lab', 'data')
+
+
+@unittest.skipUnless(os.path.isdir(SITE_DATA), 'no ../acr-car-lab checkout next to this repo')
+class SpeedRunsMatchTheExportedGearing(unittest.TestCase):
+    """The fit is computed from the gearing stored with each run. If a game patch changed a
+    gear, a primary, the fixed ratio or a tyre, the stored runs would keep fitting the old car
+    while the site drew the new one, so every stored run is checked against the exported data
+    (../acr-car-lab/data, what `make car-lab` last wrote)."""
+
+    def test_every_run_matches_its_car_in_the_exported_data(self):
+        import json
+        for run in C.load_calibration()['speed_runs']:
+            with self.subTest(car=run['car'], set=run['gear_set']):
+                with open(os.path.join(SITE_DATA, run['car'] + '.json'), encoding='utf-8') as fh:
+                    car = json.load(fh)
+                sets = {s['label']: s for s in car['gear_sets']}
+                self.assertIn(run['gear_set'], sets)
+                gear_set = sets[run['gear_set']]
+                self.assertEqual(run['gears'], [g['name'] for g in gear_set['gears']])
+                fd = car['final_drive']
+                self.assertIsNotNone(fd, 'every speed run is on a car with a final drive option')
+                # the run's primary is the set's own, or a selectable one that replaces it
+                selectable = [p['name'] for p in fd['primaries']]
+                self.assertIn(run['primary'], [gear_set['primary']['name']] + selectable)
+                self.assertIn(run['option'], [o['name'] for o in fd['options']])
+                self.assertAlmostEqual(run['rest'], fd['rest'], places=9)
+                self.assertEqual(run['free_radius'], car['tyres']['Tarmac_Dry']['free_radius'])
 
 
 PAKS = None

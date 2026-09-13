@@ -274,7 +274,7 @@ def build_index_json(cars, generated=None, game_version=None):
     """The car list the picker reads, sorted by display name.
 
     The build date and game version live here and nowhere else. Stamping the date into
-    all 17 car documents made a no-op re-run on a later day a 17-file diff, which buries
+    every car document made a no-op re-run on a later day a diff in every car file, which buries
     a real change.
     """
     doc = {'cars': sorted(({'slug': c['slug'], 'name': c['name']} for c in cars),
@@ -388,8 +388,8 @@ def car_record(paks, slug, tmp):
         tyres[surface] = (tyre_name, round(geo[1], 6))
 
     # A car with no winter tyre is normal; a car with no tyre at all is not. Without this
-    # floor a pak rename turns "DT_Wheels not found" — a batch-wide failure — into 17
-    # documents with an empty tyres map and a clean exit.
+    # floor a pak rename turns "DT_Wheels not found" — a batch-wide failure — into a full
+    # set of documents with an empty tyres map and a clean exit.
     if not tyres:
         raise SystemExit(f'{slug}: no tyre resolved on any of {len(SURFACES)} surfaces')
 
