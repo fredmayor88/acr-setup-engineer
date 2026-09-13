@@ -110,7 +110,7 @@ class Fit(unittest.TestCase):
             rpm = self.cal['rev_limiters'][run['car']]['rpm']
             pred = C.run_predictions(run, rpm, factor)
             for gear, (m, p) in enumerate(zip(run['kmh'], pred), start=1):
-                if gear < C.FIRST_FITTED_GEAR:
+                if not C.fitted(run, gear):
                     continue
                 with self.subTest(car=run['car'], set=run['gear_set'], gear=gear):
                     self.assertLess(abs(p - m) / m, 0.03)
@@ -118,6 +118,61 @@ class Fit(unittest.TestCase):
     def test_gear_1_is_not_fitted(self):
         gears = {g for _i, g, _f in C.implied_factors(self.cal)}
         self.assertNotIn(1, gears)
+
+    def test_an_excluded_gear_is_neither_fitted_nor_checked(self):
+        runs = self.cal['speed_runs']
+        i = next(n for n, r in enumerate(runs) if r.get('exclude_gears'))
+        self.assertEqual((runs[i]['car'], runs[i]['exclude_gears']),
+                         ('peugeot-206-wrc-1999', [4]))
+        self.assertNotIn((i, 4), {(n, g) for n, g, _f in C.implied_factors(self.cal)})
+        gear4 = C.fit_report(self.cal)['runs'][i]['gears'][3]
+        self.assertEqual((gear4['fitted'], gear4['excluded']), (False, True))
+        # it did not reach the limiter (the car ran out of straight), so it reads slow
+        self.assertGreater(gear4['error_pct'], 3)
+
+    def test_every_run_of_ruling_r51_is_stored(self):
+        stored = [(r['car'], r['gear_set'], r['kmh']) for r in self.cal['speed_runs']
+                  if r.get('ruling') == 'R51']
+        self.assertEqual(stored, [
+            ('peugeot-206-wrc-1999', 'Gear set 1', [64, 93, 127, 164]),
+            ('peugeot-206-wrc-1999', 'Gear set 3', [57, 75, 96, 119, 143]),
+            ('peugeot-206-wrc-1999', 'Gear set 3', [38, 52, 65, 80, 98, 119]),
+            ('peugeot-206-wrc-1999', 'Gear set 3', [68, 89, 114, 142]),
+            ('lancia-delta-integrale-evoluzione-1992', 'Gear set 1', [60, 77, 100, 128, 152, 180]),
+            ('lancia-delta-integrale-evoluzione-1992', 'Gear set 1', [53, 69, 90, 113, 135, 160]),
+            ('subaru-impreza-555-s3-1993', 'Gear set 1', [65, 89, 109, 131, 155]),
+            ('subaru-impreza-555-s3-1993', 'Gear set 1', [81, 110, 136, 164]),
+        ])
+
+    def test_a_run_carrying_a_primary_gear_setting_is_driven_on_it(self):
+        for run in self.cal['speed_runs']:
+            if 'Primary Gear' in run.get('settings', {}):
+                self.assertEqual(run['primary'], run['settings']['Primary Gear'])
+
+
+class RunBelow(unittest.TestCase):
+    def test_a_rest_and_option_run_multiplies_them(self):
+        self.assertAlmostEqual(C.run_below({'rest': 2.0, 'option': '39//24'}), 3.25)
+
+    def test_a_settings_run_averages_the_front_and_rear_chains(self):
+        # the Delta: centre diff 55//12, centre->rear 13//34, rear diff 34//14, front path 1:1
+        run = {'chain': ['51//13', '25//25', '13//34', '25//25', '30//12'],
+               'settings': {'Center Differential Ratio': '55//12',
+                            'Center Ratio to Rear': '13//34',
+                            'Differential Ratio Rear': '34//14'}}
+        self.assertAlmostEqual(C.run_below(run), 55 / 12 * (1 + 13 / 34 * 34 / 14) / 2)
+
+    def test_primary_gear_is_not_a_chain_setting(self):
+        run = {'chain': ['24//24', '25//25', '25//25', '46//14*26//16', '46//14*26//16'],
+               'settings': {'Primary Gear': '21//24',
+                            'Differential Ratio Front': '43//13*21//13',
+                            'Differential Ratio Rear': '40//18*26//16'}}
+        self.assertAlmostEqual(C.run_below(run), (43 / 13 * 21 / 13 + 40 / 18 * 26 / 16) / 2)
+
+    def test_a_run_may_stop_before_top_gear(self):
+        run = {'primary': '25//25', 'rest': 1.0, 'option': '4//1', 'free_radius': 0.3,
+               'gears': ['3//1', '2//1', '1//1'], 'kmh': [10, 20]}
+        self.assertEqual(len(C.run_predictions(run, 7000)), 2)
 
 
 SITE_DATA = os.path.join(HERE, '..', '..', 'acr-car-lab', 'data')
@@ -145,9 +200,40 @@ class SpeedRunsMatchTheExportedGearing(unittest.TestCase):
                 # the run's primary is the set's own, or a selectable one that replaces it
                 selectable = [p['name'] for p in fd['primaries']]
                 self.assertIn(run['primary'], [gear_set['primary']['name']] + selectable)
-                self.assertIn(run['option'], [o['name'] for o in fd['options']])
-                self.assertAlmostEqual(run['rest'], fd['rest'], places=9)
                 self.assertEqual(run['free_radius'], car['tyres']['Tarmac_Dry']['free_radius'])
+                if 'settings' not in run:
+                    self.assertIn(run['option'], [o['name'] for o in fd['options']])
+                    self.assertAlmostEqual(run['rest'], fd['rest'], places=9)
+                    continue
+                self.check_settings_run(run, fd)
+
+    def check_settings_run(self, run, fd):
+        """A run that stores its settings: every ratio setting is one the car publishes, with a
+        step of that spelling; its stock chain agrees with the published stock and fixed ratios;
+        and the published formula gives the ratio the fit used."""
+        from gearing import CHAIN_SLOTS, ratio
+        import export_car_data as E
+        by_name = {st['adjustment']: st for st in fd['settings']}
+        self.assertEqual({n for n in run['settings'] if n != 'Primary Gear'}, set(by_name))
+        values = {}
+        for name, spelling in run['settings'].items():
+            if name == 'Primary Gear':
+                self.assertIn(spelling, [p['name'] for p in fd['primaries']])
+                continue
+            published = by_name[name]
+            self.assertIn(spelling, [st['name'] for st in published['steps']])
+            self.assertEqual(published['stock'], run['chain'][CHAIN_SLOTS[name]])
+            values[published['key']] = ratio(spelling)
+        taken = {CHAIN_SLOTS[n] for n in by_name}
+        for field, slots in (('fixed_pre', [0]), ('fixed_front', [1, 3]),
+                             ('fixed_rear', [2, 4])):
+            want = 1.0
+            for i in slots:
+                if i not in taken:
+                    want *= ratio(run['chain'][i])
+            self.assertAlmostEqual(fd['formula'][field], want, places=12)
+        self.assertAlmostEqual(E.averaged_below(fd['formula'], values), C.run_below(run),
+                               places=12)
 
 
 PAKS = None
@@ -169,6 +255,20 @@ class InstalledGame(unittest.TestCase):
                 with self.subTest(car=slug):
                     stages = C.rev_stages(open(path, 'rb').read())
                     self.assertEqual(int(stages[-1]), cal['rev_limiters'][slug]['game_v4'])
+
+    def test_every_settings_run_stores_the_chain_in_the_game_files(self):
+        import make_gearing_chart as M
+        from gearing import drivetrain_chain
+        from acrpkg import Package
+        runs = [r for r in C.load_calibration()['speed_runs'] if 'chain' in r]
+        self.assertEqual(len(runs), 8)
+        with tempfile.TemporaryDirectory() as tmp:
+            for slug in sorted({r['car'] for r in runs}):
+                path = C.car_asset(PAKS, M.CARS[slug][2], tmp)
+                chain = drivetrain_chain(Package(open(path, 'rb').read()))
+                for run in (r for r in runs if r['car'] == slug):
+                    with self.subTest(car=slug):
+                        self.assertEqual(run['chain'], chain)
 
     def test_the_206_borrows_the_xsara_torque_curve(self):
         import make_gearing_chart as M

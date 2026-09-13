@@ -22,7 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CALIBRATION = os.path.join(HERE, 'calibration.json')
 sys.path.insert(0, HERE)
 
-from gearing import ratio as _ratio             # noqa: E402
+from gearing import averaged_final_drive, with_settings, ratio as _ratio  # noqa: E402
 
 # An estimated rev limit is v4 plus this. On the 16 cars where v4 tracks the limiter it sits
 # within ~200 rpm of it, mostly just under.
@@ -115,12 +115,32 @@ def predicted_kmh(rpm, gear, primary, below, free_radius, factor=1.0):
     return rpm * 2 * math.pi * free_radius * factor * 0.06 / (gear * primary * below)
 
 
+def run_below(run):
+    """The ratio below the gearbox a stored speed run was driven on.
+
+    A run on one of the averaged-axle cars (see export_car_data.AVERAGED_AXLE_CARS) stores every
+    ratio setting by its game name and the car's stock drivetrain chain: the settings go into
+    their chain slots and the front and rear chains are averaged (ruling R51). Every other run
+    stores the fixed `rest` and the adjustable `option`.
+    """
+    if 'settings' in run:
+        return averaged_final_drive(with_settings(run['chain'], run['settings']))
+    return run['rest'] * _ratio(run['option'])
+
+
 def run_predictions(run, rpm, factor=1.0):
-    """Predicted km/h per gear for one stored speed run at `rpm`."""
+    """Predicted km/h per gear for one stored speed run at `rpm`. A run lists its measured gears
+    from gear 1, and may stop before top gear."""
     primary = _ratio(run['primary'])
-    below = run['rest'] * _ratio(run['option'])
+    below = run_below(run)
     return [predicted_kmh(rpm, _ratio(g), primary, below, run['free_radius'], factor)
-            for g in run['gears']]
+            for g in run['gears'][:len(run['kmh'])]]
+
+
+def fitted(run, gear):
+    """Whether one measured gear of a run counts towards the fit and the tolerance check: gears
+    from FIRST_FITTED_GEAR, minus any the run excludes (a gear that never reached the limiter)."""
+    return gear >= FIRST_FITTED_GEAR and gear not in run.get('exclude_gears', ())
 
 
 # Gear 1 is left out of the fit: its top speed is the least precise reading of a run (it is
@@ -129,28 +149,32 @@ FIRST_FITTED_GEAR = 2
 
 
 def implied_factors(calibration):
-    """[(run index, gear number, measured / predicted at factor 1)] for gears 2+ of every run."""
+    """[(run index, gear number, measured / predicted at factor 1)] for the fitted gears of every
+    run: gears 2+, excluded gears skipped."""
     out = []
     limiters = calibration['rev_limiters']
     for i, run in enumerate(calibration['speed_runs']):
         pred = run_predictions(run, limiters[run['car']]['rpm'])
         for g, (measured, p) in enumerate(zip(run['kmh'], pred), start=1):
-            if g >= FIRST_FITTED_GEAR:
+            if fitted(run, g):
                 out.append((i, g, measured / p))
     return out
 
 
 def fit_factor(calibration):
-    """The rolling radius factor: the plain mean of every implied factor, gears 2+ of every
+    """The rolling radius factor: the plain mean of every implied factor, the fitted gears of every
     run, each gear weighted equally. Rounded to 4 decimals."""
     values = [f for _i, _g, f in implied_factors(calibration)]
     return round(sum(values) / len(values), 4)
 
 
 FORMULA = ('implied factor per gear = measured_kmh / (limiter_rpm * 2 * pi * free_radius * 0.06 '
-           '/ (gear * primary * rest * option)); factor = mean over gears 2+ of every run, '
-           'each gear weighted equally, rounded to 4 decimals. Gear 1 is excluded: its top '
-           'speed is the least precise reading.')
+           '/ (gear * primary * below)); below = rest * option, or on a run that stores its '
+           'settings, the stock chain with the settings in their slots, centre diff * '
+           '(centre->front * front diff + centre->rear * rear diff) / 2 (ruling R51); '
+           'factor = mean over gears 2+ of every run, excluded gears skipped, each gear weighted '
+           'equally, rounded to 4 decimals. Gear 1 is excluded: its top speed is the least '
+           'precise reading.')
 
 
 def fit_report(calibration, factor=None):
@@ -164,9 +188,10 @@ def fit_report(calibration, factor=None):
         pred = run_predictions(run, rpm, factor)
         runs.append({
             'car': run['car'], 'gear_set': run['gear_set'], 'limiter_rpm': rpm,
-            'gears': [{'gear': g, 'measured': m, 'predicted': round(p, 1),
-                       'error_pct': round((p - m) / m * 100, 2),
-                       'fitted': g >= FIRST_FITTED_GEAR}
+            'gears': [dict({'gear': g, 'measured': m, 'predicted': round(p, 1),
+                            'error_pct': round((p - m) / m * 100, 2),
+                            'fitted': fitted(run, g)},
+                           **({'excluded': True} if g in run.get('exclude_gears', ()) else {}))
                       for g, (m, p) in enumerate(zip(run['kmh'], pred), start=1)],
         })
     return {'loaded_radius_factor': factor, 'formula': FORMULA, 'runs': runs}

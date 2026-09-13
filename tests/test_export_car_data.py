@@ -98,7 +98,7 @@ class BuildCarJson(unittest.TestCase):
 
     def test_default_factor_is_exported(self):
         import gearing
-        self.assertEqual(self.doc['defaults']['loaded_radius_factor'], 0.9858)
+        self.assertEqual(self.doc['defaults']['loaded_radius_factor'], 0.9904)
         self.assertEqual(self.doc['defaults']['loaded_radius_factor'],
                          gearing.LOADED_RADIUS_FACTOR)
 

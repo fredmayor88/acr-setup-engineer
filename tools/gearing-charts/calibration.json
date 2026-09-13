@@ -1,5 +1,5 @@
 {
- "_doc": "Measured in game by Fred Mayor: rev limiters from SimHub telemetry, per-gear top speeds from the in-game speedometer. ACR 0.6, 2026-09-13; Stratos speed runs 2026-09-11. Units: rpm and km/h. Limiter accuracy is about +-200 rpm. rev_limiters[car].game_v4 is the last value of the car's shift-light rev stages in DA_<car>.uasset (calibration.rev_stages) as read when the limiter was measured; it is a change detector, not the limiter. speed_runs are all on dry tarmac with gear 1 first; gears, primary, option, rest and free_radius are the run's gearing as read from the game files by the exporter (rest is the fixed ratio below the adjustable one, 1 on most cars). The fit is in the 'fit' block: see calibration.fit_factor.",
+ "_doc": "Measured in game by Fred Mayor: rev limiters from SimHub telemetry, per-gear top speeds from the in-game speedometer. ACR 0.6, 2026-09-13; Stratos speed runs 2026-09-11. Units: rpm and km/h. Limiter accuracy is about +-200 rpm. rev_limiters[car].game_v4 is the last value of the car's shift-light rev stages in DA_<car>.uasset (calibration.rev_stages) as read when the limiter was measured; it is a change detector, not the limiter. speed_runs are all on dry tarmac with gear 1 first, and may stop before top gear; gears, primary, option, rest and free_radius are the run's gearing as read from the game files by the exporter (rest is the fixed ratio below the adjustable one, 1 on most cars). A run on an averaged-axle car (ruling R51: 206 WRC, Delta Integrale, Impreza) instead stores every ratio setting by its game name in settings (Primary Gear included where the car has one), primary is the one in force, and chain is the car's stock drivetrain chain from DA_<car> (centre diff, centre->front, centre->rear, front diff, rear diff); exclude_gears lists gears that did not reach the limiter. The Xsara run's rest is its averaged fixed chains. The fit is in the 'fit' block: see calibration.fit_factor.",
  "rev_limiters": {
   "alfa-romeo-gta-1300-junior-1972": {
    "rpm": 8450,
@@ -180,7 +180,7 @@
    "surface": "Tarmac_Dry",
    "primary": "25//25",
    "option": "39//24",
-   "rest": 2.7857142857142856,
+   "rest": 2.7817460317460316,
    "free_radius": 0.324,
    "gears": [
     "37//12",
@@ -222,11 +222,297 @@
     170,
     201
    ]
+  },
+  {
+   "car": "peugeot-206-wrc-1999",
+   "gear_set": "Gear set 1",
+   "ruling": "R51",
+   "surface": "Tarmac_Dry",
+   "settings": {
+    "Primary Gear": "21//24",
+    "Differential Ratio Front": "46//14*26//16",
+    "Differential Ratio Rear": "46//14*26//16",
+    "Center Differential Ratio": "24//24"
+   },
+   "primary": "21//24",
+   "chain": [
+    "24//24",
+    "25//25",
+    "25//25",
+    "46//14*26//16",
+    "46//14*26//16"
+   ],
+   "free_radius": 0.324,
+   "gears": [
+    "36//12",
+    "29//14",
+    "29//19",
+    "26//23",
+    "20//24"
+   ],
+   "kmh": [
+    64,
+    93,
+    127,
+    164
+   ],
+   "exclude_gears": [
+    4
+   ]
+  },
+  {
+   "car": "peugeot-206-wrc-1999",
+   "gear_set": "Gear set 3",
+   "ruling": "R51",
+   "surface": "Tarmac_Dry",
+   "settings": {
+    "Primary Gear": "22//24",
+    "Differential Ratio Front": "46//14*26//16",
+    "Differential Ratio Rear": "46//14*26//16",
+    "Center Differential Ratio": "24//24"
+   },
+   "primary": "22//24",
+   "chain": [
+    "24//24",
+    "25//25",
+    "25//25",
+    "46//14*26//16",
+    "46//14*26//16"
+   ],
+   "free_radius": 0.324,
+   "gears": [
+    "39//12",
+    "34//14",
+    "29//15",
+    "28//18",
+    "28//22",
+    "20//19"
+   ],
+   "kmh": [
+    57,
+    75,
+    96,
+    119,
+    143
+   ]
+  },
+  {
+   "car": "peugeot-206-wrc-1999",
+   "gear_set": "Gear set 3",
+   "ruling": "R51",
+   "surface": "Tarmac_Dry",
+   "settings": {
+    "Primary Gear": "22//24",
+    "Differential Ratio Front": "46//14*26//16",
+    "Differential Ratio Rear": "46//14*26//16",
+    "Center Differential Ratio": "31//21"
+   },
+   "primary": "22//24",
+   "chain": [
+    "24//24",
+    "25//25",
+    "25//25",
+    "46//14*26//16",
+    "46//14*26//16"
+   ],
+   "free_radius": 0.324,
+   "gears": [
+    "39//12",
+    "34//14",
+    "29//15",
+    "28//18",
+    "28//22",
+    "20//19"
+   ],
+   "kmh": [
+    38,
+    52,
+    65,
+    80,
+    98,
+    119
+   ]
+  },
+  {
+   "car": "peugeot-206-wrc-1999",
+   "gear_set": "Gear set 3",
+   "ruling": "R51",
+   "surface": "Tarmac_Dry",
+   "settings": {
+    "Primary Gear": "22//24",
+    "Differential Ratio Front": "43//13*21//13",
+    "Differential Ratio Rear": "40//18*26//16",
+    "Center Differential Ratio": "24//24"
+   },
+   "primary": "22//24",
+   "chain": [
+    "24//24",
+    "25//25",
+    "25//25",
+    "46//14*26//16",
+    "46//14*26//16"
+   ],
+   "free_radius": 0.324,
+   "gears": [
+    "39//12",
+    "34//14",
+    "29//15",
+    "28//18",
+    "28//22",
+    "20//19"
+   ],
+   "kmh": [
+    68,
+    89,
+    114,
+    142
+   ]
+  },
+  {
+   "car": "lancia-delta-integrale-evoluzione-1992",
+   "gear_set": "Gear set 1",
+   "ruling": "R51",
+   "surface": "Tarmac_Dry",
+   "settings": {
+    "Center Differential Ratio": "55//12",
+    "Center Ratio to Rear": "13//34",
+    "Differential Ratio Rear": "34//14"
+   },
+   "primary": "25//25",
+   "chain": [
+    "51//13",
+    "25//25",
+    "13//34",
+    "25//25",
+    "30//12"
+   ],
+   "free_radius": 0.31,
+   "gears": [
+    "35//11",
+    "32//13",
+    "30//16",
+    "28//19",
+    "26//21",
+    "24//23"
+   ],
+   "kmh": [
+    60,
+    77,
+    100,
+    128,
+    152,
+    180
+   ]
+  },
+  {
+   "car": "lancia-delta-integrale-evoluzione-1992",
+   "gear_set": "Gear set 1",
+   "ruling": "R51",
+   "surface": "Tarmac_Dry",
+   "settings": {
+    "Center Differential Ratio": "55//12",
+    "Center Ratio to Rear": "17//38",
+    "Differential Ratio Rear": "34//13"
+   },
+   "primary": "25//25",
+   "chain": [
+    "51//13",
+    "25//25",
+    "13//34",
+    "25//25",
+    "30//12"
+   ],
+   "free_radius": 0.31,
+   "gears": [
+    "35//11",
+    "32//13",
+    "30//16",
+    "28//19",
+    "26//21",
+    "24//23"
+   ],
+   "kmh": [
+    53,
+    69,
+    90,
+    113,
+    135,
+    160
+   ]
+  },
+  {
+   "car": "subaru-impreza-555-s3-1993",
+   "gear_set": "Gear set 1",
+   "ruling": "R51",
+   "surface": "Tarmac_Dry",
+   "settings": {
+    "Differential Ratio Front": "36//7",
+    "Center Ratio to Rear": "31//31",
+    "Differential Ratio Rear": "31//9"
+   },
+   "primary": "25//25",
+   "chain": [
+    "25//25",
+    "25//25",
+    "31//31",
+    "35//9",
+    "35//9"
+   ],
+   "free_radius": 0.324,
+   "gears": [
+    "38//13",
+    "34//16",
+    "33//19",
+    "29//20",
+    "27//22",
+    "24//23"
+   ],
+   "kmh": [
+    65,
+    89,
+    109,
+    131,
+    155
+   ]
+  },
+  {
+   "car": "subaru-impreza-555-s3-1993",
+   "gear_set": "Gear set 1",
+   "ruling": "R51",
+   "surface": "Tarmac_Dry",
+   "settings": {
+    "Differential Ratio Front": "31//9",
+    "Center Ratio to Rear": "22//28",
+    "Differential Ratio Rear": "48//11"
+   },
+   "primary": "25//25",
+   "chain": [
+    "25//25",
+    "25//25",
+    "31//31",
+    "35//9",
+    "35//9"
+   ],
+   "free_radius": 0.324,
+   "gears": [
+    "38//13",
+    "34//16",
+    "33//19",
+    "29//20",
+    "27//22",
+    "24//23"
+   ],
+   "kmh": [
+    81,
+    110,
+    136,
+    164
+   ]
   }
  ],
  "fit": {
-  "loaded_radius_factor": 0.9858,
-  "formula": "implied factor per gear = measured_kmh / (limiter_rpm * 2 * pi * free_radius * 0.06 / (gear * primary * rest * option)); factor = mean over gears 2+ of every run, each gear weighted equally, rounded to 4 decimals. Gear 1 is excluded: its top speed is the least precise reading.",
+  "loaded_radius_factor": 0.9904,
+  "formula": "implied factor per gear = measured_kmh / (limiter_rpm * 2 * pi * free_radius * 0.06 / (gear * primary * below)); below = rest * option, or on a run that stores its settings, the stock chain with the settings in their slots, centre diff * (centre->front * front diff + centre->rear * rear diff) / 2 (ruling R51); factor = mean over gears 2+ of every run, excluded gears skipped, each gear weighted equally, rounded to 4 decimals. Gear 1 is excluded: its top speed is the least precise reading.",
   "runs": [
    {
     "car": "lancia-stratos",
@@ -236,36 +522,36 @@
      {
       "gear": 1,
       "measured": 65,
-      "predicted": 63.1,
-      "error_pct": -2.85,
+      "predicted": 63.4,
+      "error_pct": -2.4,
       "fitted": false
      },
      {
       "gear": 2,
       "measured": 87,
-      "predicted": 86.1,
-      "error_pct": -0.99,
+      "predicted": 86.5,
+      "error_pct": -0.53,
       "fitted": true
      },
      {
       "gear": 3,
       "measured": 109,
-      "predicted": 109.2,
-      "error_pct": 0.19,
+      "predicted": 109.7,
+      "error_pct": 0.66,
       "fitted": true
      },
      {
       "gear": 4,
       "measured": 134,
-      "predicted": 133.9,
-      "error_pct": -0.04,
+      "predicted": 134.6,
+      "error_pct": 0.43,
       "fitted": true
      },
      {
       "gear": 5,
       "measured": 154,
-      "predicted": 153.2,
-      "error_pct": -0.5,
+      "predicted": 153.9,
+      "error_pct": -0.03,
       "fitted": true
      }
     ]
@@ -278,36 +564,36 @@
      {
       "gear": 1,
       "measured": 58,
-      "predicted": 56.3,
-      "error_pct": -3.01,
+      "predicted": 56.5,
+      "error_pct": -2.55,
       "fitted": false
      },
      {
       "gear": 2,
       "measured": 80,
-      "predicted": 79.1,
-      "error_pct": -1.13,
+      "predicted": 79.5,
+      "error_pct": -0.67,
       "fitted": true
      },
      {
       "gear": 3,
       "measured": 101,
-      "predicted": 100.4,
-      "error_pct": -0.64,
+      "predicted": 100.8,
+      "error_pct": -0.18,
       "fitted": true
      },
      {
       "gear": 4,
       "measured": 125,
-      "predicted": 124.8,
-      "error_pct": -0.16,
+      "predicted": 125.4,
+      "error_pct": 0.31,
       "fitted": true
      },
      {
       "gear": 5,
       "measured": 154,
-      "predicted": 153.2,
-      "error_pct": -0.5,
+      "predicted": 153.9,
+      "error_pct": -0.03,
       "fitted": true
      }
     ]
@@ -320,36 +606,36 @@
      {
       "gear": 1,
       "measured": 57,
-      "predicted": 54.7,
-      "error_pct": -3.99,
+      "predicted": 55.0,
+      "error_pct": -3.54,
       "fitted": false
      },
      {
       "gear": 2,
       "measured": 80,
-      "predicted": 79.1,
-      "error_pct": -1.13,
+      "predicted": 79.5,
+      "error_pct": -0.67,
       "fitted": true
      },
      {
       "gear": 3,
       "measured": 110,
-      "predicted": 109.2,
-      "error_pct": -0.72,
+      "predicted": 109.7,
+      "error_pct": -0.26,
       "fitted": true
      },
      {
       "gear": 4,
       "measured": 147,
-      "predicted": 147.3,
-      "error_pct": 0.23,
+      "predicted": 148.0,
+      "error_pct": 0.7,
       "fitted": true
      },
      {
       "gear": 5,
       "measured": 197,
-      "predicted": 197.2,
-      "error_pct": 0.11,
+      "predicted": 198.1,
+      "error_pct": 0.57,
       "fitted": true
      }
     ]
@@ -362,43 +648,43 @@
      {
       "gear": 1,
       "measured": 72,
-      "predicted": 71.6,
-      "error_pct": -0.51,
+      "predicted": 72.0,
+      "error_pct": -0.05,
       "fitted": false
      },
      {
       "gear": 2,
       "measured": 93,
-      "predicted": 93.2,
-      "error_pct": 0.18,
+      "predicted": 93.6,
+      "error_pct": 0.65,
       "fitted": true
      },
      {
       "gear": 3,
       "measured": 114,
-      "predicted": 116.5,
-      "error_pct": 2.16,
+      "predicted": 117.0,
+      "error_pct": 2.64,
       "fitted": true
      },
      {
       "gear": 4,
       "measured": 138,
-      "predicted": 140.4,
-      "error_pct": 1.76,
+      "predicted": 141.1,
+      "error_pct": 2.23,
       "fitted": true
      },
      {
       "gear": 5,
       "measured": 161,
-      "predicted": 163.4,
-      "error_pct": 1.5,
+      "predicted": 164.2,
+      "error_pct": 1.97,
       "fitted": true
      },
      {
       "gear": 6,
       "measured": 183,
-      "predicted": 184.3,
-      "error_pct": 0.72,
+      "predicted": 185.2,
+      "error_pct": 1.19,
       "fitted": true
      }
     ]
@@ -411,43 +697,43 @@
      {
       "gear": 1,
       "measured": 65,
-      "predicted": 63.8,
-      "error_pct": -1.79,
+      "predicted": 64.2,
+      "error_pct": -1.19,
       "fitted": false
      },
      {
       "gear": 2,
       "measured": 85,
-      "predicted": 83.5,
-      "error_pct": -1.76,
+      "predicted": 84.0,
+      "error_pct": -1.16,
       "fitted": true
      },
      {
       "gear": 3,
       "measured": 106,
-      "predicted": 105.4,
-      "error_pct": -0.52,
+      "predicted": 106.1,
+      "error_pct": 0.09,
       "fitted": true
      },
      {
       "gear": 4,
       "measured": 130,
-      "predicted": 129.0,
-      "error_pct": -0.8,
+      "predicted": 129.7,
+      "error_pct": -0.19,
       "fitted": true
      },
      {
       "gear": 5,
       "measured": 156,
-      "predicted": 154.0,
-      "error_pct": -1.25,
+      "predicted": 155.0,
+      "error_pct": -0.65,
       "fitted": true
      },
      {
       "gear": 6,
       "measured": 183,
-      "predicted": 181.1,
-      "error_pct": -1.04,
+      "predicted": 182.2,
+      "error_pct": -0.44,
       "fitted": true
      }
     ]
@@ -460,36 +746,373 @@
      {
       "gear": 1,
       "measured": 84,
-      "predicted": 83.8,
-      "error_pct": -0.27,
+      "predicted": 84.2,
+      "error_pct": 0.19,
       "fitted": false
      },
      {
       "gear": 2,
       "measured": 118,
-      "predicted": 118.7,
-      "error_pct": 0.57,
+      "predicted": 119.2,
+      "error_pct": 1.04,
       "fitted": true
      },
      {
       "gear": 3,
       "measured": 146,
-      "predicted": 147.9,
-      "error_pct": 1.33,
+      "predicted": 148.6,
+      "error_pct": 1.8,
       "fitted": true
      },
      {
       "gear": 4,
       "measured": 170,
-      "predicted": 173.5,
-      "error_pct": 2.08,
+      "predicted": 174.3,
+      "error_pct": 2.55,
       "fitted": true
      },
      {
       "gear": 5,
       "measured": 201,
-      "predicted": 202.4,
-      "error_pct": 0.72,
+      "predicted": 203.4,
+      "error_pct": 1.19,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "peugeot-206-wrc-1999",
+    "gear_set": "Gear set 1",
+    "limiter_rpm": 7400,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 64,
+      "predicted": 63.9,
+      "error_pct": -0.2,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 93,
+      "predicted": 92.5,
+      "error_pct": -0.53,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 127,
+      "predicted": 125.5,
+      "error_pct": -1.15,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 164,
+      "predicted": 169.5,
+      "error_pct": 3.36,
+      "fitted": false,
+      "excluded": true
+     }
+    ]
+   },
+   {
+    "car": "peugeot-206-wrc-1999",
+    "gear_set": "Gear set 3",
+    "limiter_rpm": 7400,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 57,
+      "predicted": 56.3,
+      "error_pct": -1.27,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 75,
+      "predicted": 75.3,
+      "error_pct": 0.42,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 96,
+      "predicted": 94.6,
+      "error_pct": -1.45,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 119,
+      "predicted": 117.6,
+      "error_pct": -1.19,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 143,
+      "predicted": 143.7,
+      "error_pct": 0.5,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "peugeot-206-wrc-1999",
+    "gear_set": "Gear set 3",
+    "limiter_rpm": 7400,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 38,
+      "predicted": 38.1,
+      "error_pct": 0.33,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 52,
+      "predicted": 51.0,
+      "error_pct": -1.89,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 65,
+      "predicted": 64.1,
+      "error_pct": -1.4,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 80,
+      "predicted": 79.7,
+      "error_pct": -0.44,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 98,
+      "predicted": 97.4,
+      "error_pct": -0.66,
+      "fitted": true
+     },
+     {
+      "gear": 6,
+      "measured": 119,
+      "predicted": 117.7,
+      "error_pct": -1.09,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "peugeot-206-wrc-1999",
+    "gear_set": "Gear set 3",
+    "limiter_rpm": 7400,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 68,
+      "predicted": 67.1,
+      "error_pct": -1.3,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 89,
+      "predicted": 89.8,
+      "error_pct": 0.92,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 114,
+      "predicted": 112.8,
+      "error_pct": -1.03,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 142,
+      "predicted": 140.2,
+      "error_pct": -1.25,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "lancia-delta-integrale-evoluzione-1992",
+    "gear_set": "Gear set 1",
+    "limiter_rpm": 7200,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 60,
+      "predicted": 59.3,
+      "error_pct": -1.23,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 77,
+      "predicted": 76.6,
+      "error_pct": -0.52,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 100,
+      "predicted": 100.6,
+      "error_pct": 0.57,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 128,
+      "predicted": 128.0,
+      "error_pct": -0.04,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 152,
+      "predicted": 152.3,
+      "error_pct": 0.2,
+      "fitted": true
+     },
+     {
+      "gear": 6,
+      "measured": 180,
+      "predicted": 180.7,
+      "error_pct": 0.39,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "lancia-delta-integrale-evoluzione-1992",
+    "gear_set": "Gear set 1",
+    "limiter_rpm": 7200,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 53,
+      "predicted": 52.7,
+      "error_pct": -0.63,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 69,
+      "predicted": 68.1,
+      "error_pct": -1.34,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 90,
+      "predicted": 89.4,
+      "error_pct": -0.69,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 113,
+      "predicted": 113.7,
+      "error_pct": 0.63,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 135,
+      "predicted": 135.4,
+      "error_pct": 0.26,
+      "fitted": true
+     },
+     {
+      "gear": 6,
+      "measured": 160,
+      "predicted": 160.6,
+      "error_pct": 0.37,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "subaru-impreza-555-s3-1993",
+    "gear_set": "Gear set 1",
+    "limiter_rpm": 6700,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 65,
+      "predicted": 64.6,
+      "error_pct": -0.65,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 89,
+      "predicted": 88.8,
+      "error_pct": -0.19,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 109,
+      "predicted": 108.7,
+      "error_pct": -0.29,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 131,
+      "predicted": 130.2,
+      "error_pct": -0.62,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 155,
+      "predicted": 153.8,
+      "error_pct": -0.77,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "subaru-impreza-555-s3-1993",
+    "gear_set": "Gear set 1",
+    "limiter_rpm": 6700,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 81,
+      "predicted": 80.7,
+      "error_pct": -0.39,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 110,
+      "predicted": 111.0,
+      "error_pct": 0.9,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 136,
+      "predicted": 135.8,
+      "error_pct": -0.15,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 164,
+      "predicted": 162.7,
+      "error_pct": -0.82,
       "fitted": true
      }
     ]
