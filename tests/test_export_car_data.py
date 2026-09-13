@@ -271,6 +271,24 @@ class RenderPages(unittest.TestCase):
         self.assertIn('Lancia Stratos HF', html)
 
 
+class PickerPromo(unittest.TestCase):
+    COPY = ('Want a setup, not just the numbers? '
+            '<a href="https://github.com/fredmayor88/acr-setup-engineer">ACR Setup Engineer</a>'
+            ' — a free Claude skill that tunes a car to how you drive and saves it to your '
+            'Notion.')
+
+    def page(self):
+        return render_index_page([{'slug': 'lancia-stratos', 'name': 'Lancia Stratos HF'}])
+
+    def test_the_picker_ends_with_the_approved_line(self):
+        html = self.page()
+        self.assertIn(f'<p class="promo">{self.COPY}</p>', html)
+        self.assertGreater(html.index('class="promo"'), html.index('</ul>'))
+
+    def test_it_opens_in_the_same_tab(self):
+        self.assertNotIn('target=', self.page())
+
+
 class ThemeInPages(unittest.TestCase):
     """Dark mode: the stored choice must be on <html> before the stylesheet paints."""
 

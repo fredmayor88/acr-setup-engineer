@@ -182,6 +182,9 @@ Assetto Corsa Rally.">
   <ul class="carlist">
 {items}
   </ul>
+  <div class="foot">
+    <p class="promo">Want a setup, not just the numbers? <a href="https://github.com/fredmayor88/acr-setup-engineer">ACR Setup Engineer</a> — a free Claude skill that tunes a car to how you drive and saves it to your Notion.</p>
+  </div>
 </div>
 <script type="module" src="js/theme.js"></script>
 </body></html>

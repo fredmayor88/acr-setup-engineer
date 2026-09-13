@@ -67,7 +67,8 @@ charts-final-drive:
 
 # Regenerates every ACR Car Lab JSON and page shell into the sibling acr-car-lab
 # checkout. Reads the installed game's paks, so it only runs on a machine with
-# Assetto Corsa Rally. Re-run after a game update, then commit in acr-car-lab.
+# Assetto Corsa Rally. Re-run after a game update, then commit in acr-car-lab. The game
+# version in the site footer is read from the paks too (ProjectVersion in DefaultGame.ini).
 car-lab:
 	python tools/gearing-charts/export_car_data.py --all
 
