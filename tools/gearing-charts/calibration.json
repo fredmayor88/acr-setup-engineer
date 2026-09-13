@@ -1,77 +1,113 @@
 {
- "_doc": "Measured in game by Fred Mayor: rev limiters from SimHub telemetry, per-gear top speeds from the in-game speedometer. ACR 0.6, 2026-09-13; Stratos speed runs 2026-09-11. Units: rpm and km/h. Limiter accuracy is about +-200 rpm. rev_limiters[car].game_v4 is the last value of the car's shift-light rev stages in DA_<car>.uasset (calibration.rev_stages) as read when the limiter was measured; it is a change detector, not the limiter. speed_runs are all on dry tarmac with gear 1 first, and may stop before top gear; gears, primary, option, rest and free_radius are the run's gearing as read from the game files by the exporter (rest is the fixed ratio below the adjustable one, 1 on most cars). A run on an averaged-axle car (ruling R51: 206 WRC, Delta Integrale, Impreza) instead stores every ratio setting by its game name in settings (Primary Gear included where the car has one), primary is the one in force, and chain is the car's stock drivetrain chain from DA_<car> (centre diff, centre->front, centre->rear, front diff, rear diff); exclude_gears lists gears that did not reach the limiter. The Xsara run's rest is its averaged fixed chains. The fit is in the 'fit' block: see calibration.fit_factor.",
+ "_doc": "Measured in game by Fred Mayor: rev limiters from SimHub telemetry, per-gear top speeds from the in-game speedometer. ACR 0.6, 2026-09-13; Stratos speed runs 2026-09-11. Units: rpm and km/h. Limiter accuracy is about +-200 rpm. rev_limiters[car].measured and game_version date each limiter and name the game version it was measured on; game_v4 is the last value of the car's shift-light rev stages in DA_<car>.uasset (calibration.rev_stages) as read when the limiter was measured; it is a change detector, not the limiter. speed_runs are all on dry tarmac with gear 1 first, and may stop before top gear; gears, primary, option, rest and free_radius are the run's gearing as read from the game files by the exporter (rest is the fixed ratio below the adjustable one, 1 on most cars). A run on an averaged-axle car (ruling R51: 206 WRC, Delta Integrale, Impreza) instead stores every ratio setting by its game name in settings (Primary Gear included where the car has one), primary is the one in force, and chain is the car's stock drivetrain chain from DA_<car> (centre diff, centre->front, centre->rear, front diff, rear diff); exclude_gears lists gears that did not reach the limiter. The Xsara run's rest is its averaged fixed chains. The fit is in the 'fit' block: see calibration.fit_factor.",
  "rev_limiters": {
   "alfa-romeo-gta-1300-junior-1972": {
    "rpm": 8450,
-   "game_v4": 8500
+   "game_v4": 8500,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "alpine-a110-1-8-1973": {
    "rpm": 7000,
-   "game_v4": 6900
+   "game_v4": 6900,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "audi-quattro-gr4-1981": {
    "rpm": 7000,
-   "game_v4": 6950
+   "game_v4": 6950,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "citroen-xsara-wrc-2003": {
    "rpm": 7400,
-   "game_v4": 7300
+   "game_v4": 7300,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "fiat-124-abarth-rally-16v-1974": {
    "rpm": 8000,
-   "game_v4": 8000
+   "game_v4": 8000,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "fiat-131-abarth-1976": {
    "rpm": 8000,
-   "game_v4": 7900
+   "game_v4": 7900,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "hyundai-i20-rally2-2021": {
    "rpm": 7500,
-   "game_v4": 7300
+   "game_v4": 7300,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "lancia-037-evoluzione-2-1984": {
    "rpm": 8450,
-   "game_v4": 8000
+   "game_v4": 8000,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "lancia-delta-integrale-evoluzione-1992": {
    "rpm": 7200,
-   "game_v4": 7050
+   "game_v4": 7050,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "lancia-fulvia-coupe-hf-1970": {
    "rpm": 7150,
-   "game_v4": 7150
+   "game_v4": 7150,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "lancia-stratos": {
    "rpm": 8450,
-   "game_v4": 8000
+   "game_v4": 8000,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "mini-cooper-s-1964": {
    "rpm": 7400,
-   "game_v4": 7300
+   "game_v4": 7300,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "peugeot-206-wrc-1999": {
    "rpm": 7400,
-   "game_v4": 7300
+   "game_v4": 7300,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "peugeot-208-rally4": {
    "rpm": 6700,
-   "game_v4": 6750
+   "game_v4": 6750,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "peugeot-306-ii-maxi-1997": {
    "rpm": 9500,
-   "game_v4": 9500
+   "game_v4": 9500,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "skoda-fabia-rs-rally2-2022": {
    "rpm": 7500,
-   "game_v4": 7300
+   "game_v4": 7300,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "subaru-impreza-555-s3-1993": {
    "rpm": 6700,
-   "game_v4": 6500
+   "game_v4": 6500,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   },
   "volkswagen-polo-gti-r5-2018": {
    "rpm": 7400,
-   "game_v4": 7300
+   "game_v4": 7300,
+   "measured": "2026-09-13",
+   "game_version": "0.6"
   }
  },
  "speed_runs": [

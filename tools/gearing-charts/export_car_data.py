@@ -29,6 +29,7 @@ from gearing import (CHAIN_SLOTS, LOADED_RADIUS_FACTOR, gear_set,  # noqa: E402
 from acrpkg import Package                                        # noqa: E402
 from game_version import read_game_version                        # noqa: E402
 import calibration as CAL                                         # noqa: E402
+import drivetrain_page as DP                                      # noqa: E402
 from extract_torque_curves import (CAR_MAP as CURVE_CARS,         # noqa: E402
                                    parse_rich_curve, summarise)
 
@@ -294,6 +295,8 @@ THEME_BUTTON = (f'<button class="theme" type="button"><span class="to-dark">{MOO
 # picker link go through it, so moving the page again is one change here.
 CAR_PAGE_DIR = 'gears'
 CAR_ROOT = '../../'
+# The car's drivetrain notes: a static page beside gears/, built by drivetrain_page.py.
+DRIVETRAIN_PAGE_DIR = 'drivetrain'
 
 CAR_PAGE = """<!doctype html>
 <html lang="en"><head>
@@ -312,6 +315,7 @@ Assetto Corsa Rally.">
   <header>
     <div class="brandrow">
       <span class="brand">ACR <b>Car Lab</b></span>
+      <a class="crumb" href="../drivetrain/">Drivetrain notes</a>
       <a class="crumb" href="{root}">All cars →</a>
       {theme_button}
     </div>
@@ -366,6 +370,13 @@ Assetto Corsa Rally.">
   <ul class="carlist">
 {items}
   </ul>
+  <section class="dtlist">
+    <h2>Drivetrain notes</h2>
+    <p class="cap">Per car: layout, the settings that change the gearing, how the final drive is worked out, and what was measured in game.</p>
+    <ul class="carlist minor">
+{drivetrain_items}
+    </ul>
+  </section>
   <div class="foot">
     <p class="promo">Want a setup, not just the numbers? <a href="https://github.com/fredmayor88/acr-setup-engineer">ACR Setup Engineer</a> — a free Claude skill that tunes a car to how you drive and saves it to your Notion. · <a href="https://github.com/fredmayor88/acr-car-lab/issues">Issues and feedback</a></p>
   </div>
@@ -400,6 +411,27 @@ def write_car_pages(out, slug, name):
     return ['/'.join(parts) for parts, _html_text in pages]
 
 
+def render_drivetrain_page(doc, template_text, calibration, notes, game_version=None,
+                           generated=None):
+    """<slug>/drivetrain/index.html for one exported car document, with the site's shared head
+    and theme toggle."""
+    return DP.render_drivetrain_page(doc, template_text, calibration, notes, game_version,
+                                     generated, theme_head=THEME_HEAD,
+                                     theme_button=THEME_BUTTON, root=CAR_ROOT)
+
+
+def write_drivetrain_page(out, doc, template_text, calibration, notes, game_version=None,
+                          generated=None):
+    """Write the drivetrain page under <slug>/drivetrain/. Returns its path."""
+    parts = (doc['slug'], DRIVETRAIN_PAGE_DIR, 'index.html')
+    path = os.path.join(out, *parts)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8', newline='\n') as fh:
+        fh.write(render_drivetrain_page(doc, template_text, calibration, notes, game_version,
+                                        generated))
+    return '/'.join(parts)
+
+
 def build_index_json(cars, generated=None, game_version=None):
     """The car list the picker reads, sorted by display name.
 
@@ -429,11 +461,16 @@ def site_game_version(paks, whole_site):
 
 
 def render_index_page(cars):
+    listed = build_index_json(cars)['cars']
     items = '\n'.join(
         f'    <li><a href="{_html.escape(c["slug"])}/{CAR_PAGE_DIR}/">'
         f'{_html.escape(c["name"])}</a></li>'
-        for c in build_index_json(cars)['cars'])
-    return INDEX_PAGE.format(items=items, count=len(cars),
+        for c in listed)
+    drivetrain_items = '\n'.join(
+        f'      <li><a href="{_html.escape(c["slug"])}/{DRIVETRAIN_PAGE_DIR}/">'
+        f'{_html.escape(c["name"])}</a></li>'
+        for c in listed)
+    return INDEX_PAGE.format(items=items, drivetrain_items=drivetrain_items, count=len(cars),
                              theme_head=THEME_HEAD, theme_button=THEME_BUTTON)
 
 
@@ -591,8 +628,8 @@ def prune(out, exported):
     Step 7 of the build commits with `git add -A`, so a car that drops out — removed from
     CARS, or broken by a game patch — would otherwise leave a stale data/<slug>.json and
     an orphaned <slug>/index.html committed and reachable while being absent from the
-    index. Only `data/*.json` and the matching pages — <slug>/gears/index.html and the
-    forward at <slug>/index.html — are considered, so nothing hand-written (app.css, js/,
+    index. Only `data/*.json` and the matching pages — <slug>/gears/index.html,
+    <slug>/drivetrain/index.html and the forward at <slug>/index.html — are considered, so nothing hand-written (app.css, js/,
     anything Task 4 adds) is ever in scope. A folder is removed only once it is empty.
     """
     removed = []
@@ -603,12 +640,13 @@ def prune(out, exported):
             continue
         os.remove(os.path.join(data, entry))
         removed.append(f'data/{entry}')
-        for parts in ((stem, CAR_PAGE_DIR, 'index.html'), (stem, 'index.html')):
+        for parts in ((stem, CAR_PAGE_DIR, 'index.html'),
+                      (stem, DRIVETRAIN_PAGE_DIR, 'index.html'), (stem, 'index.html')):
             page = os.path.join(out, *parts)
             if os.path.isfile(page):
                 os.remove(page)
                 removed.append('/'.join(parts))
-        for folder in ((stem, CAR_PAGE_DIR), (stem,)):
+        for folder in ((stem, CAR_PAGE_DIR), (stem, DRIVETRAIN_PAGE_DIR), (stem,)):
             try:
                 os.rmdir(os.path.join(out, *folder))
             except OSError:
@@ -633,6 +671,8 @@ def main():
     slugs = sorted(M.CARS) if args.all else [args.car]
     today = datetime.date.today().isoformat()
     cars, failed = [], []
+    calibration = CAL.load_calibration()
+    notes = DP.load_notes()
     with tempfile.TemporaryDirectory() as tmp:
         for slug in slugs:
             # One unreadable car must not lose the others — the same policy
@@ -657,6 +697,9 @@ def main():
                 json.dump(doc, fh, indent=1)
                 fh.write('\n')
             write_car_pages(out, slug, name)
+            with open(os.path.join(M.TEMPLATES, slug + '.yaml'), encoding='utf-8') as fh:
+                write_drivetrain_page(out, doc, fh.read(), calibration, notes, game_version,
+                                      today if args.all else None)
             cars.append({'slug': slug, 'name': name})
             print(f'{slug}: {len(gears)} gear sets, {len(tyres)} surfaces, rev limit '
                   f'{engine["rpm"]} ({engine["source"]}), curve ends '

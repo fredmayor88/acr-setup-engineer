@@ -1,0 +1,149 @@
+{
+ "_doc": "Prose for the drivetrain pages of the ACR Car Lab site (drivetrain_page.py). common.intro and common.rev_limit[source] open every car's \"How we worked it out\"; cars[slug].workings follows, where an item \"@name\" is common[name]. No number is typed here: {placeholders} are computed from calibration.json and the car's exported data. {factor} {fit_runs} {fit_car_count} {fit_cars} {rev_limit} {adjustment} {fixed} {fixed_front} {fixed_rear} {fixed_apart}; {ratio:SPELLING}; {measured:RUN:GEAR} a measured km/h; {kmh:HYP:RUN:GEAR} the km/h a hypothesis predicts at the fitted factor; {apart:HYP1:HYP2:RUN} how far apart two hypotheses' total ratios are, in %; {off:HYP:RUN} the mean miss of a hypothesis over the run's fitted gears, in %; {speedratio:RUN1:RUN2} the mean ratio of two runs' measured speeds over the gears fitted in both. RUN is 1-based among the car's speed runs in calibration.json order. HYP is 'formula' (what the site uses) or a name in cars[slug].hypotheses: {path: average|front|rear, settings: {game name: spelling}, primary: spelling|times_set}. handling is Fred's observation from his test drives on 2026-09-13, shown word for word.",
+ "common": {
+  "intro": [
+   "Every speed on these pages is revs turned into road speed: rpm × tyre circumference ÷ total ratio, where the total ratio is primary × gear × final drive. The circumference is the tyre's free radius from the game files times a rolling factor of {factor}, fitted to the top speeds Fred measured on {fit_runs} runs across {fit_car_count} cars ({fit_cars})."
+  ],
+  "rev_limit": {
+   "measured": "The rev limit, {rev_limit} rpm, was measured in game with telemetry. The end of the torque curve in the game files is not the limiter: on most cars the curve runs past it.",
+   "measured-stale": "The rev limit, {rev_limit} rpm, was measured in game with telemetry on an earlier game version, and the car's engine data has changed since.",
+   "estimated": "The rev limit, {rev_limit} rpm, is estimated from the shift-light rev stages in the game files. It has not been measured on this car."
+  },
+  "averaging": "Why an average: between the gearbox and the axles the drivetrain splits the gearbox output to the front and the rear. With all four wheels at the same road speed, the gearbox turns at the average of what the two axles ask of it.",
+  "single_ratio_untested": "The final drive is {adjustment} alone, the one ratio below the gearbox in the game files. The same reading was measured on the Stratos and the 037 (Differential Ratio Rear) and on the 306 Maxi (Differential Ratio Front). It has not been tested on this car.",
+  "set_primaries_untested": "Each gear set stores its own primary, and with no Primary Gear setting that is the one in force. Every run so far was on a car whose gear sets share one primary, so primaries that change from set to set have not been tested.",
+  "fixed_awd_untested": "Nothing below the gearbox is adjustable. The game files put a single fixed ratio, {fixed}, on the centre differential and 1 everywhere else, so the front and rear axles are geared the same and the final drive is that ratio. The averaging measured on the Delta Integrale, 206 WRC and Impreza gives the same number here either way. It has not been tested on this car."
+ },
+ "cars": {
+  "alfa-romeo-gta-1300-junior-1972": {
+   "short": "GTA Junior",
+   "workings": ["@single_ratio_untested"]
+  },
+  "alpine-a110-1-8-1973": {
+   "short": "A110",
+   "workings": ["@single_ratio_untested"]
+  },
+  "audi-quattro-gr4-1981": {
+   "short": "Quattro",
+   "handling": "No centre differential: different front and rear ratios make the axles fight and the car hard to control.",
+   "workings": [
+    "The Quattro has Differential Ratio Front and Differential Ratio Rear, and no centre differential. The final drive is taken as the average of the two, the rule measured on the Delta Integrale, 206 WRC and Impreza.",
+    "It can't be tested on this car. A test needs the front and rear ratios apart, and with no centre differential the axles fight and the car becomes undriveable. With both set the same, as the car ships, the average is simply that ratio.",
+    "@averaging"
+   ]
+  },
+  "citroen-xsara-wrc-2003": {
+   "short": "Xsara WRC",
+   "workings": [
+    "On the Xsara, Center Differential Ratio is the only ratio setup offers. The front and rear differentials are fixed in the game files, {fixed_front} at the front and {fixed_rear} at the rear, so the final drive is Center Differential Ratio × their average.",
+    "Fred's one run, on gear set 1 with Center Differential Ratio 39//24, fits that: 6th read {measured:1:6} km/h, where the formula puts it at {kmh:formula:1:6}. The two fixed differentials are only {fixed_apart}% apart, so a run can't tell their average from either one alone; the average follows the rule measured on the Delta Integrale, 206 WRC and Impreza.",
+    "@averaging"
+   ]
+  },
+  "fiat-124-abarth-rally-16v-1974": {
+   "short": "124 Abarth",
+   "workings": ["@single_ratio_untested", "@set_primaries_untested"]
+  },
+  "fiat-131-abarth-1976": {
+   "short": "131 Abarth",
+   "workings": ["@single_ratio_untested", "@set_primaries_untested"]
+  },
+  "hyundai-i20-rally2-2021": {
+   "short": "i20 Rally2",
+   "workings": ["@fixed_awd_untested"]
+  },
+  "lancia-037-evoluzione-2-1984": {
+   "short": "037",
+   "workings": [
+    "The final drive is Differential Ratio Rear alone, the one ratio below the gearbox in the game files. Fred's run on gear set 2 with Differential Ratio Rear 46//9 is one of the runs the rolling factor was fitted on, and it fits that reading."
+   ]
+  },
+  "lancia-delta-integrale-evoluzione-1992": {
+   "short": "Delta Integrale",
+   "hypotheses": {
+    "average": {},
+    "rear_ignored": {"path": "rear", "settings": {"Center Ratio to Rear": "13//34", "Differential Ratio Rear": "30//12"}}
+   },
+   "workings": [
+    "On the Delta the game files put Center Differential Ratio before the split. The front axle has nothing else on it; the rear axle adds Center Ratio to Rear and Differential Ratio Rear. The question was what those two rear settings do.",
+    "Fred's first run was close to stock: Center Differential Ratio 55//12, Center Ratio to Rear 13//34, Differential Ratio Rear 34//14. It couldn't settle anything. At those settings, \"the rear settings do nothing, and the final drive is Center Differential Ratio × the stock rear ratios\" and \"the final drive is the average of the front and rear axles\" are only about {apart:rear_ignored:average:1}% apart, closer than the speedometer can separate.",
+    "So the second run was chosen to pull them apart: Center Ratio to Rear 17//38 and Differential Ratio Rear 34//13 put the two explanations {apart:rear_ignored:average:2}% apart. In 6th, rear settings that do nothing meant about {kmh:rear_ignored:2:6} km/h, the average about {kmh:average:2:6}. Fred got {measured:2:6}.",
+    "So the front axle is Center Differential Ratio, the rear axle is Center Differential Ratio × Center Ratio to Rear × Differential Ratio Rear, and the final drive is their average.",
+    "@averaging"
+   ]
+  },
+  "lancia-fulvia-coupe-hf-1970": {
+   "short": "Fulvia",
+   "workings": ["@single_ratio_untested", "@set_primaries_untested"]
+  },
+  "lancia-stratos": {
+   "short": "Stratos",
+   "hypotheses": {
+    "times_set": {"primary": "times_set"}
+   },
+   "workings": [
+    "The Stratos has a Primary Gear setting, and its gear sets also store a primary of their own, 33//31*31//30 ({ratio:33//31*31//30}). The question was whether the Primary Gear you pick replaces that one or multiplies it.",
+    "Fred ran all three gear sets on Primary Gear 35//30*33//28 with Differential Ratio Rear 65//17. On gear set 3, multiplying would have put 5th at about {kmh:times_set:3:5} km/h; replacing puts it at {kmh:formula:3:5}. Fred got {measured:3:5}, and gear sets 1 and 2 agreed: the selected primary replaces the gear set's.",
+    "The final drive is Differential Ratio Rear alone, the one ratio below the gearbox in the game files."
+   ]
+  },
+  "mini-cooper-s-1964": {
+   "short": "Mini",
+   "workings": ["@single_ratio_untested", "@set_primaries_untested"]
+  },
+  "peugeot-206-wrc-1999": {
+   "short": "206 WRC",
+   "handling": "Setting the front and rear ratios far apart can make the car handle oddly.",
+   "hypotheses": {
+    "average": {},
+    "front": {"path": "front"},
+    "rear": {"path": "rear"},
+    "set_primary": {"primary": "20//25"}
+   },
+   "workings": [
+    "The 206 has no engine curve of its own: its car data in the game files points at the Xsara WRC's, so that is the curve used here.",
+    "Its gear sets store a primary of 20//25, which is not one of the three Primary Gear steps. Either the Primary Gear you pick replaces the stored one, or 20//25 still applies. Fred ran gear set 1 on 21//24 and gear set 3 on 22//24. The speeds matched the selected primary, while 20//25 would have put them about {off:set_primary:1}% and {off:set_primary:2}% too high: the selector replaces the gear set's primary.",
+    "Next, Center Differential Ratio. Fred ran gear set 3 on 24//24, a ratio of 1, and then on 31//21 ({ratio:31//21}), with everything else the same. The speeds dropped by a factor of about {speedratio:2:3} from one run to the other, in line with the ratio: Center Differential Ratio multiplies the whole final drive.",
+    "Last, the front and rear apart: Differential Ratio Front 43//13*21//13 and Differential Ratio Rear 40//18*26//16. The rear alone would have meant about {kmh:rear:4:4} km/h in 4th, the front alone about {kmh:front:4:4}. Fred got {measured:4:4}, where the average of the two ratios puts it ({kmh:average:4:4}): each axle counts half.",
+    "@averaging"
+   ]
+  },
+  "peugeot-208-rally4": {
+   "short": "208 Rally4",
+   "workings": [
+    "Nothing below the gearbox is adjustable. The game files put a single fixed ratio, {fixed}, on the front differential, and the final drive is that ratio. It has not been tested on this car."
+   ]
+  },
+  "peugeot-306-ii-maxi-1997": {
+   "short": "306 Maxi",
+   "workings": [
+    "The final drive is Differential Ratio Front alone, the one ratio below the gearbox in the game files. Fred's run on gear set 4 with Differential Ratio Front 68//12 is one of the runs the rolling factor was fitted on, and it fits that reading."
+   ]
+  },
+  "skoda-fabia-rs-rally2-2022": {
+   "short": "Fabia Rally2",
+   "workings": ["@fixed_awd_untested"]
+  },
+  "subaru-impreza-555-s3-1993": {
+   "short": "Impreza",
+   "handling": "Setting the front and rear ratios far apart can make the car handle oddly.",
+   "hypotheses": {
+    "average": {},
+    "front": {"path": "front"},
+    "rear": {"path": "rear"},
+    "ctr_ignored": {"settings": {"Center Ratio to Rear": "31//31"}},
+    "ctr_divides": {"settings": {"Center Ratio to Rear": "28//22"}}
+   },
+   "workings": [
+    "On the Impreza, Differential Ratio Front drives the front axle, and the rear axle has Center Ratio to Rear and Differential Ratio Rear.",
+    "Fred's first run set the two differentials apart, Differential Ratio Front 36//7 and Differential Ratio Rear 31//9, with Center Ratio to Rear on 31//31, a ratio of 1. The front alone would have meant about {kmh:front:1:5} km/h in 5th, the rear alone about {kmh:rear:1:5}. Fred got {measured:1:5}, neither of them: the average of the two ratios puts 5th at {kmh:average:1:5}.",
+    "That left Center Ratio to Rear. The second run kept the two axles nearly equal, Differential Ratio Front 31//9 at the front and Center Ratio to Rear 22//28 × Differential Ratio Rear 48//11 at the rear, so only that one setting was in question. If it multiplies the rear differential, 4th tops out at about {kmh:average:2:4} km/h; if it does nothing, {kmh:ctr_ignored:2:4}; if it divides, {kmh:ctr_divides:2:4}. Fred got {measured:2:4}: it multiplies. With the axles equal the car drove normally, as expected.",
+    "@averaging"
+   ]
+  },
+  "volkswagen-polo-gti-r5-2018": {
+   "short": "Polo R5",
+   "workings": ["@fixed_awd_untested"]
+  }
+ }
+}

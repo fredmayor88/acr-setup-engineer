@@ -458,8 +458,8 @@ class RenderPages(unittest.TestCase):
         self.assertIn('href="../../app.css"', html)
         self.assertIn('src="../../js/app.js"', html)
         self.assertIn('<a class="crumb" href="../../">All cars', html)
-        # nothing left pointing one level up only
-        self.assertNotRegex(html, r'(?:href|src)="\.\./(?!\.\./)')
+        # nothing left pointing one level up only, but the car's own drivetrain page beside it
+        self.assertNotRegex(html, r'(?:href|src)="\.\./(?!\.\./|drivetrain/")')
 
     def test_car_page_escapes_the_name(self):
         html = render_car_page('x', 'A & B <script>')
