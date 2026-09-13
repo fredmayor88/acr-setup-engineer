@@ -198,7 +198,7 @@ class GeneratedDate(unittest.TestCase):
         self.assertNotIn('generated', build_index_json([{'slug': 'a', 'name': 'A'}]))
 
 
-from export_car_data import (build_index_json, prune,  # noqa: E402
+from export_car_data import (THEME_KEY, build_index_json, prune,  # noqa: E402
                              render_car_page, render_index_page)
 
 
@@ -241,6 +241,53 @@ class RenderPages(unittest.TestCase):
                                    'name': 'Lancia Stratos HF'}])
         self.assertIn('href="lancia-stratos/"', html)
         self.assertIn('Lancia Stratos HF', html)
+
+
+class ThemeInPages(unittest.TestCase):
+    """Dark mode: the stored choice must be on <html> before the stylesheet paints."""
+
+    def pages(self):
+        return {'car': render_car_page('lancia-stratos', 'Lancia Stratos HF'),
+                'index': render_index_page([{'slug': 'lancia-stratos',
+                                             'name': 'Lancia Stratos HF'}])}
+
+    def test_the_key_matches_the_site(self):
+        # js/theme.js in acr-car-lab writes this key; its tests read it back from the pages
+        self.assertEqual(THEME_KEY, 'acr-car-lab-theme')
+
+    def test_head_script_reads_the_stored_theme_before_the_stylesheet(self):
+        for kind, html in self.pages().items():
+            head = html[:html.index('</head>')]
+            script = head.index(f"localStorage.getItem('{THEME_KEY}')")
+            self.assertLess(script, head.index('rel="stylesheet"'), kind)
+            self.assertIn('document.documentElement.dataset.theme=t', head, kind)
+            # storage can throw (blocked cookies); the page must still render
+            self.assertIn('try{', head, kind)
+            self.assertIn('catch(e){}', head, kind)
+
+    def test_head_script_only_accepts_the_two_themes(self):
+        for kind, html in self.pages().items():
+            self.assertIn("if(t==='dark'||t==='light')", html, kind)
+
+    def test_native_controls_are_told_both_schemes_exist(self):
+        for kind, html in self.pages().items():
+            self.assertIn('<meta name="color-scheme" content="light dark">', html, kind)
+
+    def test_both_pages_carry_a_labelled_toggle_in_the_brandrow(self):
+        for kind, html in self.pages().items():
+            row = html[html.index('class="brandrow"'):html.index('<h1>')]
+            self.assertIn('<button class="theme" type="button">', row, kind)
+            self.assertIn('>Dark</span>', row, kind)
+            self.assertIn('>Light</span>', row, kind)
+
+    def test_car_toggle_sits_after_the_all_cars_link(self):
+        html = self.pages()['car']
+        self.assertLess(html.index('All cars'), html.index('class="theme"'))
+
+    def test_index_page_loads_the_theme_module(self):
+        # car pages get it through js/app.js; the picker has no other script
+        self.assertIn('<script type="module" src="js/theme.js"></script>',
+                      self.pages()['index'])
 
 
 class Prune(unittest.TestCase):

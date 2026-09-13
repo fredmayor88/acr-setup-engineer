@@ -112,10 +112,26 @@ def build_car_json(slug, name, axle, gear_sets, engine_curve, final_drive, tyres
     return doc
 
 
+# The site's theme key. js/theme.js in acr-car-lab writes the same one.
+THEME_KEY = 'acr-car-lab-theme'
+
+# Runs before the stylesheet so a stored light/dark choice is on <html> by first paint.
+# With nothing stored the page follows the OS through CSS alone, so there is no else.
+THEME_HEAD = (
+    '<meta name="color-scheme" content="light dark">\n'
+    f"<script>try{{var t=localStorage.getItem('{THEME_KEY}');"
+    "if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}"
+    '</script>')
+
+# The label names the theme a click switches to; app.css shows the right one.
+THEME_BUTTON = ('<button class="theme" type="button"><span class="to-dark">Dark</span>'
+                '<span class="to-light">Light</span></button>')
+
 CAR_PAGE = """<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{theme_head}
 <title>{name} — ACR Car Lab</title>
 <meta name="description" content="Gearing, final drive and power for the {name} in \
 Assetto Corsa Rally.">
@@ -129,6 +145,7 @@ Assetto Corsa Rally.">
     <div class="brandrow">
       <span class="brand">ACR <b>Car Lab</b></span>
       <a class="crumb" href="../">All cars →</a>
+      {theme_button}
     </div>
     <h1>{name}</h1>
   </header>
@@ -142,6 +159,7 @@ INDEX_PAGE = """<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+{theme_head}
 <title>ACR Car Lab</title>
 <meta name="description" content="Interactive gearing and power charts for {count} cars in \
 Assetto Corsa Rally.">
@@ -152,7 +170,10 @@ Assetto Corsa Rally.">
 <body>
 <div class="wrap">
   <header>
-    <div class="brandrow"><span class="brand">ACR <b>Car Lab</b></span></div>
+    <div class="brandrow">
+      <span class="brand">ACR <b>Car Lab</b></span>
+      {theme_button}
+    </div>
     <h1>{count} cars, gear by gear</h1>
     <p class="sub">Gearing, final drive and power, read from the game files.</p>
   </header>
@@ -160,6 +181,7 @@ Assetto Corsa Rally.">
 {items}
   </ul>
 </div>
+<script type="module" src="js/theme.js"></script>
 </body></html>
 """
 
@@ -168,7 +190,8 @@ def render_car_page(slug, name):
     """The generated shell for one car. Title and h1 are baked in so the page is
     indexable without running the app."""
     safe = _html.escape(name)
-    return CAR_PAGE.format(slug=_html.escape(slug), name=safe)
+    return CAR_PAGE.format(slug=_html.escape(slug), name=safe,
+                           theme_head=THEME_HEAD, theme_button=THEME_BUTTON)
 
 
 def build_index_json(cars, generated=None):
@@ -188,7 +211,8 @@ def render_index_page(cars):
     items = '\n'.join(
         f'    <li><a href="{_html.escape(c["slug"])}/">{_html.escape(c["name"])}</a></li>'
         for c in build_index_json(cars)['cars'])
-    return INDEX_PAGE.format(items=items, count=len(cars))
+    return INDEX_PAGE.format(items=items, count=len(cars),
+                             theme_head=THEME_HEAD, theme_button=THEME_BUTTON)
 
 
 def car_record(paks, slug, tmp):
