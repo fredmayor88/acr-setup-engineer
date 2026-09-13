@@ -117,10 +117,11 @@ THEME_KEY = 'acr-car-lab-theme'
 
 # Runs before the stylesheet so a stored light/dark choice is on <html> by first paint.
 # With nothing stored the page follows the OS through CSS alone, so there is no else.
+# The function wrapper keeps `t` off window.
 THEME_HEAD = (
     '<meta name="color-scheme" content="light dark">\n'
-    f"<script>try{{var t=localStorage.getItem('{THEME_KEY}');"
-    "if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}"
+    f"<script>(function(){{try{{var t=localStorage.getItem('{THEME_KEY}');"
+    "if(t==='dark'||t==='light')document.documentElement.dataset.theme=t}catch(e){}})()"
     '</script>')
 
 # The label names the theme a click switches to; app.css shows the right one.

@@ -265,6 +265,14 @@ class ThemeInPages(unittest.TestCase):
             self.assertIn('try{', head, kind)
             self.assertIn('catch(e){}', head, kind)
 
+    def test_head_script_leaks_no_global(self):
+        # a bare `var t` at the top level of a classic script becomes window.t
+        for kind, html in self.pages().items():
+            script = html[html.index('<script>'):html.index('</script>')]
+            self.assertTrue(script.startswith('<script>(function(){'), kind)
+            self.assertTrue(script.endswith('})()'), kind)
+            self.assertEqual(script.count('var '), 1, kind)
+
     def test_head_script_only_accepts_the_two_themes(self):
         for kind, html in self.pages().items():
             self.assertIn("if(t==='dark'||t==='light')", html, kind)
