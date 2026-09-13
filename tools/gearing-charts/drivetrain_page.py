@@ -97,6 +97,10 @@ def final_drive_lines(doc):
         return ('Nothing below the gearbox is adjustable.',
                 f'Final drive is fixed at {doc["fixed_final_drive"]:.3f}.')
     if 'settings' in fd:
+        if fd['formula'].get('centre_differential') is False:
+            # assumed, not measured: the axles cannot be run apart to test it
+            return ('The final drive is taken as the average of the front and rear axles.',
+                    formula_note(fd))
         return ('The drive splits to the front and rear axles, and the gearbox turns at the '
                 'average of the two.', formula_note(fd))
     rest = '' if abs(fd['rest'] - 1) < 1e-9 else f' × {fd["rest"]:.3f}'

@@ -460,6 +460,49 @@ def site_game_version(paks, whole_site):
         return read_game_version(paks, tmp)
 
 
+def existing_index_facts(out):
+    """(game_version, generated) from the site's current data/index.json, or (None, None).
+
+    A single-car export neither reads the version from the paks nor writes index.json, so its
+    drivetrain page names the version and date the rest of the site already shows."""
+    try:
+        with open(os.path.join(out, 'data', 'index.json'), encoding='utf-8') as fh:
+            doc = json.load(fh)
+    except (OSError, ValueError):
+        return None, None
+    return doc.get('game_version'), doc.get('generated')
+
+
+def export_car(out, slug, record, calibration, notes, game_version, generated, template_text):
+    """Write one car's data document, gears page, forward and drivetrain page from its
+    car_record tuple. Returns (document, gear set count).
+
+    The drivetrain page is rendered before anything is written. A car whose notes no longer fit
+    its data (say a game patch dropped a gear a placeholder reads) then fails as a whole, as a
+    SystemExit, exactly like a car whose game files could not be read: main() skips it, finishes
+    the others, and fails the run at the end."""
+    name, axle, sets, curve, fd, fixed_fd, tyres, engine = record
+    # each set keeps its own primary — four cars ship a different one per set
+    gears = [([(g, ratio(g)) for g in forward], (p, ratio(p))) for forward, p, _r in sets]
+    doc = build_car_json(slug, name, axle, gears, curve, fd, tyres,
+                         fixed_final_drive=fixed_fd, rev_limit=engine)
+    try:
+        page = render_drivetrain_page(doc, template_text, calibration, notes, game_version,
+                                      generated)
+    except Exception as e:                  # noqa: BLE001 - any failure building the prose
+        raise SystemExit(f'drivetrain page failed: {type(e).__name__}: {e}') from e
+    with open(os.path.join(out, 'data', slug + '.json'), 'w',
+              encoding='utf-8', newline='\n') as fh:
+        json.dump(doc, fh, indent=1)
+        fh.write('\n')
+    write_car_pages(out, slug, name)
+    path = os.path.join(out, slug, DRIVETRAIN_PAGE_DIR, 'index.html')
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8', newline='\n') as fh:
+        fh.write(page)
+    return doc, len(gears)
+
+
 def render_index_page(cars):
     listed = build_index_json(cars)['cars']
     items = '\n'.join(
@@ -670,6 +713,10 @@ def main():
     game_version = site_game_version(args.paks, args.all)
     slugs = sorted(M.CARS) if args.all else [args.car]
     today = datetime.date.today().isoformat()
+    # the drivetrain page's footer and rev-limit line name these; a single-car export keeps
+    # what the site's index already says
+    page_version, page_date = ((game_version, today) if args.all
+                               else existing_index_facts(out))
     cars, failed = [], []
     calibration = CAL.load_calibration()
     notes = DP.load_notes()
@@ -680,30 +727,21 @@ def main():
             # (neither in its template nor through its car asset) is simply absent from
             # the site rather than published with a missing power curve.
             try:
-                name, axle, sets, curve, fd, fixed_fd, tyres, engine = car_record(
-                    args.paks, slug, tmp)
+                record = car_record(args.paks, slug, tmp)
+                with open(os.path.join(M.TEMPLATES, slug + '.yaml'), encoding='utf-8') as fh:
+                    template_text = fh.read()
+                doc, n_sets = export_car(out, slug, record, calibration, notes, page_version,
+                                         page_date, template_text)
             except SystemExit as e:
                 if not args.all:
-                    raise
+                    raise SystemExit(f'{slug}: {e}') from e
+                print(f'  !! {slug}: {e}')
                 failed.append(f'{slug}: {e}')
                 continue
-            # each set keeps its own primary — four cars ship a different one per set
-            gears = [([(g, ratio(g)) for g in forward], (p, ratio(p)))
-                     for forward, p, _r in sets]
-            doc = build_car_json(slug, name, axle, gears, curve, fd, tyres,
-                                 fixed_final_drive=fixed_fd, rev_limit=engine)
-            with open(os.path.join(out, 'data', slug + '.json'), 'w',
-                      encoding='utf-8', newline='\n') as fh:
-                json.dump(doc, fh, indent=1)
-                fh.write('\n')
-            write_car_pages(out, slug, name)
-            with open(os.path.join(M.TEMPLATES, slug + '.yaml'), encoding='utf-8') as fh:
-                write_drivetrain_page(out, doc, fh.read(), calibration, notes, game_version,
-                                      today if args.all else None)
-            cars.append({'slug': slug, 'name': name})
-            print(f'{slug}: {len(gears)} gear sets, {len(tyres)} surfaces, rev limit '
-                  f'{engine["rpm"]} ({engine["source"]}), curve ends '
-                  f'{doc["engine"]["curve"][-1][0]}')
+            cars.append({'slug': slug, 'name': doc['name']})
+            print(f'{slug}: {n_sets} gear sets, {len(doc["tyres"])} surfaces, rev limit '
+                  f'{doc["engine"]["redline"]} ({doc["engine"]["redline_source"]}), '
+                  f'curve ends {doc["engine"]["curve"][-1][0]}')
 
     if args.all:
         pruned = prune(out, {c['slug'] for c in cars})

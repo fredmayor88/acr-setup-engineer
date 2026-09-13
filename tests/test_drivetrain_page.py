@@ -396,3 +396,156 @@ class PruneKeepsDrivetrainPages(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+def record_from(doc):
+    """A car_record tuple that rebuilds `doc` through build_car_json."""
+    fd = doc['final_drive']
+    if fd is not None:
+        fd = dict(fd, primaries=[(p['name'], p['value']) for p in fd['primaries']],
+                  options=[(o['name'], o['value']) for o in fd['options']])
+    e = doc['engine']
+    return (doc['name'], doc['axle'],
+            [([g['name'] for g in s['gears']], s['primary']['name'], '1//1')
+             for s in doc['gear_sets']],
+            [(rpm, nm) for rpm, nm, _kw in e['curve']], fd, doc['fixed_final_drive'],
+            {k: (t['asset'], t['free_radius']) for k, t in doc['tyres'].items()},
+            {'rpm': e['redline'], 'source': e['redline_source'], 'game_v4': e['game_v4'],
+             'curve_source': e['curve_source'], 'curve_from': e['curve_from']})
+
+
+@unittest.skipUnless(HAVE_SITE, 'no ../acr-car-lab checkout next to this repo')
+class ExportRuns(unittest.TestCase):
+    """main() around the drivetrain pages, with the game files stubbed by the exported data."""
+
+    def run_main(self, argv, cars, notes=None):
+        from unittest import mock
+        import io
+        records = {s: record_from(site_doc(s)) for s in cars}
+        patches = [
+            mock.patch.object(sys, 'argv', ['export_car_data.py'] + argv),
+            mock.patch.object(E.M, 'CARS', {s: M.CARS[s] for s in cars}),
+            mock.patch.object(E, 'car_record', lambda paks, slug, tmp: records[slug]),
+            mock.patch.object(E, 'site_game_version', lambda paks, whole: '0.6' if whole else None),
+            mock.patch('sys.stdout', new_callable=io.StringIO),
+        ]
+        if notes is not None:
+            patches.append(mock.patch.object(E.DP, 'load_notes', lambda: notes))
+        for p in patches:
+            p.start()
+        out = sys.stdout
+        try:
+            E.main()
+            return None, out.getvalue()
+        except SystemExit as e:
+            return e, out.getvalue()
+        finally:
+            for p in reversed(patches):
+                p.stop()
+
+    def test_existing_index_facts(self):
+        with tempfile.TemporaryDirectory() as out:
+            self.assertEqual(E.existing_index_facts(out), (None, None))
+            os.makedirs(os.path.join(out, 'data'))
+            with open(os.path.join(out, 'data', 'index.json'), 'w', encoding='utf-8') as fh:
+                json.dump({'cars': [], 'generated': '2026-09-01', 'game_version': '0.5'}, fh)
+            self.assertEqual(E.existing_index_facts(out), ('0.5', '2026-09-01'))
+
+    def test_a_single_car_export_names_the_version_and_date_of_the_site_index(self):
+        with tempfile.TemporaryDirectory() as out:
+            os.makedirs(os.path.join(out, 'data'))
+            index = {'cars': [], 'generated': '2026-09-01', 'game_version': '0.5'}
+            with open(os.path.join(out, 'data', 'index.json'), 'w', encoding='utf-8') as fh:
+                json.dump(index, fh)
+            err, _log = self.run_main(['--car', MINI, '--out', out], [MINI])
+            self.assertIsNone(err)
+            with open(os.path.join(out, MINI, 'drivetrain', 'index.html'), encoding='utf-8') as fh:
+                html = fh.read()
+            self.assertIn('Read from the ACR 0.5 game files. Generated 2026-09-01.', html)
+            self.assertIn('measured in game with telemetry (ACR 0.5).', html)
+            with open(os.path.join(out, 'data', 'index.json'), encoding='utf-8') as fh:
+                self.assertEqual(json.load(fh), index)          # not rewritten
+
+    def broken_notes(self, slug):
+        notes = copy.deepcopy(D.load_notes())
+        notes['cars'][slug]['workings'] = ['6th reads {kmh:no_such_hypothesis:1:6} km/h.']
+        return notes
+
+    def test_a_failing_drivetrain_page_skips_that_car_and_fails_the_run_at_the_end(self):
+        with tempfile.TemporaryDirectory() as out:
+            os.makedirs(os.path.join(out, 'data'))
+            open(os.path.join(out, 'data', 'gone.json'), 'w').close()     # a stale car
+            err, log = self.run_main(['--all', '--out', out], [MINI, DELTA],
+                                     notes=self.broken_notes(DELTA))
+            self.assertIsInstance(err, SystemExit)
+            self.assertIn('export incomplete', str(err))
+            self.assertIn(DELTA, str(err))
+            self.assertIn('drivetrain page failed', str(err))
+            self.assertIn(f'!! {DELTA}: drivetrain page failed: ValueError', log)
+            self.assertIn('no_such_hypothesis', log)
+            # the other car and the site-wide steps still ran
+            self.assertTrue(os.path.isfile(os.path.join(out, MINI, 'drivetrain', 'index.html')))
+            with open(os.path.join(out, 'data', 'index.json'), encoding='utf-8') as fh:
+                self.assertEqual([c['slug'] for c in json.load(fh)['cars']], [MINI])
+            self.assertTrue(os.path.isfile(os.path.join(out, 'index.html')))
+            self.assertFalse(os.path.exists(os.path.join(out, 'data', 'gone.json')))
+            # nothing half-written for the failed car
+            self.assertFalse(os.path.exists(os.path.join(out, 'data', DELTA + '.json')))
+            self.assertFalse(os.path.exists(os.path.join(out, DELTA)))
+
+    def test_a_single_car_failure_names_the_car_and_exits(self):
+        with tempfile.TemporaryDirectory() as out:
+            os.makedirs(os.path.join(out, 'data'))
+            err, _log = self.run_main(['--car', DELTA, '--out', out], [DELTA],
+                                      notes=self.broken_notes(DELTA))
+            self.assertIsInstance(err, SystemExit)
+            self.assertTrue(str(err).startswith(f'{DELTA}: drivetrain page failed'))
+
+    def test_the_audi_final_drive_line_is_assumed_not_stated(self):
+        cal, notes = CAL.load_calibration(), D.load_notes()
+        for slug in M.CARS:
+            top = text_of(section(E.render_drivetrain_page(site_doc(slug), template(slug), cal,
+                                                           notes), 'top'))
+            with self.subTest(car=slug):
+                self.assertEqual('taken as the average of the front and rear axles' in top,
+                                 slug == AUDI)
+                self.assertEqual('the gearbox turns at the average of the two' in top,
+                                 slug in (DELTA, P206, IMPREZA, XSARA))
+
+    def test_every_torque_curve_runs_past_the_rev_limit(self):
+        # backs "on every car here the curve runs past it"
+        for slug in M.CARS:
+            e = site_doc(slug)['engine']
+            with self.subTest(car=slug):
+                self.assertGreater(e['curve'][-1][0], e['redline'])
+
+
+@unittest.skipUnless(HAVE_SITE, 'no ../acr-car-lab checkout next to this repo')
+class ReviewCopy(unittest.TestCase):
+    """The copy corrections of the Job B review, word for word."""
+
+    def work(self, slug):
+        html = E.render_drivetrain_page(site_doc(slug), template(slug), CAL.load_calibration(),
+                                        D.load_notes())
+        return text_of(section(html, 'workings'))
+
+    def test_corrections(self):
+        self.assertIn('The same reading fits Fred\'s runs on the Stratos and the 037 (Differential '
+                      'Ratio Rear) and on the 306 Maxi (Differential Ratio Front).', self.work(MINI))
+        self.assertIn('Fred got 142; the average of the two ratios puts it at 140: each axle '
+                      'counts half.', self.work(P206))
+        self.assertIn('Fred\'s first run kept the rear settings close to stock: Center '
+                      'Differential Ratio 55//12, Center Ratio to Rear 13//34, Differential Ratio '
+                      'Rear 34//14.', self.work(DELTA))
+        self.assertIn('With the axles nearly equal the car drove normally, as expected.',
+                      self.work(IMPREZA))
+        self.assertIn('and with no centre differential the axles fight and the car is hard to '
+                      'control.', self.work(AUDI))
+        for slug in M.CARS:
+            text = self.work(slug)
+            with self.subTest(car=slug):
+                self.assertIn('The end of the torque curve in the game files is not the limiter: '
+                              'on every car here the curve runs past it.', text)
+                self.assertIn('The circumference comes from the tyre\'s free radius in the game '
+                              'files, times a rolling factor of 0.9904,', text)
+                self.assertNotIn('undriveable', text)
