@@ -141,6 +141,12 @@ SUN = _ICON.format(name='sun', shape='<circle cx="6" cy="6" r="2.2"/>'
 THEME_BUTTON = (f'<button class="theme" type="button"><span class="to-dark">{MOON}Dark</span>'
                 f'<span class="to-light">{SUN}Light</span></button>')
 
+# A car's gearing page lives at <slug>/gears/, leaving <slug>/ free for more pages about the
+# same car. CAR_ROOT is the way back to the site root from there: every shared asset and the
+# picker link go through it, so moving the page again is one change here.
+CAR_PAGE_DIR = 'gears'
+CAR_ROOT = '../../'
+
 CAR_PAGE = """<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
@@ -149,7 +155,7 @@ CAR_PAGE = """<!doctype html>
 <title>{name} — ACR Car Lab</title>
 <meta name="description" content="Gearing, final drive and power for the {name} in \
 Assetto Corsa Rally.">
-<link rel="stylesheet" href="../app.css">
+<link rel="stylesheet" href="{root}app.css">
 <script data-goatcounter="https://acr-car-lab.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -158,14 +164,31 @@ Assetto Corsa Rally.">
   <header>
     <div class="brandrow">
       <span class="brand">ACR <b>Car Lab</b></span>
-      <a class="crumb" href="../">All cars →</a>
+      <a class="crumb" href="{root}">All cars →</a>
       {theme_button}
     </div>
     <h1>{name}</h1>
   </header>
   <p class="loading">Loading…</p>
 </div>
-<script type="module" src="../js/app.js"></script>
+<script type="module" src="{root}js/app.js"></script>
+</body></html>
+"""
+
+# <slug>/ was the car page before it moved under gears/, and links to it are already out
+# there. The script keeps the query and hash (the page state), so it runs before the refresh;
+# the refresh only covers a browser with scripts off. No GoatCounter: the page it forwards to
+# counts the visit.
+REDIRECT_PAGE = """<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>{name} — ACR Car Lab</title>
+<link rel="canonical" href="{page}/">
+<script>location.replace('{page}/'+location.search+location.hash)</script>
+<meta http-equiv="refresh" content="0; url={page}/">
+</head>
+<body>
+<p><a href="{page}/">{name}</a></p>
 </body></html>
 """
 
@@ -207,8 +230,25 @@ def render_car_page(slug, name):
     """The generated shell for one car. Title and h1 are baked in so the page is
     indexable without running the app."""
     safe = _html.escape(name)
-    return CAR_PAGE.format(slug=_html.escape(slug), name=safe,
+    return CAR_PAGE.format(slug=_html.escape(slug), name=safe, root=CAR_ROOT,
                            theme_head=THEME_HEAD, theme_button=THEME_BUTTON)
+
+
+def render_redirect_page(slug, name):
+    """What stays at <slug>/index.html: a forward to <slug>/gears/, hash intact."""
+    return REDIRECT_PAGE.format(name=_html.escape(name), page=CAR_PAGE_DIR)
+
+
+def write_car_pages(out, slug, name):
+    """The car page under <slug>/gears/ and the forward at <slug>/. Returns both paths."""
+    pages = [((slug, CAR_PAGE_DIR, 'index.html'), render_car_page(slug, name)),
+             ((slug, 'index.html'), render_redirect_page(slug, name))]
+    for parts, html in pages:
+        path = os.path.join(out, *parts)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w', encoding='utf-8', newline='\n') as fh:
+            fh.write(html)
+    return ['/'.join(parts) for parts, _html_text in pages]
 
 
 def build_index_json(cars, generated=None, game_version=None):
@@ -241,7 +281,8 @@ def site_game_version(paks, whole_site):
 
 def render_index_page(cars):
     items = '\n'.join(
-        f'    <li><a href="{_html.escape(c["slug"])}/">{_html.escape(c["name"])}</a></li>'
+        f'    <li><a href="{_html.escape(c["slug"])}/{CAR_PAGE_DIR}/">'
+        f'{_html.escape(c["name"])}</a></li>'
         for c in build_index_json(cars)['cars'])
     return INDEX_PAGE.format(items=items, count=len(cars),
                              theme_head=THEME_HEAD, theme_button=THEME_BUTTON)
@@ -346,8 +387,9 @@ def prune(out, exported):
     Step 7 of the build commits with `git add -A`, so a car that drops out — removed from
     CARS, or broken by a game patch — would otherwise leave a stale data/<slug>.json and
     an orphaned <slug>/index.html committed and reachable while being absent from the
-    index. Only `data/*.json` and the matching page shell are considered, so nothing
-    hand-written (app.css, js/, anything Task 4 adds) is ever in scope.
+    index. Only `data/*.json` and the matching pages — <slug>/gears/index.html and the
+    forward at <slug>/index.html — are considered, so nothing hand-written (app.css, js/,
+    anything Task 4 adds) is ever in scope. A folder is removed only once it is empty.
     """
     removed = []
     data = os.path.join(out, 'data')
@@ -357,14 +399,16 @@ def prune(out, exported):
             continue
         os.remove(os.path.join(data, entry))
         removed.append(f'data/{entry}')
-        page = os.path.join(out, stem, 'index.html')
-        if os.path.isfile(page):
-            os.remove(page)
-            removed.append(f'{stem}/index.html')
-        try:
-            os.rmdir(os.path.join(out, stem))
-        except OSError:
-            pass                       # not empty: something else lives there, leave it
+        for parts in ((stem, CAR_PAGE_DIR, 'index.html'), (stem, 'index.html')):
+            page = os.path.join(out, *parts)
+            if os.path.isfile(page):
+                os.remove(page)
+                removed.append('/'.join(parts))
+        for folder in ((stem, CAR_PAGE_DIR), (stem,)):
+            try:
+                os.rmdir(os.path.join(out, *folder))
+            except OSError:
+                pass                   # missing, or not empty: something else lives there
     return removed
 
 
@@ -408,10 +452,7 @@ def main():
                       encoding='utf-8', newline='\n') as fh:
                 json.dump(doc, fh, indent=1)
                 fh.write('\n')
-            os.makedirs(os.path.join(out, slug), exist_ok=True)
-            with open(os.path.join(out, slug, 'index.html'), 'w',
-                      encoding='utf-8', newline='\n') as fh:
-                fh.write(render_car_page(slug, name))
+            write_car_pages(out, slug, name)
             cars.append({'slug': slug, 'name': name})
             print(f'{slug}: {len(gears)} gear sets, {len(tyres)} surfaces')
 

@@ -228,7 +228,8 @@ class GameVersion(unittest.TestCase):
 
 
 from export_car_data import (THEME_KEY, build_index_json, prune,  # noqa: E402
-                             render_car_page, render_index_page)
+                             render_car_page, render_index_page, render_redirect_page,
+                             write_car_pages)
 
 
 class RenderPages(unittest.TestCase):
@@ -241,11 +242,14 @@ class RenderPages(unittest.TestCase):
         html = render_car_page('lancia-stratos', 'Lancia Stratos HF')
         self.assertIn('data-car="lancia-stratos"', html)
 
-    def test_car_page_uses_parent_relative_asset_paths(self):
-        # pages live at /<slug>/, so shared assets are one level up
+    def test_car_page_reaches_the_site_root_from_two_levels_down(self):
+        # pages live at /<slug>/gears/, so shared assets and the picker are two levels up
         html = render_car_page('lancia-stratos', 'Lancia Stratos HF')
-        self.assertIn('../app.css', html)
-        self.assertIn('../js/app.js', html)
+        self.assertIn('href="../../app.css"', html)
+        self.assertIn('src="../../js/app.js"', html)
+        self.assertIn('<a class="crumb" href="../../">All cars', html)
+        # nothing left pointing one level up only
+        self.assertNotRegex(html, r'(?:href|src)="\.\./(?!\.\./)')
 
     def test_car_page_escapes_the_name(self):
         html = render_car_page('x', 'A & B <script>')
@@ -268,8 +272,60 @@ class RenderPages(unittest.TestCase):
     def test_index_page_links_every_car(self):
         html = render_index_page([{'slug': 'lancia-stratos',
                                    'name': 'Lancia Stratos HF'}])
-        self.assertIn('href="lancia-stratos/"', html)
+        self.assertIn('href="lancia-stratos/gears/"', html)
+        self.assertNotIn('href="lancia-stratos/"', html)
         self.assertIn('Lancia Stratos HF', html)
+
+
+class RedirectStub(unittest.TestCase):
+    """<slug>/ used to be the car page; links already shared must land on <slug>/gears/."""
+
+    def setUp(self):
+        self.html = render_redirect_page('lancia-stratos', 'Lancia Stratos HF 1976')
+
+    def test_the_script_keeps_query_and_hash(self):
+        self.assertIn("<script>location.replace('gears/'+location.search+location.hash)"
+                      '</script>', self.html)
+
+    def test_it_redirects_without_script_too(self):
+        self.assertIn('<meta http-equiv="refresh" content="0; url=gears/">', self.html)
+
+    def test_the_script_runs_before_the_refresh_can_drop_the_hash(self):
+        self.assertLess(self.html.index('location.replace'),
+                        self.html.index('http-equiv="refresh"'))
+
+    def test_it_names_the_real_page_as_canonical(self):
+        self.assertIn('<link rel="canonical" href="gears/">', self.html)
+
+    def test_it_has_a_title_and_a_link_to_follow(self):
+        self.assertIn('<title>Lancia Stratos HF 1976 — ACR Car Lab</title>', self.html)
+        self.assertIn('<a href="gears/">', self.html)
+
+    def test_it_is_not_counted(self):
+        # the page it forwards to counts the visit; counting here would count it twice
+        self.assertNotIn('goatcounter', self.html)
+        self.assertNotIn('gc.zgo.at', self.html)
+
+    def test_it_escapes_the_name(self):
+        html = render_redirect_page('x', 'A & B <script>')
+        self.assertIn('A &amp; B &lt;script&gt;', html)
+
+
+class WriteCarPages(unittest.TestCase):
+    def test_the_page_goes_under_gears_and_the_old_path_forwards(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as out:
+            written = write_car_pages(out, 'lancia-stratos', 'Lancia Stratos HF')
+            self.assertEqual(written, ['lancia-stratos/gears/index.html',
+                                       'lancia-stratos/index.html'])
+            with open(os.path.join(out, 'lancia-stratos', 'gears', 'index.html'),
+                      encoding='utf-8') as fh:
+                self.assertEqual(fh.read(),
+                                 render_car_page('lancia-stratos', 'Lancia Stratos HF'))
+            with open(os.path.join(out, 'lancia-stratos', 'index.html'),
+                      encoding='utf-8') as fh:
+                self.assertEqual(fh.read(),
+                                 render_redirect_page('lancia-stratos', 'Lancia Stratos HF'))
 
 
 class PickerPromo(unittest.TestCase):
@@ -387,11 +443,16 @@ class Prune(unittest.TestCase):
         for slug in ('kept', 'stale'):
             write('data', slug + '.json')
             write(slug, 'index.html')
+            write(slug, 'gears', 'index.html')
         write('data', 'index.json')
         write('data', 'notes.txt')                 # not JSON: out of scope
         write('shared', 'extra.css')               # stale car folder with other files
+        write('shared', 'gears', 'extra.css')      # ...and a gears folder with other files
         write('data', 'shared.json')
         write('shared', 'index.html')
+        write('shared', 'gears', 'index.html')
+        write('data', 'old.json')                  # a car from before the gears move
+        write('old', 'index.html')
         write('app.css')
         write('js', 'app.js')
         write('index.html')
@@ -403,14 +464,24 @@ class Prune(unittest.TestCase):
         removed = prune(self.out, {'kept'})
         self.assertFalse(self.exists('data', 'stale.json'))
         self.assertFalse(self.exists('stale', 'index.html'))
+        self.assertFalse(self.exists('stale', 'gears', 'index.html'))
+        self.assertFalse(self.exists('stale', 'gears'))
         self.assertFalse(self.exists('stale'))
         self.assertIn('data/stale.json', removed)
+        self.assertIn('stale/gears/index.html', removed)
         self.assertIn('stale/index.html', removed)
+
+    def test_a_car_with_only_the_old_single_page_is_removed_too(self):
+        removed = prune(self.out, {'kept'})
+        self.assertFalse(self.exists('old'))
+        self.assertIn('old/index.html', removed)
+        self.assertNotIn('old/gears/index.html', removed)
 
     def test_current_cars_are_kept(self):
         prune(self.out, {'kept'})
         self.assertTrue(self.exists('data', 'kept.json'))
         self.assertTrue(self.exists('kept', 'index.html'))
+        self.assertTrue(self.exists('kept', 'gears', 'index.html'))
 
     def test_nothing_else_is_touched(self):
         prune(self.out, {'kept'})
@@ -422,7 +493,9 @@ class Prune(unittest.TestCase):
         prune(self.out, {'kept'})
         self.assertFalse(self.exists('data', 'shared.json'))
         self.assertFalse(self.exists('shared', 'index.html'))
+        self.assertFalse(self.exists('shared', 'gears', 'index.html'))
         self.assertTrue(self.exists('shared', 'extra.css'))
+        self.assertTrue(self.exists('shared', 'gears', 'extra.css'))
 
     def test_the_parent_of_the_target_is_not_touched(self):
         sibling = os.path.join(os.path.dirname(self.out),
