@@ -174,15 +174,59 @@ def _read_file(pak, path, tmp):
         return fh.read()
 
 
+_PATCH = re.compile(r'_(?:(\d+)_)?P\.pak$', re.IGNORECASE)
+
+
+def pak_priority(name):
+    """How Unreal ranks a .pak when two hold the same file; higher wins.
+
+    Patch paks (`*_P.pak`, `*_<n>_P.pak`) mount over base paks, and a higher patch number
+    over a lower one. All base paks rank the same.
+    """
+    m = _PATCH.search(name)
+    if not m:
+        return (0, 0)
+    return (1, int(m.group(1) or 0))
+
+
+def select_source(found):
+    """The `(pak, value)` that wins out of every pak holding the file.
+
+    Only the highest-priority paks count. If more than one of those holds the file and
+    they disagree, there is no telling which the game loads, so this refuses to guess.
+    """
+    if not found:
+        return None
+    top = max(pak_priority(pak) for pak, _v in found)
+    winners = [(pak, v) for pak, v in found if pak_priority(pak) == top]
+    if len({v for _p, v in winners}) > 1:
+        raise SystemExit('paks of equal priority disagree on ProjectVersion: '
+                         + ', '.join(f'{pak} = {v!r}' for pak, v in sorted(winners)))
+    return sorted(winners)[0]
+
+
 def read_game_version(paks, tmp):
-    """The display version ('0.6') of the game whose paks are in `paks`."""
-    for entry in sorted(os.listdir(paks)):
-        if not entry.endswith('.pak'):
+    """The display version ('0.6') of the game whose paks are in `paks`.
+
+    Paks are read from the highest priority down, and the first priority level holding
+    the ini decides: a patch pak's copy replaces the base pak's in game.
+    """
+    names = [e for e in os.listdir(paks) if e.lower().endswith('.pak')]
+    for level in sorted({pak_priority(n) for n in names}, reverse=True):
+        found = []
+        for entry in sorted(n for n in names if pak_priority(n) == level):
+            data = _read_file(os.path.join(paks, entry), INI_PATH, tmp)
+            if data is not None:
+                found.append((entry, project_version(
+                    data.decode('utf-8-sig', errors='replace'))))
+        if not found:
             continue
-        data = _read_file(os.path.join(paks, entry), INI_PATH, tmp)
-        if data is None:
-            continue
-        version = project_version(data.decode('utf-8-sig', errors='replace'))
-        if version:
+        pak, version = select_source(found)
+        if not version:
+            raise SystemExit(f'{pak}: no ProjectVersion in {INI_PATH}')
+        try:
             return display_version(version)
-    raise SystemExit(f'no ProjectVersion in {INI_PATH} in any .pak under {paks}')
+        except ValueError:
+            raise SystemExit(f'{pak}: ProjectVersion {version!r} in {INI_PATH} is not '
+                             'dotted integers') from None
+    raise SystemExit(f'no {INI_PATH} in any .pak under {paks}')
