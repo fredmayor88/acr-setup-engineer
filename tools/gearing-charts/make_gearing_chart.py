@@ -240,8 +240,11 @@ def stock_final_drive(paks, car_asset, axle, tmp):
     return value, ' · '.join(spelled) if spelled else '1//1', chain
 
 
-def template_facts(slug, axle):
-    """Primary-gear and differential options plus the engine's rpm landmarks."""
+def template_facts(slug, axle, require_curve=True):
+    """Primary-gear and differential options plus the engine's rpm landmarks.
+
+    `require_curve=False` is for the site exporter, which finds a curve for a template that has
+    none (the 206 WRC) through the car asset; the max rpm then comes back None."""
     import re
     txt = open(os.path.join(TEMPLATES, slug + '.yaml'), encoding='utf-8').read()
 
@@ -256,9 +259,9 @@ def template_facts(slug, axle):
     # torque may be fractional, so the value side has to allow a decimal point -
     # matching only integers silently truncates the curve and understates the redline
     rpms = [int(v) for v in re.findall(r'\[(\d+), [\d.]+\]', txt)]
-    if not rpms:
+    if not rpms and require_curve:
         raise SystemExit(f'no engine curve in {slug}.yaml')
-    max_rpm = max(rpms)
+    max_rpm = max(rpms) if rpms else None
     # Which ratio is adjustable depends on the drivetrain, not on the axle alone:
     # the Xsara adjusts its centre diff, the Impreza its front, most cars the one
     # on the driven axle. Collect the candidates and let the caller pick the one

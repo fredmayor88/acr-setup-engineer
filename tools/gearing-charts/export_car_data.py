@@ -24,21 +24,26 @@ sys.path.insert(0, os.path.join(REPO, 'tools', 'car-catalog'))
 sys.path.insert(0, os.path.join(REPO, 'tools', 'torque-curves'))
 
 import make_gearing_chart as M                                    # noqa: E402
-from gearing import gear_set, ratio, tyre_geometry                # noqa: E402
+from gearing import (LOADED_RADIUS_FACTOR, gear_set, ratio,       # noqa: E402
+                     tyre_geometry)
 from acrpkg import Package                                        # noqa: E402
 from game_version import read_game_version                        # noqa: E402
+import calibration as CAL                                         # noqa: E402
+from extract_torque_curves import (CAR_MAP as CURVE_CARS,         # noqa: E402
+                                   parse_rich_curve, summarise)
 
 # Only the surfaces that resolve to a real tyre asset. MontecarloStudded is excluded:
 # DA_PirelliTM00Studded does not exist under the name DT_Wheels gives it.
 SURFACES = ('Tarmac_Dry', 'Tarmac_Wet', 'Gravel', 'Sweden', 'Montecarlo')
 
 # Cars known to be unexportable for a reason that is not a regression, so a partial
-# export is still a successful one. The 206 WRC has no engine_curve block in its car
-# template and has never had PNG charts either; generating that curve is a separate job.
+# export is still a successful one. Empty today: the 206 WRC, once listed here for want of
+# an engine curve, now exports on the Xsara WRC curve its car asset points at.
 # Any car failing that is NOT listed here fails the run — see the end of main().
-KNOWN_MISSING = {'peugeot-206-wrc-1999'}
+KNOWN_MISSING = set()
 
-LOADED_RADIUS_FACTOR = 0.9562
+# LOADED_RADIUS_FACTOR is imported from gearing.py, the one copy. It is refitted from
+# calibration.json (python calibration.py) and a test holds the two in step.
 
 
 def _kw(torque_nm, rpm):
@@ -47,8 +52,14 @@ def _kw(torque_nm, rpm):
 
 
 def build_car_json(slug, name, axle, gear_sets, engine_curve, final_drive, tyres,
-                   fixed_final_drive=None):
+                   fixed_final_drive=None, rev_limit=None):
     """One car's complete published record.
+
+    `rev_limit` is `{'rpm', 'source', 'game_v4', 'curve_source', 'curve_from'}`: the resolved
+    rev limit and where it came from (see calibration.resolve_rev_limit), the game's v4 value
+    it was checked against, the vehicle folder the torque curve was read from, and — only when
+    that curve belongs to another car — that car's `{'slug', 'name'}`. The rev limit is not
+    the end of the curve: the curve is kept whole so the power chart can draw all of it.
 
     Every downstream number on the site is derived from this document, so anything the
     browser cannot recompute has to be in here.
@@ -78,14 +89,21 @@ def build_car_json(slug, name, axle, gear_sets, engine_curve, final_drive, tyres
     peak_torque = max(curve, key=lambda r: r[1])
     peak_power = max(curve, key=lambda r: r[2])
 
+    if rev_limit is None:
+        raise ValueError(f'{slug}: a resolved rev limit is required')
+
     doc = {
         'slug': slug,
         'name': name,
         'axle': axle,
         'engine': {
-            'redline': max(r[0] for r in curve),
+            'redline': rev_limit['rpm'],
+            'redline_source': rev_limit['source'],
+            'game_v4': rev_limit.get('game_v4'),
             'peak_torque_rpm': peak_torque[0],
             'peak_power_rpm': peak_power[0],
+            'curve_source': rev_limit.get('curve_source'),
+            'curve_from': rev_limit.get('curve_from'),
             'curve': curve,
         },
         'gear_sets': [
@@ -308,7 +326,7 @@ def car_record(paks, slug, tmp):
     axle = 'Front' if drivetrain and drivetrain.group(1) == 'FWD' else 'Rear'
 
     def read(ax):
-        primaries, candidates, _t, _p, _max = M.template_facts(slug, ax)
+        primaries, candidates, _t, _p, _max = M.template_facts(slug, ax, require_curve=False)
         fd_value, spelled, chain = M.stock_final_drive(paks, car_asset, ax, tmp)
         return (primaries, fd_value) + M.pick_ratio(candidates, chain, ax)
 
@@ -375,11 +393,59 @@ def car_record(paks, slug, tmp):
     if not tyres:
         raise SystemExit(f'{slug}: no tyre resolved on any of {len(SURFACES)} surfaces')
 
-    curve = [(int(r), float(v)) for r, v in re.findall(r'\[(\d+), ([\d.]+)\]', text)]
     display = re.search(r'^car: "(.*)"', text, re.MULTILINE)
     display_name = display.group(1) if display else slug
 
-    return display_name, axle, sets, curve, final_drive, fixed_final_drive, tyres
+    engine = engine_facts(paks, slug, car_asset, text, tmp)
+    return (display_name, axle, sets, engine.pop('curve'), final_drive, fixed_final_drive,
+            tyres, engine)
+
+
+def template_curve(text):
+    """(curve points, vehicle folder) from a template's engine_curve block, or ([], None)."""
+    curve = [(int(r), float(v)) for r, v in re.findall(r'\[(\d+), ([\d.]+)\]', text)]
+    source = re.search(r'source: "ACR game files - FC_(\w+?)_Torque"', text)
+    return curve, (source.group(1) if source else None)
+
+
+def curve_from(folder, own_slug):
+    """{'slug', 'name'} of the car a borrowed curve belongs to; None when it is the car's own."""
+    owner = CURVE_CARS.get(folder)
+    if owner is None or owner[0] == own_slug:
+        return None
+    return {'slug': owner[0], 'name': owner[1]}
+
+
+def engine_facts(paks, slug, car_asset, text, tmp):
+    """The torque curve and the resolved rev limit, with where each came from.
+
+    The curve comes from the template's engine_curve block. A car without one (the 206 WRC)
+    has no FC_*_Torque asset of its own either: its DA_<car> asset points at another car's,
+    so that curve is read from the game files with the torque-curve extractor's own parser.
+    """
+    blob = open(CAL.car_asset(paks, car_asset, tmp), 'rb').read()
+    curve, folder = template_curve(text)
+    if not curve:
+        ref = CAL.torque_curve_ref(blob)
+        if ref is None:
+            raise SystemExit(f'{slug}: no engine curve in the template and no FC_*_Torque '
+                             f'reference in DA_{car_asset}')
+        folder, asset = ref
+        want = asset + '.uasset'
+        hits = [h for h in M.extract(paks, want, tmp) if os.path.basename(h) == want]
+        keys = parse_rich_curve(open(hits[0], 'rb').read()) if hits else None
+        if not keys:
+            raise SystemExit(f'{slug}: could not read the borrowed curve {asset}')
+        curve = [(r, float(v)) for r, v in summarise(keys)['points']]
+
+    stages = CAL.rev_stages(blob)
+    v4 = stages[-1] if stages else None
+    rpm, source, warning = CAL.resolve_rev_limit(slug, v4, CAL.load_calibration())
+    if warning:
+        print(f'  !! {warning}')
+    return {'curve': curve, 'rpm': rpm, 'source': source,
+            'game_v4': int(round(v4)) if v4 is not None else None,
+            'curve_source': folder, 'curve_from': curve_from(folder, slug)}
 
 
 def prune(out, exported):
@@ -432,12 +498,12 @@ def main():
     cars, failed = [], []
     with tempfile.TemporaryDirectory() as tmp:
         for slug in slugs:
-            # One unreadable car must not lose the other seventeen — the same policy
-            # make_gearing_chart's --all uses. A car with no engine_curve block in its
-            # template (the 206 WRC today) has no chart either, so it is simply absent
-            # from the site rather than published with a missing power curve.
+            # One unreadable car must not lose the others — the same policy
+            # make_gearing_chart's --all uses. A car whose engine curve cannot be found
+            # (neither in its template nor through its car asset) is simply absent from
+            # the site rather than published with a missing power curve.
             try:
-                name, axle, sets, curve, fd, fixed_fd, tyres = car_record(
+                name, axle, sets, curve, fd, fixed_fd, tyres, engine = car_record(
                     args.paks, slug, tmp)
             except SystemExit as e:
                 if not args.all:
@@ -448,14 +514,16 @@ def main():
             gears = [([(g, ratio(g)) for g in forward], (p, ratio(p)))
                      for forward, p, _r in sets]
             doc = build_car_json(slug, name, axle, gears, curve, fd, tyres,
-                                 fixed_final_drive=fixed_fd)
+                                 fixed_final_drive=fixed_fd, rev_limit=engine)
             with open(os.path.join(out, 'data', slug + '.json'), 'w',
                       encoding='utf-8', newline='\n') as fh:
                 json.dump(doc, fh, indent=1)
                 fh.write('\n')
             write_car_pages(out, slug, name)
             cars.append({'slug': slug, 'name': name})
-            print(f'{slug}: {len(gears)} gear sets, {len(tyres)} surfaces')
+            print(f'{slug}: {len(gears)} gear sets, {len(tyres)} surfaces, rev limit '
+                  f'{engine["rpm"]} ({engine["source"]}), curve ends '
+                  f'{doc["engine"]["curve"][-1][0]}')
 
     if args.all:
         pruned = prune(out, {c['slug'] for c in cars})
@@ -475,7 +543,7 @@ def main():
         # A partial export must not look like a complete one. index.json and index.html
         # have just been rebuilt from the survivors, so a car that broke in a game patch
         # would otherwise vanish from the site with `make car-lab` still reporting
-        # success. KNOWN_MISSING keeps the one documented, long-standing gap from making
+        # success. KNOWN_MISSING is for a documented, long-standing gap that would make
         # the target permanently red — anything else is a real regression and fails.
         unexpected = [f for f in failed if f.split(':')[0] not in KNOWN_MISSING]
         if unexpected:

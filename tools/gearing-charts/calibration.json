@@ -1,0 +1,499 @@
+{
+ "_doc": "Measured in game by Fred Mayor: rev limiters from SimHub telemetry, per-gear top speeds from the in-game speedometer. ACR 0.6, 2026-09-13; Stratos speed runs 2026-09-11. Units: rpm and km/h. Limiter accuracy is about +-200 rpm. rev_limiters[car].game_v4 is the last value of the car's shift-light rev stages in DA_<car>.uasset (calibration.rev_stages) as read when the limiter was measured; it is a change detector, not the limiter. speed_runs are all on dry tarmac with gear 1 first; gears, primary, option, rest and free_radius are the run's gearing as read from the game files by the exporter (rest is the fixed ratio below the adjustable one, 1 on most cars). The fit is in the 'fit' block: see calibration.fit_factor.",
+ "rev_limiters": {
+  "alfa-romeo-gta-1300-junior-1972": {
+   "rpm": 8450,
+   "game_v4": 8500
+  },
+  "alpine-a110-1-8-1973": {
+   "rpm": 7000,
+   "game_v4": 6900
+  },
+  "audi-quattro-gr4-1981": {
+   "rpm": 7000,
+   "game_v4": 6950
+  },
+  "citroen-xsara-wrc-2003": {
+   "rpm": 7400,
+   "game_v4": 7300
+  },
+  "fiat-124-abarth-rally-16v-1974": {
+   "rpm": 8000,
+   "game_v4": 8000
+  },
+  "fiat-131-abarth-1976": {
+   "rpm": 8000,
+   "game_v4": 7900
+  },
+  "hyundai-i20-rally2-2021": {
+   "rpm": 7500,
+   "game_v4": 7300
+  },
+  "lancia-037-evoluzione-2-1984": {
+   "rpm": 8450,
+   "game_v4": 8000
+  },
+  "lancia-delta-integrale-evoluzione-1992": {
+   "rpm": 7200,
+   "game_v4": 7050
+  },
+  "lancia-fulvia-coupe-hf-1970": {
+   "rpm": 7150,
+   "game_v4": 7150
+  },
+  "lancia-stratos": {
+   "rpm": 8450,
+   "game_v4": 8000
+  },
+  "mini-cooper-s-1964": {
+   "rpm": 7400,
+   "game_v4": 7300
+  },
+  "peugeot-206-wrc-1999": {
+   "rpm": 7400,
+   "game_v4": 7300
+  },
+  "peugeot-208-rally4": {
+   "rpm": 6700,
+   "game_v4": 6750
+  },
+  "peugeot-306-ii-maxi-1997": {
+   "rpm": 9500,
+   "game_v4": 9500
+  },
+  "skoda-fabia-rs-rally2-2022": {
+   "rpm": 7500,
+   "game_v4": 7300
+  },
+  "subaru-impreza-555-s3-1993": {
+   "rpm": 6700,
+   "game_v4": 6500
+  },
+  "volkswagen-polo-gti-r5-2018": {
+   "rpm": 7400,
+   "game_v4": 7300
+  }
+ },
+ "speed_runs": [
+  {
+   "car": "lancia-stratos",
+   "gear_set": "Gear set 1",
+   "measured": "2026-09-11",
+   "surface": "Tarmac_Dry",
+   "primary": "35//30*33//28",
+   "option": "65//17",
+   "rest": 1.0,
+   "free_radius": 0.296,
+   "gears": [
+    "42//15",
+    "39//19",
+    "34//21",
+    "33//25",
+    "30//26"
+   ],
+   "kmh": [
+    65,
+    87,
+    109,
+    134,
+    154
+   ]
+  },
+  {
+   "car": "lancia-stratos",
+   "gear_set": "Gear set 2",
+   "measured": "2026-09-11",
+   "surface": "Tarmac_Dry",
+   "primary": "35//30*33//28",
+   "option": "65//17",
+   "rest": 1.0,
+   "free_radius": 0.296,
+   "gears": [
+    "44//14",
+    "38//17",
+    "37//21",
+    "34//24",
+    "30//26"
+   ],
+   "kmh": [
+    58,
+    80,
+    101,
+    125,
+    154
+   ]
+  },
+  {
+   "car": "lancia-stratos",
+   "gear_set": "Gear set 3",
+   "measured": "2026-09-11",
+   "surface": "Tarmac_Dry",
+   "primary": "35//30*33//28",
+   "option": "65//17",
+   "rest": 1.0,
+   "free_radius": 0.296,
+   "gears": [
+    "42//13",
+    "38//17",
+    "34//21",
+    "30//25",
+    "26//29"
+   ],
+   "kmh": [
+    57,
+    80,
+    110,
+    147,
+    197
+   ]
+  },
+  {
+   "car": "peugeot-306-ii-maxi-1997",
+   "gear_set": "Gear set 4",
+   "measured": "2026-09-13",
+   "surface": "Tarmac_Dry",
+   "primary": "25//25",
+   "option": "68//12",
+   "rest": 1.0,
+   "free_radius": 0.324,
+   "gears": [
+    "31//11",
+    "26//12",
+    "26//15",
+    "23//16",
+    "21//17",
+    "23//21"
+   ],
+   "kmh": [
+    72,
+    93,
+    114,
+    138,
+    161,
+    183
+   ]
+  },
+  {
+   "car": "citroen-xsara-wrc-2003",
+   "gear_set": "Gear set 1",
+   "measured": "2026-09-13",
+   "surface": "Tarmac_Dry",
+   "primary": "25//25",
+   "option": "39//24",
+   "rest": 2.7857142857142856,
+   "free_radius": 0.324,
+   "gears": [
+    "37//12",
+    "33//14",
+    "28//15",
+    "29//19",
+    "23//18",
+    "25//23"
+   ],
+   "kmh": [
+    65,
+    85,
+    106,
+    130,
+    156,
+    183
+   ]
+  },
+  {
+   "car": "lancia-037-evoluzione-2-1984",
+   "gear_set": "Gear set 2",
+   "measured": "2026-09-13",
+   "surface": "Tarmac_Dry",
+   "primary": "25//25",
+   "option": "46//9",
+   "rest": 1.0,
+   "free_radius": 0.3295,
+   "gears": [
+    "29//12",
+    "29//17",
+    "26//19",
+    "28//24",
+    "26//26"
+   ],
+   "kmh": [
+    84,
+    118,
+    146,
+    170,
+    201
+   ]
+  }
+ ],
+ "fit": {
+  "loaded_radius_factor": 0.9858,
+  "formula": "implied factor per gear = measured_kmh / (limiter_rpm * 2 * pi * free_radius * 0.06 / (gear * primary * rest * option)); factor = mean over gears 2+ of every run, each gear weighted equally, rounded to 4 decimals. Gear 1 is excluded: its top speed is the least precise reading.",
+  "runs": [
+   {
+    "car": "lancia-stratos",
+    "gear_set": "Gear set 1",
+    "limiter_rpm": 8450,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 65,
+      "predicted": 63.1,
+      "error_pct": -2.85,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 87,
+      "predicted": 86.1,
+      "error_pct": -0.99,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 109,
+      "predicted": 109.2,
+      "error_pct": 0.19,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 134,
+      "predicted": 133.9,
+      "error_pct": -0.04,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 154,
+      "predicted": 153.2,
+      "error_pct": -0.5,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "lancia-stratos",
+    "gear_set": "Gear set 2",
+    "limiter_rpm": 8450,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 58,
+      "predicted": 56.3,
+      "error_pct": -3.01,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 80,
+      "predicted": 79.1,
+      "error_pct": -1.13,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 101,
+      "predicted": 100.4,
+      "error_pct": -0.64,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 125,
+      "predicted": 124.8,
+      "error_pct": -0.16,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 154,
+      "predicted": 153.2,
+      "error_pct": -0.5,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "lancia-stratos",
+    "gear_set": "Gear set 3",
+    "limiter_rpm": 8450,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 57,
+      "predicted": 54.7,
+      "error_pct": -3.99,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 80,
+      "predicted": 79.1,
+      "error_pct": -1.13,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 110,
+      "predicted": 109.2,
+      "error_pct": -0.72,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 147,
+      "predicted": 147.3,
+      "error_pct": 0.23,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 197,
+      "predicted": 197.2,
+      "error_pct": 0.11,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "peugeot-306-ii-maxi-1997",
+    "gear_set": "Gear set 4",
+    "limiter_rpm": 9500,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 72,
+      "predicted": 71.6,
+      "error_pct": -0.51,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 93,
+      "predicted": 93.2,
+      "error_pct": 0.18,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 114,
+      "predicted": 116.5,
+      "error_pct": 2.16,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 138,
+      "predicted": 140.4,
+      "error_pct": 1.76,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 161,
+      "predicted": 163.4,
+      "error_pct": 1.5,
+      "fitted": true
+     },
+     {
+      "gear": 6,
+      "measured": 183,
+      "predicted": 184.3,
+      "error_pct": 0.72,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "citroen-xsara-wrc-2003",
+    "gear_set": "Gear set 1",
+    "limiter_rpm": 7400,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 65,
+      "predicted": 63.8,
+      "error_pct": -1.79,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 85,
+      "predicted": 83.5,
+      "error_pct": -1.76,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 106,
+      "predicted": 105.4,
+      "error_pct": -0.52,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 130,
+      "predicted": 129.0,
+      "error_pct": -0.8,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 156,
+      "predicted": 154.0,
+      "error_pct": -1.25,
+      "fitted": true
+     },
+     {
+      "gear": 6,
+      "measured": 183,
+      "predicted": 181.1,
+      "error_pct": -1.04,
+      "fitted": true
+     }
+    ]
+   },
+   {
+    "car": "lancia-037-evoluzione-2-1984",
+    "gear_set": "Gear set 2",
+    "limiter_rpm": 8450,
+    "gears": [
+     {
+      "gear": 1,
+      "measured": 84,
+      "predicted": 83.8,
+      "error_pct": -0.27,
+      "fitted": false
+     },
+     {
+      "gear": 2,
+      "measured": 118,
+      "predicted": 118.7,
+      "error_pct": 0.57,
+      "fitted": true
+     },
+     {
+      "gear": 3,
+      "measured": 146,
+      "predicted": 147.9,
+      "error_pct": 1.33,
+      "fitted": true
+     },
+     {
+      "gear": 4,
+      "measured": 170,
+      "predicted": 173.5,
+      "error_pct": 2.08,
+      "fitted": true
+     },
+     {
+      "gear": 5,
+      "measured": 201,
+      "predicted": 202.4,
+      "error_pct": 0.72,
+      "fitted": true
+     }
+    ]
+   }
+  ]
+ }
+}

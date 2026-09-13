@@ -30,19 +30,48 @@ def stratos_inputs():
     return sets, curve, fd, tyres
 
 
+# The Stratos's resolved rev limit: measured, and well short of its curve's 8750 end.
+RL = {'rpm': 8450, 'source': 'measured', 'game_v4': 8000,
+      'curve_source': 'LanciaStratosHF', 'curve_from': None}
+
+
 class BuildCarJson(unittest.TestCase):
     def setUp(self):
         sets, curve, fd, tyres = stratos_inputs()
         self.doc = build_car_json('lancia-stratos', 'Lancia Stratos HF', 'Rear',
-                                  sets, curve, fd, tyres)
+                                  sets, curve, fd, tyres, rev_limit=RL)
 
     def test_identity_fields(self):
         self.assertEqual(self.doc['slug'], 'lancia-stratos')
         self.assertEqual(self.doc['name'], 'Lancia Stratos HF')
         self.assertEqual(self.doc['axle'], 'Rear')
 
-    def test_redline_is_the_highest_rpm_in_the_curve(self):
-        self.assertEqual(self.doc['engine']['redline'], 8750)
+    def test_redline_is_the_resolved_rev_limit_not_the_curve_end(self):
+        self.assertEqual(self.doc['engine']['redline'], 8450)
+        self.assertEqual(self.doc['engine']['redline_source'], 'measured')
+        self.assertEqual(self.doc['engine']['game_v4'], 8000)
+
+    def test_the_curve_keeps_its_full_extent(self):
+        self.assertEqual(self.doc['engine']['curve'][-1][0], 8750)
+
+    def test_a_rev_limit_is_required(self):
+        sets, curve, fd, tyres = stratos_inputs()
+        with self.assertRaises(ValueError):
+            build_car_json('x', 'X', 'Rear', sets, curve, fd, tyres)
+
+    def test_an_own_curve_has_no_borrowed_owner(self):
+        self.assertEqual(self.doc['engine']['curve_source'], 'LanciaStratosHF')
+        self.assertIsNone(self.doc['engine']['curve_from'])
+
+    def test_a_borrowed_curve_names_its_owner(self):
+        sets, curve, fd, tyres = stratos_inputs()
+        borrowed = dict(RL, curve_source='CitroenXsaraWRC',
+                        curve_from={'slug': 'citroen-xsara-wrc-2003',
+                                    'name': 'Citroen Xsara WRC 2003'})
+        doc = build_car_json('peugeot-206-wrc-1999', 'Peugeot 206 WRC 1999', 'Rear',
+                             sets, curve, fd, tyres, rev_limit=borrowed)
+        self.assertEqual(doc['engine']['curve_source'], 'CitroenXsaraWRC')
+        self.assertEqual(doc['engine']['curve_from']['name'], 'Citroen Xsara WRC 2003')
 
     def test_curve_carries_power_in_kw(self):
         # kW = Nm * rpm / 9549
@@ -68,7 +97,10 @@ class BuildCarJson(unittest.TestCase):
                          {'asset': 'PirelliT03', 'free_radius': 0.2960})
 
     def test_default_factor_is_exported(self):
-        self.assertEqual(self.doc['defaults']['loaded_radius_factor'], 0.9562)
+        import gearing
+        self.assertEqual(self.doc['defaults']['loaded_radius_factor'], 0.9858)
+        self.assertEqual(self.doc['defaults']['loaded_radius_factor'],
+                         gearing.LOADED_RADIUS_FACTOR)
 
     def test_final_drive_options_carry_spelling_and_value(self):
         fd = self.doc['final_drive']
@@ -80,7 +112,7 @@ class BuildCarJson(unittest.TestCase):
 
     def test_non_adjustable_final_drive_is_null(self):
         sets, curve, _, tyres = stratos_inputs()
-        doc = build_car_json('x', 'X', 'Front', sets, curve, None, tyres)
+        doc = build_car_json('x', 'X', 'Front', sets, curve, None, tyres, rev_limit=RL)
         self.assertIsNone(doc['final_drive'])
 
     def test_adjustable_car_has_no_fixed_final_drive(self):
@@ -93,7 +125,7 @@ class BuildCarJson(unittest.TestCase):
         # absolute km/h is reachable for the car
         sets, curve, _, tyres = stratos_inputs()
         doc = build_car_json('x', 'X', 'Front', sets, curve, None, tyres,
-                             fixed_final_drive=4.230769)
+                             fixed_final_drive=4.230769, rev_limit=RL)
         self.assertIsNone(doc['final_drive'])
         self.assertAlmostEqual(doc['fixed_final_drive'], 4.230769, places=6)
 
@@ -101,7 +133,7 @@ class BuildCarJson(unittest.TestCase):
         # the two fields are mutually exclusive whatever the caller passes
         sets, curve, fd, tyres = stratos_inputs()
         doc = build_car_json('x', 'X', 'Rear', sets, curve, fd, tyres,
-                             fixed_final_drive=4.230769)
+                             fixed_final_drive=4.230769, rev_limit=RL)
         self.assertIsNotNone(doc['final_drive'])
         self.assertIsNone(doc['fixed_final_drive'])
 
@@ -138,7 +170,8 @@ class PerGearSetPrimary(unittest.TestCase):
     def setUp(self):
         sets, curve, tyres = mini_inputs()
         self.doc = build_car_json('mini-cooper-s-1964', 'Mini Cooper S 1964', 'Front',
-                                  sets, curve, None, tyres, fixed_final_drive=3.7647)
+                                  sets, curve, None, tyres, fixed_final_drive=3.7647,
+                                  rev_limit=dict(RL, rpm=7400))
 
     def test_each_gear_set_carries_its_own_primary(self):
         got = [(gs['primary']['name'], gs['primary']['value'])
@@ -186,9 +219,9 @@ class PerGearSetPrimary(unittest.TestCase):
 
 class GeneratedDate(unittest.TestCase):
     def test_car_documents_do_not_carry_a_build_date(self):
-        # stamping it into every car turned a no-op re-run into a 17-file diff
+        # stamping it into every car turned a no-op re-run into an 18-file diff
         sets, curve, fd, tyres = stratos_inputs()
-        doc = build_car_json('x', 'X', 'Rear', sets, curve, fd, tyres)
+        doc = build_car_json('x', 'X', 'Rear', sets, curve, fd, tyres, rev_limit=RL)
         self.assertNotIn('generated', doc)
 
     def test_the_index_carries_the_build_date(self):
@@ -262,7 +295,7 @@ class RenderPages(unittest.TestCase):
         self.assertEqual([c['slug'] for c in doc['cars']], ['a', 'b'])
 
     def test_index_page_states_the_car_count_it_actually_lists(self):
-        # the 206 WRC is not exported, so "every car in the game" would be untrue
+        # the count is whatever was exported, never a claim about the whole game
         cars = [{'slug': f's{i}', 'name': f'Car {i}'} for i in range(3)]
         html = render_index_page(cars)
         self.assertIn('<h1>3 cars, gear by gear</h1>', html)
@@ -528,3 +561,30 @@ class Prune(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class EngineSources(unittest.TestCase):
+    def test_template_curve_reads_points_and_folder(self):
+        from export_car_data import template_curve
+        text = ('engine_curve:\n  source: "ACR game files - FC_LanciaStratosHF_Torque"\n'
+                '  torque_points: [\n    [0, 0], [250, 12.5], [8750, 192]\n  ]\n')
+        curve, folder = template_curve(text)
+        self.assertEqual(curve, [(0, 0.0), (250, 12.5), (8750, 192.0)])
+        self.assertEqual(folder, 'LanciaStratosHF')
+
+    def test_template_without_a_curve(self):
+        from export_car_data import template_curve
+        self.assertEqual(template_curve('car: "Peugeot 206 WRC 1999"\n'), ([], None))
+
+    def test_curve_from_is_none_for_the_cars_own_curve(self):
+        from export_car_data import curve_from
+        self.assertIsNone(curve_from('CitroenXsaraWRC', 'citroen-xsara-wrc-2003'))
+
+    def test_curve_from_names_the_owner_of_a_borrowed_curve(self):
+        from export_car_data import curve_from
+        self.assertEqual(curve_from('CitroenXsaraWRC', 'peugeot-206-wrc-1999'),
+                         {'slug': 'citroen-xsara-wrc-2003', 'name': 'Citroen Xsara WRC 2003'})
+
+    def test_no_car_is_known_missing_any_more(self):
+        from export_car_data import KNOWN_MISSING
+        self.assertNotIn('peugeot-206-wrc-1999', KNOWN_MISSING)
