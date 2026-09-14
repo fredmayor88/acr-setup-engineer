@@ -67,43 +67,89 @@ def number_word(n):
 
 # ---- the facts -----------------------------------------------------------------------------
 
+# no-break spaces either side of the ÷, so a wrapped formula never starts a line with ÷ 2
+NBSP_DIV2 = '\u00a0÷\u00a02'
+
+
+def _chain(fd, keys, fixed):
+    """A chain's settings by game name, then its fixed ratio where it is not 1."""
+    names = {s['key']: s['adjustment'] for s in fd['settings']}
+    return [names[k] for k in keys] + ([] if abs(fixed - 1) < 1e-9 else [f'{fixed:.3f}'])
+
+
+def formula_expression(fd):
+    """The final drive of an AWD car with ratio settings, expanded into its game names: the
+    right-hand side of the Final drive note on the gears page (js/charts/finalDrive.js
+    formulaExpression)."""
+    f = fd['formula']
+    pre = ' × '.join(_chain(fd, f['pre'], f['fixed_pre']))
+    axles = (f"({' × '.join(_chain(fd, f['front'], f['fixed_front'])) or '1'} + "
+             f"{' × '.join(_chain(fd, f['rear'], f['fixed_rear'])) or '1'}){NBSP_DIV2}")
+    return f'{pre + " × " if pre else ""}{axles}'
+
+
 def formula_note(fd):
     """The same line as the Final drive note on the gears page (js/charts/finalDrive.js
-    formulaNote) for the averaged-axle cars; '' for every other car."""
+    formulaNote) for the cars with front and rear ratio settings; '' for every other car."""
     if not fd or 'settings' not in fd:
         return ''
     f = fd['formula']
-    names = {s['key']: s['adjustment'] for s in fd['settings']}
-
-    def product(keys, fixed):
-        """A chain's settings by game name, then its fixed ratio where it is not 1; '1' if empty."""
-        parts = [names[k] for k in keys] + ([] if abs(fixed - 1) < 1e-9 else [f'{fixed:.3f}'])
-        return ' × '.join(parts) or '1'
-
-    pre = product(f['pre'], f['fixed_pre'])
-    axles = (f'({product(f["front"], f["fixed_front"])} + '
-             f'{product(f["rear"], f["fixed_rear"])})\u00a0÷\u00a02')
     fixed = (' (the front and rear differentials are fixed)'
              if not f['front'] and not f['rear'] else '')
-    return f'Final drive = {"" if pre == "1" else pre + " × "}{axles}{fixed}'
+    return f'Final drive = {formula_expression(fd)}{fixed}'
+
+
+def path_ratio_lines(fd):
+    """`front path ratio = …` and `rear path ratio = …`: everything before the centre
+    differential, then that path's own ratios."""
+    f = fd['formula']
+    pre = _chain(fd, f['pre'], f['fixed_pre'])
+    return [f'{side} path ratio = '
+            + (' × '.join(pre + _chain(fd, f[side], f[f'fixed_{side}'])) or '1')
+            for side in ('front', 'rear')]
+
+
+def final_drive_formula(doc):
+    """The formula lines for the final drive: the (front + rear) ÷ 2 rule and its expanded form
+    on a car with ratio settings, else the single ratio or the fixed value."""
+    fd = doc['final_drive']
+    if fd is None:
+        return [f'final drive = {doc["fixed_final_drive"]:.3f} (fixed)']
+    if 'settings' in fd:
+        return [f'final drive = (front path ratio + rear path ratio){NBSP_DIV2}',
+                f'final drive = {formula_expression(fd)}']
+    rest = '' if abs(fd['rest'] - 1) < 1e-9 else f' × {fd["rest"]:.3f}'
+    return [f'final drive = {fd["adjustment"]}{rest}']
+
+
+def primary_formula(doc):
+    fd = doc['final_drive']
+    if fd and fd['primaries']:
+        return ['primary = Primary Gear']
+    return ["primary = the gear set's own primary"]
 
 
 def final_drive_lines(doc):
-    """(plain sentence, formula) for how the final drive is worked out."""
+    """(one plain sentence, [formula lines]) for the Final drive fact."""
     fd = doc['final_drive']
     if fd is None:
-        return ('Nothing below the gearbox is adjustable.',
-                f'Final drive is fixed at {doc["fixed_final_drive"]:.3f}.')
+        return 'Nothing below the gearbox is adjustable.', final_drive_formula(doc)
     if 'settings' in fd:
-        if fd['formula'].get('centre_differential') is False:
+        f = fd['formula']
+        lines = path_ratio_lines(fd) + final_drive_formula(doc)
+        if f.get('centre_differential') is False:
             # assumed, not measured: the axles cannot be run apart to test it
-            return ('The final drive is taken as (front axle ratio + rear axle ratio)\u00a0÷\u00a02.',
-                    formula_note(fd))
-        return ('The drive splits to the front and rear axles, and the gearbox output turns at '
-                '(front axle ratio + rear axle ratio)\u00a0÷\u00a02 times wheel speed.', formula_note(fd))
-    rest = '' if abs(fd['rest'] - 1) < 1e-9 else f' × {fd["rest"]:.3f}'
-    return ('One ratio sits below the gearbox, and setup offers it.',
-            f'Final drive = {fd["adjustment"]}{rest}.')
+            return ('There is no centre differential, so this formula is taken from the cars '
+                    'where it was measured.', lines)
+        names = {s['key']: s['adjustment'] for s in fd['settings']}
+        pre = [names[k] for k in f['pre']]
+        sentence = (f'{join_words(pre)} {"is" if len(pre) == 1 else "are"} applied before the '
+                    'centre differential' if pre
+                    else 'Nothing is applied before the centre differential')
+        if not f['front'] and not f['rear']:
+            sentence += '; the front and rear differentials are fixed in the game files'
+        return sentence + '.', lines
+    return 'One ratio sits below the gearbox, and setup offers it.', final_drive_formula(doc)
 
 
 def runs_of_length(values):
@@ -225,7 +271,9 @@ def run_ratios(doc, run, hypothesis):
       front or rear axle chain alone instead of their average;
     - `settings`: `{game name: spelling}` put over the run's settings;
     - `primary`: a spelling that replaces the run's, or 'times_set' — the run's primary
-      multiplied by the gear set's own.
+      multiplied by the gear set's own;
+    - `rest`: 'fixed_front' or 'fixed_rear' — on a run with a fixed ratio below its setting
+      (the Xsara), that one fixed differential alone instead of the run's stored `rest`.
     """
     if 'settings' in run:
         chain = [ratio(c) for c in with_settings(run['chain'],
@@ -238,7 +286,11 @@ def run_ratios(doc, run, hypothesis):
     else:
         if 'path' in hypothesis or 'settings' in hypothesis:
             raise ValueError('path and settings need a run that stores its settings')
-        below = run['rest'] * ratio(run['option'])
+        rest = run['rest']
+        if 'rest' in hypothesis:
+            f = doc['final_drive']['formula']
+            rest = f['fixed_pre'] * f[hypothesis['rest']]
+        below = rest * ratio(run['option'])
     primary = ratio(run['primary'])
     if hypothesis.get('primary') == 'times_set':
         primary *= set_primary(doc, run['gear_set'])
@@ -341,16 +393,68 @@ def fill(text, ctx):
     return out
 
 
-def workings_paragraphs(doc, cal, notes, factor=LOADED_RADIUS_FACTOR):
-    """The filled paragraphs of "How we worked it out" for one car: the common intro, the
-    rev-limit line for its source, then the car's own, where `@name` pulls in a shared one."""
+FORMULA_REFS = {'@paths': lambda doc: path_ratio_lines(doc['final_drive']),
+                '@final_drive': final_drive_formula,
+                '@primary': primary_formula}
+
+
+def workings_blocks(doc, cal, notes, factor=LOADED_RADIUS_FACTOR):
+    """The filled blocks of "How we worked it out" for one car, in order: the common intro, the
+    rev-limit line for its source, then the car's own. Each block is ('p', text),
+    ('formula', [lines]) or ('list', [items]).
+
+    In the notes an item is a paragraph string, `{"formula": [lines]}` (a line `@paths`,
+    `@final_drive` or `@primary` is the car's computed formula lines), `{"list": [items]}`, or
+    `@name`, which pulls in common[name]: one item or a list of items."""
     ctx = Context(doc, cal, notes, factor)
     common = notes['common']
     source = doc['engine']['redline_source']
-    items = list(common['intro']) + [common['rev_limit'][source]]
-    for item in notes['cars'][doc['slug']]['workings']:
-        items.append(common[item[1:]] if item.startswith('@') else item)
-    return [fill(p, ctx) for p in items]
+
+    def expand(item):
+        if isinstance(item, str) and item.startswith('@'):
+            ref = common[item[1:]]
+            return [x for i in (ref if isinstance(ref, list) else [ref]) for x in expand(i)]
+        return [item]
+
+    raw = [x for i in (common['intro'] + [common['rev_limit'][source]]
+                       + notes['cars'][doc['slug']]['workings']) for x in expand(i)]
+    blocks = []
+    for item in raw:
+        if isinstance(item, str):
+            blocks.append(('p', fill(item, ctx)))
+        elif 'formula' in item:
+            lines = []
+            for line in item['formula']:
+                lines += FORMULA_REFS[line](doc) if line in FORMULA_REFS else [fill(line, ctx)]
+            blocks.append(('formula', lines))
+        elif 'list' in item:
+            blocks.append(('list', [fill(x, ctx) for x in item['list']]))
+        else:
+            raise ValueError(f'unknown workings item {item!r}')
+    return blocks
+
+
+def workings_paragraphs(doc, cal, notes, factor=LOADED_RADIUS_FACTOR):
+    """Every piece of text in "How we worked it out", one string per paragraph, formula line
+    or list item."""
+    out = []
+    for kind, body in workings_blocks(doc, cal, notes, factor):
+        out += [body] if kind == 'p' else body
+    return out
+
+
+def formula_html(lines):
+    return ('<div class="formula">'
+            + ''.join(f'<code>{esc(line)}</code>' for line in lines) + '</div>')
+
+
+def block_html(block):
+    kind, body = block
+    if kind == 'p':
+        return f'<p>{esc(body)}</p>'
+    if kind == 'formula':
+        return formula_html(body)
+    return '<ol class="hyp">' + ''.join(f'<li>{esc(x)}</li>' for x in body) + '</ol>'
 
 
 # ---- measured ------------------------------------------------------------------------------
@@ -475,8 +579,8 @@ def facts_html(doc, template_text, cal, notes, game_version):
     rows = [
         ('Layout', esc(LAYOUTS.get(layout, layout or 'unknown'))),
         ('Gearing settings', f'<ul class="settings">{settings}</ul>'),
-        ('Final drive', f'{esc(sentence)}<br><span class="formula">{esc(formula)}</span>'),
-        ('Primary gear', esc(primary_text(doc))),
+        ('Final drive', f'{esc(sentence)}{formula_html(formula)}'),
+        ('Primary gear', f'{esc(primary_text(doc))}{formula_html(primary_formula(doc))}'),
         ('Rev limit', esc(rev_limit_text(doc, cal['rev_limiters'].get(doc['slug']),
                                          game_version))),
         ('Engine curve', esc(engine_curve_text(doc))),
@@ -489,14 +593,15 @@ def facts_html(doc, template_text, cal, notes, game_version):
 
 
 def workings_html(doc, cal, notes):
-    paras = workings_paragraphs(doc, cal, notes)
-    first, rest = paras[0], paras[1:]
+    blocks = workings_blocks(doc, cal, notes)
+    if blocks[0][0] != 'p':
+        raise ValueError('the workings open with a paragraph')
     return ('<section class="workings" id="workings">\n'
             '<div class="workhead" data-event="' + WORKINGS_EVENT + '">'
             '<h2>How we worked it out</h2>'
             '<p class="cap">The reasoning and the in-game runs behind the numbers above.</p>'
-            f'<p>{esc(first)}</p></div>\n'
-            + '\n'.join(f'<p>{esc(p)}</p>' for p in rest)
+            f'{block_html(blocks[0])}</div>\n'
+            + '\n'.join(block_html(b) for b in blocks[1:])
             + '\n</section>')
 
 
