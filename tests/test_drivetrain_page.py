@@ -87,8 +87,10 @@ class Notes(unittest.TestCase):
                 bare = re.sub(r'[\d()+]+//[\d()+]+(?:\*[\d()+]+//[\d()+]+)*', '', bare)
                 bare = re.sub(r'\b(?:037|124|131|206|208|306|555|i20|S3)\b', '', bare)
                 bare = re.sub(r'\b[1-7](?:st|nd|rd|th)\b', '', bare)
-                bare = re.sub(r'gear sets? \d(?: and \d)?', '', bare)
+                bare = re.sub(r'gear sets? \d(?: and \d)?', '', bare, flags=re.I)
                 bare = re.sub(r'a ratio of 1|1 everywhere', '', bare)
+                # the formulas' own constants: (1 + rear chain) and the ÷ 2
+                bare = re.sub(r'\(1 \+|÷ 2', '', bare)
                 with self.subTest(car=slug, p=p[:40]):
                     self.assertNotRegex(bare, r'\d')
 
@@ -261,17 +263,16 @@ class Pages(unittest.TestCase):
         self.assertIn('Four-wheel drive', facts[DELTA])
         self.assertIn('Front-wheel drive', facts[MINI])
         self.assertIn('Rear-wheel drive', facts[STRATOS])
-        self.assertIn('Final drive = average of the front axle (Center Differential Ratio) and '
-                      'the rear axle (Center Differential Ratio × Center Ratio to Rear × '
-                      'Differential Ratio Rear).', facts[DELTA])
-        self.assertIn('Final drive = Center Differential Ratio × average of Differential Ratio '
-                      'Front and Differential Ratio Rear.', facts[P206])
-        self.assertIn('Final drive = average of Differential Ratio Front and Center Ratio to Rear '
-                      '× Differential Ratio Rear.', facts[IMPREZA])
-        self.assertIn('Final drive = Center Differential Ratio × 2.782 (the front and rear '
-                      'differentials are fixed).', facts[XSARA])
-        self.assertIn('Final drive = average of Differential Ratio Front and Differential Ratio '
-                      'Rear.', facts[AUDI])
+        self.assertIn('Final drive = Center Differential Ratio × (1 + Center Ratio to Rear × '
+                      'Differential Ratio Rear) ÷ 2', facts[DELTA])
+        self.assertIn('Final drive = Center Differential Ratio × (Differential Ratio Front + '
+                      'Differential Ratio Rear) ÷ 2', facts[P206])
+        self.assertIn('Final drive = (Differential Ratio Front + Center Ratio to Rear × '
+                      'Differential Ratio Rear) ÷ 2', facts[IMPREZA])
+        self.assertIn('Final drive = Center Differential Ratio × (2.778 + 2.786) ÷ 2 (the front '
+                      'and rear differentials are fixed)', facts[XSARA])
+        self.assertIn('Final drive = (Differential Ratio Front + Differential Ratio Rear) ÷ 2',
+                      facts[AUDI])
         self.assertIn('Final drive = Differential Ratio Front.', facts[MINI])
         self.assertIn('Final drive is fixed at 4.231.', facts[FABIA])
         self.assertIn('fixed at 4.231, no selectable ratio', facts[FABIA])
@@ -299,20 +300,20 @@ class Pages(unittest.TestCase):
                 self.assertIn('14 runs across seven cars', text)
                 self.assertNotIn('verified', text.lower())
                 self.assertNotIn('science', text.lower())
-        averaging = 'Why an average'
+        averaging = 'Why (front + rear) ÷ 2'
         for slug in M.CARS:
             self.assertEqual(averaging in work[slug], slug in (DELTA, P206, IMPREZA, XSARA, AUDI),
                              slug)
-        self.assertIn('rear settings that do nothing meant about 182 km/h, the average about '
-                      '161. Fred got 160.', work[DELTA])
+        self.assertIn('rear settings that do nothing meant about 182 km/h, and (front + rear) ÷ 2 '
+                      'about 161. The run read 160.', work[DELTA])
         self.assertIn('The rear alone would have meant about 174 km/h in 4th, the front alone '
-                      'about 117. Fred got 142', work[P206])
+                      'about 117. The run read 142', work[P206])
         self.assertIn('20//25 would have put them about 8% and 14% too high', work[P206])
         self.assertIn('31//21 (1.476)', work[P206])
         self.assertIn('4th tops out at about 163 km/h; if it does nothing, 143; if it divides, '
-                      '124. Fred got 164', work[IMPREZA])
+                      '124. The run read 164', work[IMPREZA])
         self.assertIn('multiplying would have put 5th at about 180 km/h; replacing puts it at '
-                      '198. Fred got 197', work[STRATOS])
+                      '198. The run read 197', work[STRATOS])
         self.assertIn("can't be tested on this car", work[AUDI])
         self.assertIn('It has not been tested on this car.', work[MINI])
         self.assertIn('It has not been tested on this car.', work[FABIA])
@@ -507,9 +508,10 @@ class ExportRuns(unittest.TestCase):
             top = text_of(section(E.render_drivetrain_page(site_doc(slug), template(slug), cal,
                                                            notes), 'top'))
             with self.subTest(car=slug):
-                self.assertEqual('taken as the average of the front and rear axles' in top,
-                                 slug == AUDI)
-                self.assertEqual('the gearbox turns at the average of the two' in top,
+                self.assertEqual('The final drive is taken as (front axle ratio + rear axle ratio) '
+                                 '÷ 2.' in top, slug == AUDI)
+                self.assertEqual('the gearbox output turns at (front axle ratio + rear axle ratio) '
+                                 '÷ 2 times wheel speed.' in top,
                                  slug in (DELTA, P206, IMPREZA, XSARA))
 
     def test_every_torque_curve_runs_past_the_rev_limit(self):
@@ -530,11 +532,12 @@ class ReviewCopy(unittest.TestCase):
         return text_of(section(html, 'workings'))
 
     def test_corrections(self):
-        self.assertIn('The same reading fits Fred\'s runs on the Stratos and the 037 (Differential '
+        self.assertIn('The same reading fits the runs on the Stratos and the 037 (Differential '
                       'Ratio Rear) and on the 306 Maxi (Differential Ratio Front).', self.work(MINI))
-        self.assertIn('Fred got 142; the average of the two ratios puts it at 140: each axle '
-                      'counts half.', self.work(P206))
-        self.assertIn('Fred\'s first run kept the rear settings close to stock: Center '
+        self.assertIn('The run read 142; Center Differential Ratio × (Differential Ratio Front + '
+                      'Differential Ratio Rear) ÷ 2 puts it at 140: each axle counts half.',
+                      self.work(P206))
+        self.assertIn('The first run kept the rear settings close to stock: Center '
                       'Differential Ratio 55//12, Center Ratio to Rear 13//34, Differential Ratio '
                       'Rear 34//14.', self.work(DELTA))
         self.assertIn('With the axles nearly equal the car drove normally, as expected.',
@@ -549,3 +552,45 @@ class ReviewCopy(unittest.TestCase):
                 self.assertIn('The circumference comes from the tyre\'s free radius in the game '
                               'files, times a rolling factor of 0.9904,', text)
                 self.assertNotIn('undriveable', text)
+
+
+@unittest.skipUnless(HAVE_SITE, 'no ../acr-car-lab checkout next to this repo')
+class ImpersonalFormulaCopy(unittest.TestCase):
+    """Round 4 (R56): formulas instead of the word average, and no personal name, on every page."""
+
+    def test_no_average_and_no_name_on_any_page(self):
+        cal, notes = CAL.load_calibration(), D.load_notes()
+        for slug in M.CARS:
+            html = E.render_drivetrain_page(site_doc(slug), template(slug), cal, notes)
+            with self.subTest(car=slug):
+                self.assertNotRegex(html, re.compile(r'averag', re.I))
+                self.assertNotRegex(html, r'Fred\b')
+
+    def test_no_average_and_no_name_in_the_other_generated_pages(self):
+        cars = [{'slug': s, 'name': site_doc(s)['name']} for s in M.CARS]
+        pages = [E.render_index_page(cars)] + [E.render_car_page(c['slug'], c['name'])
+                                               for c in cars]
+        for html in pages:
+            self.assertNotRegex(html, re.compile(r'averag', re.I))
+            self.assertNotRegex(html, r'Fred\b')
+
+    def test_no_name_in_any_note_a_page_can_show(self):
+        notes = D.load_notes()
+        shown = [notes['common']['intro'], list(notes['common']['rev_limit'].values()),
+                 [v for k, v in notes['common'].items() if isinstance(v, str)]]
+        for entry in notes['cars'].values():
+            shown.append(entry['workings'] + [entry.get('handling', '')])
+        # an "@name" item is a reference to a common paragraph, checked above, not shown text
+        # and a {placeholder} (hypothesis names are internal) is replaced before it is shown
+        for text in (re.sub(r'\{[^{}]*\}', '', s) for group in shown for s in group
+                     if not s.startswith('@')):
+            self.assertNotRegex(text, re.compile(r'averag', re.I))
+            self.assertNotRegex(text, r'Fred\b')
+
+    def test_formula_note_writes_out_a_fixed_ratio_beside_a_setting(self):
+        fd = {'settings': [{'key': 'dfr', 'adjustment': 'Differential Ratio Front'},
+                           {'key': 'drr', 'adjustment': 'Differential Ratio Rear'}],
+              'formula': {'pre': [], 'front': ['dfr'], 'rear': ['drr'], 'fixed_pre': 1.25,
+                          'fixed_front': 1.0, 'fixed_rear': 1.1}}
+        self.assertEqual(D.formula_note(fd), 'Final drive = 1.250 × (Differential Ratio Front + '
+                                             'Differential Ratio Rear × 1.100) ÷ 2')

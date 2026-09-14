@@ -4,7 +4,7 @@ Static HTML built from the car's published document (build_car_json), its templa
 measurements in calibration.json and the prose in drivetrain_notes.json. Three parts:
 
 1. the facts, for everyone: layout, the settings that change the gearing, how the final drive
-   is worked out, the rev limit, the engine curve, and handling notes where Fred observed some;
+   is worked out, the rev limit, the engine curve, and handling notes where test drives showed some;
 2. "How we worked it out": the reasoning and the runs behind the formula, for this car;
 3. "Measured in game": the raw measurements, where there are any.
 
@@ -75,19 +75,17 @@ def formula_note(fd):
     f = fd['formula']
     names = {s['key']: s['adjustment'] for s in fd['settings']}
 
-    def chain(keys):
-        return ' × '.join(names[k] for k in keys)
+    def product(keys, fixed):
+        """A chain's settings by game name, then its fixed ratio where it is not 1; '1' if empty."""
+        parts = [names[k] for k in keys] + ([] if abs(fixed - 1) < 1e-9 else [f'{fixed:.3f}'])
+        return ' × '.join(parts) or '1'
 
-    if not f['front'] and not f['rear']:
-        fixed = f['fixed_pre'] * (f['fixed_front'] + f['fixed_rear']) / 2
-        return (f'Final drive = {chain(f["pre"])} × {fixed:.3f} '
-                '(the front and rear differentials are fixed).')
-    if not f['front']:
-        return (f'Final drive = average of the front axle ({chain(f["pre"])}) and the rear axle '
-                f'({chain(f["pre"] + f["rear"])}).')
-    average = f'average of {chain(f["front"])} and {chain(f["rear"])}'
-    return (f'Final drive = {chain(f["pre"])} × {average}.' if f['pre']
-            else f'Final drive = {average}.')
+    pre = product(f['pre'], f['fixed_pre'])
+    axles = (f'({product(f["front"], f["fixed_front"])} + '
+             f'{product(f["rear"], f["fixed_rear"])}) ÷ 2')
+    fixed = (' (the front and rear differentials are fixed)'
+             if not f['front'] and not f['rear'] else '')
+    return f'Final drive = {"" if pre == "1" else pre + " × "}{axles}{fixed}'
 
 
 def final_drive_lines(doc):
@@ -99,10 +97,10 @@ def final_drive_lines(doc):
     if 'settings' in fd:
         if fd['formula'].get('centre_differential') is False:
             # assumed, not measured: the axles cannot be run apart to test it
-            return ('The final drive is taken as the average of the front and rear axles.',
+            return ('The final drive is taken as (front axle ratio + rear axle ratio) ÷ 2.',
                     formula_note(fd))
-        return ('The drive splits to the front and rear axles, and the gearbox turns at the '
-                'average of the two.', formula_note(fd))
+        return ('The drive splits to the front and rear axles, and the gearbox output turns at '
+                '(front axle ratio + rear axle ratio) ÷ 2 times wheel speed.', formula_note(fd))
     rest = '' if abs(fd['rest'] - 1) < 1e-9 else f' × {fd["rest"]:.3f}'
     return ('One ratio sits below the gearbox, and setup offers it.',
             f'Final drive = {fd["adjustment"]}{rest}.')
@@ -383,7 +381,7 @@ def measured_html(doc, cal):
     readings = ([] if not measured_limit else ['rev limit from telemetry']) + (
         ['top speed per gear from the in-game speedometer at the rev limiter'] if runs else [])
     parts = ['<section class="measured" id="measured">', '<h2>Measured in game</h2>',
-             f'<p class="cap">Fred\'s raw readings: {", ".join(readings)}.</p>']
+             f'<p class="cap">Raw in-game readings: {", ".join(readings)}.</p>']
     if measured_limit:
         bits = [f'{measured_limit["rpm"]} rpm', 'SimHub telemetry']
         if measured_limit.get('game_version'):
