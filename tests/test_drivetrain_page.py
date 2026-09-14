@@ -34,7 +34,8 @@ def text_of(html):
     if '<body>' in html:
         html = html[html.index('<body>'):]
     html = re.sub(r'<script.*?</script>', ' ', html, flags=re.DOTALL)
-    return re.sub(r'\s+', ' ', h.unescape(re.sub(r'<[^>]+>', ' ', html)))
+    # no-break spaces are kept: they are what holds a formula's ÷ 2 together on a line
+    return re.sub(r'[ \t\r\n]+', ' ', h.unescape(re.sub(r'<[^>]+>', ' ', html)))
 
 
 def section(html, cls):
@@ -89,8 +90,8 @@ class Notes(unittest.TestCase):
                 bare = re.sub(r'\b[1-7](?:st|nd|rd|th)\b', '', bare)
                 bare = re.sub(r'gear sets? \d(?: and \d)?', '', bare, flags=re.I)
                 bare = re.sub(r'a ratio of 1|1 everywhere', '', bare)
-                # the formulas' own constants: (1 + rear chain) and the ÷ 2
-                bare = re.sub(r'\(1 \+|÷ 2', '', bare)
+                # the formulas' own constants: (1 + rear chain) and the\u00a0÷\u00a02
+                bare = re.sub(r'\(1 \+|\s÷\s2', '', bare)
                 with self.subTest(car=slug, p=p[:40]):
                     self.assertNotRegex(bare, r'\d')
 
@@ -264,14 +265,14 @@ class Pages(unittest.TestCase):
         self.assertIn('Front-wheel drive', facts[MINI])
         self.assertIn('Rear-wheel drive', facts[STRATOS])
         self.assertIn('Final drive = Center Differential Ratio × (1 + Center Ratio to Rear × '
-                      'Differential Ratio Rear) ÷ 2', facts[DELTA])
+                      'Differential Ratio Rear)\u00a0÷\u00a02', facts[DELTA])
         self.assertIn('Final drive = Center Differential Ratio × (Differential Ratio Front + '
-                      'Differential Ratio Rear) ÷ 2', facts[P206])
+                      'Differential Ratio Rear)\u00a0÷\u00a02', facts[P206])
         self.assertIn('Final drive = (Differential Ratio Front + Center Ratio to Rear × '
-                      'Differential Ratio Rear) ÷ 2', facts[IMPREZA])
-        self.assertIn('Final drive = Center Differential Ratio × (2.778 + 2.786) ÷ 2 (the front '
+                      'Differential Ratio Rear)\u00a0÷\u00a02', facts[IMPREZA])
+        self.assertIn('Final drive = Center Differential Ratio × (2.778 + 2.786)\u00a0÷\u00a02 (the front '
                       'and rear differentials are fixed)', facts[XSARA])
-        self.assertIn('Final drive = (Differential Ratio Front + Differential Ratio Rear) ÷ 2',
+        self.assertIn('Final drive = (Differential Ratio Front + Differential Ratio Rear)\u00a0÷\u00a02',
                       facts[AUDI])
         self.assertIn('Final drive = Differential Ratio Front.', facts[MINI])
         self.assertIn('Final drive is fixed at 4.231.', facts[FABIA])
@@ -300,20 +301,20 @@ class Pages(unittest.TestCase):
                 self.assertIn('14 runs across seven cars', text)
                 self.assertNotIn('verified', text.lower())
                 self.assertNotIn('science', text.lower())
-        averaging = 'Why (front + rear) ÷ 2'
+        averaging = 'Why (front + rear)\u00a0÷\u00a02'
         for slug in M.CARS:
             self.assertEqual(averaging in work[slug], slug in (DELTA, P206, IMPREZA, XSARA, AUDI),
                              slug)
-        self.assertIn('rear settings that do nothing meant about 182 km/h, and (front + rear) ÷ 2 '
-                      'about 161. The run read 160.', work[DELTA])
+        self.assertIn('rear settings that do nothing meant about 182 km/h, and (front + rear)\u00a0÷\u00a02 '
+                      'meant about 161. The speedometer read 160.', work[DELTA])
         self.assertIn('The rear alone would have meant about 174 km/h in 4th, the front alone '
-                      'about 117. The run read 142', work[P206])
+                      'about 117. The speedometer read 142', work[P206])
         self.assertIn('20//25 would have put them about 8% and 14% too high', work[P206])
         self.assertIn('31//21 (1.476)', work[P206])
         self.assertIn('4th tops out at about 163 km/h; if it does nothing, 143; if it divides, '
-                      '124. The run read 164', work[IMPREZA])
+                      '124. The speedometer read 164', work[IMPREZA])
         self.assertIn('multiplying would have put 5th at about 180 km/h; replacing puts it at '
-                      '198. The run read 197', work[STRATOS])
+                      '198. The speedometer read 197', work[STRATOS])
         self.assertIn("can't be tested on this car", work[AUDI])
         self.assertIn('It has not been tested on this car.', work[MINI])
         self.assertIn('It has not been tested on this car.', work[FABIA])
@@ -508,10 +509,10 @@ class ExportRuns(unittest.TestCase):
             top = text_of(section(E.render_drivetrain_page(site_doc(slug), template(slug), cal,
                                                            notes), 'top'))
             with self.subTest(car=slug):
-                self.assertEqual('The final drive is taken as (front axle ratio + rear axle ratio) '
-                                 '÷ 2.' in top, slug == AUDI)
-                self.assertEqual('the gearbox output turns at (front axle ratio + rear axle ratio) '
-                                 '÷ 2 times wheel speed.' in top,
+                self.assertEqual('The final drive is taken as (front axle ratio + rear axle ratio)'
+                                 '\u00a0÷\u00a02.' in top, slug == AUDI)
+                self.assertEqual('the gearbox output turns at (front axle ratio + rear axle ratio)'
+                                 '\u00a0÷\u00a02 times wheel speed.' in top,
                                  slug in (DELTA, P206, IMPREZA, XSARA))
 
     def test_every_torque_curve_runs_past_the_rev_limit(self):
@@ -534,8 +535,8 @@ class ReviewCopy(unittest.TestCase):
     def test_corrections(self):
         self.assertIn('The same reading fits the runs on the Stratos and the 037 (Differential '
                       'Ratio Rear) and on the 306 Maxi (Differential Ratio Front).', self.work(MINI))
-        self.assertIn('The run read 142; Center Differential Ratio × (Differential Ratio Front + '
-                      'Differential Ratio Rear) ÷ 2 puts it at 140: each axle counts half.',
+        self.assertIn('The speedometer read 142; Center Differential Ratio × (Differential Ratio Front + '
+                      'Differential Ratio Rear)\u00a0÷\u00a02 puts it at 140: each axle counts half.',
                       self.work(P206))
         self.assertIn('The first run kept the rear settings close to stock: Center '
                       'Differential Ratio 55//12, Center Ratio to Rear 13//34, Differential Ratio '
@@ -565,6 +566,10 @@ class ImpersonalFormulaCopy(unittest.TestCase):
             with self.subTest(car=slug):
                 self.assertNotRegex(html, re.compile(r'averag', re.I))
                 self.assertNotRegex(html, r'Fred\b')
+                # a ÷ 2 is held together with no-break spaces, so it never starts a line
+                self.assertNotRegex(html, r'[ \t\n]÷\s2|÷[ \t\n]2')
+                if slug in (DELTA, P206, IMPREZA, XSARA, AUDI):
+                    self.assertIn(' ÷ 2', html)
 
     def test_no_average_and_no_name_in_the_other_generated_pages(self):
         cars = [{'slug': s, 'name': site_doc(s)['name']} for s in M.CARS]
@@ -593,4 +598,4 @@ class ImpersonalFormulaCopy(unittest.TestCase):
               'formula': {'pre': [], 'front': ['dfr'], 'rear': ['drr'], 'fixed_pre': 1.25,
                           'fixed_front': 1.0, 'fixed_rear': 1.1}}
         self.assertEqual(D.formula_note(fd), 'Final drive = 1.250 × (Differential Ratio Front + '
-                                             'Differential Ratio Rear × 1.100) ÷ 2')
+                                             'Differential Ratio Rear × 1.100)\u00a0÷\u00a02')

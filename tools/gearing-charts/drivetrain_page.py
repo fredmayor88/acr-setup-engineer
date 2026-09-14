@@ -82,7 +82,7 @@ def formula_note(fd):
 
     pre = product(f['pre'], f['fixed_pre'])
     axles = (f'({product(f["front"], f["fixed_front"])} + '
-             f'{product(f["rear"], f["fixed_rear"])}) ÷ 2')
+             f'{product(f["rear"], f["fixed_rear"])})\u00a0÷\u00a02')
     fixed = (' (the front and rear differentials are fixed)'
              if not f['front'] and not f['rear'] else '')
     return f'Final drive = {"" if pre == "1" else pre + " × "}{axles}{fixed}'
@@ -97,10 +97,10 @@ def final_drive_lines(doc):
     if 'settings' in fd:
         if fd['formula'].get('centre_differential') is False:
             # assumed, not measured: the axles cannot be run apart to test it
-            return ('The final drive is taken as (front axle ratio + rear axle ratio) ÷ 2.',
+            return ('The final drive is taken as (front axle ratio + rear axle ratio)\u00a0÷\u00a02.',
                     formula_note(fd))
         return ('The drive splits to the front and rear axles, and the gearbox output turns at '
-                '(front axle ratio + rear axle ratio) ÷ 2 times wheel speed.', formula_note(fd))
+                '(front axle ratio + rear axle ratio)\u00a0÷\u00a02 times wheel speed.', formula_note(fd))
     rest = '' if abs(fd['rest'] - 1) < 1e-9 else f' × {fd["rest"]:.3f}'
     return ('One ratio sits below the gearbox, and setup offers it.',
             f'Final drive = {fd["adjustment"]}{rest}.')
