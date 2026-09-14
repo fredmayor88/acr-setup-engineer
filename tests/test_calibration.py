@@ -86,8 +86,31 @@ class StoredMeasurements(unittest.TestCase):
         self.assertEqual(len(self.cal['rev_limiters']), 18)
 
     def test_the_doc_states_provenance(self):
-        for part in ('Fred Mayor', 'SimHub', 'ACR 0.6', '2026-09-13', '2026-09-11'):
+        for part in ('Fred Mayor', 'SimHub', 'ACR 0.6', '2026-09-14', '2026-09-13', '2026-09-11',
+                     'max-hold over a few seconds of SimHub telemetry at the limiter'):
             self.assertIn(part, self.cal['_doc'])
+
+    def test_the_limiters_of_2026_09_14(self):
+        # max-hold over a few seconds of SimHub telemetry at the limiter, rounded to the nearest 10
+        self.assertEqual({s: e['rpm'] for s, e in self.cal['rev_limiters'].items()}, {
+            'peugeot-206-wrc-1999': 7550, 'citroen-xsara-wrc-2003': 7560,
+            'audi-quattro-gr4-1981': 7020, 'alfa-romeo-gta-1300-junior-1972': 8510,
+            'alpine-a110-1-8-1973': 7030, 'fiat-124-abarth-rally-16v-1974': 8040,
+            'fiat-131-abarth-1976': 8020, 'hyundai-i20-rally2-2021': 7540,
+            'lancia-037-evoluzione-2-1984': 8510, 'lancia-delta-integrale-evoluzione-1992': 7260,
+            'lancia-fulvia-coupe-hf-1970': 7270, 'mini-cooper-s-1964': 7520,
+            'peugeot-208-rally4': 6780, 'peugeot-306-ii-maxi-1997': 9600,
+            'skoda-fabia-rs-rally2-2022': 7550, 'subaru-impreza-555-s3-1993': 6760,
+            'volkswagen-polo-gti-r5-2018': 7550, 'lancia-stratos': 8520})
+        for slug, entry in self.cal['rev_limiters'].items():
+            with self.subTest(car=slug):
+                self.assertEqual(entry['measured'], '2026-09-14')
+
+    def test_every_limiter_is_a_multiple_of_10(self):
+        for slug, entry in self.cal['rev_limiters'].items():
+            with self.subTest(car=slug):
+                self.assertIsInstance(entry['rpm'], int)
+                self.assertEqual(entry['rpm'] % 10, 0)
 
 
 class Fit(unittest.TestCase):
@@ -130,6 +153,30 @@ class Fit(unittest.TestCase):
         # it did not reach the limiter (the car ran out of straight), so it reads slow
         self.assertGreater(gear4['error_pct'], 3)
 
+    def test_the_gta_junior_run_leaves_out_its_approximate_4th(self):
+        runs = self.cal['speed_runs']
+        i = next(n for n, r in enumerate(runs) if r['car'] == 'alfa-romeo-gta-1300-junior-1972')
+        run = runs[i]
+        self.assertEqual((run['gear_set'], run['primary'], run['option'], run['kmh'],
+                          run['exclude_gears'], run['exclude_why']),
+                         ('Gear set 1', '30//23', '43//9', [54, 88, 128, 174], [4], 'approximate'))
+        self.assertNotIn((i, 4), {(n, g) for n, g, _f in C.implied_factors(self.cal)})
+        gear4 = C.fit_report(self.cal)['runs'][i]['gears'][3]
+        self.assertEqual((gear4['fitted'], gear4['excluded']), (False, True))
+
+    def test_the_gta_junior_run_is_driven_on_its_stored_primary(self):
+        # it tested whether a stored primary other than 1 applies without a Primary Gear setting:
+        # with it the fitted gears are within 3%, without it (a primary of 1) they are ~30% fast
+        run = next(r for r in self.cal['speed_runs']
+                   if r['car'] == 'alfa-romeo-gta-1300-junior-1972')
+        rpm, factor = self.cal['rev_limiters'][run['car']]['rpm'], C.fit_factor(self.cal)
+        stored = C.run_predictions(run, rpm, factor)
+        ignored = C.run_predictions(dict(run, primary='25//25'), rpm, factor)
+        for g in (2, 3):
+            m = run['kmh'][g - 1]
+            self.assertLess(abs(stored[g - 1] - m) / m, 0.03)
+            self.assertGreater((ignored[g - 1] - m) / m, 0.25)
+
     def test_every_run_of_ruling_r51_is_stored(self):
         stored = [(r['car'], r['gear_set'], r['kmh']) for r in self.cal['speed_runs']
                   if r.get('ruling') == 'R51']
@@ -147,7 +194,9 @@ class Fit(unittest.TestCase):
     def test_every_run_is_dated(self):
         for run in self.cal['speed_runs']:
             with self.subTest(car=run['car'], set=run['gear_set']):
-                want = '2026-09-11' if run['car'] == 'lancia-stratos' else '2026-09-13'
+                want = {'lancia-stratos': '2026-09-11',
+                        'alfa-romeo-gta-1300-junior-1972': '2026-09-14'}.get(run['car'],
+                                                                             '2026-09-13')
                 self.assertEqual(run['measured'], want)
 
     def test_a_run_carrying_a_primary_gear_setting_is_driven_on_it(self):

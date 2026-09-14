@@ -4,7 +4,7 @@ Static HTML built from the car's published document (build_car_json), its templa
 measurements in calibration.json and the prose in drivetrain_notes.json. Three parts:
 
 1. the facts, for everyone: layout, the settings that change the gearing, how the final drive
-   is worked out, the rev limit, the engine curve, and handling notes where test drives showed some;
+   is worked out, the rev limit, and handling notes where test drives showed some;
 2. "How we worked it out": the reasoning and the runs behind the formula, for this car;
 3. "Measured in game": the raw measurements, where there are any.
 
@@ -243,13 +243,6 @@ def rev_limit_text(doc, measurement, game_version):
     return f'{engine["redline"]} rpm, {source}' + (f' (ACR {version})' if version else '') + '.'
 
 
-def engine_curve_text(doc):
-    owner = doc['engine'].get('curve_from')
-    if owner:
-        return f'Uses the {owner["name"]} engine curve in the game files.'
-    return 'Own curve.'
-
-
 # ---- the workings: placeholders ------------------------------------------------------------
 
 _PLACEHOLDER = re.compile(r'\{([a-z_]+)(?::([^{}]*))?\}')
@@ -474,6 +467,11 @@ def run_settings(doc, run):
     return out
 
 
+# why a run's excluded gears were left out, by its `exclude_why` (none: the usual reason)
+EXCLUDED_NOTES = {None: 'did not reach the rev limiter.',
+                  'approximate': 'an approximate reading.'}
+
+
 def measured_html(doc, cal):
     """The "Measured in game" section, or '' when nothing was measured on this car."""
     slug = doc['slug']
@@ -511,7 +509,7 @@ def measured_html(doc, cal):
                      f'<tr><th scope="row">Gear</th>{cells}</tr>'
                      f'<tr><th scope="row">km/h</th>{speeds}</tr>'
                      '</table></div>'
-                     + ('<p class="cap runnote">* did not reach the rev limiter.</p>'
+                     + (f'<p class="cap runnote">* {EXCLUDED_NOTES[run.get("exclude_why")]}</p>'
                         if excluded else '')
                      + '</div>')
     parts.append('</section>')
@@ -530,6 +528,7 @@ PAGE = """<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
 {theme_head}
 <title>{name} — drivetrain — ACR Car Lab</title>
 <meta name="description" content="How the {name} turns engine revs into road speed in \
@@ -583,7 +582,6 @@ def facts_html(doc, template_text, cal, notes, game_version):
         ('Primary gear', f'{esc(primary_text(doc))}{formula_html(primary_formula(doc))}'),
         ('Rev limit', esc(rev_limit_text(doc, cal['rev_limiters'].get(doc['slug']),
                                          game_version))),
-        ('Engine curve', esc(engine_curve_text(doc))),
     ]
     handling = notes['cars'][doc['slug']].get('handling')
     if handling:

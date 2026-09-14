@@ -297,6 +297,11 @@ CAR_PAGE_DIR = 'gears'
 CAR_ROOT = '../../'
 # The car's drivetrain notes: a static page beside gears/, built by drivetrain_page.py.
 DRIVETRAIN_PAGE_DIR = 'drivetrain'
+# The drivetrain pages are generated and kept current, but not linked from anywhere on the site
+# yet (and carry noindex). True puts back both links: the picker's "Drivetrain notes" section
+# and the "Drivetrain notes" crumb on every gears page.
+PUBLISH_DRIVETRAIN_LINKS = False
+DRIVETRAIN_CRUMB = f'<a class="crumb" href="../{DRIVETRAIN_PAGE_DIR}/">Drivetrain notes</a>'
 
 CAR_PAGE = """<!doctype html>
 <html lang="en"><head>
@@ -315,8 +320,7 @@ Assetto Corsa Rally.">
   <header>
     <div class="brandrow">
       <span class="brand">ACR <b>Car Lab</b></span>
-      <a class="crumb" href="../drivetrain/">Drivetrain notes</a>
-      <a class="crumb" href="{root}">All cars →</a>
+      {drivetrain_crumb}<a class="crumb" href="{root}">All cars →</a>
       {theme_button}
     </div>
     <h1>{name}</h1>
@@ -370,14 +374,7 @@ Assetto Corsa Rally.">
   <ul class="carlist">
 {items}
   </ul>
-  <section class="dtlist">
-    <h2>Drivetrain notes</h2>
-    <p class="cap">Per car: layout, the settings that change the gearing, how the final drive is worked out, and what was measured in game.</p>
-    <ul class="carlist minor">
-{drivetrain_items}
-    </ul>
-  </section>
-  <div class="foot">
+{drivetrain_section}  <div class="foot">
     <p class="promo">Want a setup, not just the numbers? <a href="https://github.com/fredmayor88/acr-setup-engineer">ACR Setup Engineer</a> — a free Claude skill that tunes a car to how you drive and saves it to your Notion. · <a href="https://github.com/fredmayor88/acr-car-lab/issues">Issues and feedback</a></p>
   </div>
 </div>
@@ -386,12 +383,27 @@ Assetto Corsa Rally.">
 """
 
 
-def render_car_page(slug, name):
+DRIVETRAIN_SECTION = """  <section class="dtlist">
+    <h2>Drivetrain notes</h2>
+    <p class="cap">Per car: layout, the settings that change the gearing, how the final drive is worked out, and what was measured in game.</p>
+    <ul class="carlist minor">
+{drivetrain_items}
+    </ul>
+  </section>
+"""
+
+
+def render_car_page(slug, name, publish_drivetrain=None):
     """The generated shell for one car. Title and h1 are baked in so the page is
-    indexable without running the app."""
+    indexable without running the app. `publish_drivetrain` (default
+    PUBLISH_DRIVETRAIN_LINKS) adds the crumb to the car's drivetrain page."""
+    if publish_drivetrain is None:
+        publish_drivetrain = PUBLISH_DRIVETRAIN_LINKS
     safe = _html.escape(name)
+    crumb = DRIVETRAIN_CRUMB + '\n      ' if publish_drivetrain else ''
     return CAR_PAGE.format(slug=_html.escape(slug), name=safe, root=CAR_ROOT,
-                           theme_head=THEME_HEAD, theme_button=THEME_BUTTON)
+                           theme_head=THEME_HEAD, theme_button=THEME_BUTTON,
+                           drivetrain_crumb=crumb)
 
 
 def render_redirect_page(slug, name):
@@ -503,7 +515,11 @@ def export_car(out, slug, record, calibration, notes, game_version, generated, t
     return doc, len(gears)
 
 
-def render_index_page(cars):
+def render_index_page(cars, publish_drivetrain=None):
+    """The picker. `publish_drivetrain` (default PUBLISH_DRIVETRAIN_LINKS) adds the list of
+    drivetrain pages after the gearing list."""
+    if publish_drivetrain is None:
+        publish_drivetrain = PUBLISH_DRIVETRAIN_LINKS
     listed = build_index_json(cars)['cars']
     items = '\n'.join(
         f'    <li><a href="{_html.escape(c["slug"])}/{CAR_PAGE_DIR}/">'
@@ -513,7 +529,9 @@ def render_index_page(cars):
         f'      <li><a href="{_html.escape(c["slug"])}/{DRIVETRAIN_PAGE_DIR}/">'
         f'{_html.escape(c["name"])}</a></li>'
         for c in listed)
-    return INDEX_PAGE.format(items=items, drivetrain_items=drivetrain_items, count=len(cars),
+    section = (DRIVETRAIN_SECTION.format(drivetrain_items=drivetrain_items)
+               if publish_drivetrain else '')
+    return INDEX_PAGE.format(items=items, drivetrain_section=section, count=len(cars),
                              theme_head=THEME_HEAD, theme_button=THEME_BUTTON)
 
 

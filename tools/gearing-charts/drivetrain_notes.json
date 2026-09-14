@@ -9,7 +9,7 @@
    "The free radius is the tyre radius stored in the game files. The rolling factor, {factor}, allows for a loaded tyre rolling on a slightly smaller radius; it was fitted to the top speeds measured in game on {fit_runs} runs across {fit_car_count} cars ({fit_cars})."
   ],
   "rev_limit": {
-   "measured": "The rev limit, {rev_limit} rpm, was measured in game with telemetry. The end of the torque curve in the game files is not the limiter: on every car here the curve runs past it.",
+   "measured": "The rev limit, {rev_limit} rpm, was measured in game with telemetry. The end of the torque curve in the game files is not the limiter: on most cars here the curve runs past it.",
    "measured-stale": "The rev limit, {rev_limit} rpm, was measured in game with telemetry on an earlier game version, and the car's engine data has changed since.",
    "estimated": "The rev limit, {rev_limit} rpm, is estimated from the shift-light rev stages in the game files. It has not been measured on this car."
   },
@@ -19,7 +19,7 @@
    {"formula": ["@final_drive"]},
    "The same rule fits the runs on the Stratos and the 037 (Differential Ratio Rear) and on the 306 Maxi (Differential Ratio Front). This car was not run."
   ],
-  "set_primaries_untested": "Each gear set stores its own primary, and with no Primary Gear setting that is taken to be the one in force. Every run so far on a car without a Primary Gear setting used a primary of 25//25, a ratio of 1, so a stored primary other than 1 has not been tested.",
+  "set_primaries_per_set": "Each gear set stores its own primary, and with no Primary Gear setting that is the one in force: that was measured on the GTA Junior, whose gear sets all store 30//23. Here the primary changes from set to set, and each set is taken to use its own in the same way; primaries that change from set to set have not been run.",
   "fixed_awd_untested": [
    "Nothing below the gearbox is adjustable. The game files put a single fixed ratio, {fixed}, on the centre differential and 1 everywhere else, so the front and rear path ratios are both {fixed} and the final drive is that ratio:",
    {"formula": ["@final_drive"]},
@@ -29,7 +29,21 @@
  "cars": {
   "alfa-romeo-gta-1300-junior-1972": {
    "short": "GTA Junior",
-   "workings": ["@single_ratio_untested", "@set_primaries_untested"]
+   "hypotheses": {
+    "primary_ignored": {"primary": "25//25"}
+   },
+   "workings": [
+    "The final drive is Differential Ratio Rear alone, the one ratio below the gearbox in the game files:",
+    {"formula": ["@final_drive"]},
+    "The same rule fits the runs on the Stratos and the 037 (Differential Ratio Rear) and on the 306 Maxi (Differential Ratio Front).",
+    "The GTA Junior has no Primary Gear setting, and every one of its gear sets stores a primary of 30//23 ({ratio:30//23}). The run was chosen to distinguish between two possibilities:",
+    {"list": [
+     "The gear set's stored primary applies: primary = 30//23.",
+     "The stored primary is ignored: primary = 1."
+    ]},
+    "It was run on gear set 1 with Differential Ratio Rear 43//9. The predictions for 3rd were about {kmh:formula:1:3} km/h under possibility 1 and {kmh:primary_ignored:1:3} km/h under possibility 2. The speedometer read {measured:1:3}, supporting possibility 1: primary = the gear set's own primary.",
+    {"formula": ["@primary"]}
+   ]
   },
   "alpine-a110-1-8-1973": {
    "short": "A110",
@@ -68,11 +82,11 @@
   },
   "fiat-124-abarth-rally-16v-1974": {
    "short": "124 Abarth",
-   "workings": ["@single_ratio_untested", "@set_primaries_untested"]
+   "workings": ["@single_ratio_untested", "@set_primaries_per_set"]
   },
   "fiat-131-abarth-1976": {
    "short": "131 Abarth",
-   "workings": ["@single_ratio_untested", "@set_primaries_untested"]
+   "workings": ["@single_ratio_untested", "@set_primaries_per_set"]
   },
   "hyundai-i20-rally2-2021": {
    "short": "i20 Rally2",
@@ -107,7 +121,7 @@
   },
   "lancia-fulvia-coupe-hf-1970": {
    "short": "Fulvia",
-   "workings": ["@single_ratio_untested", "@set_primaries_untested"]
+   "workings": ["@single_ratio_untested", "@set_primaries_per_set"]
   },
   "lancia-stratos": {
    "short": "Stratos",
@@ -127,7 +141,7 @@
   },
   "mini-cooper-s-1964": {
    "short": "Mini",
-   "workings": ["@single_ratio_untested", "@set_primaries_untested"]
+   "workings": ["@single_ratio_untested", "@set_primaries_per_set"]
   },
   "peugeot-206-wrc-1999": {
    "short": "206 WRC",
@@ -139,7 +153,6 @@
     "cdr_ignored": {"settings": {"Center Differential Ratio": "24//24"}}
    },
    "workings": [
-    "The 206 has no engine curve of its own: its car data in the game files points at the Xsara WRC's, so that is the curve used here.",
     "On the 206, Center Differential Ratio is applied before the centre differential. The front path adds Differential Ratio Front and the rear path Differential Ratio Rear:",
     {"formula": ["@paths"]},
     "@centre_differential_why",

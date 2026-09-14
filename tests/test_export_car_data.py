@@ -99,7 +99,7 @@ class BuildCarJson(unittest.TestCase):
 
     def test_default_factor_is_exported(self):
         import gearing
-        self.assertEqual(self.doc['defaults']['loaded_radius_factor'], 0.9904)
+        self.assertEqual(self.doc['defaults']['loaded_radius_factor'], 0.978)
         self.assertEqual(self.doc['defaults']['loaded_radius_factor'],
                          gearing.LOADED_RADIUS_FACTOR)
 
@@ -460,6 +460,8 @@ class RenderPages(unittest.TestCase):
         self.assertIn('<a class="crumb" href="../../">All cars', html)
         # nothing left pointing one level up only, but the car's own drivetrain page beside it
         self.assertNotRegex(html, r'(?:href|src)="\.\./(?!\.\./|drivetrain/")')
+        published = render_car_page('lancia-stratos', 'Lancia Stratos HF', publish_drivetrain=True)
+        self.assertNotRegex(published, r'(?:href|src)="\.\./(?!\.\./|drivetrain/")')
 
     def test_car_page_escapes_the_name(self):
         html = render_car_page('x', 'A & B <script>')
