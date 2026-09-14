@@ -1,5 +1,5 @@
 {
- "_doc": "Prose for the drivetrain pages of the ACR Car Lab site (drivetrain_page.py). common.intro and common.rev_limit[source] open every car's \"How we worked it out\"; cars[slug].workings follows. An item is a paragraph string; {\"formula\": [lines]}, a monospace formula block, where a line @paths, @final_drive or @primary is the car's computed formula lines (the same ones as the Final drive and Primary gear facts); {\"list\": [items]}, a numbered list; or \"@name\", which is common[name] (one item or a list of items). No number is typed here: {placeholders} are computed from calibration.json and the car's exported data. {factor} {fit_runs} {fit_car_count} {fit_cars} {rev_limit} {adjustment} {fixed} {fixed_front} {fixed_rear} {fixed_apart}; {ratio:SPELLING}; {measured:RUN:GEAR} a measured km/h; {kmh:HYP:RUN:GEAR} the km/h a hypothesis predicts at the fitted factor; {apart:HYP1:HYP2:RUN} how far apart two hypotheses' total ratios are, in %; {off:HYP:RUN} the mean miss of a hypothesis over the run's fitted gears, in %; {speedratio:RUN1:RUN2} the mean ratio of two runs' measured speeds over the gears fitted in both. RUN is 1-based among the car's speed runs in calibration.json order. HYP is 'formula' (what the site uses) or a name in cars[slug].hypotheses: {path: average|front|rear, settings: {game name: spelling}, primary: spelling|times_set, rest: fixed_front|fixed_rear}. handling is an observation from test drives on 2026-09-13, shown word for word. User-visible text never names a person and never uses the word average: formulas are written out, with\u00a0÷\u00a02 (no-break spaces either side of the ÷, so it never starts a line).",
+ "_doc": "Prose for the drivetrain pages of the ACR Car Lab site (drivetrain_page.py). common.intro and common.rev_limit[source] (measured-past-curve when a measured limit is past the end of the torque curve) open every car's \"How we worked it out\"; cars[slug].workings follows. An item is a paragraph string; {\"formula\": [lines]}, a monospace formula block, where a line @paths, @final_drive or @primary is the car's computed formula lines (the same ones as the Final drive and Primary gear facts); {\"list\": [items]}, a numbered list; or \"@name\", which is common[name] (one item or a list of items). No number is typed here: {placeholders} are computed from calibration.json and the car's exported data. {factor} {fit_runs} {fit_car_count} {fit_cars} {rev_limit} {curve_end} (the last rpm of the torque curve) {adjustment} {fixed} {fixed_front} {fixed_rear} {fixed_apart}; {ratio:SPELLING}; {measured:RUN:GEAR} a measured km/h; {kmh:HYP:RUN:GEAR} the km/h a hypothesis predicts at the fitted factor; {apart:HYP1:HYP2:RUN} how far apart two hypotheses' total ratios are, in %; {off:HYP:RUN} the mean miss of a hypothesis over the run's fitted gears, in %; {speedratio:RUN1:RUN2} the mean ratio of two runs' measured speeds over the gears fitted in both. RUN is 1-based among the car's speed runs in calibration.json order. HYP is 'formula' (what the site uses) or a name in cars[slug].hypotheses: {path: average|front|rear, settings: {game name: spelling}, primary: spelling|times_set, rest: fixed_front|fixed_rear}. handling is an observation from test drives on 2026-09-13, shown word for word. User-visible text never names a person and never uses the word average: formulas are written out, with\u00a0÷\u00a02 (no-break spaces either side of the ÷, so it never starts a line).",
  "common": {
   "intro": [
    "Every speed on these pages is worked out from engine revs and the gearing alone:",
@@ -10,6 +10,7 @@
   ],
   "rev_limit": {
    "measured": "The rev limit, {rev_limit} rpm, was measured in game with telemetry. The end of the torque curve in the game files is not the limiter: on most cars here the curve runs past it.",
+   "measured-past-curve": "The rev limit, {rev_limit} rpm, was measured in game with telemetry. The torque curve in the game files ends at {curve_end} rpm, just short of the measured limit; on most other cars here it runs past the limit.",
    "measured-stale": "The rev limit, {rev_limit} rpm, was measured in game with telemetry on an earlier game version, and the car's engine data has changed since.",
    "estimated": "The rev limit, {rev_limit} rpm, is estimated from the shift-light rev stages in the game files. It has not been measured on this car."
   },
@@ -17,9 +18,9 @@
   "single_ratio_untested": [
    "The final drive is {adjustment} alone, the one ratio below the gearbox in the game files:",
    {"formula": ["@final_drive"]},
-   "The same rule fits the runs on the Stratos and the 037 (Differential Ratio Rear) and on the 306 Maxi (Differential Ratio Front). This car was not run."
+   "The same rule fits the runs on the Stratos, the 037 and the GTA Junior (Differential Ratio Rear) and on the 306 Maxi (Differential Ratio Front). This car was not run."
   ],
-  "set_primaries_per_set": "Each gear set stores its own primary, and with no Primary Gear setting that is the one in force: that was measured on the GTA Junior, whose gear sets all store 30//23. Here the primary changes from set to set, and each set is taken to use its own in the same way; primaries that change from set to set have not been run.",
+  "set_primaries_per_set": "Each gear set stores its own primary, and with no Primary Gear setting that primary is the one in force, as measured on the GTA Junior, whose gear sets all store 30//23. On this car the primary changes from one gear set to the next, and each set is taken to use its own in the same way; no car whose primary changes from set to set has been run.",
   "fixed_awd_untested": [
    "Nothing below the gearbox is adjustable. The game files put a single fixed ratio, {fixed}, on the centre differential and 1 everywhere else, so the front and rear path ratios are both {fixed} and the final drive is that ratio:",
    {"formula": ["@final_drive"]},
@@ -35,7 +36,7 @@
    "workings": [
     "The final drive is Differential Ratio Rear alone, the one ratio below the gearbox in the game files:",
     {"formula": ["@final_drive"]},
-    "The same rule fits the runs on the Stratos and the 037 (Differential Ratio Rear) and on the 306 Maxi (Differential Ratio Front).",
+    "The same rule fits the runs on the Stratos and the 037 (Differential Ratio Rear), on the 306 Maxi (Differential Ratio Front), and the run on this car below.",
     "The GTA Junior has no Primary Gear setting, and every one of its gear sets stores a primary of 30//23 ({ratio:30//23}). The run was chosen to distinguish between two possibilities:",
     {"list": [
      "The gear set's stored primary applies: primary = 30//23.",

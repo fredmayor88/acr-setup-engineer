@@ -444,7 +444,7 @@ def write_drivetrain_page(out, doc, template_text, calibration, notes, game_vers
     return '/'.join(parts)
 
 
-def build_index_json(cars, generated=None, game_version=None):
+def build_index_json(cars, generated=None, game_version=None, fit=None):
     """The car list the picker reads, sorted by display name.
 
     The build date and game version live here and nowhere else. Stamping the date into
@@ -457,6 +457,10 @@ def build_index_json(cars, generated=None, game_version=None):
         doc['generated'] = generated
     if game_version is not None:
         doc['game_version'] = game_version
+    if fit is not None:
+        # what the rolling factor was fitted on (drivetrain_page.fit_summary): the gears page
+        # footer names it from here rather than typing it
+        doc['fit'] = fit
     return doc
 
 
@@ -765,7 +769,8 @@ def main():
         pruned = prune(out, {c['slug'] for c in cars})
         with open(os.path.join(out, 'data', 'index.json'), 'w',
                   encoding='utf-8', newline='\n') as fh:
-            json.dump(build_index_json(cars, today, game_version), fh, indent=1)
+            json.dump(build_index_json(cars, today, game_version,
+                                       DP.fit_summary(calibration, notes)), fh, indent=1)
             fh.write('\n')
         with open(os.path.join(out, 'index.html'), 'w',
                   encoding='utf-8', newline='\n') as fh:

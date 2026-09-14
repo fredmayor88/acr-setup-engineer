@@ -252,6 +252,14 @@ def car_runs(cal, slug):
     return [r for r in cal['speed_runs'] if r['car'] == slug]
 
 
+def fit_summary(cal, notes):
+    """What the rolling factor was fitted on: `{'runs': n, 'cars': [short names]}`, the cars in
+    the order their first run is stored. The drivetrain intro and the gears page footer
+    (data/index.json `fit`) both read this, so neither types a count."""
+    cars = list(dict.fromkeys(r['car'] for r in cal['speed_runs']))
+    return {'runs': len(cal['speed_runs']), 'cars': [notes['cars'][c]['short'] for c in cars]}
+
+
 def set_primary(doc, label):
     return next(s['primary']['value'] for s in doc['gear_sets'] if s['label'] == label)
 
@@ -332,12 +340,12 @@ class Context:
         if name == 'factor':
             return f'{self.factor:.4f}'
         if name == 'fit_runs':
-            return str(len(cal['speed_runs']))
+            return str(fit_summary(cal, self.notes)['runs'])
         if name in ('fit_cars', 'fit_car_count'):
-            cars = list(dict.fromkeys(r['car'] for r in cal['speed_runs']))
-            if name == 'fit_car_count':
-                return number_word(len(cars))
-            return join_words(self.notes['cars'][c]['short'] for c in cars)
+            cars = fit_summary(cal, self.notes)['cars']
+            return number_word(len(cars)) if name == 'fit_car_count' else join_words(cars)
+        if name == 'curve_end':
+            return str(doc['engine']['curve'][-1][0])
         if name == 'rev_limit':
             return str(doc['engine']['redline'])
         if name == 'adjustment':
@@ -402,6 +410,9 @@ def workings_blocks(doc, cal, notes, factor=LOADED_RADIUS_FACTOR):
     ctx = Context(doc, cal, notes, factor)
     common = notes['common']
     source = doc['engine']['redline_source']
+    # a measured limit past the end of the torque curve (the Delta Integrale) says so
+    if source == 'measured' and doc['engine']['curve'][-1][0] < doc['engine']['redline']:
+        source = 'measured-past-curve'
 
     def expand(item):
         if isinstance(item, str) and item.startswith('@'):

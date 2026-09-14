@@ -117,9 +117,8 @@ def gear_set(path):
 
 # The stored radius is the free (unloaded) one. A loaded tyre rolls on a slightly
 # smaller effective radius, so speed per rev is lower than the geometry suggests.
-# Fitted against measured in-game top speeds on eight cars (Stratos, 306 Maxi, Xsara WRC, 037,
-# 206 WRC, Delta Integrale, Impreza, GTA Junior) at their measured rev limiters: see
-# calibration.py and calibration.json. export_car_data imports this one, so there is a single
+# Fitted against measured in-game top speeds at their measured rev limiters (the runs and cars
+# are in calibration.json; calibration.py refits). export_car_data imports this one, so there is a single
 # copy; a test asserts it equals the refit.
 LOADED_RADIUS_FACTOR = 0.978
 
