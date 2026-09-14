@@ -2,11 +2,11 @@
  "_doc": "Prose for the drivetrain pages of the ACR Car Lab site (drivetrain_page.py). common.intro and common.rev_limit[source] open every car's \"How we worked it out\"; cars[slug].workings follows. An item is a paragraph string; {\"formula\": [lines]}, a monospace formula block, where a line @paths, @final_drive or @primary is the car's computed formula lines (the same ones as the Final drive and Primary gear facts); {\"list\": [items]}, a numbered list; or \"@name\", which is common[name] (one item or a list of items). No number is typed here: {placeholders} are computed from calibration.json and the car's exported data. {factor} {fit_runs} {fit_car_count} {fit_cars} {rev_limit} {adjustment} {fixed} {fixed_front} {fixed_rear} {fixed_apart}; {ratio:SPELLING}; {measured:RUN:GEAR} a measured km/h; {kmh:HYP:RUN:GEAR} the km/h a hypothesis predicts at the fitted factor; {apart:HYP1:HYP2:RUN} how far apart two hypotheses' total ratios are, in %; {off:HYP:RUN} the mean miss of a hypothesis over the run's fitted gears, in %; {speedratio:RUN1:RUN2} the mean ratio of two runs' measured speeds over the gears fitted in both. RUN is 1-based among the car's speed runs in calibration.json order. HYP is 'formula' (what the site uses) or a name in cars[slug].hypotheses: {path: average|front|rear, settings: {game name: spelling}, primary: spelling|times_set, rest: fixed_front|fixed_rear}. handling is an observation from test drives on 2026-09-13, shown word for word. User-visible text never names a person and never uses the word average: formulas are written out, with\u00a0÷\u00a02 (no-break spaces either side of the ÷, so it never starts a line).",
  "common": {
   "intro": [
-   "Every speed on these pages is engine revs turned into road speed, from the gearing alone:",
+   "Every speed on these pages is worked out from engine revs and the gearing alone:",
    {"formula": ["speed (km/h) = rpm × tyre circumference (m) × 0.06 ÷ total ratio"]},
-   "0.06 turns metres per minute into km/h: × 60 minutes per hour ÷ 1000 metres per kilometre.",
+   "rpm × tyre circumference ÷ total ratio is metres per minute; × 0.06 (× 60 minutes per hour ÷ 1000 metres per kilometre) turns that into km/h.",
    {"formula": ["total ratio = primary × gear × final drive", "tyre circumference = 2π × free radius × {factor}"]},
-   "The free radius is the tyre's, read from the game files. The rolling factor, {factor}, was fitted to the top speeds measured in game on {fit_runs} runs across {fit_car_count} cars ({fit_cars})."
+   "The free radius is the tyre radius stored in the game files. The rolling factor, {factor}, allows for a loaded tyre rolling on a slightly smaller radius; it was fitted to the top speeds measured in game on {fit_runs} runs across {fit_car_count} cars ({fit_cars})."
   ],
   "rev_limit": {
    "measured": "The rev limit, {rev_limit} rpm, was measured in game with telemetry. The end of the torque curve in the game files is not the limiter: on every car here the curve runs past it.",
@@ -19,17 +19,17 @@
    {"formula": ["@final_drive"]},
    "The same rule fits the runs on the Stratos and the 037 (Differential Ratio Rear) and on the 306 Maxi (Differential Ratio Front). This car was not run."
   ],
-  "set_primaries_untested": "Each gear set stores its own primary, and with no Primary Gear setting that is the one in force. Every run so far was on a car whose gear sets share one primary, so primaries that change from set to set have not been tested.",
+  "set_primaries_untested": "Each gear set stores its own primary, and with no Primary Gear setting that is taken to be the one in force. Every run so far on a car without a Primary Gear setting used a primary of 25//25, a ratio of 1, so a stored primary other than 1 has not been tested.",
   "fixed_awd_untested": [
    "Nothing below the gearbox is adjustable. The game files put a single fixed ratio, {fixed}, on the centre differential and 1 everywhere else, so the front and rear path ratios are both {fixed} and the final drive is that ratio:",
    {"formula": ["@final_drive"]},
-   "The formula measured on the Delta Integrale, 206 WRC and Impreza, final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02, gives the same number. This car was not run."
+   "The formula measured on the Delta Integrale, 206 WRC and Impreza gives the same number: ({fixed} + {fixed})\u00a0÷\u00a02 = {fixed}. This car was not run."
   ]
  },
  "cars": {
   "alfa-romeo-gta-1300-junior-1972": {
    "short": "GTA Junior",
-   "workings": ["@single_ratio_untested"]
+   "workings": ["@single_ratio_untested", "@set_primaries_untested"]
   },
   "alpine-a110-1-8-1973": {
    "short": "A110",
@@ -57,13 +57,13 @@
     {"formula": ["@paths"]},
     "@centre_differential_why",
     {"formula": ["@final_drive"]},
-    "The one run could not distinguish between:",
+    "The one run could not distinguish between three possibilities:",
     {"list": [
      "Final drive = front path ratio alone.",
      "Final drive = rear path ratio alone.",
      "Final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02."
     ]},
-    "It was run on gear set 1 with Center Differential Ratio 39//24. The two fixed differentials are only {fixed_apart}% apart, so all three put 6th at about {kmh:formula:1:6} km/h, too close to distinguish with the in-game speedometer. The speedometer read {measured:1:6}. The run fits final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02, the formula measured on the Delta Integrale, 206 WRC and Impreza, but cannot separate it from either path alone."
+    "It was run on gear set 1 with Center Differential Ratio 39//24. The two fixed differentials are only {fixed_apart}% apart, so all three put 6th at about {kmh:formula:1:6} km/h, too close to distinguish with the in-game speedometer. The speedometer read {measured:1:6}. It fits final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02, the formula measured on the Delta Integrale, 206 WRC and Impreza."
    ]
   },
   "fiat-124-abarth-rally-16v-1974": {
@@ -83,7 +83,7 @@
    "workings": [
     "The final drive is Differential Ratio Rear alone, the one ratio below the gearbox in the game files:",
     {"formula": ["@final_drive"]},
-    "The run on gear set 2 with Differential Ratio Rear 46//9 is one of the runs the rolling factor was fitted on, and it fits that formula: the speedometer read {measured:1:5} km/h in 5th, where final drive = Differential Ratio Rear puts it at {kmh:formula:1:5}."
+    "A run on gear set 2 with Differential Ratio Rear 46//9 fits that formula: the speedometer read {measured:1:5} km/h in 5th, where it puts 5th at {kmh:formula:1:5}. That run is also one of those the rolling factor was fitted on."
    ]
   },
   "lancia-delta-integrale-evoluzione-1992": {
@@ -98,11 +98,11 @@
     {"formula": ["@final_drive"]},
     "The first run could not distinguish between two possibilities:",
     {"list": [
-     "The selected Center Ratio to Rear and Differential Ratio Rear are ignored, their stock values 13//34 and 30//12 stay in effect, and final drive = Center Differential Ratio × 13//34 × 30//12.",
+     "The selected Center Ratio to Rear and Differential Ratio Rear are ignored and their stock values stay in effect: final drive = Center Differential Ratio × 13//34 × 30//12.",
      "Final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02, with the selected rear ratios."
     ]},
-    "It was run with the rear ratios close to stock: Center Differential Ratio 55//12, Center Ratio to Rear 13//34, Differential Ratio Rear 34//14. With those settings the predictions for 6th, about {kmh:rear_ignored:1:6} and {kmh:formula:1:6} km/h, differed by only about {apart:rear_ignored:formula:1}%, too little to distinguish reliably with the in-game speedometer. The speedometer read {measured:1:6}.",
-    "For the second run the rear ratios were deliberately moved far from stock: Center Ratio to Rear 17//38 and Differential Ratio Rear 34//13. This produced clearly different predictions for 6th: about {kmh:rear_ignored:2:6} km/h if the selected rear ratios were ignored, or {kmh:formula:2:6} km/h if final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02. The measured speed was {measured:2:6} km/h, supporting final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02."
+    "It was run on Center Differential Ratio 55//12 with the rear ratios close to stock: Center Ratio to Rear 13//34 and Differential Ratio Rear 34//14. With those settings the two possibilities put 6th at about {kmh:rear_ignored:1:6} and {kmh:formula:1:6} km/h, only about {apart:rear_ignored:formula:1}% apart, too little to distinguish reliably with the in-game speedometer. The speedometer read {measured:1:6}.",
+    "For the second run Center Differential Ratio stayed on 55//12 and the rear ratios were deliberately moved far from stock: Center Ratio to Rear 17//38 and Differential Ratio Rear 34//13. This produced clearly different predictions for 6th: about {kmh:rear_ignored:2:6} km/h under possibility 1, or {kmh:formula:2:6} km/h under possibility 2. The measured speed was {measured:2:6} km/h, supporting final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02."
    ]
   },
   "lancia-fulvia-coupe-hf-1970": {
@@ -121,7 +121,7 @@
      "The Primary Gear you pick multiplies it: primary = Primary Gear × 33//31*31//30."
     ]},
     "All three gear sets were run on Primary Gear 35//30*33//28 with Differential Ratio Rear 65//17. On gear set 3 the predictions for 5th were about {kmh:formula:3:5} km/h if it replaces and {kmh:times_set:3:5} km/h if it multiplies. The speedometer read {measured:3:5}, and gear sets 1 and 2 agreed, supporting primary = Primary Gear.",
-    "So the primary is the Primary Gear you pick, and the final drive is Differential Ratio Rear alone, the one ratio below the gearbox in the game files:",
+    "The primary is the Primary Gear you pick. The final drive is Differential Ratio Rear alone, the one ratio below the gearbox in the game files:",
     {"formula": ["@primary", "@final_drive"]}
    ]
   },
@@ -155,14 +155,14 @@
      "Center Differential Ratio multiplies the whole final drive.",
      "Center Differential Ratio does not change the gearing."
     ]},
-    "It repeated the second run with Center Differential Ratio on 31//21 ({ratio:31//21}) instead of 24//24, a ratio of 1. The predictions for 5th were about {kmh:formula:3:5} km/h if it multiplies and {kmh:cdr_ignored:3:5} km/h if it changes nothing. The speedometer read {measured:3:5}, and across the gears the speeds dropped by a factor of about {speedratio:2:3} from the second run, supporting Center Differential Ratio multiplying the whole final drive.",
+    "It repeated the second run with Center Differential Ratio on 31//21 ({ratio:31//21}) instead of 24//24 (a ratio of 1). The predictions for 5th were about {kmh:formula:3:5} km/h if it multiplies and {kmh:cdr_ignored:3:5} km/h if it changes nothing. The speedometer read {measured:3:5}, and across the gears the speeds dropped by a factor of about {speedratio:2:3} from the second run, supporting possibility 1: Center Differential Ratio multiplies the whole final drive.",
     "The last run was chosen to distinguish between:",
     {"list": [
      "Final drive = front path ratio alone.",
      "Final drive = rear path ratio alone.",
      "Final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02."
     ]},
-    "It was run on Differential Ratio Front 43//13*21//13 and Differential Ratio Rear 40//18*26//16, with Center Differential Ratio 24//24. The predictions for 4th were about {kmh:front:4:4}, {kmh:rear:4:4} and {kmh:formula:4:4} km/h. The speedometer read {measured:4:4}, supporting final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02."
+    "It was run on gear set 3 with Primary Gear 22//24, Center Differential Ratio 24//24, Differential Ratio Front 43//13*21//13 and Differential Ratio Rear 40//18*26//16. The three possibilities put 4th at about {kmh:front:4:4}, {kmh:rear:4:4} and {kmh:formula:4:4} km/h. The speedometer read {measured:4:4}, supporting final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02."
    ]
   },
   "peugeot-208-rally4": {
@@ -178,7 +178,7 @@
    "workings": [
     "The final drive is Differential Ratio Front alone, the one ratio below the gearbox in the game files:",
     {"formula": ["@final_drive"]},
-    "The run on gear set 4 with Differential Ratio Front 68//12 is one of the runs the rolling factor was fitted on, and it fits that formula: the speedometer read {measured:1:6} km/h in 6th, where final drive = Differential Ratio Front puts it at {kmh:formula:1:6}."
+    "A run on gear set 4 with Differential Ratio Front 68//12 fits that formula: the speedometer read {measured:1:6} km/h in 6th, where it puts 6th at {kmh:formula:1:6}. That run is also one of those the rolling factor was fitted on."
    ]
   },
   "skoda-fabia-rs-rally2-2022": {
@@ -195,7 +195,7 @@
     "ctr_divides": {"settings": {"Center Ratio to Rear": "28//22"}}
    },
    "workings": [
-    "On the Impreza nothing is applied before the centre differential. The front path has Differential Ratio Front; the rear path has Center Ratio to Rear and Differential Ratio Rear:",
+    "On the Impreza no ratio is applied before the centre differential. The front path has Differential Ratio Front; the rear path has Center Ratio to Rear and Differential Ratio Rear:",
     {"formula": ["@paths"]},
     "@centre_differential_why",
     {"formula": ["@final_drive"]},
@@ -205,14 +205,14 @@
      "Final drive = rear path ratio alone.",
      "Final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02."
     ]},
-    "It was run on Differential Ratio Front 36//7 and Differential Ratio Rear 31//9, with Center Ratio to Rear on 31//31, a ratio of 1. The predictions for 5th were about {kmh:front:1:5}, {kmh:rear:1:5} and {kmh:formula:1:5} km/h. The speedometer read {measured:1:5}, supporting final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02.",
+    "It was run on Differential Ratio Front 36//7 and Differential Ratio Rear 31//9, with Center Ratio to Rear on 31//31, a ratio of 1. The three possibilities put 5th at about {kmh:front:1:5}, {kmh:rear:1:5} and {kmh:formula:1:5} km/h. The speedometer read {measured:1:5}, supporting final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02.",
     "The second run was chosen to distinguish between:",
     {"list": [
      "Center Ratio to Rear multiplies: rear path ratio = Center Ratio to Rear × Differential Ratio Rear.",
      "Center Ratio to Rear is ignored: rear path ratio = Differential Ratio Rear.",
      "Center Ratio to Rear divides: rear path ratio = Differential Ratio Rear ÷ Center Ratio to Rear."
     ]},
-    "It was run on Differential Ratio Front 31//9, Center Ratio to Rear 22//28 and Differential Ratio Rear 48//11, which keeps the front and rear path ratios nearly equal if Center Ratio to Rear multiplies. The predictions for 4th were about {kmh:formula:2:4}, {kmh:ctr_ignored:2:4} and {kmh:ctr_divides:2:4} km/h. The speedometer read {measured:2:4}, supporting rear path ratio = Center Ratio to Rear × Differential Ratio Rear. With the path ratios nearly equal the car drove normally, as expected."
+    "It was run on Differential Ratio Front 31//9, Center Ratio to Rear 22//28 and Differential Ratio Rear 48//11. If Center Ratio to Rear multiplies, these keep the two path ratios nearly equal. The three possibilities put 4th at about {kmh:formula:2:4}, {kmh:ctr_ignored:2:4} and {kmh:ctr_divides:2:4} km/h. The speedometer read {measured:2:4}, supporting rear path ratio = Center Ratio to Rear × Differential Ratio Rear. With the path ratios nearly equal the car drove normally, as expected."
    ]
   },
   "volkswagen-polo-gti-r5-2018": {

@@ -139,13 +139,13 @@ def final_drive_lines(doc):
         lines = path_ratio_lines(fd) + final_drive_formula(doc)
         if f.get('centre_differential') is False:
             # assumed, not measured: the axles cannot be run apart to test it
-            return ('There is no centre differential, so this formula is taken from the cars '
-                    'where it was measured.', lines)
+            return ('This formula cannot be tested on a car with no centre differential, so it is '
+                    'taken from the cars where it was measured.', lines)
         names = {s['key']: s['adjustment'] for s in fd['settings']}
         pre = [names[k] for k in f['pre']]
         sentence = (f'{join_words(pre)} {"is" if len(pre) == 1 else "are"} applied before the '
                     'centre differential' if pre
-                    else 'Nothing is applied before the centre differential')
+                    else 'No ratio is applied before the centre differential')
         if not f['front'] and not f['rear']:
             sentence += '; the front and rear differentials are fixed in the game files'
         return sentence + '.', lines
