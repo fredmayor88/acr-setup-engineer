@@ -266,8 +266,14 @@ class Pages(unittest.TestCase):
             with self.subTest(car=slug):
                 self.assertIn(f"localStorage.getItem('{E.THEME_KEY}')", html)
                 self.assertIn('<button class="theme" type="button">', html)
-                self.assertIn('<a class="crumb" href="../gears/">', html)
-                self.assertIn('<a class="crumb" href="../../">All cars', html)
+                row = html[html.index('<div class="brandrow">'):html.index('<h1>')]
+                self.assertIn('<a class="brand" href="../../">ACR <b>Car Lab</b></a>\n'
+                              '      <span class="sep" aria-hidden="true">·</span>\n'
+                              '      <a class="crumb" href="../../"><span class="chev" '
+                              'aria-hidden="true">‹</span>All cars</a>\n'
+                              '      <span class="sep" aria-hidden="true">·</span>\n'
+                              '      <a class="crumb" href="../gears/">Gearing charts</a>\n'
+                              '      <button class="theme" type="button">', row)
                 self.assertIn('href="../../app.css"', html)
                 self.assertIn('<script type="module" src="../../js/drivetrain.js"></script>', html)
                 self.assertIn('gc.zgo.at/count.js', html)
@@ -510,8 +516,11 @@ class PickerAndGearsLinks(unittest.TestCase):
         self.assertLess(html.index('</ul>'), html.index('<div class="foot">'))
         row = E.render_car_page('lancia-stratos', 'Lancia Stratos HF')
         row = row[row.index('class="brandrow"'):row.index('<h1>')]
-        self.assertIn('<span class="brand">ACR <b>Car Lab</b></span>\n      '
-                      '<a class="crumb" href="../../">All cars', row)
+        self.assertIn('<a class="brand" href="../../">ACR <b>Car Lab</b></a>\n'
+                      '      <span class="sep" aria-hidden="true">·</span>\n'
+                      '      <a class="crumb" href="../../"><span class="chev" aria-hidden="true">‹</span>'
+                      'All cars</a>\n      <button class="theme"', row)
+        self.assertEqual(row.count('class="sep"'), 1)
 
     def test_the_flag_sets_both_links(self):
         from unittest import mock
@@ -549,8 +558,13 @@ class PickerAndGearsLinks(unittest.TestCase):
     def test_the_gears_page_links_to_the_drivetrain_page(self):
         html = E.render_car_page('lancia-stratos', 'Lancia Stratos HF', publish_drivetrain=True)
         row = html[html.index('class="brandrow"'):html.index('<h1>')]
-        self.assertIn('<a class="crumb" href="../drivetrain/">Drivetrain notes</a>\n      '
-                      '<a class="crumb" href="../../">All cars', row)
+        # "Drivetrain notes" follows "All cars" on the left, after its own dot
+        self.assertIn('<a class="crumb" href="../../"><span class="chev" aria-hidden="true">‹</span>'
+                      'All cars</a>\n'
+                      '      <span class="sep" aria-hidden="true">·</span>\n'
+                      '      <a class="crumb" href="../drivetrain/">Drivetrain notes</a>\n'
+                      '      <button class="theme"', row)
+        self.assertEqual(row.count('class="sep"'), 2)
 
 
 class PruneKeepsDrivetrainPages(unittest.TestCase):

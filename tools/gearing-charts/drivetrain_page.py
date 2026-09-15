@@ -552,9 +552,11 @@ Assetto Corsa Rally: layout, gearing settings, final drive formula and measureme
 <div class="wrap dt">
   <header>
     <div class="brandrow">
-      <span class="brand">ACR <b>Car Lab</b></span>
+      <a class="brand" href="{root}">ACR <b>Car Lab</b></a>
+      <span class="sep" aria-hidden="true">·</span>
+      <a class="crumb" href="{root}"><span class="chev" aria-hidden="true">‹</span>All cars</a>
+      <span class="sep" aria-hidden="true">·</span>
       <a class="crumb" href="../gears/">Gearing charts</a>
-      <a class="crumb" href="{root}">All cars →</a>
       {theme_button}
     </div>
     <h1>{name} — drivetrain</h1>

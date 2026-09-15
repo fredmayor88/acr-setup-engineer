@@ -301,6 +301,13 @@ DRIVETRAIN_PAGE_DIR = 'drivetrain'
 # yet (and carry noindex). True puts back both links: the picker's "Drivetrain notes" section
 # and the "Drivetrain notes" crumb on every gears page.
 PUBLISH_DRIVETRAIN_LINKS = False
+# A car page's header, left to right: the wordmark (a link home), a muted dot, the back link, any
+# further crumbs after their own dot, then the theme toggle on the right. drivetrain_page.py
+# writes the same row. The chevron is hidden from assistive tech, so the link's name is "All cars".
+CRUMB_SEP = '<span class="sep" aria-hidden="true">·</span>'
+BRAND_LINK = '<a class="brand" href="{root}">ACR <b>Car Lab</b></a>'
+ALL_CARS_CRUMB = ('<a class="crumb" href="{root}"><span class="chev" aria-hidden="true">‹</span>'
+                  'All cars</a>')
 DRIVETRAIN_CRUMB = f'<a class="crumb" href="../{DRIVETRAIN_PAGE_DIR}/">Drivetrain notes</a>'
 
 CAR_PAGE = """<!doctype html>
@@ -319,9 +326,10 @@ Assetto Corsa Rally.">
 <div class="wrap" id="app" data-car="{slug}">
   <header>
     <div class="brandrow">
-      <span class="brand">ACR <b>Car Lab</b></span>
-      {drivetrain_crumb}<a class="crumb" href="{root}">All cars →</a>
-      {theme_button}
+      {brand_link}
+      {sep}
+      {all_cars}
+      {drivetrain_crumb}{theme_button}
     </div>
     <h1>{name}</h1>
   </header>
@@ -400,9 +408,12 @@ def render_car_page(slug, name, publish_drivetrain=None):
     if publish_drivetrain is None:
         publish_drivetrain = PUBLISH_DRIVETRAIN_LINKS
     safe = _html.escape(name)
-    crumb = DRIVETRAIN_CRUMB + '\n      ' if publish_drivetrain else ''
+    crumb = (CRUMB_SEP + '\n      ' + DRIVETRAIN_CRUMB + '\n      '
+             if publish_drivetrain else '')
     return CAR_PAGE.format(slug=_html.escape(slug), name=safe, root=CAR_ROOT,
                            theme_head=THEME_HEAD, theme_button=THEME_BUTTON,
+                           brand_link=BRAND_LINK.format(root=CAR_ROOT), sep=CRUMB_SEP,
+                           all_cars=ALL_CARS_CRUMB.format(root=CAR_ROOT),
                            drivetrain_crumb=crumb)
 
 

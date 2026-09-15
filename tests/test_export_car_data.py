@@ -457,7 +457,8 @@ class RenderPages(unittest.TestCase):
         html = render_car_page('lancia-stratos', 'Lancia Stratos HF')
         self.assertIn('href="../../app.css"', html)
         self.assertIn('src="../../js/app.js"', html)
-        self.assertIn('<a class="crumb" href="../../">All cars', html)
+        self.assertIn('<a class="crumb" href="../../"><span class="chev" aria-hidden="true">‹</span>'
+                      'All cars</a>', html)
         # nothing left pointing one level up only, but the car's own drivetrain page beside it
         self.assertNotRegex(html, r'(?:href|src)="\.\./(?!\.\./|drivetrain/")')
         published = render_car_page('lancia-stratos', 'Lancia Stratos HF', publish_drivetrain=True)
@@ -648,6 +649,26 @@ class ThemeInPages(unittest.TestCase):
     def test_car_toggle_sits_after_the_all_cars_link(self):
         html = self.pages()['car']
         self.assertLess(html.index('All cars'), html.index('class="theme"'))
+
+    def test_car_header_is_the_wordmark_home_a_dot_and_the_back_link(self):
+        # left to right: the wordmark linking to the picker, a muted dot, "‹ All cars" (the
+        # chevron hidden, so the link is named "All cars"), then the toggle
+        html = self.pages()['car']
+        row = html[html.index('<div class="brandrow">'):html.index('<h1>')]
+        self.assertIn('<div class="brandrow">\n'
+                      '      <a class="brand" href="../../">ACR <b>Car Lab</b></a>\n'
+                      '      <span class="sep" aria-hidden="true">·</span>\n'
+                      '      <a class="crumb" href="../../"><span class="chev" aria-hidden="true">‹</span>'
+                      'All cars</a>\n'
+                      '      <button class="theme" type="button">', row)
+        self.assertNotIn('→', html)
+
+    def test_the_picker_wordmark_stays_plain_text(self):
+        html = self.pages()['index']
+        row = html[html.index('<div class="brandrow">'):html.index('<h1>')]
+        self.assertIn('<span class="brand">ACR <b>Car Lab</b></span>', row)
+        self.assertNotIn('<a ', row)
+        self.assertNotIn('class="sep"', row)
 
     def test_index_page_loads_the_theme_module(self):
         # car pages get it through js/app.js; the picker has no other script
