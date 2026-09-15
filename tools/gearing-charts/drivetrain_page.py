@@ -545,6 +545,9 @@ PAGE = """<!doctype html>
 <meta name="description" content="How the {name} turns engine revs into road speed in \
 Assetto Corsa Rally: layout, gearing settings, final drive formula and measurements.">
 <link rel="stylesheet" href="{root}app.css">
+<link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
+<link rel="icon" href="{root}favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="{root}apple-touch-icon.png">
 <script data-goatcounter="https://acr-car-lab.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>

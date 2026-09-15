@@ -319,6 +319,9 @@ CAR_PAGE = """<!doctype html>
 <meta name="description" content="Gearing, final drive and power for the {name} in \
 Assetto Corsa Rally.">
 <link rel="stylesheet" href="{root}app.css">
+<link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
+<link rel="icon" href="{root}favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="{root}apple-touch-icon.png">
 <script data-goatcounter="https://acr-car-lab.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -366,6 +369,9 @@ INDEX_PAGE = """<!doctype html>
 <meta name="description" content="Interactive gearing and power charts for {count} cars in \
 Assetto Corsa Rally.">
 <link rel="stylesheet" href="app.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script data-goatcounter="https://acr-car-lab.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 </head>
