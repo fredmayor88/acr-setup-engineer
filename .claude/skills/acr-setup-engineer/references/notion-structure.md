@@ -231,17 +231,20 @@ parameters simply have no row.
   standard lists for `Tyre type` (full tyre list) and `Brake pads` (`SOFT, MEDIUM, HARD`),
   which are immediately usable. **When present it is the authoritative legal set** for that
   car's parameter; when blank the parameter is treated as continuous over `Min..Max`.
-- **Value notation is literal — especially the compound-gear `*`.** Values are stored and shown
-  exactly as the game spells them: slash pairs as `65//17`, ramp angles as `45/55`, and a
-  two-stage primary drive as **`35//30*33//28`** — asterisk, no spaces. This is the **one
-  canonical spelling**; never rewrite it as `x`, `×` or ` * `, and never drop the `*`.
-  Because `*` is markdown emphasis, a value written unprotected into any markdown context (a
-  page-body checklist, the `Catalog snapshot`, a report) loses its asterisks when two of them
-  pair up — `35//30*33//28, 33//28*32//31` collapses to `35//3033//28, 33//2832//31`. **Wrap
-  values in backticks** wherever they're written into page markdown, and **quote them in the
-  snapshot YAML**, so the asterisk always survives the round trip (`SKILL.md` → *Compound gear
-  values*). A value read back in the collapsed form is corrupted — repair it against
-  `Discrete steps`, don't treat it as legal.
+- **Value notation is literal — including the `*` in a two-stage gear value.** Values are stored
+  and shown exactly as the game spells them: slash pairs as `65//17`, ramp angles as `45/55`, and
+  a two-stage primary drive as **`35//30*33//28`** — asterisk, no spaces. It is an ordinary
+  option name; never rewrite it as `x`, `×` or ` * `, never drop the `*`, and never remark on it
+  to the user. `SKILL.md` → *A gear value with a `*` in it is an ordinary value* is the full rule;
+  what matters when writing here:
+  - **`Discrete steps` is a text property, and text properties are inline markdown**, so two
+    unprotected asterisks in one cell pair up and disappear. **Write every `*` in a text property
+    as `\*`** — `35//30\*33//28, 33//28\*32//31` stores `35//30*33//28, 33//28*32//31`. The same
+    goes for `Notes`, a row's `Name` and a page `title`.
+  - In **page markdown** put values in backticks; in the **snapshot YAML** quote them. In a
+    **Select** value column (`Primary Gear` on a `Setups` row) write the plain value.
+  - A cell written by an older version may read `35//3033//28`. It is the same value: compare
+    with every `*` removed from both sides, use the spelling with the asterisk, say nothing.
 - **`Order`** (Number) — the parameter's **display position**, driving the order of every `Setups`
   column and every setup projection. Seeded at onboarding from the order the parameter appears on
   the in-game setup screens (canonical ACR defaults + numbering in **Setups column order** below);

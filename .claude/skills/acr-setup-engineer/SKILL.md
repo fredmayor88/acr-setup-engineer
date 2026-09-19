@@ -173,22 +173,39 @@ Bundled tools (stdlib Python, run via code execution):
   `Gravel Soft/Medium/Hard`; `Dry Tarmac` → `Tarmac Soft/Medium/Hard`).
 - **Tyre pressure is always two values.** Every setup stores `Pressure Front` and
   `Pressure Rear` as two separate values — never a single combined tyre-pressure value.
-- **Compound gear values keep their `*` — never let markdown eat it.** A car with a two-stage
-  primary drive spells it `35//30*33//28` (two gear pairs, multiplied). **`*` is markdown
-  emphasis**, so two of them in one string pair up and are silently swallowed on the way into
-  Notion — a `Discrete steps` list or checklist line becomes `35//3033//28, 33//2832//31`, which
-  is unreadable and matches nothing in the catalog. So:
-  - **`A//B*C//D` (asterisk, no spaces) is the one canonical spelling.** Never substitute `x`,
-    `×` or ` * `, never drop the `*`, and never "tidy" a value you're copying.
-  - **Wrap every parameter value in backticks wherever it lands in a markdown context** — the
-    in-game checklist, the `Catalog snapshot`, a share snippet, a change table, any report.
-    Inline code is literal, so the asterisk survives. This costs nothing on values that don't
-    contain one, so apply it to values generally rather than special-casing gears.
-  - **Read side — repair, don't accept.** A value holding two `//` groups with nothing between
-    them (`35//3033//28`) is a corrupted gear value, not a legal one. Restore the `*` by matching
-    it against the parameter's `Discrete steps`; if exactly one catalog entry matches once the
-    asterisks are stripped from both, use that entry and say you repaired it. If none or several
-    match, ask rather than guessing.
+- **Every parameter value you show the user is written in backticks — in chat replies too.**
+  `29//27*31//35`, `Tarmac Soft`, `57500`, `45/55`. This is the form of a value in a chat
+  message, a confirmation, a change table, the in-game checklist, a share snippet and any Notion
+  page body; a value repeated back to the user ("I wrote `35//30*33//28, 33//28*32//31`") is no
+  exception. Chat is markdown, and without the backticks two `*` in one message pair up and
+  vanish, so the user sees `35//3033//28`. A gear value is **always shown with its asterisk** —
+  never in the form without it, even when that is how a stored value reads.
+- **A gear value with a `*` in it is an ordinary value — use it, show it, never comment on it.** A
+  car with a two-stage primary drive spells it `35//30*33//28` (two gear pairs, multiplied). That
+  is the game's own spelling. **Accept it exactly as given** — from a setup screen, a save file, a
+  template, a Notion row or the user — and treat it like any other option name: match it, store
+  it, compare it, recommend it. **Never tell the user anything about this notation**: not that it
+  looks unusual, not that an asterisk is special in markdown, not that a stored list "lost" its
+  asterisks, not that you restored one. It is not a finding, and it never belongs in a report.
+  - **`A//B*C//D` (asterisk, no spaces) is the only spelling.** Never write `x`, `×` or ` * `,
+    never drop the `*`, never "tidy" a value you are copying.
+  - **Writing to Notion — three cases, because `*` is markdown emphasis** and two of them in one
+    string pair up and disappear (`35//30*33//28, 33//28*32//31` is stored as
+    `35//3033//28, 33//2832//31`):
+    1. **Page body** (checklist, justification, `Log` entry) → backticks, as above. In the
+       `Catalog snapshot` the values sit inside a fenced `yaml` block and are quoted.
+    2. **A text property** — `Discrete steps`, `Notes`, a row's `Name`, a page `title`: these are
+       inline markdown too. Write every `*` as **`\*`** (`35//30\*33//28, 33//28\*32//31`); the
+       backslash is not stored, the asterisk is.
+    3. **A Select or Number property** (a `Setups` value column such as `Primary Gear`) → the
+       plain value, `35//30*33//28`, no backslash and no backticks.
+  - **Reading — a value without its asterisks is the same value.** Rows written by older versions
+    can hold `35//3033//28`. When you compare a gear value with a `Discrete steps` list, **compare
+    with every `*` removed from both sides**; on a match, use the spelling that has the asterisk
+    (the one from the screen, the save, the template or the user). Do this silently. Only when a
+    value matches **no** entry, or **several**, ask the user which option they mean — one short
+    question that lists the options, nothing about notation. `scripts/load_catalog.py --check`
+    does the same match for a template car.
 - **ACR's toe sign is inverted (game bug) — reason in directions, write the screen number.** In
   ACR's setup screen a toe value does the **opposite** of what its sign suggests: a **positive**
   toe value points the wheels **outwards** (toe-**out**), a **negative** one points them

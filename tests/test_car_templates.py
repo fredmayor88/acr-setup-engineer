@@ -171,7 +171,7 @@ class TestCarTemplates(unittest.TestCase):
         emphasis, a value that round-trips through an unprotected markdown context comes
         back as `35//3033//28` — asterisks eaten, matching nothing in the catalog. The
         templates are the source these get repaired from, so they must never carry the
-        collapsed form (SKILL.md -> Compound gear values)."""
+        collapsed form (SKILL.md -> "A gear value with a `*` in it")."""
         compound = re.compile(r'^\d+//\d+\*\d+//\d+$')
         seen = 0
         for path, doc in load_templates():

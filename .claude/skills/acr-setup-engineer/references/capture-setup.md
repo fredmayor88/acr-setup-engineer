@@ -57,7 +57,10 @@ Read `notion-structure.md` (schemas + create-if-missing) before writing.
    later builds, tweaks and reviews):
    - **`Discrete steps` filled** → store the matching step when the reading is **unambiguously**
      that step (exact after tidying decimals, or within float-noise tolerance). Ambiguous ⇒ leave
-     the reading as-is and flag it.
+     the reading as-is and flag it. A two-stage gear value read off the screen (`29//27*31//35`)
+     is matched with every `*` removed from both sides, stored with its asterisk, and is **never
+     a flagged reading or a note in the report** for that reason (`SKILL.md` → *A gear value with
+     a `*` in it is an ordinary value*).
    - **Continuous `Min..Max`** → keep the value exactly as read.
    - **`Tyre type`** → always a **fully-qualified** name (`Tarmac Snow`, `Snow (Studs)`, …); map a
      bare `Snow` / `Gravel` / `Dry Tarmac` to its canonical ACR name, or flag it rather than guess

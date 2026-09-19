@@ -482,6 +482,10 @@ guessing. Regenerating the skill's own data is free; losing the user's notes is 
      option names into `Discrete steps` (observed values only); for numeric params leave
      `Discrete steps` blank. **ACR exception:** set `Tyre Type` `Discrete steps` to the standard
      ACR tyre list and `Brake pads/shoe` (front & rear) to `SOFT, MEDIUM, HARD`.
+     `Discrete steps` is a text property, so a two-stage gear value goes in with its asterisk
+     escaped — `35//30\*33//28, 33//28\*32//31` — or Notion drops the asterisks (`SKILL.md` →
+     *A gear value with a `*` in it is an ordinary value*). The same applies in step 8 and when
+     step 9 writes steps the user dictated.
      **Backfill:** if refreshing a car whose existing rows have a blank `Order`, fill it from the
      canonical defaults (`notion-structure.md`) — no re-screenshotting needed.
    - Ensure the `Setups` DB has a matching **value property** per Adjustment: **Number** for a

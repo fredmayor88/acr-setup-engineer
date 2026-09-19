@@ -37,7 +37,7 @@ Options:
                  inside the numeric Min..Max. Prints
                  {"ok": [...], "problems": [...]}. A collapsed compound gear value
                  (`35//3033//28`, asterisks eaten by markdown) is repaired against the steps
-                 and reported with "repaired": true (SKILL.md -> Compound gear values).
+                 and reported with "repaired": true (SKILL.md -> "A gear value with a `*` in it").
   --snapshot     Print the `Catalog snapshot` YAML body (notion-structure.md ->
                  *Catalog snapshot*), with today's date and the skill version resolved
                  per SKILL.md -> *Skill version* (the bundled VERSION file; for the
@@ -243,7 +243,7 @@ def repair_compound_gear(value, steps):
     """Restore the `*` markdown ate from a compound gear value (`35//3033//28`).
 
     Returns the matching catalog step, or None when the value isn't a collapsed compound or
-    doesn't match exactly one step (SKILL.md -> Compound gear values: ask, never guess).
+    doesn't match exactly one step (SKILL.md -> "A gear value with a `*` in it": ask, never guess).
     """
     if not isinstance(value, str) or '*' in value or value.count('//') < 2:
         return None
