@@ -30,9 +30,15 @@ Read `notion-structure.md` (schemas + create-if-missing) before writing.
 ## Procedure
 
 1. **Read once, in parallel.** Resolve the `ACR Setup Engineer` structure, then issue the remaining
-   reads **together in a single step** (`SKILL.md` → *Read efficiently*): the `Parameters` and
-   `Setups` data sources, and the car's `Parameters` rows via
-   [notion-rest-read.md](notion-rest-read.md) in **one** code-execution block. Do **not** load
+   reads **together in a single step** (`SKILL.md` → *Read efficiently*): the `Setups` data source,
+   the car's `Catalog` page, and the car's catalog, in **one** code-execution block.
+   **Load the car's catalog:** a **template car** → `python scripts/load_catalog.py
+   car-templates/<slug>.yaml --surface {Surface}` (no token, no network) — **leave `--surface`
+   off when the surface isn't known yet** (the *Inputs* allow "doesn't matter"), which gives every
+   row, baseline and surface-tagged, to resolve later; a **screenshot car** →
+   its `Parameters` rows via [notion-rest-read.md](notion-rest-read.md) (fetch the `Parameters`
+   data source too, for that). Decide which from the `Catalog` page's `Catalog source:` line
+   (`notion-structure.md` → *Where a car's catalog lives*). Do **not** load
    `setup-tuning-principles.md`, the `Tuning guidelines` page, the car's guidelines, the
    `car-troubleshooting/` file, or the learn pool — none of them are used here.
 
@@ -43,6 +49,9 @@ Read `notion-structure.md` (schemas + create-if-missing) before writing.
 2. **Transcribe the screens.** For each parameter shown, record the displayed value against the
    catalog's canonical `Adjustment` name, section grouping and `Order` (reuse onboarding's names —
    never invent one). **Flag any label you can't confidently map** rather than dropping it.
+   A captured value that falls outside a **template car's** range is trigger (b) of
+   `onboard-car.md` → *When the template may be stale*: say the one line, then flag and write the
+   value as read exactly as step 4 already requires.
 
 3. **Normalize to the catalog** (this part is not optional — it's what makes the row usable by
    later builds, tweaks and reviews):
@@ -64,8 +73,13 @@ Read `notion-structure.md` (schemas + create-if-missing) before writing.
    - **Everything in range (the normal case) → say nothing.** No per-parameter table, no
      "✓ within range" lines, no validation report. Silence is the pass condition.
    - **Out of range → never clamp, never drop.** Write the value as read and flag it in **one
-     line**, naming the two possible causes: *"Rear ARB reads 9, catalog says 1–8 — either I misread
-     the photo or the catalog is stale (re-onboard the car). Written as read."*
+     line**, naming the two possible causes: *"Rear ARB reads 9, catalog says 1–8 — either I
+     misread the photo or the catalog is stale. Written as read."* If the user wants to fix a
+     stale catalog, give them the exact request: a **screenshot car** is re-onboarded with
+     *"onboard the {Car} from my screenshots"*; for a **template car** the same phrase —
+     *"re-onboard the {Car} from my screenshots"* — switches it to a catalog they own
+     (`onboard-car.md` → *Trigger phrases*). A bare "re-onboard" is a template refresh and would
+     take the same template again.
 
    Values are **never rejected** and the user is **never blocked**. This check costs one comparison
    per value against data already in context; it earns its keep because a misread number is silent
@@ -75,7 +89,13 @@ Read `notion-structure.md` (schemas + create-if-missing) before writing.
    (`SKILL.md` → *Core rules*). If the photos don't cover every screen, list the missing parameters
    in one message and ask for the remaining shot(s) — don't invent values and don't leave holes.
 
-6. **Write one `Setups` row — append only.** `Name` (≤15 chars), `Car`, `Location` / `Stage` (if
+6. **Write one `Setups` row — append only.** First, **if this car is a template car whose
+   `Catalog` page carried no `Catalog source:` line** (step 1), its `Setups` columns were created
+   by an older skill version and the current template may name columns the DB doesn't have: run
+   the check in `notion-structure.md` → *Legacy template car — check the `Setups` columns before
+   the first write* — add the missing columns in one call, never rename or remove anything, and
+   say the one line it gives. You already hold both sides of the comparison, so this adds no
+   read. Then write the row: `Name` (≤15 chars), `Car`, `Location` / `Stage` (if
    given), `Surface`, `Conditions` (only when known — **blank rather than guessed**), `Date`
    (the Python one-liner, never a guessed clock time), `Game version` (if known), `Skill version`,
    **`Source = screenshot`**, `Mode` (default `learn`), a value for every parameter the car has,
@@ -91,9 +111,12 @@ Read `notion-structure.md` (schemas + create-if-missing) before writing.
      row is the source of truth).
 
 7. **Assert the column order — MANDATORY** (`SKILL.md` → *Assert column order*;
-   `notion-structure.md` → *Applying the order*). Run
-   `scripts/query_notion_parameters.py … --show-order` and apply the `SHOW` to the main `Setups`
-   view, the car's linked view, and any stage/location view. The capture is **not done** until this
+   `notion-structure.md` → *Applying the order*, which says which form to run). Run
+   `scripts/query_notion_parameters.py … --show-order` and apply the `SHOW` to the car's linked
+   view (case 1, `--show-order --from-template car-templates/<slug>.yaml`, for a template car;
+   case 2, `<params_ds> <token> "{Car}" --show-order`, for a screenshot car), and to the main
+   `Setups` view and any stage/location view (case 3: one call, a `--from-template` per onboarded
+   template car plus `<params_ds> <token> --all` only if a screenshot car exists). The capture is **not done** until this
    is applied, on quick runs too.
 
 8. **Report — one line, plus exceptions.** *"Saved **{name}** for the {Car} ({n} parameters,

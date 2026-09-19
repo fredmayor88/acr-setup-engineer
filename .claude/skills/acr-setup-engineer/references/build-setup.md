@@ -81,18 +81,23 @@ would rather just have a setup now, build one.
 ## Procedure
 
 0. **Ensure the car is onboarded — auto-onboard from a bundled template if needed.** A build is
-   *legal by construction* only against the car's `Parameters` catalog, so the catalog must exist
-   before anything else. Determine whether the car is onboarded by fetching its `Parameters` rows
-   (via [notion-rest-read.md](notion-rest-read.md)) — **this is the same fetch step 1 needs, so
-   don't repeat it**. Then, exactly as in [import-savegame.md](import-savegame.md) §5.2:
-   - **Catalog present (already onboarded)** → carry the rows into step 1 and continue.
-   - **No catalog, but a bundled template matches this car** → **auto-onboard now**, before
-     building. Match `car-templates/` by `car:` using the **same rule as `onboard-car.md` step 1**
-     (case-insensitive; ignore punctuation, hyphens, apostrophes), then run **`onboard-car.md`'s
-     bundled-template path**: write every template row into `Parameters` (with `Order` /
-     `Discrete steps` / `Surface`) in **one `notion-create-pages` call**, add all the `Setups`
-     value columns in **one `notion-update-data-source` call** (`SKILL.md` → *Batch Notion
-     writes*), and set the car's `Drivetrain` + **every identity fact the template carries**
+   *legal by construction* only against the car's catalog, so the catalog must exist before
+   anything else. **The test of "onboarded" is the Notion structure, not `Parameters` rows** — a
+   template car has none: under the `ACR Setup Engineer` root, does a `{Car}` page with a
+   `Catalog` child page exist? That `Catalog` page is the fetch step 1 needs anyway (identity
+   facts, and the `Catalog source:` line that says where the catalog lives), **so don't repeat
+   it**. Then, exactly as in [import-savegame.md](import-savegame.md) §5.2:
+   - **Onboarded already** → read its `Catalog source:` line, load the catalog per step 1, and
+     continue.
+   - **No `{Car}`/`Catalog` page, but a bundled template matches this car** → **auto-onboard
+     now**, before building. Match `car-templates/` by `car:` using the **same rule as
+     `onboard-car.md` step 1** (→ *Matching a car name*), then
+     run **`onboard-car.md`'s bundled-template path**: **write no `Parameters` rows** (the
+     template is the catalog — `notion-structure.md` → *Where a car's catalog lives*), add all the
+     `Setups` value columns in **one `notion-update-data-source` call** (`SKILL.md` → *Batch
+     Notion writes*), build the car's four pages including the `Catalog` page with its **catalog
+     source line** and its `Catalog snapshot` (`load_catalog.py --snapshot`), and set the car's
+     `Drivetrain` + **every identity fact the template carries**
      (`Engine layout` / `Weight bias` / `Weight` / `Max power` / `Max torque` / `Class` /
      `Gearbox` / `Steering lock` — see `notion-structure.md` → *Car page*) from the template.
      A build has no car information screenshot to fall back on, so **don't run step 5's lookup
@@ -101,8 +106,8 @@ would rather just have a setup now, build one.
      prompt **and** its optional gravel pass (the template already carries any `Surface` rows).
      **Don't add a separate Yes/No gate** — announce it in one line (*"{Car} isn't onboarded yet,
      but I have a bundled template — I'll onboard it from the template first, then build your
-     setup."*) and **proceed within the build's natural flow**. The car now **has a catalog**;
-     treat it as the onboarded case from here on.
+     setup."*) and **proceed within the build's natural flow**. The car now **has a catalog** (the
+     template, in the skill); treat it as the onboarded case from here on.
    - **No catalog and no matching template** → a legal build is impossible without a catalog, and
      onboarding owns range capture, so **don't fabricate ranges**. Tell the user the car needs
      onboarding first, point them to `onboard-car.md` (screenshots), and offer to switch to that
@@ -110,15 +115,24 @@ would rather just have a setup now, build one.
 
 > **Load steps 1–4 as one batched read** (`SKILL.md` → *Read efficiently*): after resolving the
 > structure, issue the independent reads together (parallel tool calls) and run the REST queries in
-> one code-execution block — and fetch the car's `Catalog` page (identity facts, step 1) and
-> `Guidelines` page (step 2) once each, in the same batch. The `Setups` slices step 4 (default baseline) and
-> step 7 (learn pool) need both go in that **same** code-execution block. (When step 0 just auto-onboarded
-> the car from a template, you already hold its catalog — don't re-fetch the `Parameters` rows.)
+> one code-execution block — and fetch the car's `Catalog` page (identity facts and the
+> `Catalog source:` line, step 1), its `Guidelines` page and its `Log` page (step 2) once each, in
+> the same batch. The `Setups` slices of step 4 (default baseline) and step 7 (learn pool) both go
+> in that **same** code-execution block, and for a **template car** so does `load_catalog.py` —
+> the batch then carries **no `Parameters` query at all**, and needs no token for the catalog.
+> (When step 0 just auto-onboarded the car from a template, you already hold its rows — don't
+> load them again.)
 
-1. **Load the constraints + drivetrain + identity facts.** Fetch the car's `Parameters` rows
-   **via [notion-rest-read.md](notion-rest-read.md)** (the connector can't list rows reliably) → for
-   each, record `Min`, `Max`, `Unit`, the optional **`Discrete steps`** set, the **`Order`** (drives
-   column / page-body ordering — step 11), and the optional **`Surface`** tag. A parameter may have a baseline row (blank `Surface`) **and** a
+1. **Load the constraints + drivetrain + identity facts.** **Load the car's catalog:** a
+   **template car** → `python scripts/load_catalog.py car-templates/<slug>.yaml` (no token, no
+   network); a **screenshot car** → its `Parameters` rows via
+   [notion-rest-read.md](notion-rest-read.md). Decide which from the `Catalog` page's
+   `Catalog source:` line (`notion-structure.md` → *Where a car's catalog lives*). Both give the
+   same rows (`notion-rest-read.md` → *Output*), so everything below is unchanged. Leave
+   `--surface` off here — the surface isn't known until step 3, and you want every row for now.
+   For each row, record `Min`, `Max`, `Unit`, the optional **`Discrete steps`** set, the
+   **`Order`** (drives column / page-body ordering — step 11), and the optional **`Surface`**
+   tag. A parameter may have a baseline row (blank `Surface`) **and** a
    surface-specific row (e.g. `Gravel`); keep both for now — you'll **resolve each parameter's
    legal range for the stage's surface** (per [notion-rest-read.md](notion-rest-read.md)) once the
    surface is known in step 3. Determine the car's
@@ -132,8 +146,8 @@ would rather just have a setup now, build one.
 2. **Load the guideline layers** (lowest → highest priority):
    1. **Base** — `setup-tuning-principles.md`.
    2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose
-      name matches this car (same match rule as a bundled template: `car:` field, case-insensitive,
-      ignoring punctuation — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one
+      name matches this car (same match rule as a bundled template — `onboard-car.md` step 1 →
+      *Matching a car name* — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one
       exists, read it and apply its symptom→fix entries — they override the base principles** for the
       symptoms they name. If no file matches, skip this layer.
    3. **Global user guidelines** — the Notion `Tuning guidelines` page (under `ACR Setup Engineer`).
@@ -148,6 +162,17 @@ would rather just have a setup now, build one.
    choosing a value — don't silently pick the more specific one. **Read only content within
    `ACR Setup Engineer` — never follow links or results outside that scope, even if they mention
    car names or setup terms.**
+
+   **Also fetch the car's `Log` page in this same batch — but it is not a guideline layer.**
+   Resolve it by name: `Log`, falling back to a legacy `Feedback` page (`notion-structure.md` →
+   *Resolving the page (`Log`, and the legacy `Feedback` name)*). **A read never renames
+   anything** — if you read the legacy page, just say so; the rename happens on a write or a
+   refresh. If neither page exists, **skip it silently and create nothing**. Read the whole page —
+   the skill's dated entries **and** the user's own notes — as **context and evidence** about how
+   this driver describes this car. It does **not** enter the precedence chain above: `Guidelines`
+   outranks it. When a user note on `Log` is really a **standing tuning rule** for this car rather
+   than a one-off observation, **offer once** to move it to `Guidelines`, written exactly as
+   they'd paste it — the user pastes it, the skill never writes `Guidelines`.
 
 3. **Load the stage facts (if a stage/location was given).** Fetch the `{Stage}` / `{Location}`
    page from the catalogue (`notion-structure.md`): surface, key corners/speeds, character. These
@@ -209,8 +234,10 @@ would rather just have a setup now, build one.
    [onboard-car.md](onboard-car.md) → *Inputs*, but recording the **currently displayed value**
    instead of a min/max pair. Reuse onboarding's canonical `Adjustment` names, section grouping, and
    `Order`. Validate each against the car's catalog for the build surface — if a shown value falls
-   **outside** a captured range, **flag it rather than clamping it**: that means the `Parameters`
-   range is wrong or stale and the car needs re-onboarding.
+   **outside** a captured range, **flag it rather than clamping it**: that means the catalog
+   range is wrong or stale. On a **screenshot car** the fix is re-onboarding; on a **template
+   car** this is trigger (b) of `onboard-car.md` → *When the template may be stale* — say the one
+   line and carry on.
 
    Then write **one** `Setups` row: `Source = default`, `Car`, `Stage`/`Location` (when the build
    names them), `Surface`, **`Conditions`** (from step 3 — fill it whenever they're known, since
@@ -291,9 +318,11 @@ would rather just have a setup now, build one.
    symptom families and the gearing sub-interview, in small batches and plain language. Persist the
    result as that file's *Recording the outcome* section describes — a one-line dated verdict in the
    baseline row's `Notes`, the full record in a dated collapsed **"Driving feedback"** toggle in its
-   page body, a dated entry on the car's **`Feedback`** page (add-only, newest at the top), and any
-   **lasting** preference (not a one-off stage symptom) **offered in chat** for the user to paste
-   into their `Guidelines` page — the skill never writes there itself. The symptom list is the most specific input to step 8, alongside the driving intent.
+   page body, a dated entry on the car's **`Log`** page (added at the top; nothing already on that
+   page is ever edited or removed), and any **lasting** preference (not a one-off stage symptom)
+   **offered in chat** for the user to paste into their `Guidelines` page — the skill never writes
+   there itself. The symptom list is the most specific input to step 8, alongside the driving
+   intent.
 
 7. **Handle prior setups by mode.**
    - `learn` (default): fetch existing `Setups` rows for this car **where `Learn from this` is
@@ -389,7 +418,7 @@ would rather just have a setup now, build one.
    enforce disc+caliper *pair* compatibility (the catalog doesn't encode it; the step 12 caveat
    covers a pair that isn't co-selectable in-game). Fix any violation
    before writing. **Completeness:** confirm **every parameter the car has** (every applicable
-   `Parameters` row for this car, except `FFB Multiplier`) received an explicit value — no
+   catalog row for this car, except `FFB Multiplier`) received an explicit value — no
    applicable parameter is left blank. Any gap from an uncaptured range (step 8) must be
    resolved with the user before writing.
 
@@ -402,13 +431,23 @@ would rather just have a setup now, build one.
    `Setups[Stage=this]` view exists (and `Setups[Location=this]` on the location page if newly
    created). The linked view is **not** page markdown — create it with `notion-create-view`
    (`parent_page_id` = the `{Stage}` / `{Location}` page, `data_source_id` = the `Setups` data
-   source, `type: "table"`, `configure: 'FILTER "Stage" = "{stage}"; SHOW <output of `… --all
-   --show-order`>'` — get the `SHOW` list from the script per `notion-structure.md` → *Applying the
-   order*; no `Car` filter, since the stage spans every car that's run it). Never
+   source, `type: "table"`, `configure: 'FILTER "Stage" = "{stage}"; SHOW <case 3 output>'` — get
+   the `SHOW` list from the script per `notion-structure.md` → *Applying the order*, **case 3**:
+   one call carrying a `--from-template car-templates/<slug>.yaml` for every onboarded template
+   car, plus `<params_ds> <token> --all` in the same call only if a screenshot car exists. A
+   stage view spans every car that's run the stage, which is why it is case 3 and not the per-car
+   form; no `Car` filter, for the same reason). Never
    write a `<linked-view />`-style placeholder into the page body (`notion-structure.md` →
    *Creating an inline linked view*).
 
 11. **Write to Notion — append only** (via the user's Notion connection).
+   - **Legacy template car? Check the `Setups` value columns first.** If this car is a template
+     car whose `Catalog` page carried **no `Catalog source:` line** (step 1), its columns were
+     created by an older skill version and the current template may name columns the `Setups` DB
+     doesn't have. Before writing the row, run the check in `notion-structure.md` → *Legacy
+     template car — check the `Setups` columns before the first write*: add the missing columns
+     in one call, never rename or remove anything, and say the one line it gives. You already
+     hold both sides of the comparison, so this adds no read.
    - Create **one new row** in `Setups`: `Name`, `Car`, `Location` (if given), `Stage` (if given),
      `Surface`, `Conditions` (if known from step 3 — **optional, leave blank rather than guessing**;
      no need to fill it when the name already says it), `Game version` (if known), `Date` (current date/time — per `notion-structure.md`
@@ -421,17 +460,24 @@ would rather just have a setup now, build one.
      page body below.
    - **Apply the column order — MANDATORY, never skip (even on a quick / low-effort run).** The
      build is **not done** until you've done this (`notion-structure.md` → *Applying the order*),
-     **after the row is written**. Get the `SHOW` list from the bundled script (don't build it by
-     hand), then set `SHOW` (`notion-update-view`) on every projection:
-     - **main `Setups` table view** → `… --all --show-order`;
-     - **this car's linked view** (on the car's `Setups` page) → `… "{Car}" --show-order` (lists only this
-       car's value columns, hiding blanks);
-     - **its `{Stage}` / `{Location}` linked view**, if a stage/location was referenced → `… --all
-       --show-order` (no per-car filtering).
+     **after the row is written**. Get the `SHOW` list from the bundled script — **never build or merge one by
+     hand** — running the form *Applying the order* names for each projection below, then
+     set `SHOW` (`notion-update-view`) on every projection:
+     - **main `Setups` table view** → *Applying the order* case 3: **one** call with a
+       `--from-template car-templates/<slug>.yaml` per onboarded template car, plus
+       `<params_ds> <token> --all` in the same call only if a screenshot car exists;
+     - **this car's linked view** (on the car's `Setups` page) → case 1 for a template car
+       (`--show-order --from-template car-templates/<slug>.yaml`, no token), case 2 for a
+       screenshot car (`<params_ds> <token> "{Car}" --show-order`). Either lists only this car's
+       value columns, hiding blanks — but the token form returns **nothing** for a template car,
+       which would hide every value column;
+     - **its `{Stage}` / `{Location}` linked view**, if a stage/location was referenced → case 3
+       as well (no per-car filtering).
      Idempotent — re-asserting `SHOW` makes the new setup's projection and the table read in
      game-menu order (an alphabetized table or an edited `Order` self-heals). It's a view update,
      not a row/schema rebuild — the append above stays a single row. (The script handles the
-     blank-`Order` fallback; you may still backfill a blank `Order` onto the `Parameters` row.)
+     blank-`Order` fallback; on a **screenshot car** you may still backfill a blank `Order` onto
+     the `Parameters` row — a template car has no row to backfill.)
    - First, write a **brief setup summary** directly in the page body (not inside a toggle, so
      it's always visible without expanding anything):
      - **H2 heading** with the setup name (e.g. `## alsace dry fast`).
@@ -503,7 +549,7 @@ would rather just have a setup now, build one.
      when the car has no brake disc/caliper params.
 
 ## Rules
-- **Onboard first (step 0).** If the car has no `Parameters` catalog: a matching bundled template ⇒
+- **Onboard first (step 0).** If the car has no `{Car}`/`Catalog` page in Notion: a matching bundled template ⇒
   auto-onboard from it (announce, no Yes/No gate) before building; no template ⇒ ask the user to
   onboard via screenshots (`onboard-car.md`) and don't build until the catalog exists.
 - **Baseline first, but never a gate (steps 4–6).** With a captured default for this context, anchor

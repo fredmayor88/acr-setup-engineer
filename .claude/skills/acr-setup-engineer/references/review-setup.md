@@ -33,9 +33,13 @@ imported setup with only metadata and no individual parameter values entered), s
 There is nothing to review without values.
 
 ### 2. Load constraints + drivetrain
-Fetch the car's `Parameters` rows **via [notion-rest-read.md](notion-rest-read.md)** (stay within
-`ACR Setup Engineer → Parameters`): `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`,
-`Order`, `Surface`. Also read the `Drivetrain` (FWD/RWD/AWD) from the car's `Catalog` page.
+**Load the car's catalog:** a **template car** → `python scripts/load_catalog.py
+car-templates/<slug>.yaml --surface {Surface}` (no token, no network); a **screenshot car** → its
+`Parameters` rows via [notion-rest-read.md](notion-rest-read.md), staying within
+`ACR Setup Engineer → Parameters`. Decide which from the `Catalog` page's `Catalog source:` line
+(`notion-structure.md` → *Where a car's catalog lives*). Either way the rows carry `Adjustment`,
+`Min`, `Max`, `Unit`, `Discrete steps`, `Order`, `Surface`. Also read the `Drivetrain`
+(FWD/RWD/AWD) from the car's `Catalog` page — the same fetch that gave you the source line.
 When the review lists several parameters together, present them in `Order` sequence
 (`notion-structure.md` → *Setups column order*). This workflow is read-only — it never reorders
 Notion columns. **Resolve
@@ -47,8 +51,8 @@ row if the parameter has one; for `Snow`, fall back to a `Gravel` row before the
 Same precedence chain as `build-setup.md` (lowest → highest priority):
 1. **Base** — `setup-tuning-principles.md`.
 2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
-   matches this car (same match rule as a bundled template: `car:` field, case-insensitive, ignoring
-   punctuation — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
+   matches this car (same match rule as a bundled template — `onboard-car.md` step 1 →
+   *Matching a car name* — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
    it and apply its symptom→fix entries — they override the base principles** for the symptoms they
    name. If no file matches, skip this layer.
 3. **Global user guidelines** — Notion `Tuning guidelines` page under `ACR Setup Engineer`.
@@ -71,7 +75,11 @@ aiming for comes from the setup's own page-body summary, read alongside these fa
 > it as a *reference* — say how it sits relative to the stage and the user's guidelines, and where
 > it's likely to need moving — but never present it as a poorly-built setup, and never flag a value
 > as a mistake someone made. A shown value outside the catalog's captured range means the
-> **`Parameters` range is stale** (re-onboard the car), not that the setup is illegal.
+> **catalog range is stale**, not that the setup is illegal. For a **screenshot car**, the fix is
+> re-onboarding it — the exact request is *"onboard the {Car} from my screenshots"*. For a
+> **template car**, say the stale-template line (`onboard-car.md` → *When the template may be
+> stale*), which carries its own way out: *"re-onboard the {Car} from my screenshots"*. A bare
+> "re-onboard" is a template refresh and would take the same template again.
 
 Evaluate across three dimensions:
 

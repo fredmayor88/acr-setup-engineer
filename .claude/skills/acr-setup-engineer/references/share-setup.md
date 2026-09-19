@@ -14,8 +14,15 @@ never writes to Notion.
 1. **Locate the setup.** Fetch the car's `Setups` DB rows (filtered to that car). Find
    the row matching the requested setup name. If not found, list the available setups and
    ask the user to pick; do not proceed until one is identified.
+   **Fetch the car's `Catalog` page in the same batch** (`SKILL.md` → *Read efficiently*): step 2
+   needs its `Catalog source:` line to know where the catalog comes from. Nothing else on that
+   page is used here — this workflow reads no identity facts and no guidelines.
 
-2. **Load section + unit metadata.** Fetch the car's `Parameters` rows to get `Section`,
+2. **Load section + unit metadata.** **Load the car's catalog:** a **template car** →
+   `python scripts/load_catalog.py car-templates/<slug>.yaml` (no token, no network); a
+   **screenshot car** → its `Parameters` rows via
+   [notion-rest-read.md](notion-rest-read.md). Decide which from the `Catalog` page's
+   `Catalog source:` line (`notion-structure.md` → *Where a car's catalog lives*). Take `Section`,
    `Adjustment`, `Unit`, and `Order` for every parameter. This is the only way to know which
    section each value belongs to, what unit label to append, and the display order.
 

@@ -90,11 +90,14 @@ outside `ACR Setup Engineer`.
 - If the row has **no parameter values filled** (e.g. a metadata-only import), say so — there's
   nothing to explain — and stop.
 
-Read the car's rows via **`notion-rest-read.md`** (`scripts/query_notion_parameters.py`).
-
 ### 3b. Load constraints + drivetrain
-Fetch the car's `Parameters` rows: `Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Order`,
-`Surface`. Read `Drivetrain` (FWD/RWD/AWD) from the car's `Catalog` page. **Resolve each parameter's legal
+**Load the car's catalog:** a **template car** → `python scripts/load_catalog.py
+car-templates/<slug>.yaml --surface {Surface}` (no token, no network); a **screenshot car** → its
+`Parameters` rows via [notion-rest-read.md](notion-rest-read.md)
+(`scripts/query_notion_parameters.py`). Decide which from the `Catalog` page's `Catalog source:`
+line (`notion-structure.md` → *Where a car's catalog lives*). Either way the rows carry
+`Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Order`, `Surface`. Read `Drivetrain`
+(FWD/RWD/AWD) from the car's `Catalog` page. **Resolve each parameter's legal
 range for the setup's `Surface`** — the surface-specific row if one exists; for `Snow`, fall back
 to a `Gravel` row before the baseline (see `notion-rest-read.md`).
 
@@ -102,8 +105,8 @@ to a `Gravel` row before the baseline (see `notion-rest-read.md`).
 Same precedence chain as `build-setup.md` / `review-setup.md` (lowest → highest):
 1. **Base** — `setup-tuning-principles.md`.
 2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
-   matches this car (same match rule as a bundled template: `car:` field, case-insensitive, ignoring
-   punctuation — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
+   matches this car (same match rule as a bundled template — `onboard-car.md` step 1 →
+   *Matching a car name* — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
    it and apply its symptom→fix entries — they override the base principles** for the symptoms they
    name. If no file matches, skip this layer.
 3. **Global user guidelines** — `Tuning guidelines` page under `ACR Setup Engineer`.

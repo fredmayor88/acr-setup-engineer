@@ -12,16 +12,32 @@ parameter file for a car.
 
 **Also entered from onboarding.** `onboard-car.md` step 10 offers this at the end of a
 **screenshot** onboarding — the case where the user has just hand-built a catalog for a car with no
-bundled template, and is therefore the only person who can contribute it. Arriving that way, the
-car and its rows are **already in hand**; see the note in step 1.
+bundled template, and is therefore the only person who can contribute it. That path is
+screenshot-only by definition, so step 0 below never applies to it; the car and its rows are
+**already in hand**, so see the note in step 1.
 
 ## Inputs
 - **Car name** — ask if not provided or ambiguous (must match a car already onboarded in Notion).
-- **Game version** — ask which game version the parameters were captured in (e.g. `0.4`), since
-  tunable ranges can shift between versions. If the user doesn't know, write `"unknown"`. (No
-  Notion lookup — don't try to infer it from existing setups.)
+- **Game version** — the version the parameters were captured in (e.g. `0.4`), since tunable
+  ranges can shift between versions. **Step 0 already reads it**: a screenshot car's
+  `Catalog source:` line carries the version the user gave when they uploaded the screenshots
+  (or the literal `unknown`). Take it from there and **don't ask again**. Only ask when that line
+  is missing entirely — a car onboarded before the line existed — and write `"unknown"` if the
+  user doesn't know. (No other Notion lookup — never infer it from existing setups.)
 
 ## Procedure
+
+### 0. Is there anything to export?
+Read the car's `Catalog` page and its `Catalog source:` line (`notion-structure.md` → *Where a
+car's catalog lives*). **A template car has nothing in Notion to export** — its catalog is already
+a shareable template file. Say so in one line and stop:
+
+> "The {Car} already uses the bundled template `car-templates/{slug}.yaml` (game version
+> {version}, from {game files | a community export}) — that file *is* its catalog, so there's
+> nothing in your Notion to export."
+
+**The rest of this workflow is for screenshot cars**, whose catalog the user built themselves and
+which exists nowhere else.
 
 ### 1. Read from Notion
 - Navigate to `ACR Setup Engineer → Parameters` DB and fetch all rows where `Car` = the
@@ -111,6 +127,7 @@ class: "{in-game class badges, e.g. Group 2/4 · H3}"
 gearbox: "{transmission type and gear count, e.g. Manual 5-speed}"
 steering_lock: "{total lock in degrees, e.g. 1332°}"
 version: "{game version the parameters were captured in, e.g. 0.4 — or unknown}"
+source: "community"
 parameters:
   - section: "{Section}"
     adjustment: "{Adjustment}"
@@ -131,6 +148,11 @@ Rules:
   never re-order, abbreviate, summarise, round, or truncate a list, and never replace a long list
   with a range. This applies to **numeric** rows too — a row with a real `Min..Max` **and** a step
   list exports both. Use an empty string `""` **only** when the Notion cell is actually blank.
+- `source`: **always emitted, and always `"community"` on an export.** It records where a
+  template's values came from: `"game-files"` for the maintainer's templates extracted from the
+  ACR game files, `"community"` for a template a user exported from their own catalog. It is read
+  back into the car's catalog source line on the `Catalog` page (`notion-structure.md` →
+  *Car page*).
 - `unit`: empty string `""` when there is no unit.
 - `order`: the integer display position (section-blocked, e.g. `2020`; see `notion-structure.md`
   → *Setups column order*). Emit the `Order` read from Notion; if a row has none, fall back to the
@@ -145,12 +167,13 @@ Rules:
   value; omit the line entirely if blank. If the page holds the literal `couldn't determine`, carry
   it through as-is. These are not parameters. All are optional in both directions — a template
   predating any of them still imports cleanly, and onboarding fills the gaps from the car
-  information screenshot or a lookup (`onboard-car.md` step 5).
-- `power_torque_chart` / `gearing_chart` / `final_drive_chart` / `engine_curve`: **never
-  exported.** All four are generated from the ACR game files by `tools/torque-curves` and
-  `tools/gearing-charts` in the project repo, not from anything Notion stores, so an export simply
-  omits them — the maintainer regenerates them when the car is added to the bundled library. A
-  template without them imports and onboards cleanly; the car page just gets no charts.
+  information screenshot or a lookup (`onboard-car.md` step 5). **A template with no `source:`
+  line at all is treated as `community`** — older templates predate the field.
+- `power_torque_chart` / `engine_curve` / `gearing_tool`: **never exported.** All three are
+  generated from the ACR game files by `tools/torque-curves` and `tools/gearing-charts` in the
+  project repo, not from anything Notion stores, so an export simply omits them — the maintainer
+  adds them when the car joins the bundled library. A template without them imports and onboards
+  cleanly; the car page just gets no chart and no gearing-tool link.
 - `save_ids`: **optional** list of the exact in-save car string(s) ACR writes for this car (the
   `car` field the save-file parser emits, e.g. `"MiniCooperS1275"`, `"LanciaRally037Evo2"`). It lets
   **save-file import** (`import-savegame.md` step 5.2) match a save to this template **reliably** —
@@ -245,7 +268,8 @@ pressure:
   later, they can re-run the export to get a fresh copy.
 - Never include personal data (user name, email, Notion IDs) in the exported YAML.
 - The `version` field records the **game version the parameters were captured for** (e.g. `0.4`),
-  taken from the user's answer to the Game version input; write `"unknown"` if they don't know.
+  taken from the **Game version** input (the car's `Catalog source:` line, per *Inputs*); write
+  `"unknown"` when it isn't known.
   **Save-file import uses it** (`import-savegame.md` step 5): when a setup's game version matches
   this `version` (major.minor), import validates and snaps that setup's values to the catalog
   ("official parse") instead of writing them as-is; an `"unknown"` version simply skips that check

@@ -2,7 +2,7 @@
 
 The reasoning base for `build-setup`. These are **physics effects and consensus heuristics**
 for Assetto Corsa Rally (ACR), independent of any specific car — only the legal *ranges*
-differ per car (those come from the `Parameters` catalog). Synthesised from the in-game
+differ per car (those come from the car's catalog). Synthesised from the in-game
 descriptions and several community tuning guides, critically filtered for physical soundness.
 
 ## How this fits together (layers & precedence)

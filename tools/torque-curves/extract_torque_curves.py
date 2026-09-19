@@ -241,13 +241,6 @@ def yaml_block(slug, asset_name, s):
     return "\n".join(lines) + "\n"
 
 
-# tools/gearing-charts writes these two lines into the same BLOCK_START..BLOCK_END
-# span (it imports BLOCK_START/BLOCK_END from here on purpose). yaml_block() never
-# emits them itself, so a plain regex swap of the whole span silently deletes them
-# if that tool ran first - carry them forward instead of overwriting them.
-CHART_LINE_RE = re.compile(r'^(gearing_chart|final_drive_chart): .*$\n?', re.MULTILINE)
-
-
 # The exact placeholder car-catalog's bootstrap_header() writes for a brand-new car -
 # matched verbatim so a real, human-entered spec is never overwritten.
 _TODO_POWER = 'max_power: "TODO - real-world spec (see README.md: this is not game output)"'
@@ -277,11 +270,6 @@ def write_template(path, block, s=None):
                          re.DOTALL)
     m = pattern.search(text)
     if m:
-        carried = [ln.group(0) for ln in CHART_LINE_RE.finditer(m.group(1))]
-        if carried:
-            after = f'power_torque_chart: "{CHART_URL_BASE}'
-            idx = block.index("\n", block.index(after)) + 1
-            block = block[:idx] + "".join(carried) + block[idx:]
         text = text[:m.start()] + block + text[m.end():]
     else:
         # sits between the identity facts and the tunable parameter list

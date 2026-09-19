@@ -184,10 +184,13 @@ bootstrapped this way):
      row prefix, car data asset — the first and third are almost always identical; look up the
      `DT_Wheels` prefix by grepping that table's row names for the car, since it can differ
      arbitrarily from the folder name, e.g. `AudiQuattroGr4` → `AudiQuattroGr.4`, literal dot).
+     `export_car_data.py` (step 4 below) imports this same `CARS` table, so one entry serves both.
 2. **Run `python extract_car_catalog.py --car <slug>`** (drop `--car` for a full pass; add
    `--dry-run` to preview). With no existing `<slug>.yaml`, it now bootstraps one from scratch
    instead of erroring: the full `parameters:` block from the game files (identical machinery to
-   a refresh), plus a header pre-filled from `car_identity.py` (`drivetrain`, `class`, `gearbox`).
+   a refresh), plus a header pre-filled from `car_identity.py` (`drivetrain`, `class`, `gearbox`)
+   and a **`gearing_tool:` link** built from the slug (the ACR Car Lab page step 4 publishes),
+   so the new template already carries the field every bundled template is required to have.
    Everything else is left as an explicit `TODO` string for now. The console output is tagged
    `[NEW - no bundled template yet]` and lists every parameter that **needs one screenshot** to
    fill in (`NEEDS SCREENSHOT` instead of the refresh-path's silent carry-over) — always the same
@@ -202,10 +205,12 @@ bootstrapped this way):
    not a final one — README.md's own note about forced-induction disagreement applies. A car with
    no `FC_*_Torque` asset (Peugeot 206 WRC) gets no chart, no `engine_curve:` block, and its
    `max_power`/`max_torque` stay `TODO` — there's no game data to backfill from.
-4. **Run `python ../gearing-charts/make_gearing_chart.py --car <slug>`** for the gearing chart (and
-   final-drive chart, if the car's final drive is adjustable — the tool says so on the cars that
-   aren't, e.g. Peugeot 208 Rally4 and VW Polo GTI R5). Needs step 3's `engine_curve:` block first
-   (it reads the redline from it) — a car with no engine curve (206 WRC) can't get one yet either.
+4. **Run `python ../gearing-charts/export_car_data.py --car <slug>`** to add the car's page to the
+   ACR Car Lab (the sibling `acr-car-lab` checkout) — every gear set's speed per gear, final drive
+   and rev limit, computed from the same game files `make_gearing_chart.py` reads (see that file's
+   docstring: it holds the shared readers `export_car_data.py` imports). A car with no engine
+   curve (206 WRC) still gets a gearing page — the rev limit is resolved separately (see
+   `calibration.resolve_rev_limit`) — it just carries no torque/power curve on that page.
 5. **Finish from the in-game car-info screen — one screenshot per car.** That screen carries
    `car` (display name + year), `engine`, `max_power`, `max_torque`, `weight` and `steering_lock`
    in one place, so the header comes down to a single capture. Two traps, both hit on real cars:
@@ -221,8 +226,8 @@ bootstrapped this way):
    Fiat 131 template) and the `engine_layout` detail beyond cylinder count (orientation,
    displacement, valve gear) — a quick spec-sheet lookup. Until `car:` stops being the literal
    string `"TODO"`, the template is a draft — don't let the skill auto-onboard a car from it, and
-   note that the gearing charts title themselves from `car:`, so rendering them before this step
-   puts the word "TODO" on the chart.
+   note that both the power/torque chart and the car's ACR Car Lab page take the car's display
+   name from `car:`, so exporting either before this step puts the word "TODO" on it.
 6. **Capture the one screen the files can't replace:** the brake setup screen, for
    `Brake Discs Front`/`Rear` and `Brake Calipers Front`/`Rear` (plus `Engine Map` /
    `Throttle Map` / `Proportioning Preload` on the rare car that has them) — everything the run
@@ -231,12 +236,14 @@ bootstrapped this way):
    carefully: the hand-entered values in the older templates contain real typos — `TYPE 2` with a
    stray space, `Typ1` truncated, and a `355/248` that the game files say is `355/249`.
 
-## Chart titles come from two places — keep them in sync
+## The power/torque chart's title has its own name source — keep it in sync
 
-`extract_torque_curves.py` titles the power/torque chart from its `CAR_MAP` display name;
-`../gearing-charts/make_gearing_chart.py` titles its charts from the template's own `car:` field.
-They must match exactly or one car ships charts under two names (the Lancia Fulvia ran for a
-while with `Coupé` in the template and `Coupe` on its chart). After changing either, re-check:
+`extract_torque_curves.py` titles the power/torque chart from its own `CAR_MAP` display name,
+separate from the template's `car:` field. They must match exactly or a car ships its chart under
+one name and everything else under another (the Lancia Fulvia ran for a while with `Coupé` in the
+template and `Coupe` on its chart). `export_car_data.py` doesn't have this problem — it reads the
+display name straight off the template's `car:` field, so the car's ACR Car Lab page can't drift
+out of sync with anything. After changing `CAR_MAP` or a template's `car:` field, re-check:
 
 ```bash
 python - <<'PY'
@@ -253,5 +260,7 @@ for _, (slug, display) in sorted(CAR_MAP.items()):
 PY
 ```
 
-Both chart tools take `--car <slug>` to re-render a single car, which is how you avoid rewriting
-the other templates (and spraying phantom line-ending diffs) when only one car changed.
+`extract_torque_curves.py` and `export_car_data.py` both take `--car <slug>` to re-render a single
+car, which is how you avoid rewriting the other templates (and spraying phantom line-ending diffs)
+when only one car changed. `make_gearing_chart.py` has no CLI of its own any more — it's imported
+by `export_car_data.py`, `calibration.py` and `game_version.py` for its game-file readers only.

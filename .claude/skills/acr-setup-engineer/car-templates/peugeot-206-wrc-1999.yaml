@@ -11,6 +11,8 @@ class: "Group WR · EV01"
 gearbox: "Sequential 6-speed"
 steering_lock: "720°"
 version: "0.6"
+source: "game-files"
+gearing_tool: "https://fredmayor88.github.io/acr-car-lab/peugeot-206-wrc-1999/gears/"
 
 parameters:
   - section: "Gearbox"

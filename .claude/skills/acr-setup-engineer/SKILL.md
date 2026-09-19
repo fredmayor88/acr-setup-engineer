@@ -24,7 +24,8 @@ Pick the matching workflow and read its file before acting:
 | If the user wants to… | Follow |
 |---|---|
 | Onboard a car / capture its tunable parameters (from min & max screenshots, plus the car info screen for its identity facts) | `references/onboard-car.md` |
-| **Refresh an already-onboarded car** — *"refresh the {car} in my Notion"*, *"update {car}"*, *"re-onboard {car}"*: rebuilds the car's **`Catalog`** page wholesale (identity facts, the three charts, the `Parameters` catalog, the `Catalog snapshot`) and migrates a car still on the old one-page layout. Never touches the user's `Guidelines` page or `Setups` rows | `references/onboard-car.md` (refresh path) |
+| **Refresh an already-onboarded car** — *"refresh the {car} in my Notion"*, *"update {car}"*, *"re-onboard {car}"*: rebuilds the car's **`Catalog`** page wholesale (identity facts, the **catalog source line**, the power/torque chart and the gearing-tool link, the `Catalog snapshot`), writing **no `Parameters` rows** for a template car — its catalog lives in the skill. It also migrates a car still on the old one-page layout, including renaming a legacy **`Feedback`** page to **`Log`** in place. On a car whose `Catalog` page had **no catalog source line** (so an older version onboarded it), it says in one line that the car's existing `Parameters` rows are no longer read. Never touches the content of the user's `Guidelines` page, the content of the car's `Log` page, or `Setups` rows | `references/onboard-car.md` (refresh path) |
+| **Re-onboard a car from screenshots** — *"onboard the {car} from my screenshots"*, *"re-onboard the {car} from screenshots"*: **not** a refresh. Captures the car's ranges from the user's own min/max setup screens even if it is on a bundled template today, writes them as `Parameters` rows and flips the catalog source line to `your screenshots`. A bare *"re-onboard {car}"* is the refresh row above | `references/onboard-car.md` (screenshot path) |
 | Build a setup for a stage | `references/build-setup.md` |
 | Tweak / refine a setup, or describe a handling problem to work through (problem → tweak → test loop) | `references/tweak-setup.md` |
 | Work out **what's actually wrong** with how the car feels — guided questions after a drive, when the user can't put it into words (then continue into `tweak-setup.md` / `build-setup.md` with the diagnosis) | `references/driving-feedback-interview.md` |
@@ -40,12 +41,13 @@ Shared knowledge (read as needed):
 - `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions, the
   create-if-missing (resolve-by-name) rules, and the shared `Locations`/`Stages` facts catalogue
   (a stage is created once, centrally, and referenced — never duplicated — by any setup).
-- `references/notion-rest-read.md` — **the reliable way to read a car's `Parameters` rows (or a
-  filtered slice of `Setups`)**; the connector can't list rows, so query the data source over
-  REST. Follow this wherever a workflow says "fetch the car's rows". It also carries the
-  **fallback ladder** for when the sandbox can't reach `api.notion.com` (no network egress —
-  e.g. Claude's Free plan): catalog reads fall back to the car's `Catalog` page `Catalog snapshot`
-  toggle; `Setups` slices degrade to empty, stated plainly.
+- `references/notion-rest-read.md` — **the reliable way to read a screenshot car's `Parameters`
+  rows, and any car's filtered slice of `Setups`**; the connector can't list rows, so query the
+  data source over REST. Follow this wherever a workflow says "fetch the car's rows" — except for
+  a **template car's catalog**, which comes from `scripts/load_catalog.py` and never from Notion.
+  It also carries the **fallback ladder** for when the sandbox can't reach `api.notion.com` (no
+  network egress — e.g. Claude's Free plan): a screenshot car's catalog read falls back to its
+  `Catalog` page `Catalog snapshot` toggle; `Setups` slices degrade to empty, stated plainly.
 - `references/setup-tuning-principles.md` — the tuning reasoning base (drivetrain-tagged).
 - `references/driving-feedback-interview.md` — the shared **symptom → cause** question bank: how to
   interview a beginner about how the car felt (plain language, terms defined inline, "not sure" always
@@ -59,15 +61,18 @@ Shared knowledge (read as needed):
 - `references/config-page-template.md` — seed for the auto-created `Config` page (integration
   setup instructions + a blank token line for the read-only Notion token).
 - `car-templates/` — bundled YAML parameter templates, one file per car (see
-  `references/export-car-template.md` for the file format). Each also carries the car's
-  **engine curve read out of the ACR game files** — a `power_torque_chart:` URL, a
-  `gearing_chart:` URL, and (when the final drive is adjustable) a `final_drive_chart:` URL, all
-  three attached to the car's `Catalog` page, plus an `engine_curve:` block (peak torque, peak power,
-  and the raw `[rpm, Nm]` points) to reason about gearing and shift points from. See
-  `references/notion-structure.md` → *Engine and gearing charts*.
+  `references/export-car-template.md` for the file format). **For a car that has one, this file
+  *is* the parameter catalog** — read it with `scripts/load_catalog.py`, never from Notion
+  (`references/notion-structure.md` → *Where a car's catalog lives*). Each also carries the car's
+  **engine curve read out of the ACR game files** — a `power_torque_chart:` URL attached to the
+  car's `Catalog` page, an `engine_curve:` block (peak torque, peak power, and the raw `[rpm, Nm]`
+  points) to reason about gearing and shift points from, and a `gearing_tool:` link to the car's
+  page in the ACR Car Lab (interactive speed-per-gear charts for every gear set, final drive and
+  rev limit). See `references/notion-structure.md` → *Engine chart and gearing tool*.
 - `car-troubleshooting/` — bundled per-car **symptom→fix** knowledge, one markdown file per car
   (e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`), matched to the car the same way as a
-  template (filename from the `car:` name, case-insensitive, ignoring punctuation). Whenever a
+  template (matched on the `car:` name by `references/onboard-car.md` step 1 →
+  *Matching a car name*). Whenever a
   workflow loads its guideline layers, **check this folder and, if a file matches the car, read it**;
   it is a **guideline layer that overrides the base principles** for the symptoms it names (see the
   *Layered guidelines* core rule).
@@ -79,14 +84,30 @@ Bundled tools (stdlib Python, run via code execution):
   (`game_versions`), and which handler ran (`handler_used` — a small registry dispatches by format;
   `parse_structural` for v0.4-style saves, `parse_nul_tolerant` for saves delivered without NUL
   terminators). `ok: false` ⇒ caller falls back to AI extraction.
-- `scripts/query_notion_parameters.py` — all read workflows: fetch a car's rows from a Notion
-  data source via the REST API. Call as `python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>"` (add `--learn-only` for the Setups learn pool). See `references/notion-rest-read.md`.
+- `scripts/load_catalog.py` — all read workflows, **template cars**: read a car's catalog out of
+  its bundled template instead of Notion — no token, no network. Call as
+  `python scripts/load_catalog.py car-templates/<slug>.yaml [--surface Tarmac|Gravel|Snow]`; it
+  prints rows in the same shape as the REST read. Also `--check values.json` (validate values
+  against the catalog — it **exits 3 with a JSON report when it finds anything illegal, which is
+  the expected outcome, not a failed script**), `--snapshot` (the `Catalog snapshot` YAML body)
+  and `--pretty`. Without `--surface`, `--check` uses each parameter's baseline row.
+- `scripts/query_notion_parameters.py` — **screenshot cars** (`Parameters`) and every car's
+  `Setups` slices: fetch a car's rows from a Notion data source via the REST API. It also builds
+  every `Setups` view's column order with `--show-order`, from a bundled template
+  (`--show-order --from-template car-templates/<slug>.yaml`, no token), from Notion
+  (`<params_ds> <token> "{Car}" --show-order` / `--all --show-order`), or from **both in one
+  call** for a view spanning both kinds of car — `references/notion-structure.md` →
+  *Applying the order* says which form each view needs. Call as `python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>"` (add `--learn-only` for the Setups learn pool). See `references/notion-rest-read.md`.
 
 ## Core rules (always apply)
-- **Stay within the catalog.** Every value written to a setup must obey the parameter's
-  `Parameters` row: if its **`Discrete steps`** are filled, the value must be **one of them**;
-  otherwise the value must be within the numeric **`Min..Max`**. Never invent a parameter a car
-  doesn't have.
+- **Stay within the catalog.** Every value written to a setup must obey the parameter's catalog
+  row: if its **`Discrete steps`** are filled, the value must be **one of them**; otherwise the
+  value must be within the numeric **`Min..Max`**. Never invent a parameter a car doesn't have.
+  **Where the catalog comes from depends on the car** (`references/notion-structure.md` →
+  *Where a car's catalog lives*): for a **template car** it is the bundled template file on disk,
+  read with `scripts/load_catalog.py`; for a **screenshot car** it is that car's Notion
+  `Parameters` rows, read per `references/notion-rest-read.md`. The rows come out in the same
+  shape either way, and these legality rules are identical whichever the source.
 - **Every parameter the car has gets a value.** A complete setup specifies an **explicit value
   for every tunable parameter the car actually has** — there is no "use the default" / leave-it-
   blank option. A setup-row value column may be blank **only** when (a) the car does not have
@@ -130,12 +151,14 @@ Bundled tools (stdlib Python, run via code execution):
   ladder** and is held at the captured default unless a symptom points at it (ACR's pressure model
   isn't physically sensible). **What the driver actually reports always outranks this order.** See
   `references/driving-feedback-interview.md` → *Fix-order ladder*.
-- **Surface-resolved ranges.** A `Parameters` row may carry an optional **`Surface`** tag
+- **Surface-resolved ranges.** A catalog row may carry an optional **`Surface`** tag
   (`Tarmac`/`Gravel`/`Snow`); a few parameters expose a different range per surface. The legal
   range for a setup on surface **S** is the row tagged `S` **if one exists**; else if `S` is
-  `Snow`, a `Gravel` row **if one exists** (snow inherits gravel's softer ranges — cars are
-  onboarded with a gravel pass but no separate snow pass); else the blank (baseline) row. Resolve
-  this before choosing/validating any value (see `references/notion-rest-read.md`). Most
+  `Snow`, a `Gravel` row **if one exists** (snow inherits gravel's softer ranges — nothing is
+  ever captured for snow on its own); else the blank (baseline) row. Resolve
+  this before choosing/validating any value (see `references/notion-rest-read.md`; for a template
+  car, `scripts/load_catalog.py --surface {S}` applies the same rule and reports which row it
+  used). Most
   parameters have only the baseline row. **The user may set the build's surface explicitly**
   ("build a gravel setup", "use tarmac parameters") — this overrides the referenced stage's
   surface (or, with no stage, is simply the surface) for the **whole** build (range resolution,
@@ -198,23 +221,39 @@ Bundled tools (stdlib Python, run via code execution):
 - **Append-only.** Never modify or delete existing setups — only add rows. (Onboarding may
   update the parameter catalog.)
 - **A car's pages are split by ownership — respect it exactly.** Each `{Car}` umbrella page holds
-  three children (`notion-structure.md` → *Car page*):
+  four children (`notion-structure.md` → *Car page*):
   - **`Guidelines` is the user's.** Create it once, empty, at onboarding; after that **read it and
     never write to it** — not to append, tidy, reformat, or record what a build decided. If
     something belongs there, tell the user and let them paste it.
   - **`Catalog` is the skill's, and disposable.** It is **replaced wholesale** on every refresh —
     no diffing, no merging, no asking, no preserving edits. It carries a banner saying so. This is
     only safe *because* the user's writing lives on a different page, so never move user content
-    onto it.
-  - **`Feedback` is the skill's, and precious.** The dated record of what the driver reported
-    after drives. **Add-only:** append a new dated entry, newest at the top; never edit, reorder
-    or delete an existing one, and **never rewrite it on a refresh**. Unlike `Catalog` it can't be
-    regenerated from anything.
+    onto it. It also carries the **catalog source line**, which says whether this car's legal
+    values come from a bundled template or from the user's screenshots — and therefore where
+    every workflow reads them from.
+  - **`Log` is shared, and precious.** The car's running log: the user's own notes about the car,
+    written anywhere on the page, plus the skill's dated record of what the driver reported after
+    drives. **Add-only for the skill:** append one new dated entry directly below the maintenance
+    line, so the newest is at the top; **never edit, reorder, merge or delete any existing block —
+    the user's or an earlier entry of its own** — and **never rewrite it on a refresh**.
+    **`build` and `tweak` read the whole page** — a **separate fetch**, batched with `Guidelines`
+    (`build-setup.md` step 2, `tweak-setup.md` step 3) — as context about this driver and car. It
+    is evidence, **not a guideline layer**, so `Guidelines` still outranks it, and a user note
+    that is really a standing tuning rule gets *offered* for `Guidelines` in chat, never moved
+    there. `review` and `ask` don't read it. Unlike `Catalog` none of it can be
+    regenerated. It was called `Feedback` before; a legacy page of that name is **renamed in
+    place** (`notion-structure.md` → *Resolving the page (`Log`, and the legacy `Feedback`
+    name)*).
   - **`Setups`** holds the car's filtered linked view and nothing else.
 - **Refining is an in-chat loop — save only when asked.** Describing a handling problem or asking
   for a tweak is **not** a request to build or save a setup. Work the *problem → tweak → test →
   feedback* cycle conversationally: propose legal value changes in chat and iterate as the user
-  reports back from driving — **write nothing to Notion**. Persist a single new `Setups` row (the
+  reports back from driving — **write nothing to Notion**, with **one named exception**: when a
+  driving-feedback interview runs, its dated entry on the car's **`Log`** page is written as the
+  interview ends, on every path (`driving-feedback-interview.md` → *Recording the outcome*). That
+  entry is add-only history of what the driver said, not a setup write. It is the **only** write
+  the exception allows — never a `Setups` row, a `Notes` verdict, a row toggle or anything on
+  `Guidelines`, and never anything at any other point in the loop. Persist a single new `Setups` row (the
   session's final state) **only when the user explicitly asks to save** (`tweak-setup.md`). When the
   user signals they're happy with how the car feels, **remind them once** they can ask to save it —
   don't nag. (A fresh **build** is an explicit creation request and still writes its row per
@@ -259,43 +298,61 @@ Bundled tools (stdlib Python, run via code execution):
   judges setup values (`build`, `tweak`, `review`, `ask`) must read it explicitly, batched with its
   other reads. Missing it fails silently: the setup just quietly ignores everything the user
   wrote about the car.
+  **The car's `Log` page is *not* one of these layers.** `build` and `tweak` fetch it in the same
+  batch and read it as **context/evidence** about this driver and car — never as a layer that can
+  outrank `Guidelines` (`notion-structure.md` → *`Log` page*).
   Location/stage facts are objective inputs, not a guideline layer. More specific is the
   **default lean** — on a **material conflict between authored layers, ask the user** which to
   follow rather than silently picking one. Cite a user guideline when it drives a choice.
 - **Notion by name.** Resolve the structure by its canonical names and create whatever is
   missing (per `references/notion-structure.md`); don't rely on stored IDs.
-- **Reading rows.** To read a car's `Parameters` rows or a filtered slice of `Setups`, follow
-  `references/notion-rest-read.md` — the connector can't list database rows reliably. When the
-  REST query can't run (no egress), that doc's **fallback ladder** applies: `Parameters` reads use
-  the car's `Catalog` page snapshot; `Setups` reads proceed as empty and say so — never
-  substitute connector row-listing, never guess.
+- **Reading rows.** `Parameters` is read from Notion **only for screenshot cars**; a template
+  car's catalog is read from its bundled file with
+  `python scripts/load_catalog.py car-templates/<slug>.yaml [--surface {Surface}]` — **no token,
+  no network egress, no snapshot, on every plan**. A filtered slice of `Setups` is still read over
+  REST for **every** car. For both REST reads follow `references/notion-rest-read.md` — the
+  connector can't list database rows reliably. When a REST query can't run (no egress), that doc's
+  **fallback ladder** applies: a screenshot car's `Parameters` read uses that car's `Catalog` page
+  snapshot; `Setups` reads proceed as empty and say so — never substitute connector row-listing,
+  never guess. Which kind of car it is comes off the car's `Catalog` page `Catalog source:` line
+  (`references/notion-structure.md` → *Where a car's catalog lives*).
 - **Read efficiently — collapse round-trips.** Seeding context is slow when reads are done one at a
   time. After resolving the structure once, the remaining reads are **independent**: issue them
-  **together in a single step (parallel tool calls)** — e.g. the `Parameters`/`Setups` DB fetches
-  (for their `data_source_id`s), the car's `Catalog` / `Guidelines` pages, the `Tuning guidelines` page, and any `{Stage}`/
-  `{Location}` page — rather than one-by-one. Run **all** REST queries
-  (`scripts/query_notion_parameters.py`) in **one code-execution block**. **Fetch each page once**
-  (identity facts on `Catalog`, the user's notes on `Guidelines`), **reuse
+  **together in a single step (parallel tool calls)** — e.g. the `Setups` DB fetch (and the
+  `Parameters` one when a screenshot car is involved) for their `data_source_id`s, the car's
+  `Catalog` / `Guidelines` / `Log` pages (`Log` in `build` and `tweak` only), the
+  `Tuning guidelines` page, and any `{Stage}`/`{Location}` page — rather than one-by-one. Run
+  **all** REST queries (`scripts/query_notion_parameters.py`) in **one code-execution block**.
+  **For a template car that batch carries no `Parameters` query at all** — run
+  `scripts/load_catalog.py` in the same code-execution block as the `Setups` slices. **Fetch each page once**
+  (identity facts on `Catalog`, the user's notes on `Guidelines`, the driving history and the
+  user's car notes on `Log`), **reuse
   resolved IDs / `data_source_id`s** within the run, and **don't read anything already in the
   thread**.
 - **Batch Notion writes — never loop one row / one column per call** (it's slow and token-heavy).
   Create many database rows in a **single `notion-create-pages` call** (its `pages[]` takes up to
   100; split into 100-row batches only if there are more). Create or extend a DB's columns in one
   call too: a single `notion-create-database` `CREATE TABLE` for a new DB, or a single
-  `notion-update-data-source` with **all** `ADD COLUMN`s combined (semicolon-separated). So a car's
-  whole `Parameters` catalog, all its `Setups` value columns, and all imported setup rows each go in
-  **one** call, not dozens.
+  `notion-update-data-source` with **all** `ADD COLUMN`s combined (semicolon-separated). So a
+  screenshot car's whole `Parameters` catalog, any car's `Setups` value columns, and all imported
+  setup rows each go in **one** call, not dozens.
 - **Assert column order on every `Setups` write — MANDATORY, never skip.** Any time you create a
   `Setups` linked view **or** append/update a `Setups` row, you **must**, in the same action, set
   the column order: run `scripts/query_notion_parameters.py … --show-order` and apply the result as
   the view `SHOW` on **every** affected projection (the main `Setups` table, the car's page view,
-  and any stage/location view). A Setups write is **not finished** until this is done — skip it and
+  and any stage/location view). **Which form of the call to run is decided in one place only** —
+  `references/notion-structure.md` → *Applying the order*: `--from-template car-templates/<slug>.yaml`
+  for a template car's own view (no token), the `<params_ds> <token> "{Car}"` form for a screenshot
+  car's, and for the main / location / stage views a **single** call carrying one
+  `--from-template` per template car plus `<params_ds> <token> --all` only when a screenshot car
+  exists. Never merge two `SHOW` lists by hand. A Setups write is **not finished** until this is done — skip it and
   columns render alphabetically. This applies on **every** run, including quick / low-effort ones;
   it is a required step, never an optional polish. How-to: `references/notion-structure.md` →
   *Applying the order*.
 
 ## Choosing a value (per parameter)
-Each `Parameters` row is either constrained to an exact set or left as a free numeric range —
+Each catalog row — a template parameter, or a `Parameters` row for a screenshot car — is either
+constrained to an exact set or left as a free numeric range —
 there is **no step grid and no interpolation**. For every parameter (using the row **resolved for
 the setup's surface** — see *Surface-resolved ranges* above):
 
@@ -310,11 +367,13 @@ the setup's surface** — see *Surface-resolved ranges* above):
    surface the gap, ask the user to enumerate the range (or re-onboard the car), then fill an
    explicit value once the range is known.
 
-`Discrete steps` for **numeric** params is **optional and user-owned**: onboarding leaves it
-blank and the user adds values in Notion when they want to constrain the parameter. For **`—`
-named-selection** params onboarding seeds it with the option names the screenshots show (and the
-standard ACR lists for `Tyre type`/brake pads); the user completes it (see
-`references/notion-structure.md`).
+On a **screenshot car**, `Discrete steps` for **numeric** params is **optional and user-owned**:
+onboarding leaves it blank and the user adds values in Notion when they want to constrain the
+parameter. For **`—` named-selection** params onboarding seeds it with the option names the
+screenshots show (and the standard ACR lists for `Tyre type`/brake pads); the user completes it
+(see `references/notion-structure.md`). On a **template car** the steps come from the game files
+and are whatever the template says — there is nothing for the user to fill in and nothing in
+Notion to edit.
 
 ## Glossary (ACR)
 - **Default / stock baseline** = the setup the *game itself* gives you before you change anything.

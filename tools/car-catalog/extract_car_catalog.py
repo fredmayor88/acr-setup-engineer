@@ -36,6 +36,10 @@ DEFAULT_PAKS = ('C:/Program Files (x86)/Steam/steamapps/common/'
 TEMPLATES = os.path.join(REPO, '.claude', 'skills', 'acr-setup-engineer', 'car-templates')
 GAME_VERSION = '0.6'
 
+# Base of the ACR Car Lab, where each template's `gearing_tool:` link points. A car's page is
+# this + its template slug + '/gears/' (tests/test_car_templates.py pins the same shape).
+CAR_LAB_BASE = 'https://fredmayor88.github.io/acr-car-lab/'
+
 # template slug -> presets asset basename
 CAR_MAP = {
     'alfa-romeo-gta-1300-junior-1972':        'DA_AlfaRomeoGiuliaGTAJunior1300Presets',
@@ -531,8 +535,33 @@ def bootstrap_header(slug):
         'steering_lock: "TODO - from the car-info screen; double it if it reads '
         'half-sized (that screen sometimes shows the per-side angle - see bootstrap_header)"',
         f'version: "{GAME_VERSION}"',
+        # where the values came from; a user's own export carries source: "community"
+        # (references/export-car-template.md). Everything this tool writes is extracted.
+        'source: "game-files"',
+        # the car's page in the ACR Car Lab, addressed by this template's own slug - the
+        # same URL tests/test_car_templates.py pins for every bundled template. Emitted
+        # here so a brand-new car doesn't fail that test until someone adds it by hand.
+        f'gearing_tool: "{CAR_LAB_BASE}{slug}/gears/"',
     ]
     return '\n'.join(lines)
+
+
+def refresh_header(head):
+    """Bring an existing template's header block up to date before its rows are rewritten.
+
+    Two fields are ours to maintain: `version:` (the game version these values were read
+    from) and `source:` (where they came from - always "game-files" for anything this tool
+    writes; a user's own export carries "community", see
+    references/export-car-template.md). `source:` belongs right after `version:` and is
+    inserted there when the template predates the field.
+
+    Only column-0 keys are touched, so the indented `source:` inside the `engine_curve:`
+    block - which names the game asset the curve came from - is left alone.
+    """
+    head = re.sub(r'^version: ".*"$', f'version: "{GAME_VERSION}"', head, flags=re.M)
+    if re.search(r'^source: ".*"$', head, flags=re.M):
+        return re.sub(r'^source: ".*"$', 'source: "game-files"', head, flags=re.M)
+    return re.sub(r'^(version: ".*")$', '\\1\nsource: "game-files"', head, flags=re.M)
 
 
 # populated by main() once, only when at least one requested slug is new;
@@ -617,9 +646,7 @@ def main():
                 print(f'    = new template header pre-filled from DT_Cars: drivetrain, class, '
                       f'gearbox - the rest is TODO, see the written file')
             else:
-                head = txt.split('\nparameters:')[0].rstrip('\n')
-                head = re.sub(r'^version: ".*"$', f'version: "{GAME_VERSION}"',
-                              head, flags=re.M)
+                head = refresh_header(txt.split('\nparameters:')[0].rstrip('\n'))
             out = head + '\n\n' + render(rows)
             if not args.dry_run:
                 open(path, 'w', encoding='utf-8', newline='\n').write(out)

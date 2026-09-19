@@ -12,32 +12,42 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
     routing table also lists as an entry point.
   - `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions,
     create-if-missing rules. **The source of truth for the data model.**
-  - `references/notion-rest-read.md` — the way every workflow reads a car's rows: the Notion
+  - `references/notion-rest-read.md` — the way every workflow reads **rows in Notion**: the
     connector can't list database rows, so workflows query the data source over the REST API
     (`POST /v1/data_sources/{id}/query`) using a read-only token the user sets up once (README).
+    That covers every car's `Setups` slices and the `Parameters` catalog of a **screenshot-
+    onboarded** car. A car with a bundled template reads its catalog from that file instead
+    (`scripts/load_catalog.py`, no token and no egress) and has **no `Parameters` rows at all**;
+    the two kinds of car are defined in `references/notion-structure.md` → *Where a car's catalog
+    lives*.
+  - `scripts/` — the stdlib-only Python the skill runs in the user's code sandbox (no PyYAML
+    there): `parse_acr_save.py` (save-file import), `query_notion_parameters.py` (the REST read
+    and the `SHOW` column order) and `load_catalog.py` (a bundled template read as a catalog —
+    rows in the REST read's shape, surface resolution, `--check` validation, `--snapshot`).
   - `references/setup-tuning-principles.md` — drivetrain-tagged tuning reasoning base.
   - `references/driving-feedback-interview.md` — the shared symptom→cause question bank (beginner
     interviewing rules, pre-drive briefing, gearing sub-interview) and the **fix-order ladder**.
     Read by `build-setup.md` (baseline-first flow) and `tweak-setup.md` (vague feedback).
   - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
 - [README.md](README.md) — end-user docs (claude.ai install + usage).
-- `car-charts/` — the chart PNGs per car (power/torque, gearing, and final-drive where the final
-  drive is adjustable), generated from the ACR game files. **Committed and
-  served by public raw URL**, not bundled in the skill ZIP: a skill on claude.ai has no way to push
-  a local file into Notion, so the car page attaches the chart from its URL (which is also why the
-  templates store a URL, not a path). Regenerate with `make charts` (`tools/torque-curves` for the
-  power/torque ones, `tools/gearing-charts` for the other two); never hand-edit.
+- `car-charts/` — the power/torque chart PNG per car, generated from the ACR game files.
+  **Committed and served by public raw URL**, not bundled in the skill ZIP: a skill on claude.ai
+  has no way to push a local file into Notion, so the car page attaches the chart from its URL
+  (which is also why the template stores a URL, not a path). Regenerate with `make charts`
+  (`tools/torque-curves`); never hand-edit.
 - `tools/torque-curves/` — maintainer-only extractor (needs a local ACR install, node + python).
   Reads each car's `FC_<Car>_Torque` curve out of the pak files, renders `car-charts/`, and rewrites
   the delimited `# --- engine curve … ---` stanza in each bundled template. Its README documents the
   IoStore/Oodle handling, the parser heuristic, and the sanity check that catches a game update
   breaking it. Re-run after a physics-touching patch or when a car is onboarded (add it to
   `CAR_MAP` first).
-- `tools/gearing-charts/` — maintainer-only, same requirements. Reads the car's gear-set assets and
-  renders the gearing + final-drive charts into `car-charts/`, and writes each template's
-  `gearing_chart:` / `final_drive_chart:` URLs into the same delimited engine-curve stanza
-  `tools/torque-curves` owns. A car whose final drive isn't adjustable gets no final-drive chart and
-  no `final_drive_chart:` line — that's expected, not a failure. Add new cars to `CARS` first.
+- `tools/gearing-charts/` — maintainer-only, same requirements. Holds the shared game-file
+  readers (gear sets, tyres, final drives, template facts) other tools import, the rev-limit
+  calibration (`calibration.py`), and the ACR Car Lab exporter (`export_car_data.py`, run with
+  `make car-lab`, which writes into the sibling `acr-car-lab` checkout). The per-car gearing and
+  final drive PNG charts this directory used to render were replaced by the ACR Car Lab web tool;
+  each template links to its page there through its `gearing_tool:` field. Add new cars to `CARS`
+  first.
 - `tools/car-catalog/` — maintainer-only. Rebuilds every template's `parameters:` block (Min/Max/
   Discrete steps) straight from the game's setup-preset assets, so a game update is a re-run instead
   of a fresh round of screenshots. See its README.

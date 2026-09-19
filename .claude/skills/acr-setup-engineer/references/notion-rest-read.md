@@ -4,6 +4,16 @@
 catalog, or a filtered slice of `Setups`). Use this wherever a workflow says "fetch the car's
 `Parameters` rows" or "fetch this car's `Setups` rows".
 
+**Scope — which cars this doc's `Parameters` read is for.** `Parameters` holds the catalogs of
+**screenshot cars** only. A **template car**'s catalog is the bundled YAML inside the skill: read
+it with `python scripts/load_catalog.py car-templates/<slug>.yaml [--surface {Surface}]` — no
+token, no network, no snapshot, on every plan — and never query `Parameters` for it. The script
+prints rows in **exactly the *Output* shape below**, so everything downstream is identical, and
+*Resolving the range for a surface* (below) is the same rule both sources obey — `load_catalog.py
+--surface` applies it for you. The two kinds of car, and how to tell them apart from the car's
+`Catalog source:` line, are defined in `notion-structure.md` → *Where a car's catalog lives*.
+**`Setups` slices are read here for every car**, template or screenshot.
+
 ## Why this exists
 The Notion **connector** (MCP tools `notion-search` + `notion-fetch`) **cannot reliably list a
 database's rows**:
@@ -30,6 +40,9 @@ the database directly through Notion's REST API, which supports an exact filter 
      them through the one-time setup (the README section / the `Config` page instructions).
 
 ## Do the reads in one pass (don't seed context one round-trip at a time)
+For a template car, `load_catalog.py` goes in the **same code-execution block** as the `Setups`
+REST queries — it is local, so it costs nothing extra and needs no token.
+
 Resolve the structure **once**, then collapse the rest (`SKILL.md` → *Read efficiently*):
 - Fire the independent reads **together in a single step (parallel tool calls)** — the
   `Parameters`/`Setups` DB `notion-fetch`es (for their `data_source_id`s), the car's `Catalog` and
@@ -47,7 +60,7 @@ Run this in **code execution** (the sandbox must allow outbound HTTPS to `api.no
 it can't, walk the fallback ladder below):
 
 ```
-# Parameters catalog for one car:
+# Parameters catalog for one SCREENSHOT car (a template car reads load_catalog.py instead):
 python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>"
 
 # Setups learn-pool slice (build-setup learn mode):
@@ -70,9 +83,12 @@ python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>" 
 - `checkbox` → boolean. `number` → number or omitted when null.
 
 For the **Parameters catalog** each object contains: `Adjustment`, `Section`, `Min`, `Max`,
-`Unit`, `Discrete steps` (blank `""` means continuous or never captured), `Car`, and an optional
-`Surface` (`Tarmac` / `Gravel` / `Snow`; **omitted when blank** — that's the baseline row).
-Build the in-memory catalog from these — then apply the normal value/legality rules.
+`Unit`, `Discrete steps` (blank `""` means continuous or never captured), `Order`, `Car`, and an
+optional `Surface` (`Tarmac` / `Gravel` / `Snow`; **omitted when blank** — that's the baseline
+row). Build the in-memory catalog from these — then apply the normal value/legality rules.
+**`scripts/load_catalog.py` prints the same objects, with the same keys and the same blank/omitted
+conventions**, for a template car — which is why a workflow only has to change *where* it gets the
+rows, never what it does with them.
 
 ## Resolving the range for a surface
 A `Car × Adjustment` may have **more than one row**: a baseline row (`Surface` omitted) plus an
@@ -82,8 +98,8 @@ setup's `Surface`):
 
 1. If a row for that `Adjustment` has `Surface == S`, use **that** row's `Min`/`Max`/`Discrete steps`.
 2. **Else if `S == Snow` and a `Surface == Gravel` row exists, use the `Gravel` row** — snow
-   inherits gravel's softer ranges (cars are onboarded with a gravel pass but no separate snow
-   pass).
+   inherits gravel's softer ranges. Snow never has rows of its own: a screenshot car's optional
+   gravel pass, or a template's `Gravel` entries, are as far as the surface split goes.
 3. Otherwise use the **baseline** row (no `Surface`).
 4. If none exists, the parameter isn't available for that car — skip it.
 
@@ -92,6 +108,10 @@ So group the returned rows by `Adjustment`, then pick the surface-matching row i
 only the baseline row and resolve to it on every surface.
 
 ## When the REST query can't run — the fallback ladder
+**Template cars never enter this ladder for their catalog** — it is on disk, so there is nothing
+to fall back from (`load_catalog.py` needs no token and no egress). The ladder applies to a
+screenshot car's `Parameters` read, and to a `Setups` slice for any car.
+
 This REST query **is** the primary read path — **never** substitute the connector's row-listing
 (`notion-search` / a database `notion-fetch`), which is unreliable (capped, semantic, mixes cars)
 and produces silently wrong setups. When the query can't run, walk this ladder instead:
@@ -104,8 +124,8 @@ and produces silently wrong setups. When the query can't run, walk this ladder i
    network to `api.notion.com` (egress is restricted by default — and on **Claude's Free plan it
    can't be widened at all**: the "All domains" egress setting doesn't exist there). Don't retry
    endlessly and don't guess values:
-   - **`Parameters` catalog reads** fall back to the car's `Catalog` page **snapshot** — next
-     section.
+   - **`Parameters` catalog reads** (a screenshot car) fall back to that car's `Catalog` page
+     **snapshot** — next section.
    - **`Setups` slice reads have no fallback** (setups accumulate; no snapshot can stay current).
      Proceed as if the slice came back **empty**, and say plainly which feature was skipped and
      why: a learn-pool read ⇒ the setup is built without the user's setup history; a
@@ -120,9 +140,11 @@ control the fix is Settings → Capabilities → Network egress → **All domain
 (settings changes don't apply to an already-open conversation).
 
 ## The catalog snapshot fallback
-Every car's **`Catalog`** page ends with an auto-maintained **`Catalog snapshot`** toggle — the car's full
-`Parameters` catalog as YAML, refreshed by every workflow that writes the catalog
-(`notion-structure.md` → *Catalog snapshot* has the format and refresh rules). To read from it:
+Every car's **`Catalog`** page ends with an auto-maintained **`Catalog snapshot`** toggle — the
+car's full catalog as YAML, refreshed by every workflow that writes the catalog
+(`notion-structure.md` → *Catalog snapshot* has the format and refresh rules). **This is a read
+path for screenshot cars only**: a template car's snapshot is a readable copy for the user, and
+the skill reads that car's template file instead — always, egress or not. To read from it:
 
 1. `notion-fetch` the car's `Catalog` page (you usually hold it already — `SKILL.md` → *Read
    efficiently*). **Check the response's `truncated` / `unknown_block_count` indicators first**:
@@ -138,7 +160,7 @@ Every car's **`Catalog`** page ends with an auto-maintained **`Catalog snapshot`
    since that date aren't in it. When the output leaves the user's own Notion (e.g. a template
    export), confirm nothing was edited since — see `export-car-template.md` step 1.
 
-**No snapshot on the page** (car onboarded by an older skill version): rung 3 above — and
+**No snapshot on the page** (screenshot car onboarded by an older skill version): rung 3 above — and
 offer the fix in the same breath: `refresh-catalog-snapshot.md` writes the snapshot and nothing
 else, and works even without egress (the user pastes the car's `Parameters` table from Notion).
 Re-onboarding also writes it, as does any setup-saving run on a plan with egress

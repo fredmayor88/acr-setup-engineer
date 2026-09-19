@@ -300,7 +300,9 @@ rpm figures the answers above turn on, and `torque_points` is the whole curve if
 flat or peaky it is between them. Quote those rpm when explaining a gearing change; it's far more
 use to the driver than "keep it in the power band". Where the band usefully *ends* is the driver's
 call, not a number to assert — show them the curve and let them decide. A car with no bundled
-template has no curve; then reason qualitatively, and say that's what you're doing.
+template has no curve; then reason qualitatively, and say that's what you're doing. When the
+discussion turns to which **gear set or final drive** to run, give the user the car's
+`gearing_tool` link from its template so they can see every gear set's speed per gear themselves.
 
 ## Fix-order ladder (major → fine)
 
@@ -334,19 +336,42 @@ Two standing caveats:
 ## Recording the outcome
 
 An interview produces a short **structured symptom list** — for each symptom: family, corner phase,
-severity, and **the user's own words**. The caller persists it (`build-setup.md` step 6):
+severity, and **the user's own words**. It is persisted in two places, and **they are written at
+different moments**:
 
-- **One-line dated verdict** into the setup row's `Notes` — readable in the table without opening
-  the page.
-- **The full record** into a **dated collapsed toggle** ("Driving feedback — {date}") in the setup's
-  page body. Repeat interviews **stack chronologically**; never overwrite an earlier one.
-- **The car-level record** into the car's **`Feedback`** page: one **dated collapsed toggle**
-  (`Driving feedback — {date}`) holding this session's symptoms and what they pointed at, added at
-  the **top** of the page. This page is **add-only** — never edit, reorder or delete an earlier
-  entry (`notion-structure.md` → *`Feedback` page*). This is the running history of how this driver
-  describes this car, and it accumulates automatically.
+| What | Where | When |
+|---|---|---|
+| The car-level record | the car's **`Log`** page | **when the interview ends — on every path** |
+| The row-level records (`Notes` verdict, page-body toggle) | the **`Setups` row** the interview was about | **only on a row that is saved** — the baseline row in a build, the new row a tweak saves |
+
+**The car-level `Log` entry is written whenever an interview ends**, whichever workflow ran it:
+`build-setup.md` step 6, `tweak-setup.md` step 5, or a direct entry from the routing table with no
+setup in scope at all. It is **add-only history of what the driver said**, not a setup write, and
+it is the only thing an interview is guaranteed to produce — a session that never saves a row
+would otherwise lose the whole conversation.
+
+**The row-level records need a saved row to sit on**, so they are written only where one exists:
+in `build-setup.md` step 6 they go on the **baseline row step 5 already saved** (the row the
+driver actually drove); in `tweak-setup.md` they go on the **new row step 7 saves**, at that save
+and not before. An interview that never leads to a saved row — a direct entry from the routing
+table, a tweak session the user doesn't save — writes neither, and nothing is lost: the `Log`
+entry already holds the symptoms.
+
+- **One-line dated verdict** into the saved setup row's `Notes` — readable in the table without
+  opening the page.
+- **The full record** into a **dated collapsed toggle** ("Driving feedback — {date}") in that
+  row's page body. Repeat interviews **stack chronologically**; never overwrite an earlier one.
+- **The car-level record** into the car's **`Log`** page: one **dated collapsed toggle**
+  (`Driving feedback — {date}`) holding this session's symptoms and what they pointed at, added
+  **directly below the page's maintenance line**, so it sits at the **top** of the page. Resolve
+  the page by name first — `Log`, falling back to a legacy **`Feedback`** page, which is renamed
+  in place rather than duplicated (`notion-structure.md` → *Resolving the page (`Log`, and the
+  legacy `Feedback` name)*). The page is **shared**: the user writes their own notes on it too, so
+  the skill **only adds this one block and never edits, reorders or deletes any existing block —
+  the user's or an earlier entry of its own** (`notion-structure.md` → *`Log` page*). This is the
+  running history of how this driver describes this car, and it accumulates automatically.
 - **Lasting preferences** (things true of how this user drives *this car*, not one-off stage
-  symptoms) are **noted in that `Feedback` entry** and then **offered to the user** for their
+  symptoms) are **noted in that `Log` entry** and then **offered to the user** for their
   `Guidelines` page. The skill never writes to `Guidelines` (`SKILL.md` → *A car's pages are split
   by ownership*), so propose the bullet in chat, written exactly as they'd paste it:
 
@@ -354,8 +379,10 @@ severity, and **the user's own words**. The caller persists it (`build-setup.md`
   > - Wants the rear settled on turn-in; prefers understeer to a loose rear at corner entry.
 
   Say it once and move on — don't nag, don't re-offer a bullet they declined. Nothing is lost if
-  they never paste it: the observation is already in `Feedback`. The difference is that
-  `Guidelines` **steers tuning decisions** as a guideline layer, while `Feedback` is evidence.
+  they never paste it: the observation is already in `Log`. The difference is that
+  `Guidelines` **steers tuning decisions** as a guideline layer, while `Log` is evidence. The same
+  offer applies to a note **the user** wrote on `Log` that reads like a standing rule for this car
+  — propose it for `Guidelines` once, and never move or copy it there yourself.
 
 Get every date from the deterministic Python one-liner in `notion-structure.md` → `Date`, never from
 a guess at the wall clock.

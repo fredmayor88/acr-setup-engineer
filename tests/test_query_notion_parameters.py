@@ -341,5 +341,202 @@ class TestReadTemplateRows(unittest.TestCase):
         self.assertEqual(rows, [{'Adjustment': 'Gear Set', 'Order': 1010}])
 
 
+class TestMainShowOrder(unittest.TestCase):
+    """`--show-order` as the CLI runs it: templates alone, Notion alone, or both at once.
+
+    A main / location / stage view can span a template car (no `Parameters` rows at all) and a
+    screenshot car (rows in Notion). One call has to order both together, because two separate
+    SHOW lists carry no `Order` left to interleave by (notion-structure.md -> Applying the order).
+    """
+
+    TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), '..', '.claude', 'skills',
+                                 'acr-setup-engineer', 'car-templates')
+
+    def _write(self, text):
+        import tempfile
+        fd, path = tempfile.mkstemp(suffix='.yaml')
+        os.close(fd)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(text)
+        self.addCleanup(os.remove, path)
+        return path
+
+    def _template(self):
+        return self._write(
+            'car: "Template Car"\n'
+            'parameters:\n'
+            '  - section: "Gearbox"\n'
+            '    adjustment: "Gear Set"\n'
+            '    order: 1010\n'
+            '  - section: "Suspensions"\n'
+            '    adjustment: "Spring Stiffness Front"\n'
+            '    order: 2020\n'
+        )
+
+    def _run(self, argv):
+        """Run main() with argv, returning (exit_code, stdout)."""
+        out = io.StringIO()
+        with patch.object(sys, 'argv', ['query_notion_parameters.py'] + argv), \
+                patch.object(sys, 'stdout', out), \
+                self.assertRaises(SystemExit) as ctx:
+            Q.main()
+        return ctx.exception.code, out.getvalue()
+
+    def test_templates_only_needs_no_token_and_no_network(self):
+        def boom(*a, **k):
+            raise AssertionError('a templates-only --show-order must not touch the network')
+
+        with patch('urllib.request.urlopen', side_effect=boom):
+            code, out = self._run(['--show-order', '--from-template', self._template()])
+        self.assertEqual(code, 0)
+        self.assertTrue(out.startswith('"Name", "Gear Set", "Spring Stiffness Front", "Car"'), out)
+
+    def test_template_and_notion_rows_are_ordered_together_in_one_call(self):
+        rows = [{'Adjustment': 'Screenshot Only', 'Order': 2015},
+                {'Adjustment': 'Late Column', 'Order': 9010}]
+        with patch.object(Q, 'query', return_value=rows) as q:
+            code, out = self._run(['ds-id', 'tok', '--all', '--show-order',
+                                   '--from-template', self._template()])
+        self.assertEqual(code, 0)
+        q.assert_called_once()
+        self.assertEqual(q.call_args[0][2], None, 'car_name must be None for --all')
+        self.assertTrue(
+            out.startswith('"Name", "Gear Set", "Screenshot Only", "Spring Stiffness Front", '
+                           '"Late Column", "Car"'), out)
+
+    def test_mixed_call_passes_the_car_name_through(self):
+        with patch.object(Q, 'query', return_value=[]) as q:
+            code, _ = self._run(['ds-id', 'tok', 'Some Car', '--show-order',
+                                 '--from-template', self._template()])
+        self.assertEqual(code, 0)
+        self.assertEqual(q.call_args[0][2], 'Some Car')
+
+    def test_token_only_show_order_still_works(self):
+        with patch.object(Q, 'query', return_value=[{'Adjustment': 'Gear Set', 'Order': 1010}]):
+            code, out = self._run(['ds-id', 'tok', '--all', '--show-order'])
+        self.assertEqual(code, 0)
+        self.assertTrue(out.startswith('"Name", "Gear Set", "Car"'), out)
+
+    def test_legacy_rows_of_a_template_car_are_dropped_before_ordering(self):
+        """A template car's catalog is its bundled file. Rows an older skill version left in
+        `Parameters` for it are never read (notion-structure.md -> Where a car's catalog lives),
+        so they must not reach the comparator: not to win the Order tie-break, and not to inject
+        a column name the template no longer has."""
+        rows = [
+            # legacy rows for the template's own car — different case and padding on purpose
+            {'Adjustment': 'Spring Stiffness Front', 'Order': 5, 'Car': 'template car'},
+            {'Adjustment': 'Old Renamed Thing', 'Order': 1005, 'Car': '  Template Car  '},
+            # a genuine screenshot car in the same table
+            {'Adjustment': 'Screenshot Only', 'Order': 2015, 'Car': 'Other Car'},
+        ]
+        with patch.object(Q, 'query', return_value=rows):
+            code, out = self._run(['ds-id', 'tok', '--all', '--show-order',
+                                   '--from-template', self._template()])
+        self.assertEqual(code, 0)
+        self.assertNotIn('Old Renamed Thing', out)
+        self.assertTrue(
+            out.startswith('"Name", "Gear Set", "Screenshot Only", "Spring Stiffness Front", '
+                           '"Car"'), out)
+
+    def test_legacy_rows_are_dropped_through_the_skill_name_normalisation(self):
+        """The drop uses the skill's one car-name normalisation rule (lowercase, punctuation
+        to spaces, whitespace collapsed — `onboard-car.md` step 1), so a `Car` value that
+        differs from the template's `car:` only in punctuation or spacing is still the same
+        car and its legacy rows still go."""
+        rows = [
+            {'Adjustment': 'Old Renamed Thing', 'Order': 1005, 'Car': 'Template-Car'},
+            {'Adjustment': 'Also Legacy', 'Order': 1006, 'Car': 'template  car'},
+            {'Adjustment': 'Screenshot Only', 'Order': 2015, 'Car': 'Other Car'},
+        ]
+        with patch.object(Q, 'query', return_value=rows):
+            code, out = self._run(['ds-id', 'tok', '--all', '--show-order',
+                                   '--from-template', self._template()])
+        self.assertEqual(code, 0)
+        self.assertNotIn('Old Renamed Thing', out)
+        self.assertNotIn('Also Legacy', out)
+        self.assertIn('Screenshot Only', out)
+
+    def test_the_same_adjustment_from_two_cars_keeps_the_lower_order(self):
+        """Different cars legitimately share an Adjustment and collapse to one Setups column;
+        the comparator keeps the lowest Order across both sources."""
+        rows = [
+            {'Adjustment': 'Gear Set', 'Order': 500, 'Car': 'Other Car'},
+            {'Adjustment': 'Zed', 'Order': 700, 'Car': 'Other Car'},
+        ]
+        with patch.object(Q, 'query', return_value=rows):
+            code, out = self._run(['ds-id', 'tok', '--all', '--show-order',
+                                   '--from-template', self._template()])
+        self.assertEqual(code, 0)
+        self.assertEqual(out.count('"Gear Set"'), 1)
+        self.assertTrue(
+            out.startswith('"Name", "Gear Set", "Zed", "Spring Stiffness Front", "Car"'), out)
+
+    def test_a_notion_failure_in_a_mixed_call_prints_nothing_and_exits_1(self):
+        """A half-answer is worse than none: a SHOW list missing every screenshot car's columns
+        would hide them. The query must fail loudly before anything is printed."""
+        import urllib.error
+        err = urllib.error.URLError(reason='Name or service not known')
+        with patch('urllib.request.urlopen', side_effect=err):
+            code, out = self._run(['ds-id', 'tok', '--all', '--show-order',
+                                   '--from-template', self._template()])
+        self.assertEqual(code, 1)
+        self.assertEqual(out, '')
+
+    def test_from_template_still_requires_show_order(self):
+        code, _ = self._run(['--from-template', self._template()])
+        self.assertEqual(code, 2)
+
+    def test_incomplete_positional_args_with_templates_is_a_usage_error(self):
+        code, _ = self._run(['ds-id', '--show-order', '--from-template', self._template()])
+        self.assertEqual(code, 2)
+
+    def test_unreadable_template_exits_1_not_2(self):
+        code, _ = self._run(['--show-order', '--from-template',
+                             os.path.join(self.TEMPLATES_DIR, 'no-such-car.yaml')])
+        self.assertEqual(code, 1)
+
+
+class TestNormaliseCarName(unittest.TestCase):
+    """The skill's one car-name normalisation (onboard-car.md step 1): lowercase, punctuation
+    to spaces, whitespace collapsed. The script uses it for exact normalised equality."""
+
+    def test_case_punctuation_and_spacing_are_normalised_away(self):
+        for raw in ('Lancia Stratos HF', 'lancia-stratos-hf', '  LANCIA   STRATOS  HF ',
+                    'Lancia_Stratos.HF'):
+            with self.subTest(raw=raw):
+                self.assertEqual(Q.normalise_car_name(raw), 'lancia stratos hf')
+
+    def test_different_cars_do_not_collapse_together(self):
+        self.assertNotEqual(Q.normalise_car_name('Peugeot 206 WRC 1999'),
+                            Q.normalise_car_name('Peugeot 208 Rally4'))
+
+
+class TestOutputEncoding(unittest.TestCase):
+    """Stdout must be UTF-8 whatever the console's locale is: a `SHOW` list can carry a
+    column name with a non-ASCII character, and on Windows a piped stdout would otherwise be
+    encoded with the ANSI code page and reach Notion as mojibake."""
+
+    def _template_with_accents(self):
+        import tempfile
+        fd, path = tempfile.mkstemp(suffix='.yaml')
+        os.close(fd)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write('car: "Accented Car"\n'
+                     'parameters:\n'
+                     '  - section: "Wheels"\n'
+                     '    adjustment: "Caméra Angle °"\n'
+                     '    order: 6030\n')
+        self.addCleanup(os.remove, path)
+        return path
+
+    def test_show_order_output_is_utf8(self):
+        import subprocess
+        proc = subprocess.run(
+            [sys.executable, SCRIPT, '--show-order', '--from-template',
+             self._template_with_accents()], capture_output=True)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn('Caméra Angle °', proc.stdout.decode('utf-8'))
+
+
 if __name__ == '__main__':
     unittest.main()

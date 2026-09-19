@@ -8,9 +8,12 @@ Run: python -m unittest discover tests   (or: python tests/test_car_templates.py
 import glob
 import os
 import re
+import sys
 import unittest
 
 import yaml
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'tools', 'car-catalog'))
 
 TEMPLATES_DIR = os.path.join(os.path.dirname(__file__), '..', '.claude', 'skills',
                               'acr-setup-engineer', 'car-templates')
@@ -98,6 +101,70 @@ class TestCarTemplates(unittest.TestCase):
                 p_rpm, p_hp = max(power, key=lambda x: x[1])
                 self.assertEqual(curve['peak_power'], f'{round(p_hp)} hp at {p_rpm} rpm')
 
+
+    def test_templates_have_gearing_tool_link_and_no_removed_chart_keys(self):
+        """Per-car gearing and final-drive PNG charts were replaced by a link to the
+        car's page in the ACR Car Lab. Every bundled template must carry a
+        `gearing_tool` URL built from its own filename stem, and none may still carry
+        the removed `gearing_chart` / `final_drive_chart` keys."""
+        for path, doc in load_templates():
+            slug = os.path.basename(path)[:-len('.yaml')]
+            with self.subTest(template=os.path.basename(path)):
+                self.assertEqual(
+                    doc.get('gearing_tool'),
+                    f'https://fredmayor88.github.io/acr-car-lab/{slug}/gears/',
+                    'gearing_tool must point at this template\'s own ACR Car Lab page')
+                self.assertNotIn('gearing_chart', doc,
+                                  'gearing_chart was replaced by gearing_tool')
+                self.assertNotIn('final_drive_chart', doc,
+                                  'final_drive_chart was replaced by gearing_tool')
+
+    def test_bootstrap_header_carries_a_gearing_tool_link(self):
+        """A brand-new car's starter header must already carry `gearing_tool:`, built from the
+        car's slug against the same ACR Car Lab base every bundled template uses — otherwise
+        test_templates_have_gearing_tool_link_and_no_removed_chart_keys fails on the next new
+        car and the field has to be added by hand."""
+        import extract_car_catalog as E
+        header = E.bootstrap_header('lancia-stratos')
+        self.assertIn(
+            'gearing_tool: "https://fredmayor88.github.io/acr-car-lab/lancia-stratos/gears/"',
+            header)
+        # it belongs in the header block, after `source:` — where refresh_header keeps it
+        self.assertLess(header.index('source:'), header.index('gearing_tool:'))
+        self.assertTrue(yaml.safe_load(header))
+
+    def test_templates_declare_where_their_values_came_from(self):
+        """`source` records where a template's values came from: `game-files` for the
+        maintainer's extracted templates, `community` for a user's export. Every bundled
+        template is extracted from the ACR game files, so all 18 say `game-files`."""
+        for path, doc in load_templates():
+            with self.subTest(template=os.path.basename(path)):
+                self.assertIn(doc.get('source'), ('game-files', 'community'),
+                              'source must be "game-files" or "community"')
+                self.assertEqual(doc['source'], 'game-files',
+                                 'every bundled template is extracted from the game files')
+
+    def test_the_extractor_maintains_version_and_source_on_a_rewrite(self):
+        """tools/car-catalog rewrites a template's rows and keeps its header in line:
+        the game version, and `source: "game-files"` right after it — inserted when the
+        template predates the field, and never confused with the indented `source:` inside
+        the engine_curve block."""
+        from extract_car_catalog import GAME_VERSION, refresh_header
+
+        old = ('car: "Test Car"\n'
+               'version: "0.1"\n'
+               'gearing_tool: "https://example.invalid/test/gears/"\n'
+               'engine_curve:\n'
+               '  source: "ACR game files - FC_Test_Torque"')
+        refreshed = refresh_header(old)
+        self.assertIn(f'version: "{GAME_VERSION}"\nsource: "game-files"\n', refreshed)
+        self.assertIn('  source: "ACR game files - FC_Test_Torque"', refreshed)
+        self.assertEqual(refreshed.count('source: "game-files"'), 1)
+
+        # already carries the field (any value) -> corrected in place, not duplicated
+        again = refresh_header(refreshed.replace('source: "game-files"', 'source: "community"'))
+        self.assertEqual(again.count('source:'), 2)         # ours + the engine_curve one
+        self.assertIn('source: "game-files"', again)
 
     def test_compound_gear_values_keep_their_asterisk(self):
         """A two-stage primary drive is spelled `A//B*C//D`. Because `*` is markdown

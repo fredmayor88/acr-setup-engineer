@@ -10,8 +10,8 @@ Curated, car-specific symptom→fix knowledge for this car. These entries **take
 general base** (`setup-tuning-principles.md`) where they address a concrete symptom; the user's own
 authored guidelines (global / surface / per-car) still win over this file.
 
-Match this file to the car the same way `onboard-car.md` step 1 matches a bundled template:
-`car:` field, case-insensitive, ignoring punctuation.
+Match this file to the car the same way `onboard-car.md` step 1 matches a bundled template
+(→ *Matching a car name*).
 
 ## Brakes lock very easily as soon as braking starts / poor brake modulation
 

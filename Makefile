@@ -6,11 +6,9 @@
 #
 # Targets:
 #   make test        run the full test suite
-#   make charts      regenerate every car chart (all three kinds)
+#   make charts      regenerate every car chart (power/torque only)
 #   make car-lab     regenerate the ACR Car Lab data in ../acr-car-lab
 #   make charts-power        power/torque curves, and each template's engine_curve block
-#   make charts-gearing      "where each gear tops out" ladders
-#   make charts-final-drive  primary gear x differential ratio
 #   make zip         rebuild dist/acr-setup-engineer-skill-<version>.zip (commit changes first)
 #   make check-zip   verify ZIP entries + that the filename version matches VERSION inside
 #   make release     create a GitHub draft release with the ZIP asset (edit TAG first)
@@ -32,7 +30,7 @@ SKILL_VERSION = $(shell python -c "import subprocess as s; r = s.run(['git','sho
 ZIP = dist/acr-setup-engineer-skill-$(SKILL_VERSION).zip
 
 .PHONY: all test zip check-zip release stamp-version clean charts charts-power \
-        charts-gearing charts-final-drive car-lab
+        car-lab
 
 all: test zip
 
@@ -51,19 +49,14 @@ check-zip:
 clean:
 	python -c "import shutil; shutil.rmtree('dist', ignore_errors=True)"
 
-# Chart regeneration. All three read the installed game's pak files, so they only run on a
-# machine with Assetto Corsa Rally; pass --paks to either script if it is not at the default
-# Steam location. Re-run after a game update, then read the diff.
-charts: charts-power charts-gearing charts-final-drive
+# Chart regeneration. Reads the installed game's pak files, so it only runs on a machine with
+# Assetto Corsa Rally; pass --paks if it is not at the default Steam location. Re-run after a
+# game update, then read the diff. The gearing and final-drive charts moved to the ACR Car Lab
+# web tool (see the `car-lab` target below); only the power/torque chart still renders here.
+charts: charts-power
 
 charts-power:
 	python tools/torque-curves/extract_torque_curves.py
-
-charts-gearing:
-	python tools/gearing-charts/make_gearing_chart.py --all --charts gearing
-
-charts-final-drive:
-	python tools/gearing-charts/make_gearing_chart.py --all --charts final-drive
 
 # Regenerates every ACR Car Lab JSON and page shell into the sibling acr-car-lab
 # checkout. Reads the installed game's paks, so it only runs on a machine with

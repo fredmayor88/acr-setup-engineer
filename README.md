@@ -206,7 +206,8 @@ It doesn't get in your way, and there's plenty here for you:
   still yours.
 - **It needs Notion** for the full experience (free account is fine). Save-file recovery works
   without it.
-- **Claude's Free plan runs a reduced mode** — snapshot reads, no learning from your past setups.
+- **Claude's Free plan runs a reduced mode** — no learning from your past setups, and
+  snapshot reads for cars you onboarded from screenshots (the bundled cars are unaffected).
   Details in [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do).
 - The skill is free; running Claude heavily may not be.
 
@@ -294,13 +295,21 @@ list a database's rows. That needs a token.
 
 *"Onboard the Lancia Stratos HF for Assetto Corsa Rally."*
 
-- **Bundled template?** It offers to populate Notion from it — no screenshots.
+- **Bundled template?** It offers to set the car up from it — no screenshots. The template stays
+  inside the skill and **is** the car's parameter list, so Notion gets the setup columns, the
+  car's pages and a readable copy of the values — not a row per parameter. Nothing to fill in,
+  nothing to keep in sync, and it works on every plan without a token or a network connection.
 - **Otherwise:** two full passes of the Car Setup screens (everything at **minimum**, then
   everything at **maximum**), attached in chat. It reads every setting's range off the images.
   **Take this first pass on a tarmac stage (e.g. Alsace)** — that's the baseline.
 - **Plus one shot of the car information / HISTORY screen** — the page with the car's class
   badges, `Engine`, `Max Power`, `Max Torque`, `Weight` and the drivetrain / gearbox /
   steering-lock icons. Optional, but it settles most of the car's facts in a single image.
+  A car set up this way keeps its parameter list in the **`Parameters`** table in your Notion,
+  where you can edit it — same as before.
+
+Each car's Notion page says which of the two it used, on a **`Catalog source:`** line: the
+bundled template and its game version, or your screenshots and the game version you gave.
 
 It records the car's **drivetrain, engine layout, weight bias, weight, max power, max torque,
 class, gearbox and steering lock** on its Notion page, to inform balance reasoning. Most come
@@ -309,23 +318,31 @@ looks up online. **You only get asked as a last resort**, once, for whatever is 
 unfindable, and "don't know" is always a fine answer. All nine are editable on the car's Notion
 page afterwards.
 
-**Cars with a bundled template also get their charts** on their Notion page, all read straight
-out of the ACR game files — so they're what the car actually does in the sim, not brochure
-figures:
+**Cars with a bundled template also get a chart and a link** on their Notion page, both read
+straight out of the ACR game files — so they're what the car actually does in the sim, not
+brochure figures:
 
 - a **power/torque chart** — the engine curve;
-- a **gearing chart** — where each gear tops out, for every gear set the car has;
-- a **final-drive chart** — what each primary gear × differential ratio does to that whole ladder
-  (only on cars whose final drive is adjustable).
+- a link to the car's page in the **ACR Car Lab** (`https://fredmayor88.github.io/acr-car-lab/`) —
+  an interactive tool showing every gear set, final drive and shift point, computed from the game
+  files, with the speed readings checked against in-game runs.
 
 The same data drives gearing advice in numbers: peak torque rpm, peak power rpm, and the whole
 curve between them. On turbocharged cars the curve's peak torque often
 sits below the `Max Torque` the info screen quotes; both are kept, and the skill tells you which is
 which.
 
-Onboarded a car before these charts existed? Say *"refresh the Lancia Stratos in my Notion"* and
-it brings everything static about the car up to date — charts, identity facts, the parameter
-catalog — without touching your setups.
+Onboarded a car before the gearing tool link existed? Say *"refresh the Lancia Stratos in my
+Notion"* and it brings everything static about the car up to date — the chart, the link, identity
+facts, the parameter catalog — without touching your setups.
+
+**If you onboarded a bundled car with an older version of the skill**, it wrote that car a set of
+rows in your `Parameters` table. Those rows are **no longer read** — the template inside the skill
+is the car's parameter list now — so editing them there, for example changing a range or filling
+`Discrete steps`, no longer has any effect. The rows are never deleted either; you can leave them
+or delete them as you prefer, and a refresh of the car says so once. Cars you onboard from your
+own screenshots are unaffected: their rows in `Parameters` are still their parameter list, and
+editing them still works exactly as before.
 
 **Contributing it back.** If your car had no bundled template, you've just built its catalog by
 hand — and you're the only person who can hand it to the next driver of that car. So at the end it
@@ -508,10 +525,10 @@ flowchart TD
     Extract --> Confirm["Confirmation table<br/>uncertain reads flagged"]
     Confirm --> Facts["Car identity facts, per field:<br/>info screenshot → template →<br/>model knowledge → web lookup →<br/>ask you (last resort)"]
 
-    Facts --> Notion["Create/extend the Notion structure<br/>parameter catalog + setup value columns<br/>+ all nine identity facts on the car page<br/>+ its charts, if the car has a bundled template"]
-    Notion --> Gravel{"Do any suspension ranges<br/>differ on gravel?"}
+    Facts --> Notion["Create/extend the Notion structure<br/>setup value columns + all nine identity facts<br/>+ the catalog source line, the chart and the gearing-tool link<br/>+ a parameter row per setting ONLY when it came from screenshots<br/>(a template car's parameters stay in the skill)"]
+    Notion --> Gravel{"Screenshot onboard: do any<br/>suspension ranges differ on gravel?"}
 
-    Gravel -->|"no / skip"| Done["Ready. Tarmac ranges<br/>apply everywhere"]
+    Gravel -->|"no / skip / template car"| Done["Ready. Tarmac ranges<br/>apply everywhere"]
     Gravel -->|"yes"| Second["Second full min/max pass on gravel"]
     Second --> Diff["Auto-diff vs tarmac, confirm,<br/>write Surface=Gravel rows<br/>only for what differs"]
     Diff --> Done
@@ -608,7 +625,9 @@ things back:
 ```
 ACR Setup Engineer (root page)
 ├── Config                  read-only API token + its setup instructions
-├── Parameters       (DB)   the catalog — one row per Car × Adjustment × Surface
+├── Parameters       (DB)   the parameter list of cars you onboarded from screenshots —
+│                            one row per Car × Adjustment × Surface. Cars that came from a
+│                            bundled template have no rows here; their list is in the skill
 ├── Setups           (DB)   one row per setup
 ├── Tuning guidelines       your global preferences (editable)
 ├── Parameter reference     the in-game description of every parameter (auto-maintained)
@@ -618,19 +637,25 @@ ACR Setup Engineer (root page)
 └── {Car}                   e.g. "Lancia Stratos HF" — an empty umbrella page holding four:
     ├── Guidelines          YOURS. Your tuning notes for this car. The skill reads it
     │                        and never writes to it.
-    ├── Catalog             Drivetrain, weight bias, engine layout, weight, the
-    │                        power/torque, gearing and final-drive charts, and a
-    │                        snapshot of the parameter catalog. Rebuilt on every refresh.
-    ├── Feedback            what you said about the car after each drive, dated.
-    │                        Only ever added to — nothing is edited or deleted.
+    ├── Catalog             Drivetrain, weight bias, engine layout, weight, where this car's
+    │                        parameter list comes from, the power/torque chart, a link to the
+    │                        ACR Car Lab gearing page, and a readable copy of the parameter
+    │                        list. Rebuilt on every refresh.
+    ├── Log                 SHARED. Your own notes about this car, anywhere on the page,
+    │                        plus what you said about the car after each drive, dated.
+    │                        Yours are yours to edit; the skill only ever adds — it never
+    │                        edits or deletes anything on this page.
     └── Setups              a filtered view of your setups for this car
 ```
 
 **Why four pages?** So the skill never has to guess which words on a page are yours. `Catalog` is
 regenerated wholesale whenever you refresh a car — no comparing, no questions, no risk of it
 clobbering something you wrote — precisely because everything you write lives in `Guidelines`,
-which it only ever reads. `Feedback` is the opposite kind of page: the skill writes it, but only
-ever adds to it, because your driving history can't be regenerated from anything.
+which it only ever reads. `Log` is the opposite kind of page: you and the skill both write on it,
+but the skill only ever *adds* — it puts a dated entry at the top after each drive and never edits
+or removes anything already there, yours or its own. Write whatever you want on it: notes about
+the car, reminders, things to try. (`Log` used to be called `Feedback`. Say *"refresh the {car} in
+my Notion"* and the existing page is renamed for you, with everything on it kept.)
 
 Two databases only. Car, location and stage pages are **filtered linked views**, never new
 databases — a stage is shared reference data, created once and referenced by any number of setups
@@ -649,16 +674,18 @@ steps`** column — a comma-separated list, e.g. `42300, 50000, 57700, 65400, 73
 `Short, Medium, Long`. When filled, every setup picks **only** from those values. Leave it blank to
 keep the setting continuous.
 
-For named options, onboarding **pre-seeds `Discrete steps` with whatever the screenshots show**
-(usually the two endpoints) — open the car's `Parameters` table in Notion and add the missing
-in-between options. Tyre compounds and brake pads (`SOFT, MEDIUM, HARD`) ship fully pre-filled.
+This is about cars you onboarded **from screenshots**. For named options, onboarding **pre-seeds
+`Discrete steps` with whatever the screenshots show** (usually the two endpoints) — open the car's
+`Parameters` table in Notion and add the missing in-between options. Tyre compounds and brake pads
+(`SOFT, MEDIUM, HARD`) ship fully pre-filled. **A car that came from a bundled template needs none
+of this**: its exact values are read out of the game files and ship complete in the template.
 
 Onboarding flags the settings most likely to need this: spring stiffness, anti-roll bars, and the
 damper channels.
 
 > **Brake parameters.** A created setup may not include values for every brake parameter — some
-> aren't always captured during onboarding. Add them manually in the car's `Parameters` table if
-> you need them.
+> aren't always captured during onboarding. For a car you onboarded from screenshots, add them
+> manually in the car's `Parameters` table if you need them.
 
 ## Making it tune to your taste
 
@@ -690,18 +717,24 @@ these cars onboard in one command — no screenshots:
 - **Lancia Fulvia Coupé HF** (1970) — FWD
 - **Lancia Stratos HF** (1976) — RWD
 - **Mini Cooper S** (1964) — FWD
-- **Peugeot 206 WRC** (1999) — AWD (no charts yet)
+- **Peugeot 206 WRC** (1999) — AWD (no power/torque chart; its gearing page exists)
 - **Peugeot 208 Rally4** (2020) — FWD
 - **Peugeot 306 II Maxi** (1997) — FWD
 - **Skoda Fabia RS Rally2** (2022) — AWD
 - **Subaru Impreza 555 (S3)** (1993) — AWD
 - **Volkswagen Polo GTI R5** (2018) — AWD
 
-Each carries its power/torque curve, its gearing chart, and — where the final drive is adjustable
-— its final-drive chart, all from the game files. The **Peugeot 206 WRC** is the exception: it has
-no charts at all, because the game ships no engine curve for it yet. The four newest cars (Audi,
-both the 206 and the 208, and the Polo) are also still missing their brake disc and caliper
-options; everything else is filled in.
+Every bundled template is extracted from the ACR game files and says so, with a
+`source: game-files` line; a template contributed by another user carries `source: community`
+instead, and the car's Notion page names which one it used.
+
+Each carries its power/torque curve and a link to its page in the **ACR Car Lab**
+(`https://fredmayor88.github.io/acr-car-lab/`) — the interactive gearing tool: every gear set,
+final drive and shift point, computed from the game files, with the speed readings checked
+against in-game runs. The **Peugeot 206 WRC** is the exception for the chart: the game ships no
+engine curve for it, so it has no power/torque chart, but its gearing page exists like every other
+car's. The four newest cars (Audi, both the 206 and the 208, and the Polo) are also still missing
+their brake disc and caliper options; everything else is filled in.
 
 Don't see your car? Onboard it from screenshots — and if you feel like it, contribute the template
 back so the next driver gets it for free.
@@ -723,12 +756,17 @@ Two channels, on purpose:
 - **Reading** rows goes through Notion's **REST API** with the **read-only token**. This exists
   because the connector *can't* reliably list a database's rows: `notion-fetch` returns a table's
   schema but no rows, and search is capped and mixes cars. The REST API gives one exact, paginated
-  read instead.
+  read instead. It is used for your **setup history** (every car), and for the **parameter list of
+  a car you onboarded from screenshots**.
+- **A car that came from a bundled template needs none of that for its parameters.** The template
+  is inside the skill, so the list is read straight off disk: no token, no network, nothing stored
+  in Notion to keep in sync — on every plan.
 - **When the sandbox has no network** — Claude's Free plan caps egress at package managers, with
-  no "All domains" option — parameter reads fall back to a **catalog snapshot** the skill keeps at
-  the bottom of each car's page, written by the same connector that does every other write. The
-  connector *can* fetch a page body in full, so the snapshot read is complete and validated (a row
-  count is checked); what stays out of reach is your setup history (see below).
+  no "All domains" option — the parameter list of a **screenshot-onboarded** car is read from a
+  **catalog snapshot** the skill keeps at the bottom of that car's page, written by the same
+  connector that does every other write. The connector *can* fetch a page body in full, so the
+  snapshot read is complete and validated (a row count is checked); what stays out of reach is
+  your setup history (see below).
 
 Why the read token stays **read-only**: it sits in plaintext on your Config page, so even if it
 leaked it could only *read* the data you connected it to. A direct REST *write* would be marginally
@@ -743,23 +781,26 @@ The REST read path needs the code sandbox to reach `api.notion.com`, and that ta
 On Free, egress is capped at package managers and there is no switch to flip. That's not a
 configuration problem to fix; it's the plan.
 
-The skill still works on Free. Every catalog write also leaves an auto-maintained **catalog
-snapshot** at the bottom of the car's Notion page, and reads fall back to it. What that costs
-you:
+The skill still works on Free. **For the bundled cars this changes nothing at all**: their
+parameters live in the skill, so they need no token, no network and no snapshot. What follows is
+about cars you onboarded from **screenshots** — and about your setup history, which affects every
+car. Every catalog write leaves an auto-maintained **catalog snapshot** at the bottom of the car's
+Notion page, and reads fall back to it. What that costs you:
 
-- **Reads use the snapshot, not the live table.** Hand-edits to `Parameters` rows in Notion —
-  filling `Discrete steps`, fixing a range — aren't visible until the next catalog write
-  refreshes the snapshot. The skill tells you the snapshot's date whenever it reads one.
+- **Reads use the snapshot, not the live table** (screenshot-onboarded cars). Hand-edits to
+  `Parameters` rows in Notion — filling `Discrete steps`, fixing a range — aren't visible until
+  the next catalog write refreshes the snapshot. The skill tells you the snapshot's date whenever
+  it reads one.
 - **No setup history.** Saved setups can't be read back: builds aren't personalized from the
   setups you've rated, and a stored game-default baseline can't be reused — you'll be asked to
   screenshot the default again. Anything captured in the current chat works normally.
 - **Skip the read-only token setup.** The token only feeds the REST path, which can't run on
   Free. Nothing to configure.
-- **Cars onboarded by an older skill version have no snapshot yet.** One-time fix, right from
-  Free: *"refresh the catalog snapshot for the {car}"* — instant for the bundled cars (the
-  template ships with the skill), or paste the car's `Parameters` table from Notion for one you
-  onboarded from screenshots. It touches nothing else. Any setup-saving run on a plan with
-  egress also backfills it automatically.
+- **Screenshot-onboarded cars from an older skill version have no snapshot yet.** One-time fix,
+  right from Free: *"refresh the catalog snapshot for the {car}"* — paste the car's `Parameters`
+  table from Notion when asked. It touches nothing else. Any setup-saving run on a plan with
+  egress also backfills it automatically. For a bundled car the same command is instant, since
+  the template ships with the skill.
 
 On Pro or Max, set **Network egress → All domains** (install step 2) and none of this applies.
 
@@ -777,11 +818,11 @@ On Pro or Max, set **Network egress → All domains** (install step 2) and none 
   apply to one that's already open. On **Free** that option doesn't exist and reads use the
   catalog snapshot instead — by design (see
   [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)).
-- **"No catalog snapshot" on Free** → the car was onboarded by an older skill version. Say
-  *"refresh the catalog snapshot for the {car}"* — it writes the snapshot and touches nothing
-  else (your setups stay put). For the bundled cars it's instant, straight from the shipped
-  template; for a car you onboarded from screenshots, paste its `Parameters` table from Notion
-  when asked.
+- **"No catalog snapshot" on Free** → a car you onboarded **from screenshots** on an older skill
+  version. Say *"refresh the catalog snapshot for the {car}"* and paste its `Parameters` table
+  from Notion when asked — it writes the snapshot and touches nothing else (your setups stay
+  put). A car that came from a bundled template doesn't need one to be readable; the same command
+  writes it instantly anyway, straight from the shipped template.
 - **Hitting limits on Free** → the workflows run several steps; Pro has more headroom.
 - **A value looks slightly "off"** → expected for continuous settings; dial to the nearest in-game
   position. To force exact values, fill `Discrete steps`.
