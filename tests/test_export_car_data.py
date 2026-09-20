@@ -439,14 +439,32 @@ class GameVersion(unittest.TestCase):
 
 from export_car_data import (THEME_KEY, build_index_json, prune,  # noqa: E402
                              render_car_page, render_index_page, render_redirect_page,
-                             write_car_pages)
+                             render_sitemap, write_car_pages)
 
 
 class RenderPages(unittest.TestCase):
     def test_car_page_bakes_in_name_for_search(self):
+        # the game spelt out, because that is what people search; ACR is only its short form
         html = render_car_page('lancia-stratos', 'Lancia Stratos HF')
-        self.assertIn('<title>Lancia Stratos HF — ACR Car Lab</title>', html)
+        self.assertIn('<title>Lancia Stratos HF gearing — Assetto Corsa Rally</title>', html)
         self.assertIn('<h1>Lancia Stratos HF</h1>', html)
+
+    def test_car_page_says_what_the_site_is_under_the_name(self):
+        # app.js builds a line under the h1, but it is the car's numbers, and a crawler
+        # reads neither it nor the app: what the site does has to be in the served HTML
+        html = render_car_page('lancia-stratos', 'Lancia Stratos HF')
+        self.assertIn('<h1>Lancia Stratos HF</h1>\n'
+                      '    <p class="sub">Gearing calculator for Assetto Corsa Rally</p>',
+                      html)
+        self.assertIn('content="Gearing calculator for the Lancia Stratos HF in Assetto '
+                      'Corsa Rally: gear ratios, final drive and power, read from the game '
+                      'files."', html)
+
+    def test_an_indexable_page_canonicals_to_itself(self):
+        # the power-unit query and the state hash must not read as pages of their own
+        for html in (render_car_page('lancia-stratos', 'Lancia Stratos HF'),
+                     render_index_page([{'slug': 'x', 'name': 'X'}])):
+            self.assertIn('<link rel="canonical" href="./">', html)
 
     def test_car_page_names_its_own_slug_for_the_app_to_read(self):
         html = render_car_page('lancia-stratos', 'Lancia Stratos HF')
@@ -478,8 +496,8 @@ class RenderPages(unittest.TestCase):
         # the count is whatever was exported, never a claim about the whole game
         cars = [{'slug': f's{i}', 'name': f'Car {i}'} for i in range(3)]
         html = render_index_page(cars)
-        self.assertIn('<h1>3 cars, gear by gear</h1>', html)
-        self.assertIn('charts for 3 cars in', html)
+        self.assertIn('<h1>Gearing calculator for Assetto Corsa Rally</h1>', html)
+        self.assertIn('for 3 cars, read from the game files.', html)
         self.assertNotIn('every car', html.lower())
 
     def test_index_page_links_every_car(self):
@@ -488,6 +506,38 @@ class RenderPages(unittest.TestCase):
         self.assertIn('href="lancia-stratos/gears/"', html)
         self.assertNotIn('href="lancia-stratos/"', html)
         self.assertIn('Lancia Stratos HF', html)
+
+
+class Sitemap(unittest.TestCase):
+    """sitemap.xml is written from the same car list as the picker, in the same run, so a
+    car cannot be exported without being listed or pruned without leaving."""
+
+    CARS = [{'slug': 'lancia-stratos', 'name': 'Lancia Stratos HF'},
+            {'slug': 'audi-quattro-gr4-1981', 'name': 'Audi Quattro Gr.4 1981'}]
+
+    def test_it_lists_the_picker_and_every_car_gearing_page(self):
+        xml = render_sitemap(self.CARS)
+        base = 'https://fredmayor88.github.io/acr-car-lab/'
+        self.assertIn(f'<loc>{base}</loc>', xml)
+        for c in self.CARS:
+            self.assertIn(f'<loc>{base}' + c['slug'] + '/gears/</loc>', xml)
+        self.assertEqual(xml.count('<url>'), len(self.CARS) + 1)
+
+    def test_it_leaves_out_the_forward_and_the_drivetrain_pages(self):
+        # <slug>/ canonicals to gears/, and a drivetrain page is noindex
+        xml = render_sitemap(self.CARS)
+        self.assertNotIn('acr-car-lab/lancia-stratos/</loc>', xml)
+        self.assertNotIn('drivetrain', xml)
+
+    def test_the_cars_are_in_slug_order(self):
+        # the site's own test reads its directories, and that is the order it gets
+        xml = render_sitemap(self.CARS)
+        self.assertLess(xml.index('audi-quattro'), xml.index('lancia-stratos'))
+
+    def test_it_is_built_against_the_base_the_car_templates_link_to(self):
+        # one base for both, so a move cannot leave the templates pointing somewhere else
+        import extract_car_catalog as E
+        self.assertIn(f'<loc>{E.CAR_LAB_BASE}</loc>', render_sitemap([]))
 
 
 class RedirectStub(unittest.TestCase):

@@ -32,6 +32,9 @@ import calibration as CAL                                         # noqa: E402
 import drivetrain_page as DP                                      # noqa: E402
 from extract_torque_curves import (CAR_MAP as CURVE_CARS,         # noqa: E402
                                    parse_rich_curve, summarise)
+# The site's public base, the same constant the car templates' gearing_tool links are
+# built from. sitemap.xml is written against it, so it has to be where the site is served.
+from extract_car_catalog import CAR_LAB_BASE as SITE              # noqa: E402
 
 # Only the surfaces that resolve to a real tyre asset. MontecarloStudded is excluded:
 # DA_PirelliTM00Studded does not exist under the name DT_Wheels gives it.
@@ -295,6 +298,10 @@ THEME_BUTTON = (f'<button class="theme" type="button"><span class="to-dark">{MOO
 # picker link go through it, so moving the page again is one change here.
 CAR_PAGE_DIR = 'gears'
 CAR_ROOT = '../../'
+# What the site is, in the served HTML of every page that may be indexed. A car page's h1
+# is the car, and the line app.js builds under it is the car's numbers, so without this
+# nothing a crawler reads says what the site does. The picker's h1 is this line itself.
+TAGLINE = 'Gearing calculator for Assetto Corsa Rally'
 # The car's drivetrain notes: a static page beside gears/, built by drivetrain_page.py.
 DRIVETRAIN_PAGE_DIR = 'drivetrain'
 # The drivetrain pages are generated and kept current, but not linked from anywhere on the site
@@ -315,9 +322,10 @@ CAR_PAGE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {theme_head}
-<title>{name} — ACR Car Lab</title>
-<meta name="description" content="Gearing, final drive and power for the {name} in \
-Assetto Corsa Rally.">
+<title>{name} gearing — Assetto Corsa Rally</title>
+<meta name="description" content="Gearing calculator for the {name} in Assetto Corsa \
+Rally: gear ratios, final drive and power, read from the game files.">
+<link rel="canonical" href="./">
 <link rel="stylesheet" href="{root}app.css">
 <link rel="icon" href="{root}favicon.svg" type="image/svg+xml">
 <link rel="icon" href="{root}favicon-32.png" sizes="32x32" type="image/png">
@@ -335,6 +343,7 @@ Assetto Corsa Rally.">
       {drivetrain_crumb}{theme_button}
     </div>
     <h1>{name}</h1>
+    <p class="sub">{tagline}</p>
   </header>
   <p class="loading">Loading…</p>
 </div>
@@ -365,9 +374,10 @@ INDEX_PAGE = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 {theme_head}
-<title>ACR Car Lab</title>
-<meta name="description" content="Interactive gearing and power charts for {count} cars in \
-Assetto Corsa Rally.">
+<title>{tagline} — ACR Car Lab</title>
+<meta name="description" content="{tagline}: gear ratios, final drive and power for \
+{count} cars, read from the game files.">
+<link rel="canonical" href="./">
 <link rel="stylesheet" href="app.css">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
@@ -382,7 +392,7 @@ Assetto Corsa Rally.">
       <span class="brand">ACR <b>Car Lab</b></span>
       {theme_button}
     </div>
-    <h1>{count} cars, gear by gear</h1>
+    <h1>{tagline}</h1>
     <p class="sub">Gearing, final drive and power, read from the game files.</p>
   </header>
   <ul class="carlist">
@@ -396,6 +406,15 @@ Assetto Corsa Rally.">
 </body></html>
 """
 
+
+# The picker and one gearing page per car, and nothing else: the forward at <slug>/
+# canonicals to gears/, and a drivetrain page is noindex. Crawlers ignore the order, so
+# it is by slug, which is the order the site's own test reads the directories in.
+SITEMAP = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{urls}
+</urlset>
+"""
 
 DRIVETRAIN_SECTION = """  <section class="dtlist">
     <h2>Drivetrain notes</h2>
@@ -417,6 +436,7 @@ def render_car_page(slug, name, publish_drivetrain=None):
     crumb = (CRUMB_SEP + '\n      ' + DRIVETRAIN_CRUMB + '\n      '
              if publish_drivetrain else '')
     return CAR_PAGE.format(slug=_html.escape(slug), name=safe, root=CAR_ROOT,
+                           tagline=TAGLINE,
                            theme_head=THEME_HEAD, theme_button=THEME_BUTTON,
                            brand_link=BRAND_LINK.format(root=CAR_ROOT), sep=CRUMB_SEP,
                            all_cars=ALL_CARS_CRUMB.format(root=CAR_ROOT),
@@ -553,7 +573,17 @@ def render_index_page(cars, publish_drivetrain=None):
     section = (DRIVETRAIN_SECTION.format(drivetrain_items=drivetrain_items)
                if publish_drivetrain else '')
     return INDEX_PAGE.format(items=items, drivetrain_section=section, count=len(cars),
-                             theme_head=THEME_HEAD, theme_button=THEME_BUTTON)
+                             tagline=TAGLINE, theme_head=THEME_HEAD,
+                             theme_button=THEME_BUTTON)
+
+
+def render_sitemap(cars):
+    """sitemap.xml: the picker, then every car's gearing page, as absolute URLs. A car
+    added to the export is added here in the same run, so the two cannot drift."""
+    slugs = sorted(c['slug'] for c in cars)
+    urls = [SITE] + [f'{SITE}{slug}/{CAR_PAGE_DIR}/' for slug in slugs]
+    return SITEMAP.format(
+        urls='\n'.join(f'  <url><loc>{_html.escape(u)}</loc></url>' for u in urls))
 
 
 def car_record(paks, slug, tmp):
@@ -792,6 +822,9 @@ def main():
         with open(os.path.join(out, 'index.html'), 'w',
                   encoding='utf-8', newline='\n') as fh:
             fh.write(render_index_page(cars))
+        with open(os.path.join(out, 'sitemap.xml'), 'w',
+                  encoding='utf-8', newline='\n') as fh:
+            fh.write(render_sitemap(cars))
         for p in pruned:
             print(f'  -- pruned {p}')
         for f in failed:
