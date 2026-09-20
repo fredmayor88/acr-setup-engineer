@@ -36,9 +36,9 @@ parameters:
     adjustment: "Gear Set"
     order: 1010
     min: 1
-    max: 1
+    max: 2
     unit: ""
-    discrete_steps: "1"
+    discrete_steps: "1, 2"
 
   - section: "Suspensions"
     adjustment: "Adjuster Ring Front"

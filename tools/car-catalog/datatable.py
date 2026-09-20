@@ -10,9 +10,14 @@ from collections import Counter
 
 
 def _fnames(pkg, blob):
-    """Every (offset, name index, number) that parses as an FName, in file order."""
+    """Every (offset, name index, number) that parses as an FName, in file order.
+
+    `<=`, not `<`: these tables end flush with their last FName, so a scan that stops
+    eight bytes short of the end drops the last row's last value. In the gears lists the
+    last row is the 206 WRC, which lost a primary gear and one ratio per differential.
+    """
     out, o = [], 0
-    while o < len(blob) - 8:
+    while o <= len(blob) - 8:
         idx, num = struct.unpack_from('<II', blob, o)
         if idx < len(pkg.names) and num < 4096:
             out.append((o, idx, num)); o += 8

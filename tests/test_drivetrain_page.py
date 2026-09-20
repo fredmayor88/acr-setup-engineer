@@ -348,8 +348,12 @@ class Pages(unittest.TestCase):
             with self.subTest(car=slug):
                 self.assertNotIn(' run', text)            # no experiments in the facts
         self.assertIn('fixed at 4.231, no selectable ratio', facts[FABIA])
-        self.assertIn('replaces the gear set\'s own primary (20//25). The gearing page starts on '
-                      '21//24.', facts[P206])
+        # The 206 reads like the Stratos now. It used to take primary_text's other branch —
+        # its gear sets are fitted with 20//25, which the published list did not carry until
+        # the table reader stopped dropping each table's last value.
+        self.assertIn('The Primary Gear you pick replaces the gear set\'s own primary.',
+                      facts[P206])
+        self.assertIn('21//24, 22//24, 21//25, 20//25', facts[P206])
         self.assertIn('The Primary Gear you pick replaces the gear set\'s own primary.',
                       facts[STRATOS])
         self.assertIn('No Primary Gear setting', facts[MINI])
