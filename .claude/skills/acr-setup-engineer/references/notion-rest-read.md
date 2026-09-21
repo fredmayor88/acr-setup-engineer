@@ -198,8 +198,9 @@ the skill reads that car's template file instead — always, egress or not. To r
    export), confirm nothing was edited since — see `export-car-template.md` step 1.
 
 **No snapshot on the page** (screenshot car onboarded by an older skill version): rung 3 above — and
-offer the fix in the same breath: `refresh-catalog-snapshot.md` writes the snapshot and nothing
-else, and works even without egress (the user pastes the car's `Parameters` table from Notion).
+offer the fix in the same breath: *"refresh the {Car} in my Notion"* writes the snapshot
+(`refresh-catalog-snapshot.md`) and works even without egress (the user pastes the car's
+`Parameters` table from Notion).
 Re-onboarding also writes it, as does any setup-saving run on a plan with egress
 (`notion-structure.md` → *Backfill*).
 

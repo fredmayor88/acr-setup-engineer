@@ -20,9 +20,10 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 {car} to Notion".
 
 **Refreshing an already-onboarded car:** "refresh the {car} in my Notion", "update the {car}",
-"re-onboard the {car}", "bring the {car} up to date". A refresh request that names the **car**
-lands here — **not** in `refresh-catalog-snapshot.md`, which is only for a request that names the
-**snapshot** itself.
+"re-onboard the {car}", "bring the {car} up to date" — and the snapshot phrases too: "refresh the
+catalog snapshot for the {car}", "make the {car} readable on Free". There is no separate snapshot
+command any more: a refresh writes the snapshot as part of the car (step 4), and
+`refresh-catalog-snapshot.md` is only the procedure this path and the read path call internally.
 
 **Re-onboarding an already-onboarded car from screenshots:** "onboard the {car} from my
 screenshots", "re-onboard the {car} from screenshots", "onboard the {car} from screenshots
@@ -86,18 +87,35 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
      the rows are there**; the line is about what is no longer used either way. A car whose page
      already carried a source line gets no such line — it was onboarded by a version that never
      wrote those rows.
-   - **Refreshing a screenshot car** (its `Catalog source:` line says `your screenshots`) — there
-     is no template to refresh it from, so this whole path has nothing to do. If **no**
-     `car-templates/` file matches the car, say so in one line — *"The {Car} was onboarded from
-     your screenshots, so there's no template to refresh it from. Your `Parameters` rows are its
-     catalog and they're untouched."* — and stop, apart from steps 1, 2 and 5 (the layout
-     migration, the `Feedback` → `Log` rename, and creating a missing `Guidelines`/`Log`), which
-     are about the car's pages rather than its catalog and still apply.
-     If a template **does** now match the car, offer the switch in one line: refreshing from it
-     makes this a template car, so its legal values come from the bundled file from then on — and
-     say what happens to their rows: **nothing**, they stay in Notion, simply unread. **Only on
-     the user's yes**, in which case run steps 3–6 as a template car. On a no, leave the car
-     exactly as it is.
+   - **Refreshing a screenshot car** (its `Catalog source:` line says `your screenshots`) — decide
+     by **game version**: the version on its source line (what the user gave when they captured
+     it, or `unknown`) against the `version:` of a `car-templates/` file that matches the car.
+     Compare them as version numbers (`0.10` is newer than `0.9`). A screenshot car's
+     `Parameters` rows only earn their keep when no template exists or the template is behind the
+     user's game — so the template wins whenever it is at least as new:
+     - **A template matches and its version is the same or newer** → **switch to the template, no
+       question.** Run steps 3–6 as a template car (its source line becomes `bundled template`)
+       and say it in one line: *"The {Car} now uses the bundled template (game version {template
+       version}) instead of your screenshots (game version {capture version}). Your `Parameters`
+       rows stay in Notion but aren't read any more. To go back, say 'onboard the {Car} from my
+       screenshots'."* **Never delete or edit the rows** — the connector can't list them reliably,
+       and they are the user's.
+     - **The capture version is `unknown`** → ask **once**, and recommend yes: *"The skill now has
+       a bundled template for the {Car} (game version {template version}). Switch to it? If you're
+       not sure, say yes — the template is kept up to date with the game, and your `Parameters`
+       rows stay in Notion either way."* Yes → as above. No → as the next bullet.
+     - **The capture is newer than the template, or no template matches** → keep the screenshots.
+       When a template exists, say in one line that it is behind the user's game version and offer
+       *"export the {Car} as a template"* (`export-car-template.md`) so their capture can go back
+       to the project. Then **bring the `Catalog snapshot` in line with the rows**, per
+       `refresh-catalog-snapshot.md` step 2 (screenshot car): a REST read when the chat can reach
+       Notion's API and has a token (`notion-rest-read.md` → *Offline mode*). Without one, **keep
+       a valid snapshot as it is** and add one line: *"If you've edited the {Car}'s `Parameters`
+       rows since {written_at}, paste them here and I'll update the snapshot."* Only a **missing
+       or invalid** snapshot starts the paste route straight away.
+     Steps 1, 2 and 5 (the layout migration, the `Feedback` → `Log` rename, and creating a
+     missing `Guidelines`/`Log`) apply whichever way this goes; they are about the car's pages,
+     not its catalog.
 5. **Leave the content of `Guidelines` and `Log` completely alone.** Never read-modify-write,
    append to, or reformat either. Create whichever is missing (`Guidelines` with its seed stub,
    `Log` with its maintenance line and nothing else); otherwise don't touch their content. `Log`
@@ -142,7 +160,7 @@ that can't be regenerated, so it is the only thing handled carefully:**
    a screenshot car's `Catalog` page is built during a refresh** (the old layout had none); the
    refresh's own step 3 doesn't apply to it. If the car's rows can't be read (no egress, no
    token), still create the page with its maintenance line, identity facts and source line, and
-   say the snapshot needs a later `refresh-catalog-snapshot.md` run.
+   say the snapshot needs a later refresh of the car (*"refresh the {Car} in my Notion"*).
 6. **Clear the old `{Car}` page body** so the umbrella page is empty and only the four children
    remain. **Don't delete the `{Car}` page itself** — it keeps its identity, its URL, and any
    links the user has to it.
@@ -455,7 +473,8 @@ guessing. Regenerating the skill's own data is free; losing the user's notes is 
 6. **Ensure the Notion structure exists (create-if-missing).** Per `notion-structure.md`,
    resolve **by name** and create whatever is missing: the `ACR Setup Engineer` root → the `Config`
    page (seed from `config-page-template.md` if missing — token blank; **never overwrite an
-   existing one**) → the `Parameters` and `Setups` DBs → the global `Tuning guidelines` page
+   existing one**) → the `Setups` DB → **the `Parameters` DB on the screenshot path only**, and
+   only if it doesn't exist yet (a template car never needs it) → the global `Tuning guidelines` page
    (seed it from `tuning-guidelines-template.md`) → the global `Parameter reference` page (seed its
    body from `parameter-reference-template.md`; **this page is auto-maintained — if it already
    exists, refresh its body by replacing it, don't append**, unlike the never-overwrite
@@ -644,7 +663,7 @@ guessing. Regenerating the skill's own data is free; losing the user's notes is 
    - **Fill the cells in Notion later** — always available, and the right call if they need to
      go look at the game first. **On a plan without egress, tell them the follow-up**: those
      edits live only in the rows, so the snapshot keeps serving the old values until they say
-     *"refresh the catalog snapshot for this car"* (`refresh-catalog-snapshot.md`). On a plan
+     *"refresh the {Car} in my Notion"* and paste the rows (refresh step 4). On a plan
      with egress nothing is needed — reads go to the live rows.
    **Parameters needing user action — call these out explicitly in three groups:**
    - *Component-name selections* (brake discs/calipers, engine/throttle map,

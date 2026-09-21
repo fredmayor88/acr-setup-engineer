@@ -9,19 +9,16 @@ from its bundled file either way, so its snapshot is a readable copy for the use
 
 Read `notion-structure.md` → *Catalog snapshot* (format + placement) before writing.
 
-## Trigger phrases
-"refresh the catalog snapshot", "add / create the catalog snapshot for {car}", "fix the
-snapshot", "make {car} readable on Free" — and arriving from `notion-rest-read.md`'s *No snapshot
-on the page* case.
+## When this runs — never as a user command
+There is **no user-facing snapshot command.** Every request about a car's snapshot — *"refresh
+the catalog snapshot for {car}"*, *"make {car} readable on Free"*, *"fix the snapshot"* — is a
+**car refresh** (`onboard-car.md` → *Refreshing an already-onboarded car*), which also brings the
+chart, the gearing link and the identity facts up to date and may switch a screenshot car to a
+newer bundled template. Writing only the snapshot for such a request would leave all that stale.
 
-**Not this workflow: a bare "refresh {car}".** *"Refresh the Lancia Stratos in my Notion"*,
-*"update the {car}"*, *"re-onboard {car}"* name the **car**, not the snapshot — the user wants
-everything static about it brought up to date (identity facts, the catalog source line, the
-power/torque chart and the gearing-tool link, the catalog itself **and** the snapshot). That's `onboard-car.md`'s
-refresh path; go there. This workflow is the **narrow** one, chosen only when the user names the
-*snapshot* itself or when a read path sent you here. Writing only the snapshot for a request that
-said "refresh the car" silently leaves the chart, the link and identity facts stale — the exact
-failure this note exists to prevent.
+This procedure is called from exactly two places:
+- **`onboard-car.md` refresh, step 4** — a screenshot car that keeps its screenshots.
+- **`notion-rest-read.md` → *No snapshot on the page*** — a read that found no valid snapshot.
 
 ## Inputs
 - **Car name** — must already be onboarded (it has a `{Car}` page with a `Catalog` child). If it

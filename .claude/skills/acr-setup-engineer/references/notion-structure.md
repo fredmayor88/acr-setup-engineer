@@ -14,9 +14,13 @@ across workspaces and self-healing:
    it if absent, seeded from [config-page-template.md](config-page-template.md)** (the integration
    setup instructions + an empty token line). **Never overwrite an existing `Config` page** — it
    may already hold the user's pasted token; leave its contents untouched.
-3. Also under the root: the **`Parameters`** DB, the **`Setups`** DB, the **`Tuning guidelines`**
-   page, the **`Parameter reference`** page, and the **`Locations`** catalogue page; create any
-   that are missing (schemas below). Unlike the other pages, **`Parameter reference` is
+3. Also under the root: the **`Setups`** DB, the **`Tuning guidelines`** page, the
+   **`Parameter reference`** page, and the **`Locations`** catalogue page; create any that are
+   missing (schemas below). The **`Parameters`** DB is created **only when a car is first
+   onboarded from screenshots** (`onboard-car.md` step 6) — a user with only bundled cars never
+   gets one. An existing `Parameters` DB is left as it is, empty or not. **No `Parameters` DB
+   means no screenshot cars**, so anything that would query it (a catalog read, the `--all` part
+   of a `SHOW` call) has nothing to do. Unlike the other pages, **`Parameter reference` is
    auto-maintained**: (re-)seed its body from `parameter-reference-template.md` on first create
    **and refresh it on skill updates** — it is not a user-editable layer (see its section below).
 4. Per car: the **`{Car}`** page with its filtered view. Per location/stage referenced by a setup:
@@ -65,8 +69,9 @@ batched with its other reads:
    `car-templates/` file matches its name, else **screenshot car**.
 
 A user who **declines** the bundled template at onboarding and uploads screenshots gets a car
-whose line says `your screenshots`: it is a screenshot car and stays one until they refresh it
-from the template (`onboard-car.md` → *Refreshing an already-onboarded car*).
+whose line says `your screenshots`: it is a screenshot car until a refresh finds a template at
+least as new as the game version on that line, and then it switches to the template on its own
+(`onboard-car.md` → *Refreshing an already-onboarded car*, step 4).
 
 **Legacy `Parameters` rows of a template car** — written by older skill versions, which populated
 the DB for bundled cars too — are **never read and never deleted**. They are simply out of the
@@ -146,7 +151,8 @@ ACR Setup Engineer (root page)
 ├── Config (page)              holds the read-only Notion API token; auto-created with setup
 │                               instructions, token blank until the user pastes it (see "Reading rows")
 ├── Parameters        (DB)     the catalog of SCREENSHOT-ONBOARDED cars — one row per
-│                               Car × Adjustment × Surface. Template cars have no rows here
+│                               Car × Adjustment × Surface. Template cars have no rows here.
+│                               Created on the first screenshot onboarding, not before
 ├── Setups            (DB)     one row per setup
 ├── Tuning guidelines (page)   global user preferences (seeded from the template)
 ├── Parameter reference (page) parameter glossary — verbatim in-game descriptions of every
@@ -967,9 +973,9 @@ snapshot reflects the result. That means:
 - `import-savegame.md` 5.2/5.3 — template auto-onboard.
 Build it from what **you already hold in the run** — the template rows for a template car
 (`load_catalog.py --snapshot`), the written rows for a screenshot car — never read the catalog
-back just to write the snapshot. (`refresh-catalog-snapshot.md` is the standalone version: it
-writes **only** the snapshot, for cars onboarded before it existed — with a paste path that needs
-no egress.)
+back just to write the snapshot. (`refresh-catalog-snapshot.md` is the internal procedure that
+writes **only** the snapshot — called by a screenshot car's refresh and by the read path, with a
+paste path that needs no egress. It is not a user command.)
 
 **Backfill — screenshot cars, missing only, never a diff.** When a run (a) holds a **fresh, full
 REST read** of a **screenshot** car's catalog, (b) has the fetched `Catalog` page in hand, (c) is

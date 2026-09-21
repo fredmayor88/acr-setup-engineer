@@ -306,7 +306,8 @@ list a database's rows. That needs a token.
   badges, `Engine`, `Max Power`, `Max Torque`, `Weight` and the drivetrain / gearbox /
   steering-lock icons. Optional, but it settles most of the car's facts in a single image.
   A car set up this way keeps its parameter list in the **`Parameters`** table in your Notion,
-  where you can edit it — same as before.
+  where you can edit it. That table is created the first time you onboard a car this way — if
+  all your cars came from bundled templates, you won't have one.
 
 Each car's Notion page says which of the two it used, on a **`Catalog source:`** line: the
 bundled template and its game version, or your screenshots and the game version you gave.
@@ -341,8 +342,16 @@ rows in your `Parameters` table. Those rows are **no longer read** — the templ
 is the car's parameter list now — so editing them there, for example changing a range or filling
 `Discrete steps`, no longer has any effect. The rows are never deleted either; you can leave them
 or delete them as you prefer, and a refresh of the car says so once. Cars you onboard from your
-own screenshots are unaffected: their rows in `Parameters` are still their parameter list, and
-editing them still works exactly as before.
+own screenshots keep their rows in `Parameters` as their parameter list, and editing them works
+as before — until a refresh finds a bundled template for the car:
+
+- **The template is for the same game version as your screenshots, or a newer one** → the car
+  switches to the template, and the refresh tells you so. Your rows stay in Notion, unread. To go
+  back, say *"onboard the {car} from my screenshots"*.
+- **Your screenshots are from a newer game version** → the car keeps your screenshots, and the
+  refresh offers to send your capture back to the project as a template.
+- **You didn't give a game version when you took the screenshots** → it asks once. If you're not
+  sure, say yes.
 
 **Contributing it back.** If your car had no bundled template, you've just built its catalog by
 hand — and you're the only person who can hand it to the next driver of that car. So at the end it
@@ -626,7 +635,8 @@ things back:
 ACR Setup Engineer (root page)
 ├── Config                  read-only API token + its setup instructions
 ├── Parameters       (DB)   the parameter list of cars you onboarded from screenshots —
-│                            one row per Car × Adjustment × Surface. Cars that came from a
+│                            one row per Car × Adjustment × Surface. Created the first time
+│                            you onboard a car from screenshots. Cars that came from a
 │                            bundled template have no rows here; their list is in the skill
 ├── Setups           (DB)   one row per setup
 ├── Tuning guidelines       your global preferences (editable)
@@ -794,7 +804,8 @@ Notion page, and reads fall back to it. What that costs you:
 - **Reads use the snapshot, not the live table** (screenshot-onboarded cars). Hand-edits to
   `Parameters` rows in Notion — filling `Discrete steps`, fixing a range — aren't visible until
   the next catalog write refreshes the snapshot. The skill tells you the snapshot's date whenever
-  it reads one.
+  it reads one. After editing rows, say *"refresh the {car} in my Notion"* and paste them when
+  asked.
 - **No setup history.** Saved setups can't be read back: setups you ticked `Learn from this`
   don't shape new builds, and a stored game-default baseline can't be reused — you'll be asked to
   screenshot the default again. Anything captured in the current chat works normally. The skill
@@ -802,10 +813,9 @@ Notion page, and reads fall back to it. What that costs you:
 - **Skip the read-only token setup.** The token only feeds the REST path, which can't run on
   Free. Nothing to configure.
 - **Screenshot-onboarded cars from an older skill version have no snapshot yet.** One-time fix,
-  right from Free: *"refresh the catalog snapshot for the {car}"* — paste the car's `Parameters`
-  table from Notion when asked. It touches nothing else. Any setup-saving run on a plan with
-  egress also backfills it automatically. For a bundled car the same command is instant, since
-  the template ships with the skill.
+  right from Free: *"refresh the {car} in my Notion"* — paste the car's `Parameters` table from
+  Notion when asked. It never touches your setups, your `Guidelines` or your `Log`. Any
+  setup-saving run on a plan with egress also backfills it automatically.
 
 On Pro or Max, set **Network egress → All domains** (install step 2) and none of this applies.
 
@@ -824,10 +834,9 @@ On Pro or Max, set **Network egress → All domains** (install step 2) and none 
   catalog snapshot instead — by design (see
   [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)).
 - **"No catalog snapshot" on Free** → a car you onboarded **from screenshots** on an older skill
-  version. Say *"refresh the catalog snapshot for the {car}"* and paste its `Parameters` table
-  from Notion when asked — it writes the snapshot and touches nothing else (your setups stay
-  put). A car that came from a bundled template doesn't need one to be readable; the same command
-  writes it instantly anyway, straight from the shipped template.
+  version. Say *"refresh the {car} in my Notion"* and paste its `Parameters` table
+  from Notion when asked. Your setups, `Guidelines` and `Log` stay as they are. A car that came
+  from a bundled template doesn't need a snapshot to be readable.
 - **Hitting limits on Free** → the workflows run several steps; Pro has more headroom.
 - **A value looks slightly "off"** → expected for continuous settings; dial to the nearest in-game
   position. To force exact values, fill `Discrete steps`.
