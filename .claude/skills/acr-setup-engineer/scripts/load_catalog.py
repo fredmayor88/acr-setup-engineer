@@ -19,11 +19,11 @@ Usage:
   # Validate values against the catalog (exit 3 when something is illegal):
   python scripts/load_catalog.py car-templates/<car>.yaml --check values.json [--surface Snow]
 
-  # The `Catalog snapshot` YAML body for the car's Notion Catalog page:
-  python scripts/load_catalog.py car-templates/<car>.yaml --snapshot
-
   # Human-readable listing (header fields + one line per row):
   python scripts/load_catalog.py car-templates/<car>.yaml --pretty
+
+  # A complete template YAML from REST-shaped rows (what onboarding / editing assemble):
+  python scripts/load_catalog.py --to-template rows.json
 
 Options:
   --surface S    Tarmac | Gravel | Snow. Resolve each Adjustment to the single row that
@@ -38,14 +38,17 @@ Options:
                  {"ok": [...], "problems": [...]}. A collapsed compound gear value
                  (`35//3033//28`, asterisks eaten by markdown) is repaired against the steps
                  and reported with "repaired": true (SKILL.md -> "A gear value with a `*` in it").
-  --snapshot     Print the `Catalog snapshot` YAML body (notion-structure.md ->
-                 *Catalog snapshot*), with today's date and the skill version resolved
-                 per SKILL.md -> *Skill version* (the bundled VERSION file; for the
-                 literal `dev`, `git describe --tags --always --dirty` in the skill's
-                 repo, else `dev`).
   --pretty       One line per row, for a human reading the output.
+  --to-template F  F is JSON: {"header": {...}, "rows": [...]}, rows in the REST read's
+                 Output shape and header any of the template header keys (car, game,
+                 save_ids, drivetrain, engine_layout, weight_bias, weight, max_power,
+                 max_torque, class, gearbox, steering_lock, version, source, forked_from).
+                 Prints a complete template YAML — the body of a car's `Parameters` page —
+                 adding written_at, skill_version and parameter_count. No template path.
 
 Exit codes: 0 success, 1 file/parse error, 2 usage error, 3 --check found problems.
+`parameter_count` in a template header is checked on load: it must equal the number of
+parameters found, or loading fails with exit 1.
 stdlib only (the code sandbox has no PyYAML). Output is always UTF-8, whatever the
 console locale is — the catalog carries `—` and `°`.
 """
@@ -58,13 +61,14 @@ import sys
 
 SURFACES = ('Tarmac', 'Gravel', 'Snow')
 
-# Flags taking no value. `--surface` and `--check` take one and are parsed separately.
-FLAGS = ('--snapshot', '--pretty')
+# Flags taking no value. `--surface`, `--check` and `--to-template` take one and are parsed
+# separately.
+FLAGS = ('--pretty',)
 
 # Template header fields this script reads. Everything else (engine_curve, save_ids, …) is
 # ignored: only top-level, column-0 keys count, so the indented keys inside engine_curve
 # (which include its own `source:`) can never be mistaken for header fields.
-HEADER_FIELDS = ('car', 'version', 'source', 'drivetrain', 'gearing_tool')
+HEADER_FIELDS = ('car', 'version', 'source', 'drivetrain', 'gearing_tool', 'parameter_count')
 
 # template parameter key -> the key name the REST read uses for it
 PARAM_KEYS = {
@@ -78,13 +82,21 @@ PARAM_KEYS = {
     'surface': 'Surface',
 }
 
-# Key order inside a snapshot row (notion-structure.md -> Catalog snapshot).
-SNAPSHOT_KEYS = ('Adjustment', 'Section', 'Surface', 'Min', 'Max', 'Unit',
-                 'Discrete steps', 'Order')
+# Template header keys, in the order export-car-template.md lists them, then the
+# bookkeeping keys this script adds.
+TEMPLATE_HEADER_ORDER = ('car', 'game', 'save_ids', 'drivetrain', 'engine_layout',
+                         'weight_bias', 'weight', 'max_power', 'max_torque', 'class',
+                         'gearbox', 'steering_lock', 'version', 'source', 'forked_from')
 
-# These snapshot values are always quoted, so a `*` in a compound gear value and a bare `—`
-# both survive the round trip through markdown and YAML.
-ALWAYS_QUOTED = ('Unit', 'Discrete steps')
+# REST-shape row key -> template parameter key, in template order.
+ROW_TO_TEMPLATE = (('Section', 'section'), ('Adjustment', 'adjustment'), ('Order', 'order'),
+                   ('Min', 'min'), ('Max', 'max'), ('Unit', 'unit'),
+                   ('Discrete steps', 'discrete_steps'), ('Surface', 'surface'))
+
+# These values are always quoted, so a `*` in a compound gear value and a bare `—` both
+# survive the round trip through markdown and YAML, and an ISO date isn't parsed back as a
+# YAML timestamp.
+ALWAYS_QUOTED = ('car', 'written_at', 'Unit', 'Discrete steps')
 
 
 def use_utf8_output():
@@ -180,6 +192,16 @@ def load_template(path):
 
     if not rows:
         fail(f'no parameters found in {path}')
+
+    declared = header.get('parameter_count')
+    if declared is not None:
+        try:
+            declared = int(declared)
+        except ValueError:
+            fail(f'parameter_count is not a number: {declared!r}')
+        if declared != len(rows):
+            fail(f'parameter_count says {declared} but the file has {len(rows)} parameters '
+                 f'— the page fetch may be truncated; re-fetch it')
     return header, rows
 
 
@@ -347,26 +369,37 @@ def yaml_scalar(key, value):
     return text
 
 
-def snapshot(header, rows):
-    """The `Catalog snapshot` YAML body (notion-structure.md -> Catalog snapshot)."""
-    today = datetime.date.today().isoformat()
-    out = [
-        f'car: {yaml_scalar("car", header.get("car", ""))}',
-        f'written_at: {today}',
-        f'skill_version: {skill_version()}',
-        f'source: bundled template v{header.get("version", "unknown")}',
-        f'row_count: {len(rows)}',
-        'rows:',
-    ]
-    for row in rows:
+def to_template(header, rows):
+    """A complete template YAML (the body of a car's `Parameters` page) from REST-shaped rows."""
+    out = []
+    for key in TEMPLATE_HEADER_ORDER:
+        if header.get(key) in (None, ''):
+            continue
+        value = header[key]
+        if key == 'save_ids':
+            ids = value if isinstance(value, list) else [value]
+            out.append('save_ids: [' + ', '.join(yaml_scalar('save_ids', v) for v in ids) + ']')
+        else:
+            out.append(f'{key}: {yaml_scalar(key, str(value))}')
+    out.append(f'written_at: {yaml_scalar("written_at", datetime.date.today().isoformat())}')
+    out.append(f'skill_version: {yaml_scalar("skill_version", skill_version())}')
+    out.append(f'parameter_count: {len(rows)}')
+    out.append('parameters:')
+
+    def sort_key(row):
+        order = row.get('Order')
+        return (order is None, order if order is not None else 0,
+                row.get('Adjustment', ''), 1 if row.get('Surface') else 0, row.get('Surface') or '')
+
+    for row in sorted(rows, key=sort_key):
         first = True
-        for key in SNAPSHOT_KEYS:
-            if key not in row or row[key] is None:
+        for src, dst in ROW_TO_TEMPLATE:
+            if src not in row or row[src] is None or (src == 'Surface' and not row[src]):
                 continue
             lead = '  - ' if first else '    '
-            out.append(f'{lead}{key}: {yaml_scalar(key, row[key])}')
+            out.append(f'{lead}{dst}: {yaml_scalar(src, row[src])}')
             first = False
-    return '\n'.join(out)
+    return '\n'.join(out) + '\n'
 
 
 def pretty(header, rows):
@@ -391,23 +424,26 @@ def pretty(header, rows):
 
 
 USAGE = ('usage: load_catalog.py <template.yaml> [--surface Tarmac|Gravel|Snow]\n'
-         '                       [--check values.json] [--snapshot] [--pretty]')
+         '                       [--check values.json] [--pretty]\n'
+         '       load_catalog.py --to-template rows.json')
 
 
 def main():
     use_utf8_output()
     args = sys.argv[1:]
-    positional, flags, surface, check_path = [], set(), None, None
+    positional, flags, surface, check_path, to_template_path = [], set(), None, None, None
     i = 0
     while i < len(args):
         a = args[i]
-        if a in ('--surface', '--check'):
+        if a in ('--surface', '--check', '--to-template'):
             if i + 1 >= len(args):
                 fail(f'{a} requires a value\n{USAGE}', 2)
             if a == '--surface':
                 surface = args[i + 1]
-            else:
+            elif a == '--check':
                 check_path = args[i + 1]
+            else:
+                to_template_path = args[i + 1]
             i += 2
             continue
         if a.startswith('--'):
@@ -417,6 +453,21 @@ def main():
         else:
             positional.append(a)
         i += 1
+
+    if to_template_path is not None:
+        if positional or flags or surface is not None or check_path is not None:
+            fail(f'--to-template takes no other arguments\n{USAGE}', 2)
+        try:
+            with open(to_template_path, encoding='utf-8') as fh:
+                payload = json.load(fh)
+        except OSError as exc:
+            fail(f'cannot read rows file: {exc}')
+        except json.JSONDecodeError as exc:
+            fail(f'rows file is not valid JSON: {exc}')
+        if not isinstance(payload, dict) or not isinstance(payload.get('rows'), list):
+            fail('rows file must be {"header": {...}, "rows": [...]}', 2)
+        print(to_template(payload.get('header') or {}, payload['rows']), end='')
+        sys.exit(0)
 
     if len(positional) != 1:
         fail(USAGE, 2)
@@ -439,10 +490,6 @@ def main():
         report = check_values(rows, values, surface)
         print(json.dumps(report, indent=2, ensure_ascii=False))
         sys.exit(3 if report['problems'] else 0)
-
-    if '--snapshot' in flags:
-        print(snapshot(header, rows))
-        sys.exit(0)
 
     if surface is not None:
         rows = resolve_for_surface(rows, surface)

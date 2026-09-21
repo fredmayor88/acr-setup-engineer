@@ -6,7 +6,7 @@ Its rows must come out in exactly the shape `references/notion-rest-read.md` -> 
 describes, so every downstream rule consumes them unchanged.
 
 The script itself is stdlib-only (it runs in the user's code sandbox, which has no PyYAML);
-this test may use PyYAML, and does, to prove the --snapshot output is real YAML.
+this test may use PyYAML, and does, to prove the --to-template output is real YAML.
 
 Run: python -m unittest discover -s tests
 """
@@ -284,40 +284,6 @@ class TestCheck(LoadCatalogTestCase):
         run(self.fixture, '--check', os.path.join(self._tmp.name, 'nope.json'), expect=1)
 
 
-class TestSnapshot(LoadCatalogTestCase):
-    def test_snapshot_parses_as_yaml_and_counts_its_rows(self):
-        out, err = run(STRATOS, '--snapshot')
-        self.assertEqual(err, '')
-        doc = yaml.safe_load(out)
-        self.assertEqual(doc['car'], 'Lancia Stratos HF 1976')
-        self.assertEqual(doc['source'], 'bundled template v0.6')
-        self.assertEqual(doc['row_count'], len(doc['rows']))
-        self.assertEqual(doc['row_count'], len(json.loads(run(STRATOS)[0])))
-        with open(os.path.join(SKILL, 'VERSION'), encoding='utf-8') as fh:
-            self.assertEqual(doc['skill_version'], fh.read().strip())
-
-    def test_snapshot_rows_mirror_the_rest_read_keys(self):
-        doc = yaml.safe_load(run(STRATOS, '--snapshot')[0])
-        for row in doc['rows']:
-            with self.subTest(adjustment=row.get('Adjustment')):
-                self.assertEqual(set(row) - REST_KEYS - {'Surface'}, set())
-                self.assertEqual(REST_KEYS - set(row) - {'Car'}, set())
-
-    def test_snapshot_keeps_the_compound_gear_asterisk(self):
-        raw = run(STRATOS, '--snapshot')[0]
-        self.assertIn('35//30*33//28', raw)
-        doc = yaml.safe_load(raw)
-        steps = next(r['Discrete steps'] for r in doc['rows'] if r['Adjustment'] == 'Primary Gear')
-        self.assertIn('35//30*33//28', steps)
-
-    def test_snapshot_quotes_the_em_dash_and_keeps_surface_rows(self):
-        doc = yaml.safe_load(run(self.fixture, '--snapshot')[0])
-        primary = next(r for r in doc['rows'] if r['Adjustment'] == 'Primary Gear')
-        self.assertEqual(primary['Min'], '—')
-        surfaced = [r for r in doc['rows'] if r.get('Surface') == 'Gravel']
-        self.assertEqual(len(surfaced), 1)
-
-
 class TestPrettyAndUsage(LoadCatalogTestCase):
     def test_pretty_prints_the_header_and_one_line_per_row(self):
         out, err = run(STRATOS, '--pretty')
@@ -334,7 +300,7 @@ class TestPrettyAndUsage(LoadCatalogTestCase):
     def test_an_unknown_flag_is_a_usage_error(self):
         """A typo must not quietly fall through to the default JSON output."""
         run(STRATOS, '--pretyy', expect=2)
-        run(STRATOS, '--snapshot', '--surfaces', 'Gravel', expect=2)
+        run(STRATOS, '--surfaces', 'Gravel', expect=2)
 
     def test_a_missing_template_exits_one(self):
         run(os.path.join(self._tmp.name, 'no-such-car.yaml'), expect=1)
@@ -362,13 +328,9 @@ class TestOutputEncoding(unittest.TestCase):
         out = self.raw(STRATOS)
         self.assertIn(self.EM_DASH, out.decode('utf-8'))
 
-    def test_snapshot_output_is_utf8(self):
-        out = self.raw(STRATOS, '--snapshot')
-        self.assertIn(self.EM_DASH, out.decode('utf-8'))
-
 
 class TestSkillVersionResolution(unittest.TestCase):
-    """`--snapshot` records the skill version per SKILL.md -> *Skill version*: the VERSION
+    """`--to-template` records the skill version per SKILL.md -> *Skill version*: the VERSION
     file when it holds a real version, and for the literal `dev` (an unreleased source
     checkout) a `git describe --tags --always --dirty` from the script's own repo, falling
     back to `dev` when git can't answer. None of this test needs git to succeed.
@@ -410,6 +372,127 @@ class TestSkillVersionResolution(unittest.TestCase):
                                         return_value='v0.18.0-3-gdbc15b1'):
             self.assertEqual(self.mod.skill_version(self.root_with('dev')),
                              'v0.18.0-3-gdbc15b1')
+
+
+class TestToTemplate(LoadCatalogTestCase):
+    """`--to-template rows.json` emits a complete template YAML from REST-shaped rows."""
+
+    def _rows_json(self, header=None, rows=None):
+        import tempfile
+        payload = {
+            'header': header if header is not None else {
+                'car': 'Test Car 1999', 'drivetrain': 'AWD', 'version': '0.6',
+                'source': 'screenshots', 'weight': '~1200 kg'},
+            'rows': rows if rows is not None else [
+                {'Adjustment': 'Spring Stiffness Front', 'Section': 'Suspensions', 'Min': 30000,
+                 'Max': 60000, 'Unit': 'N/m', 'Discrete steps': '30000, 45000, 60000',
+                 'Order': 2020, 'Car': 'Test Car 1999'},
+                {'Adjustment': 'Spring Stiffness Front', 'Section': 'Suspensions', 'Min': 20000,
+                 'Max': 40000, 'Unit': 'N/m', 'Discrete steps': '', 'Order': 2020,
+                 'Surface': 'Gravel', 'Car': 'Test Car 1999'},
+                {'Adjustment': 'Primary Gear', 'Section': 'Gearbox', 'Min': '—', 'Max': '—',
+                 'Unit': '', 'Discrete steps': '35//30*33//28, 33//28*32//31', 'Order': 1020,
+                 'Car': 'Test Car 1999'},
+            ]}
+        fd, path = tempfile.mkstemp(suffix='.json')
+        os.close(fd)
+        with open(path, 'w', encoding='utf-8') as fh:
+            json.dump(payload, fh, ensure_ascii=False)
+        self.addCleanup(os.remove, path)
+        return path
+
+    def _to_template(self, **kw):
+        out = subprocess.run([sys.executable, SCRIPT, '--to-template', self._rows_json(**kw)],
+                             capture_output=True, text=True, encoding='utf-8')
+        self.assertEqual(out.returncode, 0, out.stderr)
+        return out.stdout
+
+    def test_output_is_yaml_with_the_header_and_the_parameters(self):
+        doc = yaml.safe_load(self._to_template())
+        self.assertEqual(doc['car'], 'Test Car 1999')
+        self.assertEqual(doc['source'], 'screenshots')
+        self.assertEqual(doc['weight'], '~1200 kg')
+        self.assertEqual(doc['parameter_count'], 3)
+        self.assertEqual(len(doc['parameters']), 3)
+        self.assertRegex(doc['written_at'], r'^\d{4}-\d{2}-\d{2}$')
+        self.assertTrue(doc['skill_version'])
+
+    def test_parameters_are_sorted_by_order_baseline_before_surface(self):
+        doc = yaml.safe_load(self._to_template())
+        got = [(p['adjustment'], p.get('surface')) for p in doc['parameters']]
+        self.assertEqual(got, [('Primary Gear', None), ('Spring Stiffness Front', None),
+                               ('Spring Stiffness Front', 'Gravel')])
+
+    def test_round_trips_through_the_loader_to_the_same_rows(self):
+        import tempfile
+        text = self._to_template()
+        fd, path = tempfile.mkstemp(suffix='.yaml')
+        os.close(fd)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(text)
+        self.addCleanup(os.remove, path)
+        rows = json.loads(run(path)[0])
+        gear = next(r for r in rows if r['Adjustment'] == 'Primary Gear')
+        self.assertEqual(gear['Discrete steps'], '35//30*33//28, 33//28*32//31')
+        self.assertEqual(gear['Min'], '—')
+        gravel = next(r for r in rows if r.get('Surface') == 'Gravel')
+        self.assertEqual(gravel['Min'], 20000)
+        self.assertEqual({r['Car'] for r in rows}, {'Test Car 1999'})
+
+    def test_forked_from_is_carried_when_given(self):
+        doc = yaml.safe_load(self._to_template(header={
+            'car': 'Test Car 1999', 'version': '0.6', 'source': 'screenshots',
+            'forked_from': 'bundled template v0.6'}))
+        self.assertEqual(doc['forked_from'], 'bundled template v0.6')
+
+    def test_an_edited_copy_of_a_bundled_car_loads_to_the_same_rows_plus_the_edit(self):
+        # What edit-catalog.md does on a bundled car: load, change one row, --to-template, load.
+        import tempfile
+        rows = json.loads(run(STRATOS)[0])
+        target = next(r for r in rows if r['Adjustment'] == 'Spring Stiffness Front' and not r.get('Surface'))
+        target['Max'] = 99000
+        header = {'car': 'Lancia Stratos HF 1976', 'drivetrain': 'RWD', 'version': '0.6',
+                  'source': 'screenshots', 'forked_from': 'bundled template v0.6'}
+        text = self._to_template(header=header, rows=rows)
+        fd, path = tempfile.mkstemp(suffix='.yaml')
+        os.close(fd)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(text)
+        self.addCleanup(os.remove, path)
+        again = json.loads(run(path)[0])
+        self.assertEqual(len(again), len(rows))
+        self.assertEqual({r['Adjustment'] for r in again}, {r['Adjustment'] for r in rows})
+        edited = next(r for r in again if r['Adjustment'] == 'Spring Stiffness Front' and not r.get('Surface'))
+        self.assertEqual(edited['Max'], 99000)
+
+    def test_missing_rows_file_exits_one(self):
+        out = subprocess.run([sys.executable, SCRIPT, '--to-template', 'no-such.json'],
+                             capture_output=True, text=True, encoding='utf-8')
+        self.assertEqual(out.returncode, 1)
+
+
+class TestParameterCount(LoadCatalogTestCase):
+    def _with_count(self, n):
+        import tempfile
+        fd, path = tempfile.mkstemp(suffix='.yaml')
+        os.close(fd)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(f'parameter_count: {n}\n' + FIXTURE)
+        self.addCleanup(os.remove, path)
+        return path
+
+    def test_matching_count_loads(self):
+        rows = json.loads(run(self.fixture)[0])
+        out, _ = run(self._with_count(len(rows)))
+        self.assertEqual(len(json.loads(out)), len(rows))
+
+    def test_mismatched_count_exits_one_with_a_clear_message(self):
+        rows = json.loads(run(self.fixture)[0])
+        _, err = run(self._with_count(len(rows) + 5), expect=1)
+        self.assertIn(f'parameter_count says {len(rows) + 5} but the file has {len(rows)}', err)
+
+    def test_snapshot_flag_is_gone(self):
+        run(STRATOS, '--snapshot', expect=2)
 
 
 if __name__ == '__main__':
