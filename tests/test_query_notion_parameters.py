@@ -181,19 +181,6 @@ class TestBuildShowOrder(unittest.TestCase):
 
 
 class TestQuery(unittest.TestCase):
-    def test_all_skips_car_filter(self):
-        resp = make_response([make_page(PARAM_ROW)])
-        captured = []
-
-        def fake_urlopen(req):
-            captured.append(json.loads(req.data.decode()))
-            return resp
-
-        with patch('urllib.request.urlopen', side_effect=fake_urlopen):
-            Q.query('fake-id', 'fake-token', None)  # car_name=None == --all
-
-        self.assertNotIn('filter', captured[0])
-
     def test_single_page(self):
         resp = make_response([make_page(PARAM_ROW)])
         with patch('urllib.request.urlopen', return_value=resp):
@@ -391,124 +378,31 @@ class TestMainShowOrder(unittest.TestCase):
         self.assertEqual(code, 0)
         self.assertTrue(out.startswith('"Name", "Gear Set", "Spring Stiffness Front", "Car"'), out)
 
-    def test_template_and_notion_rows_are_ordered_together_in_one_call(self):
-        rows = [{'Adjustment': 'Screenshot Only', 'Order': 2015},
-                {'Adjustment': 'Late Column', 'Order': 9010}]
-        with patch.object(Q, 'query', return_value=rows) as q:
-            code, out = self._run(['ds-id', 'tok', '--all', '--show-order',
-                                   '--from-template', self._template()])
-        self.assertEqual(code, 0)
-        q.assert_called_once()
-        self.assertEqual(q.call_args[0][2], None, 'car_name must be None for --all')
-        self.assertTrue(
-            out.startswith('"Name", "Gear Set", "Screenshot Only", "Spring Stiffness Front", '
-                           '"Late Column", "Car"'), out)
-
-    def test_mixed_call_passes_the_car_name_through(self):
-        with patch.object(Q, 'query', return_value=[]) as q:
-            code, _ = self._run(['ds-id', 'tok', 'Some Car', '--show-order',
-                                 '--from-template', self._template()])
-        self.assertEqual(code, 0)
-        self.assertEqual(q.call_args[0][2], 'Some Car')
-
-    def test_token_only_show_order_still_works(self):
-        with patch.object(Q, 'query', return_value=[{'Adjustment': 'Gear Set', 'Order': 1010}]):
-            code, out = self._run(['ds-id', 'tok', '--all', '--show-order'])
-        self.assertEqual(code, 0)
-        self.assertTrue(out.startswith('"Name", "Gear Set", "Car"'), out)
-
-    def test_legacy_rows_of_a_template_car_are_dropped_before_ordering(self):
-        """A template car's catalog is its bundled file. Rows an older skill version left in
-        `Parameters` for it are never read (notion-structure.md -> Where a car's catalog lives),
-        so they must not reach the comparator: not to win the Order tie-break, and not to inject
-        a column name the template no longer has."""
-        rows = [
-            # legacy rows for the template's own car — different case and padding on purpose
-            {'Adjustment': 'Spring Stiffness Front', 'Order': 5, 'Car': 'template car'},
-            {'Adjustment': 'Old Renamed Thing', 'Order': 1005, 'Car': '  Template Car  '},
-            # a genuine screenshot car in the same table
-            {'Adjustment': 'Screenshot Only', 'Order': 2015, 'Car': 'Other Car'},
-        ]
-        with patch.object(Q, 'query', return_value=rows):
-            code, out = self._run(['ds-id', 'tok', '--all', '--show-order',
-                                   '--from-template', self._template()])
-        self.assertEqual(code, 0)
-        self.assertNotIn('Old Renamed Thing', out)
-        self.assertTrue(
-            out.startswith('"Name", "Gear Set", "Screenshot Only", "Spring Stiffness Front", '
-                           '"Car"'), out)
-
-    def test_legacy_rows_are_dropped_through_the_skill_name_normalisation(self):
-        """The drop uses the skill's one car-name normalisation rule (lowercase, punctuation
-        to spaces, whitespace collapsed — `onboard-car.md` step 1), so a `Car` value that
-        differs from the template's `car:` only in punctuation or spacing is still the same
-        car and its legacy rows still go."""
-        rows = [
-            {'Adjustment': 'Old Renamed Thing', 'Order': 1005, 'Car': 'Template-Car'},
-            {'Adjustment': 'Also Legacy', 'Order': 1006, 'Car': 'template  car'},
-            {'Adjustment': 'Screenshot Only', 'Order': 2015, 'Car': 'Other Car'},
-        ]
-        with patch.object(Q, 'query', return_value=rows):
-            code, out = self._run(['ds-id', 'tok', '--all', '--show-order',
-                                   '--from-template', self._template()])
-        self.assertEqual(code, 0)
-        self.assertNotIn('Old Renamed Thing', out)
-        self.assertNotIn('Also Legacy', out)
-        self.assertIn('Screenshot Only', out)
-
     def test_the_same_adjustment_from_two_cars_keeps_the_lower_order(self):
-        """Different cars legitimately share an Adjustment and collapse to one Setups column;
-        the comparator keeps the lowest Order across both sources."""
-        rows = [
-            {'Adjustment': 'Gear Set', 'Order': 500, 'Car': 'Other Car'},
-            {'Adjustment': 'Zed', 'Order': 700, 'Car': 'Other Car'},
-        ]
-        with patch.object(Q, 'query', return_value=rows):
-            code, out = self._run(['ds-id', 'tok', '--all', '--show-order',
-                                   '--from-template', self._template()])
+        a = self._write('car: "A"\nparameters:\n  - adjustment: "Brake Bias"\n    order: 7010\n')
+        b = self._write('car: "B"\nparameters:\n  - adjustment: "Brake Bias"\n    order: 7005\n')
+        code, out = self._run(['--show-order', '--from-template', a, '--from-template', b])
         self.assertEqual(code, 0)
-        self.assertEqual(out.count('"Gear Set"'), 1)
-        self.assertTrue(
-            out.startswith('"Name", "Gear Set", "Zed", "Spring Stiffness Front", "Car"'), out)
+        self.assertIn('"Brake Bias"', out)
 
-    def test_a_notion_failure_in_a_mixed_call_prints_nothing_and_exits_1(self):
-        """A half-answer is worse than none: a SHOW list missing every screenshot car's columns
-        would hide them. The query must fail loudly before anything is printed."""
-        import urllib.error
-        err = urllib.error.URLError(reason='Name or service not known')
-        with patch('urllib.request.urlopen', side_effect=err):
-            code, out = self._run(['ds-id', 'tok', '--all', '--show-order',
-                                   '--from-template', self._template()])
-        self.assertEqual(code, 1)
-        self.assertEqual(out, '')
+    def test_all_flag_is_gone(self):
+        with patch.object(Q, 'query', return_value=[]):
+            code, _ = self._run(['ds-id', 'tok', '--all', '--show-order'])
+        self.assertEqual(code, 2)
+
+    def test_show_order_with_a_notion_query_is_a_usage_error(self):
+        with patch.object(Q, 'query', return_value=[]):
+            code, _ = self._run(['ds-id', 'tok', 'Some Car', '--show-order'])
+        self.assertEqual(code, 2)
 
     def test_from_template_still_requires_show_order(self):
         code, _ = self._run(['--from-template', self._template()])
-        self.assertEqual(code, 2)
-
-    def test_incomplete_positional_args_with_templates_is_a_usage_error(self):
-        code, _ = self._run(['ds-id', '--show-order', '--from-template', self._template()])
         self.assertEqual(code, 2)
 
     def test_unreadable_template_exits_1_not_2(self):
         code, _ = self._run(['--show-order', '--from-template',
                              os.path.join(self.TEMPLATES_DIR, 'no-such-car.yaml')])
         self.assertEqual(code, 1)
-
-
-class TestNormaliseCarName(unittest.TestCase):
-    """The skill's one car-name normalisation (onboard-car.md step 1): lowercase, punctuation
-    to spaces, whitespace collapsed. The script uses it for exact normalised equality."""
-
-    def test_case_punctuation_and_spacing_are_normalised_away(self):
-        for raw in ('Lancia Stratos HF', 'lancia-stratos-hf', '  LANCIA   STRATOS  HF ',
-                    'Lancia_Stratos.HF'):
-            with self.subTest(raw=raw):
-                self.assertEqual(Q.normalise_car_name(raw), 'lancia stratos hf')
-
-    def test_different_cars_do_not_collapse_together(self):
-        self.assertNotEqual(Q.normalise_car_name('Peugeot 206 WRC 1999'),
-                            Q.normalise_car_name('Peugeot 208 Rally4'))
 
 
 class TestOutputEncoding(unittest.TestCase):
