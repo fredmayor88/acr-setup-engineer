@@ -274,9 +274,13 @@ The header keys appear in exactly that order (`TEMPLATE_HEADER_ORDER` in
   one**; it is filled in only when an observed save reveals the string. A file without it just
   matches by name.
 - `gearing_tool` / `power_torque_chart` / `engine_curve`: generated from the ACR game files by
-  `tools/gearing-charts` and `tools/torque-curves`, so **only bundled cars have them** — nothing
-  in this workflow can produce one. A file without them loads and onboards cleanly; the car page
-  just gets no chart and no gearing link.
+  `tools/gearing-charts` and `tools/torque-curves`, so they appear **only in bundled
+  `car-templates/*.yaml` files** — nothing in this workflow can produce one. They are **never in
+  a file stored on a car's `Parameters` page and never in an export**: `load_catalog.py
+  --to-template` does not emit them, and every workflow reads them from the matching bundled file
+  instead (`notion-structure.md` → *Engine chart and gearing tool*). A file without them loads
+  and onboards cleanly; a car with no matching bundled file just gets no chart and no gearing
+  link.
 - `forked_from` / `written_at` / `skill_version` / `parameter_count`: written only onto a car's
   `Parameters` page in Notion, as bookkeeping. `parameter_count` is checked on load — it must
   equal the number of entries, which is how a truncated fetch is caught. A shared template carries

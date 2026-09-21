@@ -75,7 +75,10 @@ Shared knowledge (read as needed):
   car's `Catalog` page, an `engine_curve:` block (peak torque, peak power, and the raw `[rpm, Nm]`
   points) to reason about gearing and shift points from, and a `gearing_tool:` link to the car's
   page in the ACR Car Lab (interactive speed-per-gear charts for every gear set, final drive and
-  rev limit). See `references/notion-structure.md` → *Engine chart and gearing tool*.
+  rev limit). **These three live only in bundled files and are read from the bundled file that
+  matches the car by name, whatever the car's `Catalog source:` line says** — a screenshot car
+  and a forked car get them from there too, never from their `Parameters` page. See
+  `references/notion-structure.md` → *Engine chart and gearing tool*.
 - `car-troubleshooting/` — bundled per-car **symptom→fix** knowledge, one markdown file per car
   (e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`), matched to the car the same way as a
   template (matched on the `car:` name by `references/onboard-car.md` step 1 →

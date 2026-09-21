@@ -294,15 +294,17 @@ ladder. These need to be noticed *while driving*, so they also go in the pre-dri
 Never reach top gear? That's fine and not a problem to fix — what matters is staying in the power
 band where the driving actually happens.
 
-**Use real numbers when the car has them.** If the car's bundled template carries an
-`engine_curve:` block, the "power band" isn't a guess: `peak_torque` and `peak_power` give the two
-rpm figures the answers above turn on, and `torque_points` is the whole curve if you need to see how
+**Use real numbers when the car has them.** Read the curve and the link from **the bundled
+`car-templates/*.yaml` file that matches the car**, whatever its `Catalog source:` line says —
+never from its `Parameters` page (`notion-structure.md` → *Engine chart and gearing tool*). If
+that bundled file carries an `engine_curve:` block, the "power band" isn't a guess:
+`peak_torque` and `peak_power` give the two rpm figures the answers above turn on, and `torque_points` is the whole curve if you need to see how
 flat or peaky it is between them. Quote those rpm when explaining a gearing change; it's far more
 use to the driver than "keep it in the power band". Where the band usefully *ends* is the driver's
-call, not a number to assert — show them the curve and let them decide. A car with no bundled
-template has no curve; then reason qualitatively, and say that's what you're doing. When the
+call, not a number to assert — show them the curve and let them decide. A car with no matching
+bundled file has no curve; then reason qualitatively, and say that's what you're doing. When the
 discussion turns to which **gear set or final drive** to run, give the user the car's
-`gearing_tool` link from its template so they can see every gear set's speed per gear themselves.
+`gearing_tool` link so they can see every gear set's speed per gear themselves.
 
 ## Fix-order ladder (major → fine)
 

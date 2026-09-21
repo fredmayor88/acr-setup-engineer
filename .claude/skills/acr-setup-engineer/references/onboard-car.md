@@ -62,16 +62,29 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
    it exactly. Two user-facing outcomes: if the page was renamed, **tell the user in one line that
    `Feedback` is now called `Log`**; if **both** `Log` and `Feedback` exist, leave both alone, say
    so, and ask what they want done with the old one.
-3. **Rebuild the `Catalog` page in full — a template car.** Maintenance line, identity facts, the
-   **catalog source line**, the power/torque chart and the gearing-tool link — as **one
+3. **Rebuild the `Catalog` page in full — every kind of car.** Maintenance line, identity facts,
+   the **catalog source line**, the power/torque chart and the gearing-tool link — as **one
    replacement** of the page body. Don't read the old values to compare them; don't ask about
-   anything; don't preserve edits. The page's own maintenance line says this will happen.
-   **For a screenshot car there is no template to rebuild the catalog from**, so the catalog side
-   of this step does not apply — go to step 4's screenshot-car bullet. One exception: a screenshot
-   car that step 1 has just **migrated** off the old one-page layout has no `Catalog` page yet, so
-   *Migration — old one-page car → four-page structure* step 5 builds it — identity facts and
-   the catalog source line (`your screenshots`). Migration builds the page once; a refresh of an
-   already-migrated screenshot car leaves it alone.
+   anything; don't preserve edits. The page is disposable and its own maintenance line says this
+   will happen. Two cases; on the page itself the only difference is the source line:
+   - **Template car** → write the `bundled template` source line (`notion-structure.md` →
+     *`Catalog` page*, item 2).
+   - **Screenshot car (a forked car counts as one)** → rebuild the page the same way, with its
+     source line **unchanged in kind**: the `your screenshots` format it already carries, same
+     game version (or the same `started from bundled template v{tv} on {YYYY-MM-DD}` for a forked
+     car). **Its catalog is not rebuilt** — there is no template to rebuild the parameter list
+     from — so **this step never touches its `Parameters` page**; what happens to its list is
+     step 4's screenshot-car bullets.
+
+   **The chart and the gearing-tool link come from the bundled file that matches the car in both
+   cases** — including a screenshot car that keeps its own list, whose `Catalog source:` line
+   says `your screenshots` (`notion-structure.md` → *Engine chart and gearing tool*). A car with
+   no matching bundled file gets neither.
+
+   One exception: a screenshot car that step 1 has just **migrated** off the old one-page layout
+   has no `Catalog` page yet, so *Migration — old one-page car → four-page structure* step 5
+   creates it with the same body this step writes; there is then nothing left for this step to
+   change.
 4. **The catalog.**
    - **Template car** → nothing to write: the file is in the skill. If the car's `Catalog` page
      had **no `Catalog source:` line** (an older version onboarded it), say once:
@@ -144,9 +157,11 @@ that can't be regenerated, so it is the only thing handled carefully:**
    `Parameters` page (run *Migration — catalog rows to the `Parameters` page* first when it has
    none). Nothing is carried over from the old page: identity facts, the catalog source line, the
    power/torque chart and the gearing-tool link are
-   all regenerated, and the linked view is recreated on the `Setups` page. **This is the one place
-   a screenshot car's `Catalog` page is built during a refresh** (the old layout had none); the
-   refresh's own step 3 doesn't apply to it.
+   all regenerated (the chart and the link from the bundled file that matches the car, whatever
+   the source line says — `notion-structure.md` → *Engine chart and gearing tool*), and the
+   linked view is recreated on the `Setups` page. **This is where a migrated screenshot car's
+   `Catalog` page is first created** (the old layout had none); it writes the same body the
+   refresh's own step 3 writes.
 6. **Clear the old `{Car}` page body** so the umbrella page is empty and only its child pages
    remain. **Don't delete the `{Car}` page itself** — it keeps its identity, its URL, and any
    links the user has to it.
@@ -322,7 +337,9 @@ whichever workflow first tries to load that car's catalog (the one write a read 
        If the template carries `power_torque_chart:` / `engine_curve:` / `gearing_tool:`
        (extracted from the game files, so no ladder applies), the chart and the gearing-tool link
        go on the car's `Catalog` page in step 7 and the curve is available to every later gearing
-       decision. An
+       decision. Those three stay in the bundled file and are always read from there, for this
+       car and for every other kind of car (`notion-structure.md` → *Engine chart and gearing
+       tool*). An
        optional `save_ids` field (the exact in-save car string, used only by save-file import to
        match the car) needs no action here — it doesn't affect the screenshot/template catalog;
        carry it through untouched.
@@ -588,13 +605,16 @@ whichever workflow first tries to load that car's catalog (the one write a read 
            `**Catalog source:** your screenshots — game version {the version the user gave in
            step 2, or `unknown`}`. Every later run reads this line to decide where the car's
            catalog comes from, so it is not optional;
-        4. **the power/torque chart, then the gearing-tool link** — the chart (when the template
+        4. **the power/torque chart, then the gearing-tool link** — both read from **the bundled
+           template that matches this car** (step 1 → *Matching a car name*), **even when the
+           car's catalog is its own `Parameters` page**: the chart (when that bundled template
            carries `power_torque_chart:`) via `notion-create-attachment` on its `source_url` then
-           an image block; the link (when the template carries `gearing_tool:`) as the plain
+           an image block; the link (when it carries `gearing_tool:`) as the plain
            paragraph line `Gearing tool: <link>` (`notion-structure.md` → *Engine chart and
-           gearing tool*, which carries the fallback and the exact link wording). A field the
-           template doesn't have is simply absent: skip that block, never invent one or borrow
-           another car's.
+           gearing tool*, which is the one place that says where these come from, plus the
+           fallback and the exact link wording). A field the bundled template doesn't have — or
+           no matching bundled template at all — is simply absent: skip that block, never invent
+           one or borrow another car's.
 
         **On a refresh this page is replaced wholesale** — one write, no reading the old body, no
         comparing, no asking. That is the entire point of the split.

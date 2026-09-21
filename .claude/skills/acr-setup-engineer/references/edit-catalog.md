@@ -58,10 +58,14 @@ that changes what values a car's parameter may take. (A request to change a **se
 6. **Write the page.** These sub-steps in order; don't skip 6.5.
 
    1. **Build `rows.json`**: `{"header": …, "rows": <the edited list>}`. For the header, **copy
-      every key above `parameters:` in the loaded file unchanged** — including `game`,
-      `save_ids`, `gearing_tool`, `power_torque_chart`, `engine_curve` and anything else that is
-      there — then apply the overrides below. Read those keys off the top of the file itself; the
-      loader prints rows only.
+      every key `--to-template` accepts, unchanged**, from the top of the loaded file: `car`,
+      `game`, `save_ids`, `drivetrain`, the identity facts (`engine_layout`, `weight_bias`,
+      `weight`, `max_power`, `max_torque`, `class`, `gearbox`, `steering_lock`), `version`,
+      `source`, and `forked_from` when the file already has one (a car forked by an earlier edit
+      keeps it) — then apply the overrides below. Read those keys off the top of the file itself;
+      the loader prints rows only. `gearing_tool`, `power_torque_chart` and `engine_curve` are
+      **not** copied — they stay in the bundled file, and every workflow reads them from there
+      (`notion-structure.md` → *Engine chart and gearing tool*).
       - **Template car (first edit — this forks it):** `source: "screenshots"`,
         `forked_from: "bundled template v{tv}"` where `{tv}` is the bundled file's `version:`.
       - **Screenshot car:** header unchanged, no overrides.
@@ -101,6 +105,9 @@ that changes what values a car's parameter may take. (A request to change a **se
       `**Catalog source:** your screenshots — started from bundled template v{tv} on {YYYY-MM-DD}`.
       **Without this the car still reads as a template car and the list you just wrote is never
       read again**, so it runs in **every** fork case, not just the one that created the page.
+      **The power/torque chart and the gearing-tool link are written exactly as a refresh writes
+      them — from the bundled file that matches this car, which is where they still live**
+      (`notion-structure.md` → *Engine chart and gearing tool*). Forking does not lose them.
 
 7. **A new `Adjustment`** → add its `Setups` value column (`onboard-car.md` step 7's
    *value-columns check*: Number for numeric, Select for `—`), then re-assert `SHOW`: on the

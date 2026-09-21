@@ -635,16 +635,19 @@ Then, in order:
 
    Write it on every `Catalog` page the skill builds or rebuilds. A car whose page predates it
    gets one on its next refresh; until then, rule 3 of *Where a car's catalog lives* decides.
-3. **The power/torque chart** — one image block, only when the car's bundled template carries a
-   `power_torque_chart:` URL. See *Engine chart and gearing tool* below.
+3. **The power/torque chart** — one image block, only when a bundled template matches the car
+   (even if the car's catalog is its own `Parameters` page) and carries a `power_torque_chart:`
+   URL. See *Engine chart and gearing tool* below, which is the one place that says which file
+   the chart, the link and the curve are read from.
 4. **Gearing tool link** — one plain paragraph line, right after the chart (or right after the
    catalog source line when there is no chart), reading `Gearing tool: <gearing_tool URL>`, the URL
    written as a markdown link whose text is `Gearing — {Car} (ACR Car Lab)` and whose target is
-   the template's `gearing_tool` value — e.g.
+   the matching bundled template's `gearing_tool` value — e.g.
    `Gearing tool: [Gearing — Lancia Stratos (ACR Car Lab)](https://fredmayor88.github.io/acr-car-lab/lancia-stratos/gears/)` —
    so it renders as a clickable link on a phone. Say in one sentence what the tool is: interactive
    speed-per-gear charts for every gear set, final drive and rev limit of this car, read from the
-   game files. Emit it only when the template has `gearing_tool:`; a car with no bundled template
+   game files. Emit it only when a bundled template matches the car (even if the car's catalog is
+   its own `Parameters` page) and has `gearing_tool:`; a car with no matching bundled template
    gets no link — never build the URL from the car name.
 
 ### `Log` page — shared; the skill only adds
@@ -740,7 +743,9 @@ block. Read by `catalog-read.md`; written by `onboard-car.md` (screenshot path),
 3. One ```` ```yaml ```` block: the file printed by
    `python scripts/load_catalog.py --to-template rows.json` — header (`car`, `drivetrain`, the
    identity facts, `version`, `source: "screenshots"`, `forked_from` for a forked car,
-   `written_at`, `skill_version`, `parameter_count`), then `parameters:`. **Never write this
+   `written_at`, `skill_version`, `parameter_count`), then `parameters:`. **Never
+   `gearing_tool`, `power_torque_chart` or `engine_curve`** — those stay in the bundled file and
+   are read from there (*Engine chart and gearing tool* below). **Never write this
    block by hand**: build `rows.json` from the rows in hand and use the script's output verbatim.
 
 **Rules:**
@@ -765,6 +770,17 @@ from `--show-order` on every write, per *Applying the order*.
 
 ### Engine chart and gearing tool
 
+**Where these three come from — one rule, for every car.** `gearing_tool:`,
+`power_torque_chart:` and the `engine_curve:` block describe the car's engine and gearing data,
+not its tunable ranges, and a user's edit never changes them. They live **only in bundled
+`car-templates/*.yaml` files** and are **never stored on a `Parameters` page** —
+`scripts/load_catalog.py --to-template` does not emit them. So every workflow that needs the
+chart, the gearing-tool link or the curve reads it from **the bundled file whose `car:` matches
+the car by name** (`onboard-car.md` step 1 → *Matching a car name*), **whatever the car's
+`Catalog source:` line says** — template car, screenshot car and forked car alike. A car with no
+matching bundled file has no chart, no link and no curve: skip them, never invent one and never
+borrow another car's.
+
 Every bundled `car-templates/*.yaml` carries an **`engine_curve:`** block holding peak torque,
 peak power, and the raw `[rpm, Nm]` points, read straight out of the ACR game files, so it
 describes **what the car actually makes in-game**, not a manufacturer brochure figure or a guess.
@@ -773,23 +789,23 @@ public repo. All 18 bundled templates carry a **`gearing_tool:`** URL — a link
 in the **ACR Car Lab**, the live interactive web tool (speed-per-gear for every gear set, final
 drive and rev limit, computed from the same game files).
 
-**Putting them on the `Catalog` page.** Attach the chart (when the template carries
-`power_torque_chart:`) and write the gearing-tool link line, **once**, when the identity facts
-are written — before the linked view exists, since `notion-create-view` appends to the end of
-the page. Do both (when present) in the same page update, **in this order**: the chart, then the
+**Putting them on the `Catalog` page.** Attach the chart (when the matching bundled template
+carries `power_torque_chart:`) and write the gearing-tool link line, **once**, when the
+identity facts are written — before the linked view exists, since `notion-create-view`
+appends to the end of the page. Do both (when present) in the same page update, **in this order**: the chart, then the
 link line.
 
 For the chart:
-1. **`notion-create-attachment`** with `source_url` = the template's `power_torque_chart:` URL
-   and `filename` = the last path segment (e.g. `lancia-stratos-power-torque.png`). Notion
-   downloads a copy, so the page keeps working if the URL ever moves.
+1. **`notion-create-attachment`** with `source_url` = the matching bundled template's
+   `power_torque_chart:` URL and `filename` = the last path segment
+   (e.g. `lancia-stratos-power-torque.png`). Notion downloads a copy, so the page keeps working if the URL ever moves.
 2. Put the returned **`markdown_source`** in the page update as an image block:
    `![Power and torque — {Car}](<markdown_source>)`.
 
 If the attachment call fails or isn't available, **fall back to embedding the URL directly** —
 `![Power and torque — {Car}](<power_torque_chart URL>)` — which renders the same, just hosted
-externally. If the car has no bundled template, there is no chart and no link at all; if it has
-one but has no `power_torque_chart:` (e.g. the Peugeot 206 WRC, which the game ships no engine
+externally. If no bundled template matches the car, there is no chart and no link at all; if one
+matches but has no `power_torque_chart:` (e.g. the Peugeot 206 WRC, which the game ships no engine
 curve for), skip **only the chart block** rather than inventing one, and **never** substitute a
 chart from a different car.
 
@@ -805,7 +821,8 @@ fact line is what the car is advertised as. Reason about gearing, shift points a
 for speed-per-gear questions.
 
 **Charts on a refresh: no per-chart bookkeeping.** The `Catalog` page is rebuilt wholesale, so
-the chart and the link line are simply re-emitted from whatever the template carries right now.
+the chart and the link line are simply re-emitted from whatever the matching bundled template
+carries right now.
 There is no "is this chart already there?" check and no appending below an existing block — a car
 onboarded before the gearing tool existed picks it up because the whole page is rewritten, not
 because anything went looking for what was missing.
