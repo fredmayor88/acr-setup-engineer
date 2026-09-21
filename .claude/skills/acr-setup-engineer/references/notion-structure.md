@@ -135,7 +135,8 @@ access to Notion* in `README.md`). The token lives on a **`Config`** page direct
 **auto-created** as part of the structure (create-if-missing, seeded from
 [config-page-template.md](config-page-template.md)) carrying the integration-setup instructions and
 an **empty token line** — so the page is normally present even before the user has pasted a token;
-the user only has to follow the on-page steps and paste. Treat its contents as a secret: never echo
+the user only has to follow the on-page steps and paste. In **offline mode** (no network,
+`notion-rest-read.md` → *Offline mode*) the skill doesn't read the token or ask for one. Treat its contents as a secret: never echo
 the token back, copy it into other pages, or include it in exports.
 
 ## Hierarchy
@@ -604,7 +605,8 @@ worst a wrong guess does is order one car's columns as if they came from the oth
 the next run self-heals. A car whose name matches no template and whose page you haven't read is
 a screenshot car, so the `--all` part is needed.
 
-**No token, or no network egress?** Run the template part on its own and tell the user in one
+**No token, or no network egress** (including offline mode, `notion-rest-read.md` → *Offline
+mode*)**?** Run the template part on its own and tell the user in one
 plain line: the columns of cars onboarded from screenshots keep their current position until a
 run with network access. Never drop the `SHOW` for that reason, and never hand-merge.
 

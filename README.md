@@ -795,9 +795,10 @@ Notion page, and reads fall back to it. What that costs you:
   `Parameters` rows in Notion — filling `Discrete steps`, fixing a range — aren't visible until
   the next catalog write refreshes the snapshot. The skill tells you the snapshot's date whenever
   it reads one.
-- **No setup history.** Saved setups can't be read back: builds aren't personalized from the
-  setups you've rated, and a stored game-default baseline can't be reused — you'll be asked to
-  screenshot the default again. Anything captured in the current chat works normally.
+- **No setup history.** Saved setups can't be read back: setups you ticked `Learn from this`
+  don't shape new builds, and a stored game-default baseline can't be reused — you'll be asked to
+  screenshot the default again. Anything captured in the current chat works normally. The skill
+  checks this once at the start of a chat and tells you in one line; it doesn't keep trying.
 - **Skip the read-only token setup.** The token only feeds the REST path, which can't run on
   Free. Nothing to configure.
 - **Screenshot-onboarded cars from an older skill version have no snapshot yet.** One-time fix,

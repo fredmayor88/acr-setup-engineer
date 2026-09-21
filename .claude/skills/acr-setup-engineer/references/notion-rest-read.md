@@ -107,6 +107,42 @@ So group the returned rows by `Adjustment`, then pick the surface-matching row i
 `Snow`, fall back to a `Gravel` row before the baseline), else the baseline. Most parameters have
 only the baseline row and resolve to it on every surface.
 
+## Offline mode — check the network once per chat
+**Before the first REST query in a chat**, run `python scripts/check_egress.py` at the start of
+that same code-execution block, and **let the block run the REST queries only when it printed
+`egress: ok`** — the queries sit behind the probe in one block, so the block must gate them itself
+(e.g. `python scripts/check_egress.py | grep -q "egress: ok" && python scripts/query_notion_parameters.py …`),
+while token-free work in the block (`load_catalog.py`, `--show-order --from-template`) runs either
+way. The probe prints `egress: ok` or `egress: none`, always exits 0, and takes 3 seconds at most. **Run it once per chat**: its answer holds for every later read and every
+later workflow in the chat — don't re-run it per read.
+
+- **`egress: ok`** → the normal path: token, REST query, and the ladder below if a query still
+  fails.
+- **`egress: none`** → **offline mode for the rest of the chat.** Run **no** REST query at all, and
+  don't fetch `Config` for a token or ask for one — a token can't help without network. Each read
+  goes straight to the rung it would have fallen back to anyway:
+  - every **`Setups` slice** (the learn pool, a stored default, any other) → **empty**, as rung 2
+    describes;
+  - a **screenshot car's `Parameters`** → its `Catalog snapshot` (*The catalog snapshot fallback*
+    below);
+  - **column order** → the template part only (`notion-structure.md` → *Applying the order*),
+    still pushed as `SHOW`.
+
+  Nothing else changes: template catalogs (`load_catalog.py`), every connector read and write,
+  and saving setups to Notion all work as usual.
+- **Tell the user once per chat, in plain words** — the first time offline mode changes what a
+  workflow does, never before each read, and never worded as an error:
+
+  > *This chat can't reach Notion's API. That's normal on Claude's Free plan. It means I can't
+  > read your saved setups, so the ones you ticked `Learn from this` won't shape this setup, and
+  > I can't reuse a stored game default. Everything else works, and new setups still save to
+  > Notion. (On Pro or Max you can turn this on: Settings → Capabilities → Network egress → All
+  > domains, then start a new chat.)*
+
+  Keep the `Learn from this` sentence whenever the workflow would have read the learn pool — it
+  is the part the user loses without noticing. For a **screenshot car**, add that its parameter
+  list comes from the `Catalog snapshot` and give the snapshot's `written_at`.
+
 ## When the REST query can't run — the fallback ladder
 **Template cars never enter this ladder for their catalog** — it is on disk, so there is nothing
 to fall back from (`load_catalog.py` needs no token and no egress). The ladder applies to a
@@ -118,8 +154,8 @@ and produces silently wrong setups. When the query can't run, walk this ladder i
 
 1. **No token available:** the `Config` page (auto-created with the structure) already carries the
    one-time setup steps — point the user there (or to "Give the skill read access to Notion" in
-   `README.md`), or have them paste a token for this chat. Then read. (Skip straight to rung 2
-   when the sandbox has no network — a token can't help then.)
+   `README.md`), or have them paste a token for this chat. Then read. (Never in offline mode —
+   *Offline mode* above: there, don't mention a token at all.)
 2. **Query errors / times out:** the usual cause is the code sandbox not being allowed outbound
    network to `api.notion.com` (egress is restricted by default — and on **Claude's Free plan it
    can't be widened at all**: the "All domains" egress setting doesn't exist there). Don't retry
@@ -135,7 +171,8 @@ and produces silently wrong setups. When the query can't run, walk this ladder i
 3. **Neither the query nor a valid snapshot is available:** surface the problem and stop the read
    — never assemble rows from search results, and never guess.
 
-Tell the user which path a read took whenever it isn't the REST query. On a plan **with** egress
+Tell the user which path a read took whenever it isn't the REST query (in offline mode, the one
+message in *Offline mode* above covers it). On a plan **with** egress
 control the fix is Settings → Capabilities → Network egress → **All domains**, then a **new chat**
 (settings changes don't apply to an already-open conversation).
 

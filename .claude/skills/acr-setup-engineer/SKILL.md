@@ -91,6 +91,9 @@ Bundled tools (stdlib Python, run via code execution):
   against the catalog — it **exits 3 with a JSON report when it finds anything illegal, which is
   the expected outcome, not a failed script**), `--snapshot` (the `Catalog snapshot` YAML body)
   and `--pretty`. Without `--surface`, `--check` uses each parameter's baseline row.
+- `scripts/check_egress.py` — once per chat, before the first REST query: prints `egress: ok` or
+  `egress: none`. On `none` the chat runs in **offline mode** — no REST query, no token request,
+  one plain line to the user (`references/notion-rest-read.md` → *Offline mode*).
 - `scripts/query_notion_parameters.py` — **screenshot cars** (`Parameters`) and every car's
   `Setups` slices: fetch a car's rows from a Notion data source via the REST API. It also builds
   every `Setups` view's column order with `--show-order`, from a bundled template
@@ -330,7 +333,9 @@ Bundled tools (stdlib Python, run via code execution):
   `python scripts/load_catalog.py car-templates/<slug>.yaml [--surface {Surface}]` — **no token,
   no network egress, no snapshot, on every plan**. A filtered slice of `Setups` is still read over
   REST for **every** car. For both REST reads follow `references/notion-rest-read.md` — the
-  connector can't list database rows reliably. When a REST query can't run (no egress), that doc's
+  connector can't list database rows reliably. **Check the network once per chat first**
+  (`scripts/check_egress.py`); on `egress: none` run no REST query at all for the rest of the chat
+  and tell the user once — that doc's *Offline mode*. When a REST query can't run, that doc's
   **fallback ladder** applies: a screenshot car's `Parameters` read uses that car's `Catalog` page
   snapshot; `Setups` reads proceed as empty and say so — never substitute connector row-listing,
   never guess. Which kind of car it is comes off the car's `Catalog` page `Catalog source:` line
