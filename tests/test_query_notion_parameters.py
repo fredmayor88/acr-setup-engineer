@@ -379,11 +379,25 @@ class TestMainShowOrder(unittest.TestCase):
         self.assertTrue(out.startswith('"Name", "Gear Set", "Spring Stiffness Front", "Car"'), out)
 
     def test_the_same_adjustment_from_two_cars_keeps_the_lower_order(self):
-        a = self._write('car: "A"\nparameters:\n  - adjustment: "Brake Bias"\n    order: 7010\n')
+        """One column, placed by the lowest `Order` any car gives it.
+
+        Car A puts `Brake Bias` at 7010 and `Handbrake` at 7008; car B puts `Brake Bias` at
+        7005. The merged list must name `Brake Bias` once, and before `Handbrake`.
+        """
+        a = self._write('car: "A"\nparameters:\n  - adjustment: "Brake Bias"\n    order: 7010\n'
+                        '  - adjustment: "Handbrake"\n    order: 7008\n')
         b = self._write('car: "B"\nparameters:\n  - adjustment: "Brake Bias"\n    order: 7005\n')
         code, out = self._run(['--show-order', '--from-template', a, '--from-template', b])
         self.assertEqual(code, 0)
-        self.assertIn('"Brake Bias"', out)
+        self.assertEqual(out.count('"Brake Bias"'), 1, out)
+        self.assertLess(out.index('"Brake Bias"'), out.index('"Handbrake"'), out)
+
+    def test_an_unknown_flag_is_a_usage_error(self):
+        """A typo must not quietly fall through, exactly as in load_catalog.py."""
+        code, _ = self._run(['--show-orders', '--from-template', self._template()])
+        self.assertEqual(code, 2)
+        code, _ = self._run(['--show-order', '--from-template', self._template(), '--pritty'])
+        self.assertEqual(code, 2)
 
     def test_all_flag_is_gone(self):
         with patch.object(Q, 'query', return_value=[]):

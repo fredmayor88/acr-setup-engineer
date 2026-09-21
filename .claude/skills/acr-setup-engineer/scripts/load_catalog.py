@@ -22,6 +22,9 @@ Usage:
   # Human-readable listing (header fields + one line per row):
   python scripts/load_catalog.py car-templates/<car>.yaml --pretty
 
+  # The file's header as one JSON object — the identity facts, ready to reuse:
+  python scripts/load_catalog.py car-templates/<car>.yaml --header
+
   # A complete template YAML from REST-shaped rows (what onboarding / editing assemble):
   python scripts/load_catalog.py --to-template rows.json
 
@@ -39,6 +42,16 @@ Options:
                  (`35//3033//28`, asterisks eaten by markdown) is repaired against the steps
                  and reported with "repaired": true (SKILL.md -> "A gear value with a `*` in it").
   --pretty       One line per row, for a human reading the output.
+  --header       Print the file's header as one JSON object instead of its rows: every
+                 template header key it carries (car, game, save_ids, drivetrain,
+                 engine_layout, weight_bias, weight, max_power, max_torque, class, gearbox,
+                 steering_lock, version, source, forked_from) plus written_at, skill_version
+                 and parameter_count when present. `save_ids` comes back as a JSON list,
+                 `parameter_count` as an int, everything else as a string. engine_curve,
+                 gearing_tool and power_torque_chart are never printed — they live only in
+                 the bundled file. The object is directly usable as the `header` of
+                 --to-template's rows.json, so no workflow ever retypes these keys. Takes no
+                 other option, and a file with no parameters still prints its header.
   --to-template F  F is JSON: {"header": {...}, "rows": [...]}, rows in the REST read's
                  Output shape and header any of the template header keys (car, game,
                  save_ids, drivetrain, engine_layout, weight_bias, weight, max_power,
@@ -63,7 +76,7 @@ SURFACES = ('Tarmac', 'Gravel', 'Snow')
 
 # Flags taking no value. `--surface`, `--check` and `--to-template` take one and are parsed
 # separately.
-FLAGS = ('--pretty',)
+FLAGS = ('--pretty', '--header')
 
 # Template header fields this script reads. Everything else (engine_curve, save_ids, …) is
 # ignored: only top-level, column-0 keys count, so the indented keys inside engine_curve
@@ -96,7 +109,15 @@ ROW_TO_TEMPLATE = (('Section', 'section'), ('Adjustment', 'adjustment'), ('Order
 # These values are always quoted, so a `*` in a compound gear value and a bare `—` both
 # survive the round trip through markdown and YAML, and an ISO date isn't parsed back as a
 # YAML timestamp.
-ALWAYS_QUOTED = ('car', 'written_at', 'Unit', 'Discrete steps')
+# `version` is quoted too: bare `0.6` parses back as a float, and a later `0.10` would come
+# back as `0.1` — the game version has to stay the exact string the car was captured on. So is
+# each `save_ids` entry, so a written list is spelled exactly as the bundled files spell it.
+ALWAYS_QUOTED = ('car', 'written_at', 'version', 'save_ids', 'Unit', 'Discrete steps')
+
+# The header keys `--header` prints, in output order: the keys `--to-template` accepts, then
+# the bookkeeping keys it adds.
+HEADER_OUTPUT_ORDER = TEMPLATE_HEADER_ORDER + ('written_at', 'skill_version',
+                                               'parameter_count')
 
 
 def use_utf8_output():
@@ -104,8 +125,8 @@ def use_utf8_output():
 
     The catalog is full of non-ASCII: `—` for a named-selection Min/Max, `°` in a unit. With
     stdout piped — how the skill always runs this script — Python on Windows would otherwise
-    encode it with the ANSI code page, and the reader (the `Catalog snapshot`, the chat
-    transcript) decodes it as UTF-8 and gets mojibake. Guarded because stdout may be a plain
+    encode it with the ANSI code page, and the reader (the car's `Parameters` page block, the
+    chat transcript) decodes it as UTF-8 and gets mojibake. Guarded because stdout may be a plain
     object with no `reconfigure` (a test capturing output, an embedded runner).
     """
     for stream in (sys.stdout, sys.stderr):
@@ -132,6 +153,70 @@ def scalar(text):
         return float(text)
     except ValueError:
         return text
+
+
+def unquote(text):
+    """Strip one pair of matching surrounding quotes, if any."""
+    text = text.strip()
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in '"\'':
+        return text[1:-1]
+    return text
+
+
+def split_flow_list(text):
+    """`["a", "b"]` -> ['a', 'b']. A bare scalar becomes a one-item list."""
+    text = text.strip()
+    if text.startswith('[') and text.endswith(']'):
+        return [unquote(part) for part in text[1:-1].split(',') if part.strip()]
+    return [unquote(text)] if text else []
+
+
+def read_header(path):
+    """Return the file's header as a dict, for `--header`.
+
+    Only the keys `--to-template` accepts plus its three bookkeeping keys, so the result drops
+    straight back into a rows.json as its `header`. Only column-0 keys above `parameters:`
+    count, which is what keeps the indented keys inside `engine_curve` (including its own
+    `source:`) out. `save_ids` is a list either way it is written — inline (`["A", "B"]`) or as
+    an indented block list — and `parameter_count` is an int. The rows are never read, so a
+    file with an empty parameter list still prints its header.
+    """
+    try:
+        with open(path, encoding='utf-8') as fh:
+            lines = fh.readlines()
+    except OSError as exc:
+        fail(f'cannot read template: {exc}')
+
+    header, collecting = {}, None
+    for line in lines:
+        stripped = line.strip()
+        if collecting is not None:                        # inside an indented block list
+            if stripped.startswith('- '):
+                header[collecting].append(unquote(stripped[2:]))
+                continue
+            collecting = None
+        if stripped == 'parameters:':
+            break
+        if not line[:1].strip():                          # blank or indented: not a header key
+            continue
+        m = re.match(r'([a-z_]+):\s*(.*)$', stripped)
+        if not m or m.group(1) not in HEADER_OUTPUT_ORDER:
+            continue
+        key, raw = m.group(1), m.group(2).strip()
+        if key == 'save_ids':
+            header[key] = split_flow_list(raw)
+            if not raw:
+                collecting = key                          # the ids are on the lines below
+        elif not raw:
+            continue
+        elif key == 'parameter_count':
+            try:
+                header[key] = int(unquote(raw))
+            except ValueError:
+                fail(f'parameter_count is not a number: {raw!r}')
+        else:
+            header[key] = unquote(raw)
+    return {k: header[k] for k in HEADER_OUTPUT_ORDER if header.get(k) not in (None, '', [])}
 
 
 def load_template(path):
@@ -358,7 +443,7 @@ def skill_version(root=None):
 
 
 def yaml_scalar(key, value):
-    """Render one snapshot value: quoted where the snapshot format requires it."""
+    """Render one template value: quoted where the template format requires it."""
     if isinstance(value, bool) or value is None:
         return 'null'
     if isinstance(value, (int, float)) and key not in ALWAYS_QUOTED:
@@ -427,6 +512,7 @@ def pretty(header, rows):
 
 USAGE = ('usage: load_catalog.py <template.yaml> [--surface Tarmac|Gravel|Snow]\n'
          '                       [--check values.json] [--pretty]\n'
+         '       load_catalog.py <template.yaml> --header\n'
          '       load_catalog.py --to-template rows.json')
 
 
@@ -455,6 +541,15 @@ def main():
         else:
             positional.append(a)
         i += 1
+
+    if '--header' in flags:
+        if (to_template_path is not None or surface is not None or check_path is not None
+                or '--pretty' in flags):
+            fail(f'--header takes no other options\n{USAGE}', 2)
+        if len(positional) != 1:
+            fail(USAGE, 2)
+        print(json.dumps(read_header(positional[0]), indent=2, ensure_ascii=False))
+        sys.exit(0)
 
     if to_template_path is not None:
         if positional or flags or surface is not None or check_path is not None:

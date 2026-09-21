@@ -20,6 +20,8 @@ Usage:
   python query_notion_parameters.py --show-order --from-template car-templates/<car>.yaml
   python query_notion_parameters.py --show-order --from-template a.yaml --from-template b.yaml
 
+An unknown --flag is a usage error (exit 2), never silently ignored.
+
 Arguments:
   setups_data_source_id
                    UUID from notion-fetch (strip the "collection://" prefix).
@@ -39,10 +41,11 @@ Options:
                  `Order`, then the fixed meta columns. Requires --from-template.
                  Output is ready to paste after `SHOW ` in a view's configure DSL.
   --from-template <path>
-                 Build the --show-order list from one or more bundled template YAML
+                 Build the --show-order list from one or more template-format YAML
                  files. Repeatable: pass one file for a per-car view, or one per
-                 template car for the main Setups table. Requires --show-order.
-                 Needs no data_source_id, token or network.
+                 onboarded car for the main Setups table: a bundled file, or a
+                 screenshot car's saved `parameters/<slug>.yaml`. Requires
+                 --show-order. Needs no data_source_id, token or network.
   --pretty       Human-readable summary instead of JSON.
 
 Output: JSON array — one object per row, property names as keys, values extracted
@@ -73,6 +76,15 @@ META_ORDER = [
 
 # The "Source" value marking a captured game-default (stock) baseline row.
 DEFAULT_SOURCE = 'default'
+
+# Flags taking no value. `--from-template` and `--source` take one and are parsed separately.
+# Anything else starting with `--` is a usage error, so a typo can't fall through to the
+# default JSON output (same rule as load_catalog.py).
+FLAGS = ('--learn-only', '--pretty', '--show-order')
+
+USAGE = ('usage: query_notion_parameters.py <setups_data_source_id> <token> <car_name>'
+         ' [--learn-only] [--source <value>] [--pretty]\n'
+         '       query_notion_parameters.py --show-order --from-template <template.yaml> ...')
 
 
 def use_utf8_output():
@@ -283,23 +295,21 @@ def main():
             source = args[i + 1]
             i += 2
             continue
-        (flags.add(a) if a.startswith('--') else positional.append(a))
+        if a.startswith('--'):
+            if a not in FLAGS:
+                print(f'unknown option {a}\n{USAGE}', file=sys.stderr)
+                sys.exit(2)
+            flags.add(a)
+        else:
+            positional.append(a)
         i += 1
     learn_only = '--learn-only' in flags
     pretty = '--pretty' in flags
     show_order = '--show-order' in flags
 
-    usage = ('usage: query_notion_parameters.py <setups_data_source_id> <token> <car_name>'
-             ' [--learn-only] [--source <value>] [--pretty]\n'
-             '       query_notion_parameters.py --show-order --from-template <template.yaml> ...')
-
-    if '--all' in flags:
-        print(usage, file=sys.stderr)
-        sys.exit(2)
-
     if show_order:
         if positional or not templates:
-            print(usage, file=sys.stderr)
+            print(USAGE, file=sys.stderr)
             sys.exit(2)
         template_rows = []
         for path in templates:
@@ -315,7 +325,7 @@ def main():
         print('--from-template requires --show-order', file=sys.stderr)
         sys.exit(2)
     if len(positional) < 3:
-        print(usage, file=sys.stderr)
+        print(USAGE, file=sys.stderr)
         sys.exit(2)
     data_source_id, token, car_name = positional[0], positional[1], positional[2]
     rows = query(data_source_id, token, car_name, learn_only=learn_only, source=source)

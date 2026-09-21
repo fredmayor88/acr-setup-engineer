@@ -332,8 +332,8 @@ class TestOutputEncoding(unittest.TestCase):
     An executing Claude runs this script with its output piped, and on Windows Python then
     encodes stdout with the ANSI code page (cp1252 here), which turns the catalog's `—`
     (used for Min/Max on named-selection params) into a single 0x97 byte. Whoever reads it
-    back as UTF-8 — the Catalog snapshot, the chat transcript — sees mojibake. So the bytes
-    are decoded here explicitly, never with `text=True` (which would decode with the same
+    back as UTF-8 — the car's `Parameters` page block, the chat transcript — sees mojibake. So
+    the bytes are decoded here explicitly, never with `text=True` (which would decode with the same
     wrong locale and hide the bug).
     """
 
@@ -465,6 +465,38 @@ class TestToTemplate(LoadCatalogTestCase):
             'forked_from': 'bundled template v0.6'}))
         self.assertEqual(doc['forked_from'], 'bundled template v0.6')
 
+    def test_version_is_always_quoted_so_yaml_keeps_it_a_string(self):
+        """`version: 0.6` parses back as a float, and a later `0.10` would become `0.1`."""
+        text = self._to_template(header={
+            'car': 'Test Car 1999', 'version': '0.6', 'source': 'screenshots'})
+        self.assertIn('version: "0.6"', text)
+        self.assertEqual(yaml.safe_load(text)['version'], '0.6')
+
+    def test_a_two_digit_minor_version_round_trips_as_a_string(self):
+        text = self._to_template(header={
+            'car': 'Test Car 1999', 'version': '0.10', 'source': 'screenshots'})
+        self.assertIn('version: "0.10"', text)
+        self.assertEqual(yaml.safe_load(text)['version'], '0.10')
+
+    def test_an_empty_row_list_writes_count_zero_and_then_fails_to_load(self):
+        """The designed loud failure of the migration's third source (nothing to recover).
+
+        The file is still written by the script, never by hand, and every later load stops
+        with `no parameters found` — which `catalog-read.md` step 5 turns into the re-onboard
+        line.
+        """
+        import tempfile
+        text = self._to_template(header={'car': 'Empty Car', 'version': 'unknown',
+                                         'source': 'screenshots'}, rows=[])
+        self.assertIn('parameter_count: 0', text)
+        fd, path = tempfile.mkstemp(suffix='.yaml')
+        os.close(fd)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(text)
+        self.addCleanup(os.remove, path)
+        _, err = run(path, expect=1)
+        self.assertIn('no parameters found', err)
+
     def test_an_edited_copy_of_a_bundled_car_loads_to_the_same_rows_plus_the_edit(self):
         # What edit-catalog.md does on a bundled car: load, change one row, --to-template, load.
         import tempfile
@@ -489,6 +521,125 @@ class TestToTemplate(LoadCatalogTestCase):
         out = subprocess.run([sys.executable, SCRIPT, '--to-template', 'no-such.json'],
                              capture_output=True, text=True, encoding='utf-8')
         self.assertEqual(out.returncode, 1)
+
+
+class TestHeader(LoadCatalogTestCase):
+    """`--header` prints the file's header as one JSON object.
+
+    It exists so no workflow ever copies header keys by eye: `edit-catalog.md` 6.1 and the
+    refresh's `Catalog` rebuild both read the facts from here, and the object drops straight
+    into `--to-template`'s rows.json as its `header`.
+    """
+
+    NINE_FACTS = ('drivetrain', 'engine_layout', 'weight_bias', 'weight', 'max_power',
+                  'max_torque', 'class', 'gearbox', 'steering_lock')
+
+    BLOCK_IDS_FIXTURE = ('car: "Block Car"\n'
+                         'game: "ACR"\n'
+                         'save_ids:\n'
+                         '  - "OneId"\n'
+                         '  - "TwoId"\n'
+                         'drivetrain: "RWD"\n'
+                         'version: "0.6"\n'
+                         'source: "screenshots"\n'
+                         'parameters:\n'
+                         '  - section: "Brakes"\n'
+                         '    adjustment: "Brake Bias"\n'
+                         '    order: 7010\n'
+                         '    min: 50\n'
+                         '    max: 70\n')
+
+    def write(self, text, name):
+        path = os.path.join(self._tmp.name, name)
+        with open(path, 'w', encoding='utf-8', newline='\n') as fh:
+            fh.write(text)
+        return path
+
+    def header_of(self, path):
+        out, err = run(path, '--header')
+        self.assertEqual(err, '')
+        return json.loads(out)
+
+    def test_the_stratos_header_carries_the_nine_facts_and_its_save_id(self):
+        head = self.header_of(STRATOS)
+        self.assertEqual(head['car'], 'Lancia Stratos HF 1976')
+        for key in self.NINE_FACTS:
+            self.assertTrue(head.get(key), key)
+        self.assertEqual(head['version'], '0.6')
+        self.assertEqual(head['source'], 'game-files')
+        self.assertEqual(head['save_ids'], ['LanciaStratosHF'])
+
+    def test_the_engine_and_gearing_keys_are_left_out(self):
+        head = self.header_of(STRATOS)
+        for key in ('engine_curve', 'gearing_tool', 'power_torque_chart', 'peak_torque',
+                    'torque_points', 'rpm_step'):
+            self.assertNotIn(key, head)
+
+    def test_every_bundled_template_has_all_nine_facts(self):
+        """A refresh reads a template car's facts from here, so none of them may be blank."""
+        for name in sorted(os.listdir(os.path.join(SKILL, 'car-templates'))):
+            if not name.endswith('.yaml'):
+                continue
+            head = self.header_of(os.path.join(SKILL, 'car-templates', name))
+            for key in self.NINE_FACTS:
+                self.assertTrue(head.get(key), f'{name}: {key}')
+            self.assertIsInstance(head['save_ids'], list)
+
+    def test_a_block_list_save_ids_becomes_a_json_list(self):
+        path = self.write(self.BLOCK_IDS_FIXTURE, 'block-ids.yaml')
+        self.assertEqual(self.header_of(path)['save_ids'], ['OneId', 'TwoId'])
+
+    def test_a_bare_scalar_save_ids_becomes_a_one_item_list(self):
+        path = self.write(
+            self.BLOCK_IDS_FIXTURE.replace('save_ids:\n  - "OneId"\n  - "TwoId"\n',
+                                           'save_ids: "OnlyId"\n'), 'scalar-ids.yaml')
+        self.assertEqual(self.header_of(path)['save_ids'], ['OnlyId'])
+
+    def test_parameter_count_comes_back_as_an_int(self):
+        path = self.write(COUNTED_FIXTURE, 'counted-header.yaml')
+        self.assertEqual(self.header_of(path)['parameter_count'], 5)
+
+    def test_a_file_with_no_parameters_still_prints_its_header(self):
+        """The migration's third source writes exactly that file; it stays inspectable."""
+        path = self.write('car: "Empty Car"\nversion: "unknown"\nsource: "screenshots"\n'
+                          'parameter_count: 0\nparameters:\n', 'empty-car.yaml')
+        head = self.header_of(path)
+        self.assertEqual(head['car'], 'Empty Car')
+        self.assertEqual(head['parameter_count'], 0)
+
+    def test_header_is_mutually_exclusive_with_the_other_modes(self):
+        run(STRATOS, '--header', '--pretty', expect=2)
+        run(STRATOS, '--header', '--surface', 'Gravel', expect=2)
+        run(STRATOS, '--header', '--check', 'values.json', expect=2)
+        run('--header', '--to-template', 'rows.json', expect=2)
+
+    def test_header_needs_the_file(self):
+        run('--header', expect=2)
+
+    def test_the_header_drops_straight_into_to_template(self):
+        """The round trip every reference relies on: --header -> rows.json -> --to-template."""
+        import tempfile
+        head = self.header_of(STRATOS)
+        rows = json.loads(run(STRATOS)[0])
+        fd, rows_path = tempfile.mkstemp(suffix='.json')
+        os.close(fd)
+        with open(rows_path, 'w', encoding='utf-8') as fh:
+            json.dump({'header': head, 'rows': rows}, fh, ensure_ascii=False)
+        self.addCleanup(os.remove, rows_path)
+        out = subprocess.run([sys.executable, SCRIPT, '--to-template', rows_path],
+                             capture_output=True, text=True, encoding='utf-8')
+        self.assertEqual(out.returncode, 0, out.stderr)
+        self.assertIn('save_ids: ["LanciaStratosHF"]', out.stdout)
+        doc = yaml.safe_load(out.stdout)
+        self.assertEqual(doc['save_ids'], ['LanciaStratosHF'])
+        for key in self.NINE_FACTS:
+            self.assertEqual(doc[key], head[key], key)
+        fd, path = tempfile.mkstemp(suffix='.yaml')
+        os.close(fd)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(out.stdout)
+        self.addCleanup(os.remove, path)
+        self.assertEqual(len(json.loads(run(path)[0])), len(rows))
 
 
 class TestParameterCount(LoadCatalogTestCase):

@@ -102,8 +102,11 @@ Bundled tools (stdlib Python, run via code execution):
   (validate values against the catalog — it **exits 3 with a JSON report when it finds anything
   illegal, which is the expected outcome, not a failed script**), `--to-template rows.json`
   (takes `{"header": {…}, "rows": […]}` and prints the body of a car's `Parameters` page —
-  onboarding, `references/edit-catalog.md`, migration; **never hand-format that YAML**) and
-  `--pretty`. Without `--surface`, `--check` uses each parameter's baseline row.
+  onboarding, `references/edit-catalog.md`, migration; **never hand-format that YAML**),
+  `--header` (prints the file's header as one JSON object — the car's identity facts,
+  `save_ids`, `version`, `source`; **the only way any workflow reads header values, never by
+  eye**, and it drops straight into a `rows.json` as its `header`) and `--pretty`. Without
+  `--surface`, `--check` uses each parameter's baseline row.
 - `scripts/check_egress.py` — once per chat, before the first REST query: prints `egress: ok` or
   `egress: none`. On `none` the chat runs in **offline mode** — no REST query, no token request,
   one plain line to the user (`references/notion-rest-read.md` → *Offline mode*).
