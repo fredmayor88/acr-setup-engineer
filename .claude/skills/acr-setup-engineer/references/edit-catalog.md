@@ -36,7 +36,13 @@ that changes what values a car's parameter may take. (A request to change a **se
    - a unit → `Unit`;
    - **add a parameter** → a new row with `Section`, `Adjustment`, `Min`, `Max`, `Unit`,
      `Discrete steps`, and an `Order` inside its section block (`notion-structure.md` →
-     *Canonical ACR default order*: the section's thousands, then the next free tens slot);
+     *Canonical ACR default order*: the section's thousands, then the next free tens slot).
+     **The legal values come from the user — never invent a range.** If `Min`, `Max`, `Unit` or
+     the steps (or "no steps") are missing from what they said, ask for all of them in **one**
+     question before going on: *"What are the lowest and highest values of {parameter} on the
+     setup screen, its unit, and the exact steps if it only moves in steps?"* `Section` is the
+     setup screen the parameter sits on — use the section names in `notion-structure.md` →
+     *Canonical ACR default order*, and ask which one if it isn't obvious;
    - **remove a parameter** → drop its rows (baseline and surface).
 
 4. **Validate** — every check is a one-liner; do all that apply:
@@ -49,44 +55,71 @@ that changes what values a car's parameter may take. (A request to change a **se
 5. **Show before → after** for each changed row (`Adjustment`, surface if any, `Min`, `Max`,
    `Unit`, `Discrete steps`) and ask: *"Write this to the {Car}'s parameter list?"* Only on yes.
 
-6. **Write the page.**
-   - Build `rows.json`: `{"header": …, "rows": <the edited list>}`. The header is the loaded
-     file's header keys (`car`, `drivetrain`, the identity facts, `version`, `source`) — read them
-     off the top of that file, above `parameters:`; the loader prints rows only — plus:
-     - **Template car (first edit — this forks it):** `source: "screenshots"`,
-       `forked_from: "bundled template v{tv}"` where `{tv}` is the bundled file's `version:`.
-     - **Screenshot car:** header unchanged.
-   - Run `python scripts/load_catalog.py --to-template rows.json`. Write its output to
-     `parameters/<slug>.yaml` as well (`catalog-read.md` → *Slug*, *Save the file*): that is the
-     car's file for step 7 and for anything else this run reads.
-   - **Template car:** create the `Parameters` page under `{Car}` with the **forked** maintenance
-     line (`notion-structure.md` → *Car page* table; today's date from the `Date` one-liner) and
-     the output as its `yaml` block. Then rewrite the `Catalog` page (it is disposable — one
-     replacement, `onboard-car.md` refresh step 3) with the source line
-     `**Catalog source:** your screenshots — started from bundled template v{tv} on {YYYY-MM-DD}`.
-   - **Template car whose `Parameters` page already exists** — it carries the *Not in use* line,
-     because the car had its own list and a refresh switched it to a bundled template
-     (`notion-structure.md` → *`Parameters` page*, item 2). Fork the bundled file exactly as
-     above, but **don't create the page**: replace its `yaml` block with the output, replace its
-     first line with the **forked** maintenance line, and **delete the *Not in use* line** — the
-     page's list is in use again.
-   - **Screenshot car:** replace the page's `yaml` block with the output. Leave the maintenance
-     line as it is.
+6. **Write the page.** These sub-steps in order; don't skip 6.5.
+
+   1. **Build `rows.json`**: `{"header": …, "rows": <the edited list>}`. For the header, **copy
+      every key above `parameters:` in the loaded file unchanged** — including `game`,
+      `save_ids`, `gearing_tool`, `power_torque_chart`, `engine_curve` and anything else that is
+      there — then apply the overrides below. Read those keys off the top of the file itself; the
+      loader prints rows only.
+      - **Template car (first edit — this forks it):** `source: "screenshots"`,
+        `forked_from: "bundled template v{tv}"` where `{tv}` is the bundled file's `version:`.
+      - **Screenshot car:** header unchanged, no overrides.
+
+   2. **Run `python scripts/load_catalog.py --to-template rows.json`.** Write its output to
+      `parameters/<slug>.yaml` as well (`catalog-read.md` → *Slug*, *Save the file*): that is the
+      car's file for step 7 and for anything else this run reads.
+
+   3. **Screenshot car** → replace the `yaml` block on the car's existing `Parameters` page with
+      the output. Leave the maintenance line as it is. **Skip 6.4 and 6.5** — its `Catalog` page
+      already says `your screenshots` — and go to step 7.
+
+   4. **Template car — first find out whether the car already has a `Parameters` page.** Resolve
+      `Parameters` under `{Car}` by name (`notion-structure.md` → *Resolution rule*): fetch the
+      `{Car}` page and look at its child pages. It exists or it doesn't — that picks the case,
+      and the two cases are the only ones:
+      - **No `Parameters` page** → **create it** under `{Car}`, with the **forked** maintenance
+        line (`notion-structure.md` → *Car page* table; today's date from the `Date` one-liner)
+        and the script's output as its `yaml` block. Ask nothing — step 5's confirmation is the
+        only question this case gets.
+      - **A `Parameters` page exists** — it carries the *Not in use* line, because the car had
+        its own captured list and a refresh switched it to a bundled template
+        (`notion-structure.md` → *`Parameters` page*, item 2). **Fetch that page** — you need
+        its blocks to replace them, its *Not in use* line for the date, and the `version:` in its
+        `yaml` header for the game version. **That parked list is the user's own captured data
+        and this replaces it, so ask first**: say in one line what is parked there (*"The {Car}'s
+        `Parameters` page still holds your own captured list from game version {version}, not in
+        use since {date}. Writing this change replaces it."* — drop either fact from the sentence
+        if the page doesn't give it) and ask *"Replace it?"* **Only on yes.** On no, stop — nothing is written
+        anywhere. On yes, **don't create a second page**: on that page, replace its `yaml` block
+        with the output, replace its first line with the **forked** maintenance line, and
+        **delete the *Not in use* line** — the list is in use again.
+
+   5. **Any template car — page created or reused — then rewrite the `Catalog` page.** One
+      replacement of the page body (it is disposable — `onboard-car.md` refresh step 3), with the
+      source line
+      `**Catalog source:** your screenshots — started from bundled template v{tv} on {YYYY-MM-DD}`.
+      **Without this the car still reads as a template car and the list you just wrote is never
+      read again**, so it runs in **every** fork case, not just the one that created the page.
 
 7. **A new `Adjustment`** → add its `Setups` value column (`onboard-car.md` step 7's
-   *value-columns check*: Number for numeric, Select for `—`), then re-assert `SHOW` on the
-   car's view and the shared views with this car's new file
+   *value-columns check*: Number for numeric, Select for `—`), then re-assert `SHOW`: on the
+   car's own view with this car's new file, and on the shared views (the main `Setups` table and
+   every `{Location}` / `{Stage}` view) with one `--from-template` per onboarded car
    (`notion-structure.md` → *Applying the order*). A removed parameter keeps its column (columns
    are never removed). No new column → nothing to reorder.
 
 8. **Report, one line.** Screenshot car: *"Updated the {Car}'s parameter list: {what changed}."*
    Forked template car: *"Done. The {Car} now uses its own parameter list (copied from the
    bundled template, with this change). When a newer bundled template ships, a refresh will
-   offer to switch back."*
+   offer to switch back."* Forked onto a page that held a parked list (6.4's second case), add:
+   *"It replaces the earlier list that was parked on the `Parameters` page."*
 
 ## Rules
 - **Validate, show, confirm, then write.** Never write an unconfirmed change.
 - **The page's block is replaced whole**, from the script's output — never patched by hand.
-- **Forking a bundled car asks no question**; the one-line report says what happened.
+- **Forking a bundled car asks no question** — unless it would overwrite a parked list on an
+  existing `Parameters` page (6.4), which is the user's own captured data and is asked about
+  first. Otherwise the one-line report says what happened.
 - **Never touch `Setups` rows** — a range change doesn't rewrite existing setups.
 - Stay within `ACR Setup Engineer` scope.
