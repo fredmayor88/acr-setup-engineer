@@ -11,7 +11,7 @@ whenever the skill version changes, and by *"refresh my ACR Notion"*.
 > heading and each other `##` section as a **collapsed toggle heading**, so the page opens short on
 > a phone. Keep the prompts exactly as written — the user copies them.
 
-Covers: onboard-car.md, build-setup.md, tweak-setup.md, driving-feedback-interview.md, review-setup.md, ask-setups.md, share-setup.md, capture-setup.md, import-savegame.md, export-car-template.md, refresh-notion.md
+Covers: onboard-car.md, build-setup.md, tweak-setup.md, driving-feedback-interview.md, review-setup.md, ask-setups.md, share-setup.md, capture-setup.md, import-savegame.md, export-car-template.md, edit-catalog.md, refresh-notion.md
 
 ---
 
@@ -52,6 +52,8 @@ Swap in your own car, stage and setup names.
   attached.
 - **Use your own ranges for a car** — "onboard the Lancia Stratos from my screenshots". For when
   the game changed and the bundled list is behind.
+- **Change a car's parameter list** — "the Lancia Stratos' front anti-roll bar goes 1 to 6 in
+  steps of 1". It checks the change and updates the car's list.
 - **Share a car you onboarded** — "export the Lancia Stratos as a template", so other drivers get
   it too.
 
