@@ -336,8 +336,13 @@ sits below the `Max Torque` the info screen quotes; both are kept, and the skill
 which.
 
 Onboarded a car before the gearing tool link existed? Say *"refresh the Lancia Stratos in my
-Notion"* and it brings everything static about the car up to date — the chart, the link, identity
-facts, the parameter catalog — without touching your setups.
+Notion"* and it brings everything static about the car up to date — the chart, the link and the
+identity facts — without touching your setups.
+
+A refresh does not change a car's parameter list. To change it, say the change in chat (see
+[Change a car's parameter list](#change-a-cars-parameter-list)). (One exception: a car you
+onboarded from screenshots switches to a bundled list when a newer one ships — the refresh tells
+you.)
 
 **If you onboarded a car with an older version of the skill**, its parameter list may still be
 rows in a `Parameters` table under the root. The first refresh of that car moves the list onto its
@@ -450,14 +455,16 @@ line, no tokens.
 
 *"The Lancia Stratos' front anti-roll bar goes 1 to 6 in steps of 1."* It checks the change and
 updates the car's list. For a bundled car this makes a copy of the list under the car, with your
-change — the skill says so in one line.
+change — the skill says so in one line. If that car still has an older list of its own on its
+`Parameters` page, the skill asks before replacing it.
 
 ### After you update the skill
 
 *"Refresh my ACR Notion."* One command brings everything the skill keeps in your Notion up to date
 with the version you installed: the `How to use`, `Claude Free plan` and `Parameter reference`
-pages, and every car's pages (their facts, chart, gearing link and parameter list). It never changes
-your setups, your `Tuning guidelines`, a car's `Guidelines` or your notes on a car's `Log`. To update
+pages, and every car's pages (their facts, chart and gearing link). It never changes a car's
+parameter list, your setups, your `Tuning guidelines`, a car's `Guidelines` or your notes on a
+car's `Log`. To update
 a single car, say *"refresh the Lancia Stratos in my Notion"*.
 
 You don't have to remember this: the first time you use the skill after an update, it rewrites
@@ -682,8 +689,8 @@ ACR Setup Engineer (root page)
     │                        Yours are yours to edit; the skill only ever adds — it never
     │                        edits or deletes anything on this page.
     ├── Parameters          only for cars onboarded from screenshots (or edited away from a
-    │                        bundled template): the car's complete parameter list. The
-    │                        skill's; change it by saying so in chat
+    │                        bundled template): the car's complete parameter list. Kept by
+    │                        the skill. To change it, say the change in chat
     └── Setups              a filtered view of your setups for this car
 ```
 
