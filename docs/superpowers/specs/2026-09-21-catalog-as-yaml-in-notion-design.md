@@ -1,6 +1,6 @@
 # Every car's catalog is a template file — bundled, or stored in Notion
 
-**Status:** draft for review · **Date:** 2026-09-21
+**Status:** approved 2026-09-21 · **Date:** 2026-09-21
 
 ## Summary
 
@@ -90,9 +90,9 @@ regenerates it** — there is nothing to regenerate it from. The connector fetch
 the read path; a `truncated` / `unknown_block_count` flag on the fetch means "unreadable", never
 "use what came back".
 
-**Naming note.** The root-level legacy `Parameters` database keeps its name; the new page is a
-child of the car, so the two never resolve to each other. If the shared name proves confusing in
-docs, the page could be called `Catalog file` instead — decide at review.
+**Naming.** `Parameters` (decided). The root-level legacy `Parameters` database keeps its name; the
+new page is a child of the car, so the two never resolve to each other. The page is the **complete
+list**, read *instead of* the bundled file — not an override merged onto it.
 
 ### What goes away
 
@@ -148,12 +148,14 @@ any request that changes a car's legal values.
    removal. Validate: numeric min ≤ max, steps inside min..max when both exist, gear notation
    rules (`SKILL.md` → *Value notation is literal*), no duplicate `Adjustment × Surface`.
 3. Show the affected entries before/after and get an explicit OK.
-4. **Template car → fork.** Write a `Parameters` page for the car from the bundled template plus
-   the change, and flip the source line to `your screenshots — game version {v}` with a note
-   `(started from bundled template v{tv})` in the YAML header `source:` field
-   (`source: "bundled template v0.6 + your edits"`). Say in one line that the car now uses its
-   own list and that *"refresh the {Car}"* will offer the bundled one again only when a newer
-   template ships.
+4. **Template car → fork, no question, one line.** Write a `Parameters` page for the car from
+   the bundled template plus the change. Its maintenance line carries the moment and the reason:
+   *"Started {date} as a copy of the bundled template (game version {tv}), with your edits. The
+   skill keeps this list; say changes in chat."* The YAML header gets
+   `forked_from: "bundled template v{tv}"`. Rewrite `Catalog` with the source line
+   `your screenshots — started from bundled template v{tv} on {date}`. Say in one line that the
+   car now uses its own list and that a refresh will offer the bundled one again only when a
+   newer template ships.
 5. **Screenshot car → replace the block**, bump `written_at`, `parameter_count`.
 6. A new `Adjustment` → add the `Setups` value column (existing *value-columns check*), then
    reassert `SHOW` on the car's view and the shared views.
@@ -165,8 +167,8 @@ any request that changes a car's legal values.
 - Screenshot car: **`Parameters` page is left untouched**, except migration (below). The
   version-based switch to a template (already shipped) keeps working; on a switch the page is
   **left in place, unread**, with one line added at the top of its body:
-  *"Not in use since {date}: this car now uses the bundled template. Say 'onboard the {Car} from
-  my screenshots' to use this list again."* — the only time the skill writes to this page outside
+  *"Not in use since {date}: a newer bundled template (game version {v}) appeared, so this car
+  uses that now. Say 'onboard the {Car} from my screenshots' to use this list again."* — the only time the skill writes to this page outside
   an edit. (Keeping it means the user's captured list is never lost.)
 
 ### Migration — a screenshot car from before this change
@@ -259,10 +261,12 @@ migrated on the spot by whichever workflow first reads it (the migration is one 
 data already in hand, so it is allowed from a read workflow — the one exception to "read-only
 workflows never gain a write", stated explicitly).
 
-## Open questions for review
+## Decisions from review (2026-09-21)
 
-1. Page name: `Parameters` (intuitive, shares a name with the legacy DB) or `Catalog file`?
-2. On a switch to a bundled template, keep the page with a "not in use" line (proposed) or leave
-   it byte-identical and only say so in chat?
-3. Should `edit-catalog.md` on a **template** car fork silently (proposed: yes, with one line
-   saying so) or ask first?
+1. Page name: `Parameters`.
+2. On a switch to a bundled template: keep the page, add the "not in use since" line with the
+   reason (a newer template appeared).
+3. Editing a template car forks without asking; one line says so, with the timestamp.
+4. **Every workflow must be followable by a less capable model** (Sonnet): short numbered steps,
+   one decision per step, exact wording to say, and scripts for everything deterministic
+   (parsing, YAML, validation). Recorded as a project rule in `CLAUDE.md`.
