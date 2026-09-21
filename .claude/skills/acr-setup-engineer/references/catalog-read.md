@@ -18,13 +18,15 @@ catalog lives*):
    efficiently*) and read its `Catalog source:` line.
 2. **Template car** → the file is on disk. Go to step 5.
 3. **Screenshot car** → **fetch the car's `Parameters` page** with `notion-fetch`, in the same
-   batch as the car's other pages. Then check the response — 3a and 3b are the two outcomes:
+   batch as the car's other pages. Then check the response. **Three outcomes:** the page comes
+   back readable → go to step 4; otherwise 3a or 3b.
 
    **3a — the page is unreadable.** It has `truncated: true` or `unknown_block_count` set, or
-   there is no ```` ```yaml ```` block in it → the page is **unreadable**. Say: *"I can't read
-   the {Car}'s `Parameters` page in full, so I can't load its parameter list. Say 'refresh the
-   {Car} in my Notion' to rebuild it, or 'onboard the {Car} from my screenshots'."* and **stop
-   this workflow**. Never fall back to searching Notion, and never guess values.
+   there is no ```` ```yaml ```` block in it → the page is **unreadable**. Say: *"I couldn't read
+   the {Car}'s `Parameters` page in full. Open that page in Notion to check it loads, then ask me
+   again. If it stays unreadable, say 'onboard the {Car} from my screenshots'."* and **stop this
+   workflow**. Never fall back to searching Notion, and never guess values. **Don't offer a
+   refresh here** — a refresh never regenerates a `Parameters` page.
 
    **3b — the page doesn't exist.** This is a car from before catalogs became files. Run
    `onboard-car.md` → *Migration — catalog rows to the `Parameters` page* **now** (it is the one
@@ -53,7 +55,7 @@ Write the fetched block to disk with Python, never by retyping it:
 
 ```python
 import os, pathlib
-text = """<the yaml block's contents, verbatim>"""
+text = r"""<the yaml block's contents, verbatim>"""
 os.makedirs('parameters', exist_ok=True)
 pathlib.Path('parameters/<slug>.yaml').write_text(text, encoding='utf-8')
 ```

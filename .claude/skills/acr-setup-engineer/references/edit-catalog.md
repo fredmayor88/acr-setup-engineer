@@ -57,14 +57,18 @@ that changes what values a car's parameter may take. (A request to change a **se
 
 6. **Write the page.** These sub-steps in order; don't skip 6.5.
 
-   1. **Build `rows.json`**: `{"header": …, "rows": <the edited list>}`. For the header, **copy
-      every key `--to-template` accepts, unchanged**, from the top of the loaded file: `car`,
-      `game`, `save_ids`, `drivetrain`, the identity facts (`engine_layout`, `weight_bias`,
-      `weight`, `max_power`, `max_torque`, `class`, `gearbox`, `steering_lock`), `version`,
-      `source`, and `forked_from` when the file already has one (a car forked by an earlier edit
-      keeps it) — then apply the overrides below. Read those keys off the top of the file itself;
-      the loader prints rows only. `gearing_tool`, `power_torque_chart` and `engine_curve` are
-      **not** copied — they stay in the bundled file, and every workflow reads them from there
+   1. **Build `rows.json`**: `{"header": …, "rows": <the edited list>}`. For the header, run
+      ```
+      python scripts/load_catalog.py <file> --header
+      ```
+      on the same file step 1 loaded, and **use the JSON object it prints as `header`,
+      unchanged** — then apply the overrides below. **Never retype these keys or read them off
+      the page by eye**: the command already returns exactly the keys `--to-template` accepts
+      (`car`, `game`, `save_ids`, `drivetrain`, the identity facts `engine_layout`,
+      `weight_bias`, `weight`, `max_power`, `max_torque`, `class`, `gearbox`, `steering_lock`,
+      then `version`, `source`, and `forked_from` when the file already has one — a car forked
+      by an earlier edit keeps it), and it leaves out `gearing_tool`, `power_torque_chart` and
+      `engine_curve`, which stay in the bundled file and are read from there
       (`notion-structure.md` → *Engine chart and gearing tool*).
       - **Template car (first edit — this forks it):** `source: "screenshots"`,
         `forked_from: "bundled template v{tv}"` where `{tv}` is the bundled file's `version:`.
@@ -100,7 +104,7 @@ that changes what values a car's parameter may take. (A request to change a **se
         **delete the *Not in use* line** — the list is in use again.
 
    5. **Any template car — page created or reused — then rewrite the `Catalog` page.** One
-      replacement of the page body (it is disposable — `onboard-car.md` refresh step 3), with the
+      replacement of the page body (it is disposable — `onboard-car.md` refresh step 4), with the
       source line
       `**Catalog source:** your screenshots — started from bundled template v{tv} on {YYYY-MM-DD}`.
       **Without this the car still reads as a template car and the list you just wrote is never

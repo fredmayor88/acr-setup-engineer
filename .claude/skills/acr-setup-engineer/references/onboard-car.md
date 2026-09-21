@@ -54,7 +54,7 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
      version has **no such line**: it is a **template car** when a `car-templates/` file matches
      its name, and a **screenshot car** otherwise. Everything below branches on this.
 1. **Migrate the page structure if it's still the old one-page layout** — see *Migration — old
-   one-page car → four-page structure* below. Do this first; everything after assumes the car's
+   one-page car → the child-page structure* below. Do this first; everything after assumes the car's
    pages are child pages.
 2. **Rename a legacy `Feedback` page to `Log`** — the car's log page used to carry the old name,
    and a refresh renames it in place so nothing is lost. **The mechanics live in one place only:
@@ -62,30 +62,52 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
    it exactly. Two user-facing outcomes: if the page was renamed, **tell the user in one line that
    `Feedback` is now called `Log`**; if **both** `Log` and `Feedback` exist, leave both alone, say
    so, and ask what they want done with the old one.
-3. **Rebuild the `Catalog` page in full — every kind of car.** Maintenance line, identity facts,
+3. **Give a screenshot car its `Parameters` page if it has none** — run *Migration — catalog
+   rows to the `Parameters` page* (below). Fetch the `{Car}` page: its child pages are listed,
+   and no `Parameters` child means the car has none yet. A template car skips this step, and so
+   does a screenshot car that already has the page.
+   **This runs before the `Catalog` rebuild, never after.** Until the migration has run, the
+   car's `Catalog` page is the only place its nine identity facts exist, and the migration is
+   what moves them into the `Parameters` header. Rebuild first and step 4 would write nine
+   `couldn't determine` facts over the only copy, and the migration would then copy those into
+   the new header: the car's facts would be gone for good.
+4. **Rebuild the `Catalog` page in full — every kind of car.** Maintenance line, identity facts,
    the **catalog source line**, the power/torque chart and the gearing-tool link — as **one
    replacement** of the page body. Don't read the old values to compare them; don't ask about
    anything; don't preserve edits. The page is disposable and its own maintenance line says this
-   will happen. Two cases; on the page itself the only difference is the source line:
-   - **Template car** → the nine identity facts come from **the bundled file's header**
-     (`drivetrain`, `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`, `class`,
-     `gearbox`, `steering_lock`). Write the `bundled template` source line
-     (`notion-structure.md` → *`Catalog` page*, item 2).
+   will happen.
+
+   **Read the nine identity facts with one command — never off the page by eye:**
+   ```
+   python scripts/load_catalog.py <file> --header
+   ```
+   It prints the file's header as one JSON object. `<file>` is `car-templates/<slug>.yaml` for a
+   template car and `parameters/<slug>.yaml` for a screenshot car (`catalog-read.md` → *Slug*;
+   you usually already hold that file from this run — don't fetch it twice). The nine keys are
+   `drivetrain`, `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`, `class`,
+   `gearbox`, `steering_lock`.
+
+   Two cases; on the page itself the only difference is the source line:
+   - **Template car** → write the `bundled template` source line (`notion-structure.md` →
+     *`Catalog` page*, item 2).
    - **Screenshot car (a forked car counts as one)** → rebuild the page the same way, with its
      source line **unchanged in kind**: the `your screenshots` format it already carries, same
      game version (or the same `started from bundled template v{tv} on {YYYY-MM-DD}` for a forked
-     car). **Its nine identity facts come from the header of its `Parameters` page yaml** —
-     `drivetrain`, `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`, `class`,
-     `gearbox`, `steering_lock`, loaded per `catalog-read.md` (you usually already hold that file
-     from this run; don't fetch it twice). **Its catalog is not rebuilt** — there is no template
-     to rebuild the parameter list from — so **this step never writes to its `Parameters` page
-     (it only reads it)**; what happens to its list is step 4's screenshot-car bullets.
+     car). **Its catalog is not rebuilt** — there is no template to rebuild the parameter list
+     from — so **this step never writes to its `Parameters` page (it only reads it)**; what
+     happens to its list is step 5's screenshot-car bullets.
+     **If any of the nine keys is missing or empty in that header, leave the `Catalog` page
+     exactly as it is** — write nothing to it in this refresh. Say
+     *"The {Car}'s facts are incomplete on its `Parameters` page, so I left its `Catalog` page as
+     it is."* and go on to step 5. A half-empty header means something went wrong upstream, and
+     the page you would overwrite may still hold the real facts.
 
-   **A header key that is missing or empty is written as the literal `couldn't determine`.**
-   **Never run step 5's ladder on a refresh** — no car information screenshot, no model
-   knowledge, no web lookup, no question. That ladder resolves facts at **onboarding**; a refresh
-   only copies what the car's own file already holds, so it can never overwrite a correct fact
-   with a guess.
+   **`couldn't determine` is written only where the header itself holds that literal** — never
+   invented here.
+   **Never run *Procedure* step 5's ladder on a refresh** — no car information screenshot, no
+   model knowledge, no web lookup, no question. That ladder resolves facts at **onboarding**; a
+   refresh only copies what the car's own file already holds, so it can never overwrite a
+   correct fact with a guess.
 
    **The chart and the gearing-tool link come from the bundled file that matches the car in both
    cases** — including a screenshot car that keeps its own list, whose `Catalog source:` line
@@ -93,24 +115,21 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
    no matching bundled file gets neither.
 
    One exception: a screenshot car that step 1 has just **migrated** off the old one-page layout
-   has no `Catalog` page yet, so *Migration — old one-page car → four-page structure* step 5
+   has no `Catalog` page yet, so *Migration — old one-page car → the child-page structure* step 5
    creates it with the same body this step writes; there is then nothing left for this step to
    change.
-4. **The catalog.**
+5. **The catalog.**
    - **Template car** → nothing to write: the file is in the skill. If the car's `Catalog` page
      had **no `Catalog source:` line** (an older version onboarded it), say once:
      *"This car still has rows in the old `Parameters` table from an older version of the skill.
      They aren't read any more. Delete that table whenever you like."*
-   - **Screenshot car with no `Parameters` page yet** (fetch the `{Car}` page — its child pages
-     are listed; no `Parameters` child means not yet) → run *Migration — catalog rows to the
-     `Parameters` page* (below) first, then continue with this step as a screenshot car.
    - **Screenshot car** → decide by **game version**: the version on its source line (what the
      user gave when they captured it, `unknown`, or — for a forked car — the `forked_from`
      template version) against the `version:` of a `car-templates/` file that matches the car
      (matching rule: *Procedure* step 1 → *Matching a car name*). Compare as version numbers
      (`0.10` is newer than `0.9`).
      - **A template matches and its version is the same or newer** → **switch to the template,
-       no question.** Run step 3 as a template car (its source line becomes `bundled template`),
+       no question.** Run step 4 as a template car (its source line becomes `bundled template`),
        insert the *Not in use* line as the **second block** of the `Parameters` page, right under
        its maintenance line (exact wording: `notion-structure.md` → *`Parameters` page*, item 2)
        — leave the `yaml` block as it is — and say in one line: *"The {Car} now uses the bundled
@@ -124,14 +143,14 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
      - **The capture is newer than the template, or no template matches** → keep the page
        untouched. When a template exists, say in one line that it is behind the user's game
        version and offer *"export the {Car} as a template"* (`export-car-template.md`).
-5. **Leave the content of `Guidelines` and `Log` completely alone.** Never read-modify-write,
+6. **Leave the content of `Guidelines` and `Log` completely alone.** Never read-modify-write,
    append to, or reformat either. Create whichever is missing (`Guidelines` with its seed stub,
    `Log` with its maintenance line and nothing else); otherwise don't touch their content. `Log`
    is **shared** — the user writes their own notes on it and the skill only ever appends a dated
    entry — and it holds history that can't be regenerated, so a refresh never rewrites it. The
    one exception is step 2's rename of a legacy `Feedback` page, which changes the page's
    **title** and, at most, adds the maintenance line.
-6. **Re-assert the `Setups` view's column order** on the car's `Setups` page — one
+7. **Re-assert the `Setups` view's column order** on the car's `Setups` page — one
    `--from-template` with this car's file (`notion-structure.md` → *Applying the order*, which is
    the only place that says which form to run).
 
@@ -142,11 +161,11 @@ page, and `Setups` rows (append-only, as always).
 file is the source for the facts (the bundled file for a template car, the `Parameters` page yaml
 for a screenshot car), and the bundled file that matches the car is the source for the
 power/torque chart and the gearing-tool link, so **skip the "Use it?" prompt in *Procedure*
-step 1** and run straight through. **The one exception is already documented**: step 4's single
+step 1** and run straight through. **The one exception is already documented**: step 5's single
 question when a screenshot car's capture version is `unknown` and a bundled template matches. Report what it rebuilt in a line or two; if the car
 was already current, say so rather than inventing work.
 
-### Migration — old one-page car → four-page structure
+### Migration — old one-page car → the child-page structure
 
 Cars onboarded before the multi-page layout have a single `{Car}` page holding identity facts,
 charts, an H2 `Setups` section with the linked view, an H2 `Guidelines` section, possibly a
@@ -172,13 +191,13 @@ that can't be regenerated, so it is the only thing handled carefully:**
    header, and from then on the header is where they live). Nothing is carried over from the old
    page body directly: the **identity facts come from the car's file header** — the bundled
    file's for a template car, the `Parameters` page yaml's for a screenshot car, exactly as
-   refresh step 3 reads them — and the catalog source line, the power/torque chart and the
+   refresh step 4 reads them — and the catalog source line, the power/torque chart and the
    gearing-tool link are
    all regenerated (the chart and the link from the bundled file that matches the car, whatever
    the source line says — `notion-structure.md` → *Engine chart and gearing tool*), and the
    linked view is recreated on the `Setups` page. **This is where a migrated screenshot car's
    `Catalog` page is first created** (the old layout had none); it writes the same body the
-   refresh's own step 3 writes.
+   refresh's own step 4 writes.
 6. **Clear the old `{Car}` page body** so the umbrella page is empty and only its child pages
    remain. **Don't delete the `{Car}` page itself** — it keeps its identity, its URL, and any
    links the user has to it.
@@ -205,8 +224,26 @@ whichever workflow first tries to load that car's catalog (the one write a read 
       *Output* shape — save it with Python, then convert:
       ```python
       import json, pathlib, re
-      text = """<the block, verbatim>"""
-      # minimal parse of the old snapshot: one `- Adjustment:` entry per row, `key: value` lines
+      # Fill every value in from the matching line of the car's `Catalog` page. The comment
+      # after each key is the label the page uses for it. A fact the page shows as
+      # `couldn't determine` is copied as that literal — never look it up, never leave a key out.
+      HEADER = {
+          'car':           '{Car}',            # the car's Notion page title
+          'game':          'ACR',
+          'drivetrain':    '...',              # Drivetrain
+          'engine_layout': '...',              # Engine layout
+          'weight_bias':   '...',              # Weight bias
+          'weight':        '...',              # Weight
+          'max_power':     '...',              # Max power
+          'max_torque':    '...',              # Max torque
+          'class':         '...',              # Class
+          'gearbox':       '...',              # Gearbox
+          'steering_lock': '...',              # Steering lock
+          'version':       'unknown',          # the game version on the `Catalog source:` line, else unknown
+          'source':        'screenshots',
+      }
+      text = r"""<the block, verbatim>"""
+      # minimal parse of the old block: one `- Adjustment:` entry per row, `key: value` lines
       rows, cur = [], None
       for line in text.splitlines():
           m = re.match(r'\s*(- )?([A-Za-z ]+): (.*)$', line)
@@ -222,12 +259,12 @@ whichever workflow first tries to load that car's catalog (the one write a read 
       if cur: rows.append(cur)
       pathlib.Path('rows.json').write_text(json.dumps({'header': HEADER, 'rows': rows}), encoding='utf-8')
       ```
-      where `HEADER` is a dict of the identity facts from the `Catalog` page plus
-      `car`, `version` (the game version on the source line, or `unknown`) and
-      `source: "screenshots"`. **This is the one moment the identity facts move from the
+      For a car being migrated off the one-page layout in this same run, the facts come from
+      the old `{Car}` page body instead — same labels, same keys.
+      **This is the one moment the identity facts move from the
       `Catalog` page into the yaml header**: before the migration the `Catalog` page is the only
       place they exist; after it the `Parameters` header holds them and every later refresh
-      rebuilds the `Catalog` page from that header (refresh step 3).
+      rebuilds the `Catalog` page from that header (refresh step 4).
    2. **The legacy `Parameters` DB over REST**, only when `python scripts/check_egress.py` printed
       `egress: ok` in this chat. `notion-fetch` the `Parameters` database under the root for its
       data source id (strip the `collection://` prefix), read the token off the `Config` page, and
@@ -250,7 +287,9 @@ whichever workflow first tries to load that car's catalog (the one write a read 
    (`notion-structure.md` → *`Parameters` page*).
 3. **Rebuild the `Catalog` page** without the snapshot toggle, as **one replacement** of the page
    body: its maintenance line, the nine identity facts, the catalog source line, and nothing else
-   (`notion-structure.md` → *`Catalog` page*).
+   (`notion-structure.md` → *`Catalog` page*). Inside a refresh, refresh step 4 rebuilds this
+   page again straight afterwards, adding the chart and the gearing-tool link. Writing it twice
+   is harmless — do it here anyway, and don't branch on where you came from.
 4. **Say what happened**: *"Moved the {Car}'s parameter list to its own `Parameters` page."* Once
    per run, also: *"Your old `Parameters` table isn't read any more by any car. You can delete it."*
 
@@ -307,10 +346,8 @@ whichever workflow first tries to load that car's catalog (the one write a read 
      206, the 208 and the 306), **ask the user which car they mean** — never pick one. If none
      does, there is no bundled template for this car.
 
-   Matching a Notion `Car` value to a template's `car:` inside the tooling is the stricter
-   case of the same rule: **exact equality of the two normalised names**, which is what
-   `scripts/query_notion_parameters.py` applies when it drops a template car's legacy rows
-   (`notion-structure.md` → *Applying the order*).
+   Matching a Notion `Car` value to a template's `car:` is the stricter case of the same rule:
+   **exact equality of the two normalised names**.
 
    - **Match found:** Notify the user:
      > "Found a bundled parameter template for {Car}. It includes all parameters with
@@ -497,7 +534,7 @@ whichever workflow first tries to load that car's catalog (the one write a read 
    tunable parameters** — they are **never catalog rows**. They are *shown* on the car's
    `Catalog` page, and for a screenshot car they are *also stored* in the **header of its
    `Parameters` page yaml** — step 7 writes both — which is what a refresh rebuilds the `Catalog`
-   page from (*Refreshing an already-onboarded car*, step 3). For a template car the bundled
+   page from (*Refreshing an already-onboarded car*, step 4). For a template car the bundled
    file's header holds them. The full set:
 
    | Field | Example |
@@ -610,8 +647,8 @@ whichever workflow first tries to load that car's catalog (the one write a read 
      of them opens with its one-line maintenance note**, verbatim from the table in
      `notion-structure.md` → *Car page*. On a
      refresh of a car still on the old one-page layout, migrate it first
-     (*Refreshing an already-onboarded car* → *Migration — old one-page car → four-page
-     structure*, above).
+     (*Refreshing an already-onboarded car* → *Migration — old one-page car → the
+     child-page structure*, above).
 
      1. **`Guidelines`** — create it if missing, with its maintenance line and a short stub
         inviting car-specific tuning preferences (tone per `tuning-guidelines-template.md`). **If it already exists, do

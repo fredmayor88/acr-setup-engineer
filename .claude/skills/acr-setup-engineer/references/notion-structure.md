@@ -69,7 +69,7 @@ batched with its other reads:
 A user who **declines** the bundled template at onboarding and uploads screenshots gets a car
 whose line says `your screenshots`: it is a screenshot car until a refresh finds a template at
 least as new as the game version on that line, and then it switches to the template on its own
-(`onboard-car.md` → *Refreshing an already-onboarded car*, step 4).
+(`onboard-car.md` → *Refreshing an already-onboarded car*, step 5).
 
 **A legacy `Parameters` DB** — created by skill versions before every catalog became a file —
 is **never read and never deleted**. A refresh — or the first workflow that tries to load that
@@ -507,13 +507,22 @@ python scripts/query_notion_parameters.py --show-order --from-template <file1> -
 
 No token, no sandbox network — the script runs on files; on every plan.
 
-**Which files to pass, without extra reads.** The onboarded cars are the `{Car}` pages under the
-root — the root fetch you already did lists them. For each: a name matching a bundled template →
-`car-templates/<slug>.yaml`, **unless** its `Catalog` page was read this run and says
-`your screenshots`; otherwise it is a screenshot car → fetch its `Parameters` page (batch these
-fetches) and save each per `catalog-read.md` → *Save the file*. A screenshot car whose page can't
-be read is left out: say in one line that its columns keep their current position until its page
-is readable. **Never drop the `SHOW`** for that reason, and never assemble a list by hand.
+**Which files to pass.** The onboarded cars are the `{Car}` pages under the root — the root fetch
+you already did lists them. **Fetch every one of those cars' `Catalog` pages, batching them into
+one step** (the ones you already hold from this run don't need fetching again), and decide from
+each car's `Catalog source:` line — **never from its name**, because a forked car's name always
+matches a bundled template and ordering it from the bundled file would silently drop the columns
+its own list added:
+
+- `bundled template …` → `car-templates/<slug>.yaml`;
+- `your screenshots …` → a screenshot car: fetch its `Parameters` page too (batch these fetches
+  with the rest) and save it per `catalog-read.md` → *Save the file*;
+- **no source line** (a car from an older skill version) → rule 3 of *Where a car's catalog
+  lives*, above.
+
+A screenshot car whose page can't be read is left out: say in one line that its columns keep
+their current position until its page is readable. **Never drop the `SHOW`** for that reason, and
+never assemble a list by hand.
 
 The script prints the exact, ready-to-use property list: `"Name"`, then
 value columns by `Order`, then the fixed meta columns (`Car` … `Model`, `Skill version`). Use it
@@ -577,7 +586,9 @@ lines; keep them as short as they are and don't add to them:
 | `Parameters` | screenshot car: *Your car's parameter list, kept by the skill. To change a range, say it in chat ("the front ARB goes 1 to 6 in steps of 1") — don't edit this page by hand. It survives refreshes.* — forked car: *Started {YYYY-MM-DD} as a copy of the bundled template (game version {tv}), with your edits. The skill keeps this list; say changes in chat.* |
 | `Setups` | *Kept up to date by the skill, but your own edits to these setups are never overwritten.* |
 
-The date comes from the deterministic one-liner under *Date* (never a guess).
+The `{YYYY-MM-DD}` in those lines comes from the deterministic one-liner under *Date* (never a
+guess) — that one-liner prints a full timestamp, so take the date part, the first 10
+characters.
 
 ### `Guidelines` page — the user's, never the skill's
 
@@ -617,10 +628,13 @@ Then, in order:
    written as the literal **`couldn't determine`**. **That ladder runs at onboarding only.**
    Because this page is skill-owned, a refresh **rewrites these from the car's own file** rather
    than protecting hand edits — from the **bundled file's header** for a template car, and from
-   the **header of the `Parameters` page yaml** for a screenshot or forked car (`onboard-car.md`
-   → *Refreshing an already-onboarded car*, step 3); a key that is missing or empty there is
-   written as `couldn't determine`, never looked up again. A user who wants a fact to read
-   differently puts it in `Guidelines`, which outranks it anyway.
+   the **header of the `Parameters` page yaml** for a screenshot or forked car, read with
+   `python scripts/load_catalog.py <file> --header` and never by eye (`onboard-car.md` →
+   *Refreshing an already-onboarded car*, step 4). `couldn't determine` reaches this page only
+   when the header itself holds that literal; a refresh never invents it. **A screenshot car
+   whose header is missing one of the nine keys keeps its `Catalog` page untouched for that
+   refresh** — the page may still hold the only good copy of those facts. A user who wants a
+   fact to read differently puts it in `Guidelines`, which outranks it anyway.
 2. **The catalog source line** — one paragraph line of its own, directly under the identity
    facts and above the chart. It says where this car's legal values come from, and **every read
    workflow decides from it whether the car is a template car or a screenshot car** (*Where a
@@ -744,7 +758,8 @@ block. Read by `catalog-read.md`; written by `onboard-car.md` (screenshot path),
 2. **Only when the car has switched to a bundled template:** the *Not in use* line, italic:
    *Not in use since {YYYY-MM-DD}: a newer bundled template (game version {v}) appeared, so this
    car uses that now. Say 'onboard the {Car} from my screenshots' to use this list again.*
-   The date comes from the deterministic one-liner under *Date* (never a guess). **The line is
+   The date comes from the deterministic one-liner under *Date* (never a guess); it prints a
+   full timestamp, so take the date part, the first 10 characters. **The line is
    removed when the list comes back into use** — a re-onboard from screenshots, or an edit that
    replaces the parked list (`edit-catalog.md` step 6.4).
 3. One ```` ```yaml ```` block: the file printed by
@@ -757,7 +772,9 @@ block. Read by `catalog-read.md`; written by `onboard-car.md` (screenshot path),
    `engine_curve`** — those stay in the bundled file and are read from there (*Engine chart and
    gearing tool* below). **The nine identity facts in this header are what a refresh rebuilds
    this car's `Catalog` page from** (`onboard-car.md` → *Refreshing an already-onboarded car*,
-   step 3). **Never write this block by hand**: build `rows.json` from the rows in hand and use
+   step 4), read with `python scripts/load_catalog.py <file> --header`; if one of the nine is
+   missing here, that refresh leaves the car's `Catalog` page alone rather than overwriting it.
+   **Never write this block by hand**: build `rows.json` from the rows in hand and use
    the script's output verbatim.
 
 **Rules:**

@@ -33,7 +33,8 @@ it can't connect, says so in one line. Nothing is broken. This is what changes.
 - Building, changing, reviewing, sharing and saving setups.
 - Importing a save file, and saving your own setups from photos.
 - **Every car, fully** — bundled ones and the ones you onboarded from screenshots. Their parameter
-  lists never need the connection.
+  lists never need the connection. A car set up by a much older version of the skill may need one
+  re-onboard from screenshots. The skill tells you which.
 - Anything you give it in the current chat, like screenshots or values you type.
 
 ## Things to know

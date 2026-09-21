@@ -47,9 +47,11 @@ and use it, don't re-fetch. **Unless the user has changed the list since** (an `
 run, typically filling in the `Discrete steps` the onboarding report asked for): then load the
 car's catalog again per `catalog-read.md`, because those edits live only on the page.
 
-Also read the car's `Drivetrain` and its identity facts (`Engine layout`, `Weight bias`, `Weight`,
-`Max power`, `Max torque`, `Class`, `Gearbox`, `Steering lock`) from its `Catalog` page **only if
-the file's header is missing them** — the header normally already carries them.
+Run `python scripts/load_catalog.py parameters/<slug>.yaml --header` to see what the header
+already carries — never read the header by eye. Only for a key that object doesn't have, read the
+matching fact (`Drivetrain`, `Engine layout`, `Weight bias`, `Weight`, `Max power`, `Max torque`,
+`Class`, `Gearbox`, `Steering lock`) off the car's `Catalog` page. The header normally carries
+all of them.
 
 ### 2. Completeness check
 Scan the loaded catalog for gaps and warn (but do NOT block the export):
@@ -228,6 +230,7 @@ gearbox: "Manual 5-speed"
 steering_lock: "1170°"
 version: "0.6"                                 # game version the values were captured in, or "unknown"
 source: "game-files"                           # game-files | community | screenshots
+forked_from: "bundled template v0.6"           # a `Parameters` page file only, when the car was forked
 # --- bundled cars only, added by the maintainer tools ---
 gearing_tool: "https://…/lancia-stratos/gears/"
 power_torque_chart: "https://…/lancia-stratos-power-torque.png"
@@ -237,8 +240,7 @@ engine_curve:
   peak_power: "265 hp at 7750 rpm"
   rpm_step: 250
   torque_points: [[0, 0], [250, 0], …]         # [rpm, Nm]; power is derived, not stored
-# --- a file stored on a car's `Parameters` page only ---
-forked_from: "bundled template v0.6"           # only when the car was forked from a bundled template
+# --- bookkeeping, added by --to-template on a car's `Parameters` page ---
 written_at: "2026-09-21"
 skill_version: v0.19.1
 parameter_count: 42

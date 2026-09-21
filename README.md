@@ -829,8 +829,9 @@ On Free, egress is capped at package managers and there is no switch to flip. Th
 configuration problem to fix; it's the plan.
 
 The skill still works on Free. **Every car works fully** — the bundled ones and the ones you
-onboarded from screenshots. Their parameter lists need no token and no network. What follows is
-about your setup history, which affects every car. What that costs you:
+onboarded from screenshots. Their parameter lists need no token and no network. A car set up by a
+much older version of the skill may need one re-onboard from screenshots. The skill tells you
+which. What follows is about your setup history, which affects every car. What that costs you:
 
 - **No setup history.** Saved setups can't be read back: setups you ticked `Learn from this`
   don't shape new builds, and a stored game-default baseline can't be reused — you'll be asked to

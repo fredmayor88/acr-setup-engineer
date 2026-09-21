@@ -33,8 +33,9 @@ this workflow only runs it for every car.
 
 3. **Refresh every car, one after another**, by running `onboard-car.md` → *Refreshing an
    already-onboarded car* for each `{Car}` page, exactly as a per-car refresh would — including
-   the layout migration, the `Feedback` → `Log` rename, the `Catalog` rebuild and the screenshot-car
-   rules (a switch to a template at least as new, the one question when the captured game version
+   the layout migration, the `Feedback` → `Log` rename, the catalog-rows migration that gives a
+   screenshot car its `Parameters` page (**before** the `Catalog` rebuild, as that section has
+   it), the `Catalog` rebuild and the screenshot-car rules (a switch to a template at least as new, the one question when the captured game version
    is `unknown`). Two differences, so one command doesn't turn into a long conversation:
    - **Don't wait on a car that can't be migrated.** Where the catalog-rows migration finds
      nothing to recover (`onboard-car.md` → *Migration — catalog rows to the `Parameters` page*,
@@ -58,7 +59,7 @@ this workflow only runs it for every car.
    `Feedback` renamed to `Log` / migrated from the old layout). Then, only if any:
    - cars whose parameter list couldn't be recovered, with *"onboard the {Car} from my
      screenshots"* for each;
-   - the legacy-rows line (`onboard-car.md` step 4) once, naming the cars it applies to;
+   - the legacy-rows line (`onboard-car.md` refresh step 5) once, naming the cars it applies to;
    - cars skipped because of an error, with what went wrong.
    Confirm in one line that the column order was asserted on the shared views.
 
