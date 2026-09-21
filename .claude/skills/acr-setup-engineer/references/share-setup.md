@@ -14,15 +14,16 @@ never writes to Notion.
 1. **Locate the setup.** Fetch the car's `Setups` DB rows (filtered to that car). Find
    the row matching the requested setup name. If not found, list the available setups and
    ask the user to pick; do not proceed until one is identified.
-   **Fetch the car's `Catalog` page in the same batch** (`SKILL.md` → *Read efficiently*): step 2
+   **Fetch the car's `Catalog` page — and the car's `Parameters` page for a screenshot car — in
+   the same batch** (`SKILL.md` → *Read efficiently*): step 2
    needs its `Catalog source:` line to know where the catalog comes from. Nothing else on that
    page is used here — this workflow reads no identity facts and no guidelines.
 
-2. **Load section + unit metadata.** **Load the car's catalog:** a **template car** →
-   `python scripts/load_catalog.py car-templates/<slug>.yaml` (no token, no network); a
-   **screenshot car** → its `Parameters` rows via
-   [notion-rest-read.md](notion-rest-read.md). Decide which from the `Catalog` page's
-   `Catalog source:` line (`notion-structure.md` → *Where a car's catalog lives*). Take `Section`,
+2. **Load section + unit metadata.** **Load the car's catalog per
+   [catalog-read.md](catalog-read.md)** — a bundled file for a template car, the car's
+   `Parameters` page (fetched in this same batch) for a screenshot car; one `load_catalog.py`
+   call either way, `--surface {Surface}` when the workflow resolves a surface (it doesn't here,
+   so leave it off). Take `Section`,
    `Adjustment`, `Unit`, and `Order` for every parameter. This is the only way to know which
    section each value belongs to, what unit label to append, and the display order.
 

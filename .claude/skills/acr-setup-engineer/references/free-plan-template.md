@@ -32,15 +32,13 @@ it can't connect, says so in one line. Nothing is broken. This is what changes.
 
 - Building, changing, reviewing, sharing and saving setups.
 - Importing a save file, and saving your own setups from photos.
-- **Every bundled car, fully.** Their parameter lists are inside the skill.
+- **Every car, fully** — bundled ones and the ones you onboarded from screenshots. Their parameter
+  lists never need the connection.
 - Anything you give it in the current chat, like screenshots or values you type.
 
 ## Things to know
 
 - **Skip the token on the `Config` page.** It needs the connection Free doesn't have.
-- **Cars you onboarded from screenshots** read their parameter list from the copy at the bottom of
-  their `Catalog` page. If you edit that car's rows in the `Parameters` table, say
-  **"refresh the {car} in my Notion"** and paste the rows when asked.
 - **Long chats can hit Free's limits.** Some requests run several steps. If a chat stops, start a
   new one and ask again.
 

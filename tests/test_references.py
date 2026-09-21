@@ -14,7 +14,7 @@ FILES = [os.path.join(SKILL, 'SKILL.md')] + sorted(glob.glob(os.path.join(SKILL,
 BANNED = [
     ('catalog snapshot', {'notion-structure.md', 'onboard-car.md', 'catalog-read.md'}),  # legacy + migration
     ('refresh-catalog-snapshot', set()),
-    ('paste the', set()),
+    ('paste the', {'config-page-template.md'}),  # pasting the API token is legitimate
     ('--snapshot', set()),
     ('--all', set()),
     ('params_data_source_id', set()),

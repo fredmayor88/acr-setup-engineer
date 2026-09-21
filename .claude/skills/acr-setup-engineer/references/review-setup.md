@@ -20,7 +20,8 @@ Read `notion-structure.md` (structure + schemas), `setup-tuning-principles.md` (
 > **Load steps 1–4 as one batched read** (`SKILL.md` → *Read efficiently*): after resolving the
 > structure, issue the independent reads together (parallel tool calls) and run the REST queries in
 > one code-execution block — fetching the car's `Catalog` page (`Drivetrain`/identity facts,
-> step 2), its `Guidelines` page (step 3), its `Log` page (step 3) and the stage page (step 4) once
+> step 2), **the car's `Parameters` page for a screenshot car**, its `Guidelines` page (step 3),
+> its `Log` page (step 3) and the stage page (step 4) once
 > each, in the same batch.
 
 ### 1. Identify the setup
@@ -39,12 +40,10 @@ imported setup with only metadata and no individual parameter values entered), s
 There is nothing to review without values.
 
 ### 2. Load constraints + drivetrain
-**Load the car's catalog:** a **template car** → `python scripts/load_catalog.py
-car-templates/<slug>.yaml --surface {Surface}` (no token, no network); a **screenshot car** → its
-`Parameters` rows via [notion-rest-read.md](notion-rest-read.md), staying within
-`ACR Setup Engineer → Parameters`. Decide which from the `Catalog` page's `Catalog source:` line
-(`notion-structure.md` → *Where a car's catalog lives*). Either way the rows carry `Adjustment`,
-`Min`, `Max`, `Unit`, `Discrete steps`, `Order`, `Surface`. Also read the `Drivetrain`
+**Load the car's catalog per [catalog-read.md](catalog-read.md)** — a bundled file for a template
+car, the car's `Parameters` page (fetched in this same batch) for a screenshot car; one
+`load_catalog.py` call either way, `--surface {Surface}` when the workflow resolves a surface.
+Here it is the reviewed setup's `Surface` (loaded in step 1), so pass it. Also read the `Drivetrain`
 (FWD/RWD/AWD), weight bias and engine facts from the car's `Catalog` page — the same fetch that
 gave you the source line. This workflow is read-only on the database — it never reorders Notion
 columns. **Resolve each parameter's legal range for the setup's `Surface`** (loaded in step 1) —

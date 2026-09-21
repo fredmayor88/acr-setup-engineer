@@ -93,12 +93,10 @@ outside `ACR Setup Engineer`.
   nothing to explain — and stop.
 
 ### 3b. Load constraints + drivetrain
-**Load the car's catalog:** a **template car** → `python scripts/load_catalog.py
-car-templates/<slug>.yaml --surface {Surface}` (no token, no network); a **screenshot car** → its
-`Parameters` rows via [notion-rest-read.md](notion-rest-read.md)
-(`scripts/query_notion_parameters.py`). Decide which from the `Catalog` page's `Catalog source:`
-line (`notion-structure.md` → *Where a car's catalog lives*). Either way the rows carry
-`Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Order`, `Surface`. Read `Drivetrain`
+**Load the car's catalog per [catalog-read.md](catalog-read.md)** — a bundled file for a template
+car, the car's `Parameters` page (fetched in this same batch) for a screenshot car; one
+`load_catalog.py` call either way, `--surface {Surface}` when the workflow resolves a surface.
+Here it is the setup's `Surface` (step 3a), so pass it. Read `Drivetrain`
 (FWD/RWD/AWD) from the car's `Catalog` page. **Resolve each parameter's legal
 range for the setup's `Surface`** — the surface-specific row if one exists; for `Snow`, fall back
 to a `Gravel` row before the baseline (see `notion-rest-read.md`).

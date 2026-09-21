@@ -39,15 +39,14 @@ Decide what the iteration starts from — **don't immediately write anything**:
 ### 2. Load constraints + the car's identity facts
 > **Load steps 2–4 as one batched read** (`SKILL.md` → *Read efficiently*): once the structure is
 > resolved, issue the independent reads together (parallel tool calls) and run the REST queries in
-> one code-execution block, fetching the car's `Catalog` page (identity facts, this step) and its
+> one code-execution block, fetching the car's `Catalog` page (identity facts, this step), **the
+> car's `Parameters` page for a screenshot car**, and its
 > `Guidelines` and `Log` pages (step 3) once each, in the same batch. Skip any read whose data is already in the thread.
 
-**Load the car's catalog:** a **template car** → `python scripts/load_catalog.py
-car-templates/<slug>.yaml --surface {Surface}` (no token, no network); a **screenshot car** → its
-`Parameters` rows via [notion-rest-read.md](notion-rest-read.md). Decide which from the `Catalog`
-page's `Catalog source:` line (`notion-structure.md` → *Where a car's catalog lives*). Either way
-the rows are the same (`notion-rest-read.md` → *Output*): `Adjustment`, `Min`, `Max`, `Unit`,
-`Discrete steps`, `Order`, `Surface`. Read the car's identity
+**Load the car's catalog per [catalog-read.md](catalog-read.md)** — a bundled file for a template
+car, the car's `Parameters` page (fetched in this same batch) for a screenshot car; one
+`load_catalog.py` call either way, `--surface {Surface}` when the workflow resolves a surface.
+Here the surface is the working setup's, so pass it. Read the car's identity
 facts from the car's `Catalog` page — `Drivetrain` (FWD/RWD/AWD), `Engine layout`, `Weight bias`, `Weight`
 — and feed them into the balance reasoning (same facts a build loads; not drivetrain alone). If a
 field is blank, infer the bias from drivetrain + engine layout, or proceed drivetrain-only.
@@ -202,14 +201,11 @@ When the user asks to save (and not before):
 - **Apply the column order — MANDATORY, never skip (even on a quick / low-effort run); the save is
   not done until you've done it** (`notion-structure.md` → *Applying the order*), **after the row is
   written**. Get the `SHOW` list from the bundled script — **never build or merge one by hand**
-  — running the form *Applying the order* names for each projection, and set `SHOW`
-  (`notion-update-view`) on the main `Setups` table view (*Applying the order* case 3: **one**
-  call with a `--from-template` per onboarded template car, plus `<params_ds> <token> --all` only
-  if a screenshot car exists), this car's linked view (case 1 —
-  `--show-order --from-template car-templates/<slug>.yaml`, no token — for a template car; case 2
-  — `<params_ds> <token> "{Car}" --show-order` — for a screenshot car; hides blanks), and — if a
-  stage/location is set — its `{Stage}` / `{Location}` linked view (case 3, no per-car
-  filtering). The script lists `Name`,
+  — running the form *Applying the order* gives, and set `SHOW`
+  (`notion-update-view`) on the main `Setups` table view (one `--from-template` per onboarded
+  car), this car's linked view (this car's file only, which hides blanks in the same step), and
+  — if a stage/location is set — its `{Stage}` / `{Location}` linked view (one `--from-template`
+  per onboarded car, no per-car filtering). The script lists `Name`,
   value columns by `Order`, then the full meta columns (including `Model` and `Skill version`).
   Idempotent view update — the row write above stays append-only.
 - **Ensure the stage facts page exists in the catalogue** (per `notion-structure.md` → *Locations &
