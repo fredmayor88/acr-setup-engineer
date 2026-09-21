@@ -113,7 +113,7 @@ def extract_value(prop):
 
 
 def build_filter(car_name, learn_only, source=None):
-    """Build the Notion query filter. car_name=None means no Car filter (--all).
+    """Build the Notion query filter. car_name=None means no Car filter.
 
     `source` filters Setups rows on the "Source" select (e.g. "default" for the
     captured stock baselines). `learn_only` additionally excludes Source=default
@@ -142,7 +142,7 @@ def build_show_order(rows):
 
         "Name", <value columns by Order>, <fixed meta columns>
 
-    `rows` are Parameters rows (each a dict with `Adjustment` and optional `Order`).
+    `rows` come from template files (each a dict with `Adjustment` and optional `Order`).
     Baseline + surface rows of one parameter share a column and an Order — deduped
     here. Parameters with no `Order` sort last, by name.
     """
