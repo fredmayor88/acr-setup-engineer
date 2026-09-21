@@ -26,6 +26,7 @@ Pick the matching workflow and read its file before acting:
 | Onboard a car / capture its tunable parameters (from min & max screenshots, plus the car info screen for its identity facts) | `references/onboard-car.md` |
 | **Refresh an already-onboarded car** — *"refresh the {car} in my Notion"*, *"update {car}"*, *"re-onboard {car}"*, and every snapshot request (*"refresh the catalog snapshot for {car}"*, *"make {car} readable on Free"* — there is no separate snapshot command): a car onboarded **from screenshots** switches to a bundled template that is at least as new as its captured game version (asking once, recommending yes, when that version is `unknown`), and otherwise keeps its screenshots and gets its snapshot brought up to date. Rebuilds the car's **`Catalog`** page wholesale (identity facts, the **catalog source line**, the power/torque chart and the gearing-tool link, the `Catalog snapshot`), writing **no `Parameters` rows** for a template car — its catalog lives in the skill. It also migrates a car still on the old one-page layout, including renaming a legacy **`Feedback`** page to **`Log`** in place. On a car whose `Catalog` page had **no catalog source line** (so an older version onboarded it), it says in one line that the car's existing `Parameters` rows are no longer read. Never touches the content of the user's `Guidelines` page, the content of the car's `Log` page, or `Setups` rows | `references/onboard-car.md` (refresh path) |
 | **Re-onboard a car from screenshots** — *"onboard the {car} from my screenshots"*, *"re-onboard the {car} from screenshots"*: **not** a refresh. Captures the car's ranges from the user's own min/max setup screens even if it is on a bundled template today, writes them as `Parameters` rows and flips the catalog source line to `your screenshots`. A bare *"re-onboard {car}"* is the refresh row above | `references/onboard-car.md` (screenshot path) |
+| **Refresh everything after a skill update** — *"refresh my ACR Notion"*, *"update my ACR Notion"*, *"refresh all my cars"*, *"I updated the skill"*: rewrites the skill's root pages (`How to use`, `Claude Free plan`, `Parameter reference`) and runs the per-car refresh for every onboarded car. Never touches the user's pages, their `Log` notes or `Setups` rows | `references/refresh-notion.md` |
 | Build a setup for a stage | `references/build-setup.md` |
 | Tweak / refine a setup, or describe a handling problem to work through (problem → tweak → test loop) | `references/tweak-setup.md` |
 | Work out **what's actually wrong** with how the car feels — guided questions after a drive, when the user can't put it into words (then continue into `tweak-setup.md` / `build-setup.md` with the diagnosis) | `references/driving-feedback-interview.md` |
@@ -328,6 +329,12 @@ Bundled tools (stdlib Python, run via code execution):
   follow rather than silently picking one. Cite a user guideline when it drives a choice.
 - **Notion by name.** Resolve the structure by its canonical names and create whatever is
   missing (per `references/notion-structure.md`); don't rely on stored IDs.
+- **Keep the skill's own root pages current — once per chat.** The first time a workflow resolves
+  the structure, fetch `How to use` in the same batch; if it's missing or its banner shows another
+  skill version, rewrite `How to use`, `Claude Free plan` and `Parameter reference` and tell the
+  user once to say *"refresh my ACR Notion"* for their car pages
+  (`references/notion-structure.md` → *Keeping them current — the version check*). Never refresh
+  car pages from this check.
 - **Reading rows.** `Parameters` is read from Notion **only for screenshot cars**; a template
   car's catalog is read from its bundled file with
   `python scripts/load_catalog.py car-templates/<slug>.yaml [--surface {Surface}]` — **no token,

@@ -136,8 +136,9 @@ later workflow in the chat — don't re-run it per read.
   > *This chat can't reach Notion's API. That's normal on Claude's Free plan. It means I can't
   > read your saved setups, so the ones you ticked `Learn from this` won't shape this setup, and
   > I can't reuse a stored game default. Everything else works, and new setups still save to
-  > Notion. (On Pro or Max you can turn this on: Settings → Capabilities → Network egress → All
-  > domains, then start a new chat.)*
+  > Notion. The `Claude Free plan` page in your Notion has the details. (On Pro or Max you can
+  > turn this on: Settings → Capabilities → Network egress → All domains, then start a new
+  > chat.)*
 
   Keep the `Learn from this` sentence whenever the workflow would have read the learn pool — it
   is the part the user loses without noticing. For a **screenshot car**, add that its parameter

@@ -445,6 +445,17 @@ forums.
 in to GitHub, paste it into the submission form, press Create. No fork, no pull request, no command
 line, no tokens.
 
+### After you update the skill
+
+*"Refresh my ACR Notion."* One command brings everything the skill keeps in your Notion up to date
+with the version you installed: the `How to use`, `Claude Free plan` and `Parameter reference`
+pages, and every car's pages (their facts, chart, gearing link and parameter list). It never changes
+your setups, your `Tuning guidelines`, a car's `Guidelines` or your notes on a car's `Log`. To update
+a single car, say *"refresh the Lancia Stratos in my Notion"*.
+
+You don't have to remember this: the first time you use the skill after an update, it rewrites
+`How to use` on its own and reminds you once.
+
 ## The workflows
 
 | You want to… | Workflow |
@@ -459,6 +470,7 @@ line, no tokens.
 | Save a setup you built in-game, from photos | [`capture-setup.md`](.claude/skills/acr-setup-engineer/references/capture-setup.md) |
 | Import from a save file | [`import-savegame.md`](.claude/skills/acr-setup-engineer/references/import-savegame.md) |
 | Export a community template | [`export-car-template.md`](.claude/skills/acr-setup-engineer/references/export-car-template.md) |
+| Refresh everything after an update | [`refresh-notion.md`](.claude/skills/acr-setup-engineer/references/refresh-notion.md) |
 
 ## Flows
 
@@ -638,6 +650,10 @@ things back:
 
 ```
 ACR Setup Engineer (root page)
+├── How to use              what you can ask for, what to run after an update, which page is
+│                            whose. The skill's page: rewritten on every update
+├── Claude Free plan        what works and what doesn't on Claude's Free plan. The skill's
+│                            page: rewritten on every update
 ├── Config                  read-only API token + its setup instructions
 ├── Parameters       (DB)   the parameter list of cars you onboarded from screenshots —
 │                            one row per Car × Adjustment × Surface. Created the first time
@@ -794,6 +810,8 @@ rows when saving. Granting the stored token write access would trade real safety
 the path that needs it least.
 
 ## What Claude's Free plan can't do
+
+The same information is on the **`Claude Free plan`** page in your Notion.
 
 The REST read path needs the code sandbox to reach `api.notion.com`, and that takes the
 **Network egress → All domains** setting — which exists on **Pro and Max** but not on **Free**.

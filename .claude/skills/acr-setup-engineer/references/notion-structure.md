@@ -23,6 +23,8 @@ across workspaces and self-healing:
    of a `SHOW` call) has nothing to do. Unlike the other pages, **`Parameter reference` is
    auto-maintained**: (re-)seed its body from `parameter-reference-template.md` on first create
    **and refresh it on skill updates** — it is not a user-editable layer (see its section below).
+   The same holds for the two documentation pages, **`How to use`** and **`Claude Free plan`**
+   (*`How to use` and `Claude Free plan` pages* below).
 4. Per car: the **`{Car}`** page with its filtered view. Per location/stage referenced by a setup:
    the **`{Location}`** page and **`{Stage}`** page (under `Locations`) with their filtered views.
 
@@ -148,6 +150,10 @@ the token back, copy it into other pages, or include it in exports.
 
 ```
 ACR Setup Engineer (root page)
+├── How to use (page)          what to ask for, the command to run after an update, who owns
+│                               which page; skill-owned, rewritten on every skill update
+├── Claude Free plan (page)    what works and what doesn't on Claude's Free plan; skill-owned,
+│                               rewritten on every skill update
 ├── Config (page)              holds the read-only Notion API token; auto-created with setup
 │                               instructions, token blank until the user pastes it (see "Reading rows")
 ├── Parameters        (DB)     the catalog of SCREENSHOT-ONBOARDED cars — one row per
@@ -1086,7 +1092,8 @@ opening the game. Seeded from [parameter-reference-template.md](parameter-refere
 **Unlike `Config` and `Tuning guidelines`, this page is auto-maintained and is NOT a
 create-if-missing-then-never-touch page and NOT a user-editable guideline layer.** (Re-)seed it from
 the template on first create **and refresh its body on skill updates** so the game text stays
-current. The seeded body opens with a **read-only banner** telling the user not to add notes here
+current — "on skill updates" means the version check in *`How to use` and `Claude Free plan`
+pages* above, and *"refresh my ACR Notion"*. The seeded body opens with a **read-only banner** telling the user not to add notes here
 (they'd be overwritten) — personal tuning preferences belong on `Tuning guidelines` instead. It is
 purely reference and plays no part in the layered tuning model above.
 
@@ -1101,6 +1108,39 @@ purely reference and plays no part in the layered tuning model above.
 - This is a **whole-page overwrite**, so the "never overwrite" caution that applies to `Config` and
   `Tuning guidelines` **does not apply here** — the page holds only shipped game text, never user
   input, so there's nothing of the user's to lose.
+
+## `How to use` and `Claude Free plan` pages
+
+Two short documentation pages directly under the root, for the user to read on a phone:
+
+- **`How to use`** — seeded from [how-to-use-template.md](how-to-use-template.md): one line per
+  thing the user can ask for, with a prompt to copy; the command to run after updating the skill
+  (*"refresh my ACR Notion"*); and which page is whose.
+- **`Claude Free plan`** — seeded from [free-plan-template.md](free-plan-template.md): what works
+  and what doesn't without network access to Notion's API. The offline-mode message points here
+  (`notion-rest-read.md` → *Offline mode*).
+
+Both are **skill-owned and auto-maintained, exactly like `Parameter reference`**: never a user
+layer, and a whole-page replacement is always safe because nothing of the user's lives on them.
+**Create / refresh** the same way — copy everything below the template's `---` line, replace
+`{version}` with the skill version (`SKILL.md` → *Skill version*), and on a refresh delete every
+existing block first and write the body fresh (never append).
+
+### Keeping them current — the version check
+
+The banner on `How to use` carries the skill version that wrote it. **Once per chat, the first
+time a workflow resolves the structure, fetch `How to use` in that same batch of reads** and
+compare its banner version with the running skill's version:
+
+- **Same version** → nothing to do.
+- **Page missing, or a different version** → rewrite **`How to use`, `Claude Free plan` and
+  `Parameter reference`** now (create any that is missing), before the workflow's own writes, and
+  tell the user once, in one line: *"Your Notion was set up by an older version of the skill ({old
+  version}). I've updated `How to use`; say "refresh my ACR Notion" to bring your car pages up to
+  date too."* (Say *"set up by an older version"* only when there was a page to compare; a missing
+  page just gets created, silently.)
+- **Never refresh car pages from this check** — that is many writes, and the user decides when
+  (`refresh-notion.md`).
 
 ## Mobile conventions (pages are read on a phone, in-game)
 

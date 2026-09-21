@@ -8,8 +8,13 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
   - `SKILL.md` — entry point: core rules + the workflow routing table.
   - The workflows: `references/onboard-car.md`, `build-setup.md`, `tweak-setup.md`,
     `review-setup.md`, `ask-setups.md`, `share-setup.md`, `capture-setup.md`,
-    `import-savegame.md`, `export-car-template.md` — plus `driving-feedback-interview.md` (below), which the
-    routing table also lists as an entry point.
+    `import-savegame.md`, `export-car-template.md`, `refresh-notion.md` (every car at once) — plus
+    `driving-feedback-interview.md` (below), which the routing table also lists as an entry point.
+    `refresh-catalog-snapshot.md` is internal: called by a car refresh and the read path, never a
+    user command.
+  - `references/how-to-use-template.md` and `free-plan-template.md` — the two skill-owned Notion
+    documentation pages. `tests/test_notion_docs_pages.py` fails when a routed workflow is missing
+    from the `How to use` template's `Covers:` line — give the page a line for it, then add it.
   - `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions,
     create-if-missing rules. **The source of truth for the data model.**
   - `references/notion-rest-read.md` — the way every workflow reads **rows in Notion**: the

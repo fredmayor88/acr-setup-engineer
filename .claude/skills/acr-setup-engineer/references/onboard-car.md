@@ -24,6 +24,8 @@ Read `notion-structure.md` (structure + schemas + create-if-missing) before writ
 catalog snapshot for the {car}", "make the {car} readable on Free". There is no separate snapshot
 command any more: a refresh writes the snapshot as part of the car (step 4), and
 `refresh-catalog-snapshot.md` is only the procedure this path and the read path call internally.
+A request for **every** car — *"refresh my ACR Notion"*, *"refresh all my cars"* — is
+`refresh-notion.md`, which runs this refresh once per car.
 
 **Re-onboarding an already-onboarded car from screenshots:** "onboard the {car} from my
 screenshots", "re-onboard the {car} from screenshots", "onboard the {car} from screenshots
@@ -473,7 +475,9 @@ guessing. Regenerating the skill's own data is free; losing the user's notes is 
 6. **Ensure the Notion structure exists (create-if-missing).** Per `notion-structure.md`,
    resolve **by name** and create whatever is missing: the `ACR Setup Engineer` root → the `Config`
    page (seed from `config-page-template.md` if missing — token blank; **never overwrite an
-   existing one**) → the `Setups` DB → **the `Parameters` DB on the screenshot path only**, and
+   existing one**) → the `How to use` and `Claude Free plan` pages (seeded from
+   `how-to-use-template.md` and `free-plan-template.md`, skill-owned — `notion-structure.md` →
+   *`How to use` and `Claude Free plan` pages*) → the `Setups` DB → **the `Parameters` DB on the screenshot path only**, and
    only if it doesn't exist yet (a template car never needs it) → the global `Tuning guidelines` page
    (seed it from `tuning-guidelines-template.md`) → the global `Parameter reference` page (seed its
    body from `parameter-reference-template.md`; **this page is auto-maintained — if it already
