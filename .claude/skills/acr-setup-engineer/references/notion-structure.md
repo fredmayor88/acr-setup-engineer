@@ -504,7 +504,7 @@ python scripts/query_notion_parameters.py --show-order --from-template <file1> -
 - **Per-car view** (the car's `Setups` page) → that car's file only.
 - **Main `Setups` table, `{Location}` and `{Stage}` views** → every onboarded car's file.
 
-No token, no network, on every plan.
+No token, no sandbox network — the script runs on files; on every plan.
 
 **Which files to pass, without extra reads.** The onboarded cars are the `{Car}` pages under the
 root — the root fetch you already did lists them. For each: a name matching a bundled template →
@@ -550,7 +550,7 @@ a template car — it has no `Parameters` page):
 | **`Guidelines`** | **the user** | **Never** — created once, empty, then read-only forever |
 | **`Catalog`** | the skill | **Replaced wholesale** on every refresh, no merge, no asking |
 | **`Log`** | **shared — the user *and* the skill** | **Add-only** — the skill appends a new dated entry at the top and never edits, reorders or removes anything already on the page (the user edits their own notes freely) |
-| **`Parameters`** | the skill's | written by onboarding and `edit-catalog.md`; **never** by a refresh (except the *Not in use* line); the only copy |
+| **`Parameters`** | the skill's | written by onboarding and `edit-catalog.md`; **never** by a refresh (except the *Not in use* line and the one-time migration that creates the page — `onboard-car.md` → *Migration — catalog rows to the `Parameters` page*); the only copy |
 | **`Setups`** | the skill | Holds the `Setups[Car=this]` filtered linked view |
 
 **`Catalog` and `Log` both carry skill writing, but they behave oppositely, and confusing them
@@ -576,6 +576,8 @@ lines; keep them as short as they are and don't add to them:
 | `Parameters` | screenshot car: *Your car's parameter list, kept by the skill. To change a range, say it in chat ("the front ARB goes 1 to 6 in steps of 1") — don't edit this page by hand. It survives refreshes.* — forked car: *Started {YYYY-MM-DD} as a copy of the bundled template (game version {tv}), with your edits. The skill keeps this list; say changes in chat.* |
 | `Setups` | *Kept up to date by the skill, but your own edits to these setups are never overwritten.* |
 
+The date comes from the deterministic one-liner under *Date* (never a guess).
+
 ### `Guidelines` page — the user's, never the skill's
 
 Free-text car-specific tuning notes and preferences. This is the **per-car guidelines layer** in
@@ -594,7 +596,8 @@ Free-text car-specific tuning notes and preferences. This is the **per-car guide
 
 ### `Catalog` page — the skill's, overwritten wholesale
 
-Everything static the skill knows about the car, regenerated from the bundled template and
+Everything static the skill knows about the car, regenerated from what the skill holds (the
+bundled template for a template car; the identity facts and source line for a screenshot car) and
 **replaced in full** on every refresh. **No field-by-field comparison, no conflict resolution, no
 questions** — the page is a projection of skill-side data, so making it match is a rewrite, not a
 merge.
@@ -616,7 +619,7 @@ Then, in order:
 2. **The catalog source line** — one paragraph line of its own, directly under the identity
    facts and above the chart. It says where this car's legal values come from, and **every read
    workflow decides from it whether the car is a template car or a screenshot car** (*Where a
-   car's catalog lives*, above). Two exact formats, nothing else:
+   car's catalog lives*, above). Three exact formats, nothing else:
    - **Template car:** `**Catalog source:** bundled template — game version {version}, from {source}`
      — `{version}` is the template's `version:` field, and `{source}` is **`game files`** when the
      template says `source: game-files` and **`a community export`** when it says
@@ -733,6 +736,7 @@ block. Read by `catalog-read.md`; written by `onboard-car.md` (screenshot path),
 2. **Only when the car has switched to a bundled template:** the *Not in use* line, italic:
    *Not in use since {YYYY-MM-DD}: a newer bundled template (game version {v}) appeared, so this
    car uses that now. Say 'onboard the {Car} from my screenshots' to use this list again.*
+   The date comes from the deterministic one-liner under *Date* (never a guess).
 3. One ```` ```yaml ```` block: the file printed by
    `python scripts/load_catalog.py --to-template rows.json` — header (`car`, `drivetrain`, the
    identity facts, `version`, `source: "screenshots"`, `forked_from` for a forked car,
@@ -741,8 +745,9 @@ block. Read by `catalog-read.md`; written by `onboard-car.md` (screenshot path),
 
 **Rules:**
 - **The only copy.** A refresh never regenerates it — there is nothing to regenerate it from.
-  The one write a refresh makes here is inserting the *Not in use* line (item 2) when the car
-  switches to a bundled template; the block stays.
+  The only writes a refresh makes here are the *Not in use* line (item 2), inserted when the car
+  switches to a bundled template, and the one-time migration that creates the page
+  (`onboard-car.md` → *Migration — catalog rows to the `Parameters` page*). The block stays.
 - **Replace, never append.** An edit or a re-onboard replaces the block (delete it, write the new
   one), so there is exactly one block on the page.
 - **A `parameter_count` mismatch on read means a truncated fetch, never a bad file** — the read
