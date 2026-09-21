@@ -171,6 +171,26 @@ class TestToTemplate(LoadCatalogTestCase):
             'forked_from': 'bundled template v0.6'}))
         self.assertEqual(doc['forked_from'], 'bundled template v0.6')
 
+    def test_an_edited_copy_of_a_bundled_car_loads_to_the_same_rows_plus_the_edit(self):
+        # What edit-catalog.md does on a bundled car: load, change one row, --to-template, load.
+        import tempfile
+        rows = json.loads(run(STRATOS)[0])
+        target = next(r for r in rows if r['Adjustment'] == 'Spring Stiffness Front' and not r.get('Surface'))
+        target['Max'] = 99000
+        header = {'car': 'Lancia Stratos HF 1976', 'drivetrain': 'RWD', 'version': '0.6',
+                  'source': 'screenshots', 'forked_from': 'bundled template v0.6'}
+        text = self._to_template(header=header, rows=rows)
+        fd, path = tempfile.mkstemp(suffix='.yaml')
+        os.close(fd)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(text)
+        self.addCleanup(os.remove, path)
+        again = json.loads(run(path)[0])
+        self.assertEqual(len(again), len(rows))
+        self.assertEqual({r['Adjustment'] for r in again}, {r['Adjustment'] for r in rows})
+        edited = next(r for r in again if r['Adjustment'] == 'Spring Stiffness Front' and not r.get('Surface'))
+        self.assertEqual(edited['Max'], 99000)
+
     def test_missing_rows_file_exits_one(self):
         out = subprocess.run([sys.executable, SCRIPT, '--to-template', 'no-such.json'],
                              capture_output=True, text=True, encoding='utf-8')
@@ -455,7 +475,7 @@ FILES = [os.path.join(SKILL, 'SKILL.md')] + sorted(glob.glob(os.path.join(SKILL,
 
 # A phrase that must not appear anywhere (case-insensitive), except in the one file allowed.
 BANNED = [
-    ('catalog snapshot', set()),
+    ('catalog snapshot', {'notion-structure.md', 'onboard-car.md', 'catalog-read.md'}),  # legacy + migration
     ('refresh-catalog-snapshot', set()),
     ('paste the', set()),
     ('--snapshot', set()),
@@ -536,7 +556,10 @@ catalog lives*):
      in full, so I can't load its parameter list. Say 'refresh the {Car} in my Notion' to rebuild
      it, or 'onboard the {Car} from my screenshots'."* and **stop this workflow**. Never fall back
      to searching Notion, and never guess values.
-   - The page doesn't exist → same line, and stop.
+   - The page doesn't exist → this is a car from before catalogs became files. Run
+     `onboard-car.md` → *Migration — catalog rows to the `Parameters` page* **now** (it is the
+     one write a read workflow may make), then come back to step 3. If that migration ends at
+     its source 3 (nothing to recover), say its line and stop.
 4. **Save the file** (*Save the file* below): write the block's text, exactly as fetched, to
    `parameters/<slug>.yaml` in the sandbox.
 5. **Run the loader** in one code-execution block, together with any other script the workflow
@@ -557,7 +580,7 @@ Write the fetched block to disk with Python, never by retyping it:
 
 ```python
 import os, pathlib
-text = """<paste the yaml block's contents here, verbatim>"""
+text = """<the yaml block's contents, verbatim>"""
 os.makedirs('parameters', exist_ok=True)
 pathlib.Path('parameters/<slug>.yaml').write_text(text, encoding='utf-8')
 ```
