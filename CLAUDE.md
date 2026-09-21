@@ -8,27 +8,30 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
   - `SKILL.md` — entry point: core rules + the workflow routing table.
   - The workflows: `references/onboard-car.md`, `build-setup.md`, `tweak-setup.md`,
     `review-setup.md`, `ask-setups.md`, `share-setup.md`, `capture-setup.md`,
-    `import-savegame.md`, `export-car-template.md`, `refresh-notion.md` (every car at once) — plus
+    `import-savegame.md`, `export-car-template.md`, `edit-catalog.md` (change a car's parameter
+    list in chat), `refresh-notion.md` (every car at once) — plus
     `driving-feedback-interview.md` (below), which the routing table also lists as an entry point.
-    `refresh-catalog-snapshot.md` is internal: called by a car refresh and the read path, never a
-    user command.
   - `references/how-to-use-template.md` and `free-plan-template.md` — the two skill-owned Notion
     documentation pages. `tests/test_notion_docs_pages.py` fails when a routed workflow is missing
     from the `How to use` template's `Covers:` line — give the page a line for it, then add it.
+    `tests/test_references.py` guards the references against the machinery this design removed —
+    catalog snapshots, `Parameters` DB reads, paste routes — and checks that every
+    catalog-loading workflow points at `catalog-read.md`.
   - `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions,
     create-if-missing rules. **The source of truth for the data model.**
   - `references/notion-rest-read.md` — the way every workflow reads **rows in Notion**: the
-    connector can't list database rows, so workflows query the data source over the REST API
-    (`POST /v1/data_sources/{id}/query`) using a read-only token the user sets up once (README).
-    That covers every car's `Setups` slices and the `Parameters` catalog of a **screenshot-
-    onboarded** car. A car with a bundled template reads its catalog from that file instead
-    (`scripts/load_catalog.py`, no token and no egress) and has **no `Parameters` rows at all**;
-    the two kinds of car are defined in `references/notion-structure.md` → *Where a car's catalog
-    lives*.
+    connector can't list database rows, so `Setups` slices are queried over REST with a read-only
+    token. **Catalogs are never read that way**: every car's catalog is a template file — bundled,
+    or the `yaml` block on the car's `Parameters` page — read by `scripts/load_catalog.py` via
+    `references/catalog-read.md`.
+  - `references/catalog-read.md` — the **one** path that loads a car's catalog, for every
+    workflow that needs legal values. The two kinds of car are defined in
+    `references/notion-structure.md` → *Where a car's catalog lives*.
   - `scripts/` — the stdlib-only Python the skill runs in the user's code sandbox (no PyYAML
-    there): `parse_acr_save.py` (save-file import), `query_notion_parameters.py` (the REST read
-    and the `SHOW` column order) and `load_catalog.py` (a bundled template read as a catalog —
-    rows in the REST read's shape, surface resolution, `--check` validation, `--snapshot`).
+    there): `parse_acr_save.py` (save-file import), `load_catalog.py` (a template file read as a
+    catalog — rows in the REST read's shape, surface resolution, `--check` validation,
+    `--to-template`) and `query_notion_parameters.py` (`Setups` reads and
+    `--show-order --from-template`).
   - `references/setup-tuning-principles.md` — drivetrain-tagged tuning reasoning base.
   - `references/driving-feedback-interview.md` — the shared symptom→cause question bank (beginner
     interviewing rules, pre-drive briefing, gearing sub-interview) and the **fix-order ladder**.
