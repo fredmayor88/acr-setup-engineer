@@ -70,6 +70,18 @@ claude.ai and as a project skill in Claude Code. There is **no separate Notion b
 skill creates its Notion structure on first use, resolving everything **by name** (no hardcoded
 IDs).
 
+## Writing rule — every workflow must work on a less capable model
+
+The references are executed by whatever model the user runs, often Sonnet. Write them so that
+model gets it right without judgement calls:
+
+- Short numbered steps. One decision per step, stated as a question with its answers.
+- The exact wording to say to the user, in quotes, wherever a line is required.
+- A script does anything deterministic: parsing, YAML, validation, ordering, dates. The model
+  never hand-formats YAML, never computes a `SHOW` list, never guesses a date.
+- Say which file to read *before* the step that needs it, not after.
+- One place per rule. Other files point at it; they don't restate it.
+
 ## Release procedure
 
 The skill is distributed as a ZIP release asset on
