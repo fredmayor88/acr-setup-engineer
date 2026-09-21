@@ -39,7 +39,7 @@ REST queries — it is local, so it costs nothing extra and needs no token.
 
 Resolve the structure **once**, then collapse the rest (`SKILL.md` → *Read efficiently*):
 - Fire the independent reads **together in a single step (parallel tool calls)** — the
-  `Setups` DB `notion-fetch` (for its `data_source_id`), the car's `Catalog` and
+  `Setups` DB `notion-fetch` (for its `setups_data_source_id`), the car's `Catalog` and
   `Guidelines` pages, the
   `Tuning guidelines` page, and any `{Stage}`/`{Location}` page. `notion-fetch` is one entity per
   call, so issue them in parallel rather than sequentially.
@@ -47,7 +47,7 @@ Resolve the structure **once**, then collapse the rest (`SKILL.md` → *Read eff
   in **one code-execution block**, not a separate block each.
 - **Fetch each page once** (identity facts are on `Catalog`, the user's notes on `Guidelines`),
   reuse the
-  `data_source_id`s within the run, and skip anything already loaded in the thread.
+  `setups_data_source_id` within the run, and skip anything already loaded in the thread.
 
 ## The query — run the bundled script
 Run this in **code execution** (the sandbox must allow outbound HTTPS to `api.notion.com` — when
@@ -55,10 +55,10 @@ it can't, walk the fallback ladder below):
 
 ```
 # Setups learn-pool slice (build-setup learn mode):
-python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>" --learn-only
+python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_name>" --learn-only
 
 # Captured game-default (stock) baseline rows for a car (build-setup step 4 anchor):
-python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>" --source default
+python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_name>" --source default
 ```
 
 - `<car_name>` must **exactly** match the `Car` select option (e.g. `Alpine A110 1.8 1973`).
@@ -73,10 +73,19 @@ python scripts/query_notion_parameters.py <data_source_id> <token> "<car_name>" 
 - `select` → string or omitted when null.
 - `checkbox` → boolean. `number` → number or omitted when null.
 
-Catalog rows contain: `Adjustment`, `Section`, `Min`, `Max`, `Unit`, `Discrete steps` (blank `""`
-means continuous or never captured), `Order`, `Car`, and an optional `Surface` (`Tarmac` /
-`Gravel` / `Snow`; **omitted when blank** — that's the baseline row). This is also the shape
-`load_catalog.py` prints, so the two sources are interchangeable downstream.
+**`Setups` rows** (what the two queries above return): one object per setup, keyed by the meta
+columns — `Name`, `Car`, `Location`, `Stage`, `Surface`, `Conditions`, `Date`, `Source`, `Mode`,
+`Rating`, `Learn from this`, `Game version`, `Notes`, `Model`, `Skill version` (the exact list is
+`notion-structure.md` → *`Setups` DB*) — plus **one key per tunable parameter, named after the
+parameter** (e.g. `"Spring Stiffness Front": 50000`). Blank cells follow the property-type rules
+above.
+
+**Catalog rows** (not returned by this query): a car's catalog rows — loaded by
+`catalog-read.md`, never by this query — contain: `Adjustment`, `Section`, `Min`, `Max`, `Unit`,
+`Discrete steps` (blank `""` means continuous or never captured), `Order`, `Car`, and an optional
+`Surface` (`Tarmac` / `Gravel` / `Snow`; **omitted when blank** — that's the baseline row). This
+is also the shape `load_catalog.py` prints, so every downstream rule reads one shape, whichever
+file the catalog came from.
 
 ## Resolving the range for a surface
 Applied for you by `load_catalog.py --surface`; documented here because `catalog-read.md` points
