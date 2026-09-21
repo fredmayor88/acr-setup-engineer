@@ -67,14 +67,25 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
    replacement** of the page body. Don't read the old values to compare them; don't ask about
    anything; don't preserve edits. The page is disposable and its own maintenance line says this
    will happen. Two cases; on the page itself the only difference is the source line:
-   - **Template car** → write the `bundled template` source line (`notion-structure.md` →
-     *`Catalog` page*, item 2).
+   - **Template car** → the nine identity facts come from **the bundled file's header**
+     (`drivetrain`, `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`, `class`,
+     `gearbox`, `steering_lock`). Write the `bundled template` source line
+     (`notion-structure.md` → *`Catalog` page*, item 2).
    - **Screenshot car (a forked car counts as one)** → rebuild the page the same way, with its
      source line **unchanged in kind**: the `your screenshots` format it already carries, same
      game version (or the same `started from bundled template v{tv} on {YYYY-MM-DD}` for a forked
-     car). **Its catalog is not rebuilt** — there is no template to rebuild the parameter list
-     from — so **this step never touches its `Parameters` page**; what happens to its list is
-     step 4's screenshot-car bullets.
+     car). **Its nine identity facts come from the header of its `Parameters` page yaml** —
+     `drivetrain`, `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`, `class`,
+     `gearbox`, `steering_lock`, loaded per `catalog-read.md` (you usually already hold that file
+     from this run; don't fetch it twice). **Its catalog is not rebuilt** — there is no template
+     to rebuild the parameter list from — so **this step never writes to its `Parameters` page
+     (it only reads it)**; what happens to its list is step 4's screenshot-car bullets.
+
+   **A header key that is missing or empty is written as the literal `couldn't determine`.**
+   **Never run step 5's ladder on a refresh** — no car information screenshot, no model
+   knowledge, no web lookup, no question. That ladder resolves facts at **onboarding**; a refresh
+   only copies what the car's own file already holds, so it can never overwrite a correct fact
+   with a guess.
 
    **The chart and the gearing-tool link come from the bundled file that matches the car in both
    cases** — including a screenshot car that keeps its own list, whose `Catalog source:` line
@@ -127,10 +138,12 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
 **What a refresh never touches:** the content of the `Guidelines` page, the content of the `Log`
 page, and `Setups` rows (append-only, as always).
 
-**For a template car a refresh needs no screenshots and asks nothing at all** — the
-template on disk is the source for the catalog, the facts, the power/torque chart and the
-gearing-tool link, so **skip the "Use it?" prompt in *Procedure* step 1** and run straight
-through. Report what it rebuilt in a line or two; if the car
+**A refresh needs no screenshots and asks nothing** — for every kind of car. The car's own
+file is the source for the facts (the bundled file for a template car, the `Parameters` page yaml
+for a screenshot car), and the bundled file that matches the car is the source for the
+power/torque chart and the gearing-tool link, so **skip the "Use it?" prompt in *Procedure*
+step 1** and run straight through. **The one exception is already documented**: step 4's single
+question when a screenshot car's capture version is `unknown` and a bundled template matches. Report what it rebuilt in a line or two; if the car
 was already current, say so rather than inventing work.
 
 ### Migration — old one-page car → four-page structure
@@ -155,8 +168,12 @@ that can't be regenerated, so it is the only thing handled carefully:**
    page with nothing but its maintenance line.
 5. **Build `Catalog` and `Setups` from scratch** — the bundled template, or the car's
    `Parameters` page (run *Migration — catalog rows to the `Parameters` page* first when it has
-   none). Nothing is carried over from the old page: identity facts, the catalog source line, the
-   power/torque chart and the gearing-tool link are
+   none; that migration is what carries the old page's identity facts into the `Parameters`
+   header, and from then on the header is where they live). Nothing is carried over from the old
+   page body directly: the **identity facts come from the car's file header** — the bundled
+   file's for a template car, the `Parameters` page yaml's for a screenshot car, exactly as
+   refresh step 3 reads them — and the catalog source line, the power/torque chart and the
+   gearing-tool link are
    all regenerated (the chart and the link from the bundled file that matches the car, whatever
    the source line says — `notion-structure.md` → *Engine chart and gearing tool*), and the
    linked view is recreated on the `Setups` page. **This is where a migrated screenshot car's
@@ -206,7 +223,11 @@ whichever workflow first tries to load that car's catalog (the one write a read 
       pathlib.Path('rows.json').write_text(json.dumps({'header': HEADER, 'rows': rows}), encoding='utf-8')
       ```
       where `HEADER` is a dict of the identity facts from the `Catalog` page plus
-      `car`, `version` (the game version on the source line, or `unknown`) and `source: "screenshots"`.
+      `car`, `version` (the game version on the source line, or `unknown`) and
+      `source: "screenshots"`. **This is the one moment the identity facts move from the
+      `Catalog` page into the yaml header**: before the migration the `Catalog` page is the only
+      place they exist; after it the `Parameters` header holds them and every later refresh
+      rebuilds the `Catalog` page from that header (refresh step 3).
    2. **The legacy `Parameters` DB over REST**, only when `python scripts/check_egress.py` printed
       `egress: ok` in this chat. `notion-fetch` the `Parameters` database under the root for its
       data source id (strip the `collection://` prefix), read the token off the `Config` page, and
@@ -473,9 +494,11 @@ whichever workflow first tries to load that car's catalog (the one write a read 
 
 5. **Determine the car's identity facts.** These describe **the car itself**, not what can be tuned
    on it; they inform tuning balance (see `setup-tuning-principles.md`). They are **car facts, not
-   tunable parameters** — every one of them is stored on the car's `Catalog` page (step 7),
-   never in
-   `Parameters`. The full set:
+   tunable parameters** — they are **never catalog rows**. They are *shown* on the car's
+   `Catalog` page, and for a screenshot car they are *also stored* in the **header of its
+   `Parameters` page yaml** — step 7 writes both — which is what a refresh rebuilds the `Catalog`
+   page from (*Refreshing an already-onboarded car*, step 3). For a template car the bundled
+   file's header holds them. The full set:
 
    | Field | Example |
    |---|---|

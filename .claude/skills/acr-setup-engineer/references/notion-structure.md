@@ -613,9 +613,13 @@ Then, in order:
    **not** tunable parameters; they are never part of the car's catalog. Populated during onboarding
    (`onboard-car.md` step 5) down the ladder **car information screenshot → bundled template →
    model knowledge → web lookup → ask the user (last resort)**; anything still unresolved is
-   written as the literal **`couldn't determine`**. Because this page is skill-owned, a refresh
-   **rewrites these from the current source** rather than protecting hand edits — a user who wants
-   a fact to read differently puts it in `Guidelines`, which outranks it anyway.
+   written as the literal **`couldn't determine`**. **That ladder runs at onboarding only.**
+   Because this page is skill-owned, a refresh **rewrites these from the car's own file** rather
+   than protecting hand edits — from the **bundled file's header** for a template car, and from
+   the **header of the `Parameters` page yaml** for a screenshot or forked car (`onboard-car.md`
+   → *Refreshing an already-onboarded car*, step 3); a key that is missing or empty there is
+   written as `couldn't determine`, never looked up again. A user who wants a fact to read
+   differently puts it in `Guidelines`, which outranks it anyway.
 2. **The catalog source line** — one paragraph line of its own, directly under the identity
    facts and above the chart. It says where this car's legal values come from, and **every read
    workflow decides from it whether the car is a template car or a screenshot car** (*Where a
@@ -741,12 +745,17 @@ block. Read by `catalog-read.md`; written by `onboard-car.md` (screenshot path),
    car uses that now. Say 'onboard the {Car} from my screenshots' to use this list again.*
    The date comes from the deterministic one-liner under *Date* (never a guess).
 3. One ```` ```yaml ```` block: the file printed by
-   `python scripts/load_catalog.py --to-template rows.json` — header (`car`, `drivetrain`, the
-   identity facts, `version`, `source: "screenshots"`, `forked_from` for a forked car,
-   `written_at`, `skill_version`, `parameter_count`), then `parameters:`. **Never
-   `gearing_tool`, `power_torque_chart` or `engine_curve`** — those stay in the bundled file and
-   are read from there (*Engine chart and gearing tool* below). **Never write this
-   block by hand**: build `rows.json` from the rows in hand and use the script's output verbatim.
+   `python scripts/load_catalog.py --to-template rows.json` — every header key `--to-template`
+   accepts (`car`, `game`, `save_ids` when known, `drivetrain`, the eight other identity facts
+   `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`, `class`, `gearbox`,
+   `steering_lock`, then `version`, `source: "screenshots"`, `forked_from` for a forked car),
+   then the three bookkeeping keys the script adds (`written_at`, `skill_version`,
+   `parameter_count`), then `parameters:`. **Never `gearing_tool`, `power_torque_chart` or
+   `engine_curve`** — those stay in the bundled file and are read from there (*Engine chart and
+   gearing tool* below). **The nine identity facts in this header are what a refresh rebuilds
+   this car's `Catalog` page from** (`onboard-car.md` → *Refreshing an already-onboarded car*,
+   step 3). **Never write this block by hand**: build `rows.json` from the rows in hand and use
+   the script's output verbatim.
 
 **Rules:**
 - **The only copy.** A refresh never regenerates it — there is nothing to regenerate it from.
@@ -792,13 +801,14 @@ drive and rev limit, computed from the same game files).
 **Putting them on the `Catalog` page.** Attach the chart (when the matching bundled template
 carries `power_torque_chart:`) and write the gearing-tool link line, **once**, when the
 identity facts are written — before the linked view exists, since `notion-create-view`
-appends to the end of the page. Do both (when present) in the same page update, **in this order**: the chart, then the
-link line.
+appends to the end of the page. Do both (when present) in the same page update, **in this
+order**: the chart, then the link line.
 
 For the chart:
 1. **`notion-create-attachment`** with `source_url` = the matching bundled template's
    `power_torque_chart:` URL and `filename` = the last path segment
-   (e.g. `lancia-stratos-power-torque.png`). Notion downloads a copy, so the page keeps working if the URL ever moves.
+   (e.g. `lancia-stratos-power-torque.png`). Notion downloads a copy, so the page keeps working
+   if the URL ever moves.
 2. Put the returned **`markdown_source`** in the page update as an image block:
    `![Power and torque — {Car}](<markdown_source>)`.
 

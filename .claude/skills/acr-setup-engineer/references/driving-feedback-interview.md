@@ -298,8 +298,9 @@ band where the driving actually happens.
 `car-templates/*.yaml` file that matches the car**, whatever its `Catalog source:` line says —
 never from its `Parameters` page (`notion-structure.md` → *Engine chart and gearing tool*). If
 that bundled file carries an `engine_curve:` block, the "power band" isn't a guess:
-`peak_torque` and `peak_power` give the two rpm figures the answers above turn on, and `torque_points` is the whole curve if you need to see how
-flat or peaky it is between them. Quote those rpm when explaining a gearing change; it's far more
+`peak_torque` and `peak_power` give the two rpm figures the answers above turn on, and
+`torque_points` is the whole curve if you need to see how flat or peaky it is between them.
+Quote those rpm when explaining a gearing change; it's far more
 use to the driver than "keep it in the power band". Where the band usefully *ends* is the driver's
 call, not a number to assert — show them the curve and let them decide. A car with no matching
 bundled file has no curve; then reason qualitatively, and say that's what you're doing. When the
