@@ -16,11 +16,10 @@ across workspaces and self-healing:
    may already hold the user's pasted token; leave its contents untouched.
 3. Also under the root: the **`Setups`** DB, the **`Tuning guidelines`** page, the
    **`Parameter reference`** page, and the **`Locations`** catalogue page; create any that are
-   missing (schemas below). The **`Parameters`** DB is created **only when a car is first
-   onboarded from screenshots** (`onboard-car.md` step 6) — a user with only bundled cars never
-   gets one. An existing `Parameters` DB is left as it is, empty or not. **No `Parameters` DB
-   means no screenshot cars**, so anything that would query it (a catalog read, the `--all` part
-   of a `SHOW` call) has nothing to do. Unlike the other pages, **`Parameter reference` is
+   missing (schemas below). There is **no `Parameters` database** any more: a screenshot car's
+   catalog is the `Parameters` **page** under the car (*`Parameters` page* below). A `Parameters`
+   DB an older skill version created is left alone and never read (*Legacy `Parameters` DB*
+   below). Unlike the other pages, **`Parameter reference` is
    auto-maintained**: (re-)seed its body from `parameter-reference-template.md` on first create
    **and refresh it on skill updates** — it is not a user-editable layer (see its section below).
    The same holds for the two documentation pages, **`How to use`** and **`Claude Free plan`**
@@ -46,18 +45,15 @@ definition the rest of the skill refers to.**
 
 - **Template car** — a car that has a bundled `car-templates/*.yaml` (matched on the file's
   `car:` field, by the rule in `onboard-car.md` step 1 → *Matching a car name*).
-  **The template file is its catalog.** Read it with `scripts/load_catalog.py`: no token, no
-  network egress and no snapshot, on every plan. Onboarding a template car writes **no
-  `Parameters` rows** for it, and its values change only when the skill ships a new template.
-- **Screenshot car** — a car onboarded from the user's own min/max setup-screen screenshots,
-  because no template matched the car or the user preferred their own capture. **Its catalog is
-  that car's rows in the `Parameters` DB**, read over REST per
-  [notion-rest-read.md](notion-rest-read.md), with the car's `Catalog snapshot` as the no-egress
-  fallback. The user owns those rows and edits them in Notion.
+  **The template file is its catalog.** Onboarding a template car writes no catalog to Notion,
+  and its values change only when the skill ships a new template.
+- **Screenshot car** — a car whose catalog is **the `yaml` block on its `Parameters` page** in
+  Notion: captured from the user's min/max setup-screen screenshots, or copied from a bundled
+  template and then edited in chat (`edit-catalog.md`). The block is a complete template file in
+  the same format as a bundled one.
 
-Both sources produce rows of the **same shape** (`notion-rest-read.md` → *Output*), so every rule
-about them is unchanged either way: surface resolution, `Discrete steps` vs numeric `Min..Max`,
-`Order`, and legality.
+Both are read by **one script on one file** — `catalog-read.md` — so every rule about the rows is
+the same either way: surface resolution, `Discrete steps` vs numeric `Min..Max`, `Order`, legality.
 
 **How to tell which kind a car is — the `Catalog source:` line.** It sits on the car's `Catalog`
 page (see *Car page* below). Every workflow that chooses or judges setup values already fetches
@@ -75,13 +71,10 @@ whose line says `your screenshots`: it is a screenshot car until a refresh finds
 least as new as the game version on that line, and then it switches to the template on its own
 (`onboard-car.md` → *Refreshing an already-onboarded car*, step 4).
 
-**Legacy `Parameters` rows of a template car** — written by older skill versions, which populated
-the DB for bundled cars too — are **never read and never deleted**. They are simply out of the
-picture. A refresh of a car with **no `Catalog source:` line** says so once, in one line (that
-missing line *is* the evidence that an older version onboarded it, so nothing has to be read to
-find out), so the user can delete the rows if they want a tidy table — and so a user who has
-hand-edited a range, a `Discrete steps` cell or an `Order` on one of those rows learns that the
-edit no longer has any effect.
+**A legacy `Parameters` DB** — created by skill versions before every catalog became a file —
+is **never read and never deleted**. A refresh migrates each screenshot car's rows into its
+`Parameters` page once (`onboard-car.md` → *Migration — catalog rows to the `Parameters`
+page*) and then says, once, that the table can be deleted.
 
 ### Legacy template car — check the `Setups` columns before the first write
 
@@ -118,23 +111,19 @@ missing column in **one `notion-update-data-source` call**.
   longer a legacy template car and this check no longer applies.
 
 ## Reading rows — use the REST query, not the connector
-This is about **rows in a Notion database**: a **screenshot car's** `Parameters` rows, and a
-filtered slice of `Setups` (for **every** car, template or screenshot). A **template car's**
-catalog is not in Notion at all — read it from its bundled YAML with `scripts/load_catalog.py`
-and never query `Parameters` for it (*Where a car's catalog lives*, above).
+This is about **rows in a Notion database**, which now means one thing only: a filtered slice of
+`Setups` (for **every** car, template or screenshot). **Catalogs are not rows** — a car's catalog
+is a file, read through [catalog-read.md](catalog-read.md) (*Where a car's catalog lives*, above).
 
 The Notion **connector cannot list a database's rows** (`notion-fetch` returns schema only;
-`notion-search` is semantic, capped, and mixes cars). **Whenever a workflow needs a screenshot
-car's `Parameters` rows or a filtered slice of `Setups`, follow
-[notion-rest-read.md](notion-rest-read.md)** — it queries the data source over Notion's REST API
-with an exact `Car` filter and pagination (reliable, complete, one call). If there's no token,
-prompt the user through the one-time setup rather than substituting an unreliable connector read.
-The one connector-readable copy of a catalog is the **`Catalog snapshot`** toggle on the car's
-**`Catalog`** child page —
-the sanctioned fallback for a **screenshot car** when the REST path can't run at all (no network
-egress, e.g. Claude's Free plan); see *Catalog snapshot* below and the fallback ladder in
-[notion-rest-read.md](notion-rest-read.md). It covers `Parameters` catalogs only, never `Setups`
-slices, and a template car never needs it — its catalog is on disk.
+`notion-search` is semantic, capped, and mixes cars). **Whenever a workflow needs a filtered slice
+of `Setups`, follow [notion-rest-read.md](notion-rest-read.md)** — it queries the data source over
+Notion's REST API with an exact `Car` filter and pagination (reliable, complete, one call). If
+there's no token, prompt the user through the one-time setup rather than substituting an
+unreliable connector read.
+
+A screenshot car's catalog is read from its `Parameters` page through the connector —
+`catalog-read.md`. The REST token is only ever needed for `Setups` reads.
 
 That read path uses a **read-only API token** the user sets up once (see *Give the skill read
 access to Notion* in `README.md`). The token lives on a **`Config`** page directly under the
@@ -156,9 +145,6 @@ ACR Setup Engineer (root page)
 │                               rewritten on every skill update
 ├── Config (page)              holds the read-only Notion API token; auto-created with setup
 │                               instructions, token blank until the user pastes it (see "Reading rows")
-├── Parameters        (DB)     the catalog of SCREENSHOT-ONBOARDED cars — one row per
-│                               Car × Adjustment × Surface. Template cars have no rows here.
-│                               Created on the first screenshot onboarding, not before
 ├── Setups            (DB)     one row per setup
 ├── Tuning guidelines (page)   global user preferences (seeded from the template)
 ├── Parameter reference (page) parameter glossary — verbatim in-game descriptions of every
@@ -168,16 +154,19 @@ ACR Setup Engineer (root page)
 │       └── {Stage} (page)     e.g. Col de Turini — facts only (surface, length, key
 │                               corners/speeds, character), filtered Setups[Stage] view
 └── {Car} (page)               e.g. "Lancia Stratos HF" — an umbrella page, empty by design:
-    │                           it holds nothing but the four child pages below
+    │                           it holds nothing but the child pages below
     ├── Guidelines (page)      YOURS. Tuning notes and preferences for this car. The skill
     │                           reads it and never writes to it (seeded empty, once)
     ├── Catalog (page)         THE SKILL'S. Identity facts, the catalog source line, the
-    │                           power/torque chart and the gearing-tool link, the YAML
-    │                           catalog snapshot. Overwritten wholesale on every refresh
+    │                           power/torque chart and the gearing-tool link. Overwritten
+    │                           wholesale on every refresh
     ├── Log (page)             SHARED — yours and the skill's. Your own notes about the car,
     │                           plus the skill's dated record of what the driver reported
     │                           after drives. You write and edit yours freely; THE SKILL
     │                           ONLY ADDS — it never edits or deletes anything here
+    ├── Parameters (page)      SCREENSHOT CARS ONLY. The car's complete parameter list as a
+    │                           template-format YAML block. THE SKILL'S — edited only through
+    │                           chat (edit-catalog.md); never regenerated, it is the only copy
     └── Setups (page)          the filtered Setups[Car] view
 ```
 
@@ -187,91 +176,25 @@ wholesale, never merged** (no diffing, no asking — see *Catalog page* below). 
 page is what used to force an expensive field-by-field comparison on every refresh just to avoid
 clobbering something the user wrote. Separate pages make the cheap operation the safe one.
 
-**Two DBs only** — car/location/stage pages are **filtered linked views**, never new
-DBs. A stage is **immutable, shared reference data** — it is created once under `Locations` and
+**One DB only** — the `Setups` DB; car/location/stage pages are **filtered linked views**, never
+new DBs. A stage is **immutable, shared reference data** — it is created once under `Locations` and
 referenced by any number of setups (any car, any number of times), never duplicated per car.
 
 **Batch every write (`SKILL.md` → *Batch Notion writes*).** Create a DB with its **full column set
 in one `notion-create-database` `CREATE TABLE`**; when adding columns to an existing DB, combine
-**all** `ADD COLUMN`s into **one** `notion-update-data-source` call. Create many rows (a screenshot
-car's whole `Parameters` catalog, all imported setup rows) in **one** `notion-create-pages` call (≤100 rows;
-batch in 100s only if more). Never add columns or rows one call at a time — it's slow and
-token-heavy.
+**all** `ADD COLUMN`s into **one** `notion-update-data-source` call. Create many rows (all
+imported setup rows) in **one** `notion-create-pages` call (≤100 rows; batch in 100s only if
+more). Never add columns or rows one call at a time — it's slow and token-heavy.
 
-## `Parameters` DB — one row per `Car × Adjustment` (× `Surface` when ranges differ)
+## Legacy `Parameters` DB
 
-**This DB holds the catalogs of `screenshot cars` only** (*Where a car's catalog lives*, above).
-A car onboarded from a bundled template has **no rows here at all** — its catalog is the template
-file, read with `scripts/load_catalog.py`. Everything below therefore describes a screenshot
-car's catalog: the schema, the `Surface` rules, `Discrete steps`, and `Order`. (Rows an older
-skill version wrote for a template car are never read and never deleted.)
-
-`Car`, `Section`, `Adjustment` (title), `Min`, `Max`, `Unit`, **`Discrete steps`**, **`Order`**,
-and an optional **`Surface`**. For a screenshot car this is **the** authoritative legal-value
-catalog; for a template car the template file is. Parameter availability is **per car** — absent
-parameters simply have no row.
-
-- **`Surface`** (Select, **optional**) — options `Tarmac`, `Gravel`, `Snow`. **Blank = the
-  default/baseline** range, captured from the required **tarmac** onboarding pass; it applies to
-  **any** surface that has no surface-specific override row. Most parameters keep a single
-  blank-`Surface` row. A few parameters (chiefly on the **Suspensions** screen — e.g. spring
-  stiffness) expose a **different range on gravel**; for those, a second row tagged
-  `Surface = Gravel` (or `Snow`) holds the surface-specific `Min`/`Max`/`Discrete steps`. The
-  blank-`Surface` row and a `Gravel` row for the same `Car × Adjustment` coexist legitimately.
-  - **Row key (upsert):** `Car` + `Adjustment` + `Surface` — match on all three; update if
-    present, else create. A blank `Surface` is itself a distinct key value (the baseline row).
-  - **Resolution rule** (how `build-setup`/`tweak`/`review`/`import` pick a parameter's legal
-    range for a setup on surface **S**): use the row whose `Surface = S` **if one exists**;
-    **else if `S = Snow`, fall back to a `Gravel` row** (snow inherits gravel's softer ranges —
-    nothing is ever captured for snow on its own); else fall back to the
-    **blank-`Surface`** row. If none exists, the parameter isn't available for that car. (Same
-    rule documented for readers in [notion-rest-read.md](notion-rest-read.md).)
-  - **Backward compatible:** existing catalogs are entirely blank-`Surface`, so every parameter
-    resolves to its single row on every surface — unchanged behavior, no migration.
-- **`Min` / `Max`** — the extremes read from the min/max setup screenshots. Always capture the
-  actual values shown, including for discretely-stepped parameters (e.g. gear set Min=1, Max=3).
-  Use `—` only for **named-selection params** — either component/compound names with no numeric
-  ordering (`Tyre type`, `Brake calipers`, `Brake discs`, `Brake pads`, `Engine map`,
-  `Throttle map`) **or paired/slash values that cannot be meaningfully ordered as a single
-  number** (`LSD Power/Coast Ramp` values like `45/55`; `Differential Ratio` and `Centre Ratio
-  to Rear` values like `65//17`). Also use `—` for non-adjustable rows.
-- **`Discrete steps`** — free text, comma-separated. For **numeric** params it is **optional
-  and user-owned**: onboarding leaves it **blank** and the user fills it in Notion whenever they
-  want to pin the parameter to an exact set of values (e.g. spring stiffness
-  `42300, 50000, 57700, 65400, 73100`). For **`—` named-selection** params onboarding **seeds
-  it with the option names observed in the screenshots** (observed values only — typically the
-  two endpoints) so the user only completes the in-between options; for **ACR** it pre-fills the
-  standard lists for `Tyre type` (full tyre list) and `Brake pads` (`SOFT, MEDIUM, HARD`),
-  which are immediately usable. **When present it is the authoritative legal set** for that
-  car's parameter; when blank the parameter is treated as continuous over `Min..Max`.
-- **Value notation is literal — including the `*` in a two-stage gear value.** Values are stored
-  and shown exactly as the game spells them: slash pairs as `65//17`, ramp angles as `45/55`, and
-  a two-stage primary drive as **`35//30*33//28`** — asterisk, no spaces. It is an ordinary
-  option name; never rewrite it as `x`, `×` or ` * `, never drop the `*`, and never remark on it
-  to the user. `SKILL.md` → *A gear value with a `*` in it is an ordinary value* is the full rule;
-  what matters when writing here:
-  - **`Discrete steps` is a text property, and text properties are inline markdown**, so two
-    unprotected asterisks in one cell pair up and disappear. **Write every `*` in a text property
-    as `\*`** — `35//30\*33//28, 33//28\*32//31` stores `35//30*33//28, 33//28*32//31`. The same
-    goes for `Notes`, a row's `Name` and a page `title`.
-  - In **page markdown** put values in backticks; in the **snapshot YAML** quote them. In a
-    **Select** value column (`Primary Gear` on a `Setups` row) write the plain value.
-  - A cell written by an older version may read `35//3033//28`. It is the same value: compare
-    with every `*` removed from both sides, use the spelling with the asterisk, say nothing.
-- **`Order`** (Number) — the parameter's **display position**, driving the order of every `Setups`
-  column and every setup projection. Seeded at onboarding from the order the parameter appears on
-  the in-game setup screens (canonical ACR defaults + numbering in **Setups column order** below);
-  the bundled templates carry it as `order:`. **User-owned:** the user may renumber it in Notion to
-  rearrange columns, and the change shows on the next onboard/build. It is **per `Adjustment`** — a
-  surface-specific row carries the **same `Order`** as its baseline row (both collapse to one
-  `Setups` column).
-- A row read as **"no adjustment"** in-game is recorded as not adjustable (don't fabricate a
-  range). There is no `Steps` / `Step size` / `Type` column — the presence of `Discrete steps`
-  (vs. a numeric `Min..Max`) is what tells `build-setup` how to choose a value.
-- **Create-if-missing:** include the `Surface` select **and the `Order` number** when first creating
-  the `Parameters` DB. When writing to a **pre-existing** DB that lacks a property, add it first
-  (`Surface` select before a surface-tagged row; `ADD COLUMN "Order" NUMBER` before writing `Order`),
-  then write the row. Never tag the baseline rows — leave their `Surface` blank.
+Skill versions before every catalog became a file kept a screenshot car's catalog as rows in a
+`Parameters` database under the root (`Car`, `Section`, `Adjustment`, `Min`, `Max`, `Unit`,
+`Discrete steps`, `Order`, optional `Surface`). **The skill no longer creates, reads or writes
+it.** It stays in the user's Notion until they delete it. The one thing the skill still does
+with it: a refresh of a screenshot car that has no `Parameters` page yet may read that car's
+rows over REST, once, to build the page (`onboard-car.md` → *Migration — catalog rows to the
+`Parameters` page*).
 
 ## `Setups` DB — one row per setup
 - **Meta:** `Name` (title), `Car` (**Select**), `Location` (**Select**, optional), `Stage`
@@ -281,8 +204,8 @@ parameters simply have no row.
   `Rating` (**Select**, options `1`–`5`, higher = better; **blank = unrated**), `Notes`,
   **`Learn from this`** (checkbox), `Model` (**Select**), `Skill version` (**Text**).
   Make `Car`, `Location`, `Stage`,
-  and `Surface` **Select** (not plain text) so they render as **tags/pills** in the table — `Car`
-  mirrors the `Parameters` DB's `Car` select, and `Surface` its `Tarmac`/`Gravel`/`Snow` options.
+  and `Surface` **Select** (not plain text) so they render as **tags/pills** in the table;
+  `Surface` carries the `Tarmac` / `Gravel` / `Snow` options a catalog uses.
   **`Location` and `Stage` are both optional and independently blankable** — a setup may name
   neither (an arbitrary build with no place context, e.g. "drift setup, tarmac"), a `Location`
   only, or both. `Location`/`Stage` carry only the place reference, never style or goals.
@@ -460,7 +383,7 @@ the wall clock.
 
 The display order of the `Setups` DB's **value columns** — and of every setup projection (the table
 view, the per-car / per-location / per-stage linked views, the page-body justification toggle, the
-share snippet, and exported templates) — is governed by each parameter's **`Order`** number in the `Parameters` catalog,
+share snippet, and exported templates) — is governed by each parameter's **`Order`** number in the car's catalog,
 **not** by the order columns were created. Notion never reorders columns from row data, and SQL-DDL
 schema insertion order does not reliably drive the rendered table — the lever is the view's **`SHOW`**
 directive (see *Applying the order* below).
@@ -570,68 +493,37 @@ aren't there yet.
 of its outputs by hand** (they are finished lists with no `Order` left to interleave by). **This
 section is the only place that says which form to run**; every workflow points here.
 
-**One call per view. Three cases, and the view decides which:**
-
-**1. Per-car view of a template car** (its `Setups` child page) — its `Order`s are in the bundled
-file, so nothing is read back from Notion: **no token, no `Config` page, no network**.
-
-```
-python scripts/query_notion_parameters.py --show-order --from-template car-templates/<slug>.yaml
-```
-
-**2. Per-car view of a screenshot car** — its `Order`s are its `Parameters` rows, so this needs
-the read token (`notion-rest-read.md`) against the **`Parameters`** data source.
+**One form, every view.** Every car's catalog is a template file — bundled, or the screenshot
+car's `parameters/<slug>.yaml` saved to the sandbox by `catalog-read.md`. Pass one
+`--from-template` per car the view spans:
 
 ```
-python scripts/query_notion_parameters.py <params_data_source_id> <token> "{Car}" --show-order
+python scripts/query_notion_parameters.py --show-order --from-template <file1> --from-template <file2> …
 ```
 
-**3. The main `Setups` table, and any `{Location}` / `{Stage}` view** — these span every car in
-the table, so **one call covers both kinds at once**: a `--from-template` for **every onboarded
-template car**, plus `<params_data_source_id> <token> --all` in the **same** call **only if at
-least one screenshot car exists**. The script merges the two sets of rows and orders them once
-with the same comparator, so a template car's columns and a screenshot car's columns interleave
-correctly by `Order`.
+- **Per-car view** (the car's `Setups` page) → that car's file only.
+- **Main `Setups` table, `{Location}` and `{Stage}` views** → every onboarded car's file.
 
-```
-# every car is a template car (the common case) — token-free:
-python scripts/query_notion_parameters.py --show-order --from-template <c1>.yaml --from-template <c2>.yaml …
-# at least one screenshot car as well — one call, both sources:
-python scripts/query_notion_parameters.py <params_data_source_id> <token> --all --show-order \
-    --from-template <c1>.yaml --from-template <c2>.yaml …
-```
+No token, no network, on every plan.
 
-**A template car's legacy rows can't interfere.** In the mixed call, the script **drops every
-Notion row whose `Car` matches a passed template's `car:`** — the two names equal after the
-normalisation in `onboard-car.md` step 1 → *Matching a car name* — before it
-orders anything — so the `Parameters` rows an older skill version left behind for a template car
-stay unread, the template alone decides that car's columns and their `Order`, and a column
-the template has since renamed can never reach the `SHOW` list.
+**Which files to pass, without extra reads.** The onboarded cars are the `{Car}` pages under the
+root — the root fetch you already did lists them. For each: a name matching a bundled template →
+`car-templates/<slug>.yaml`, **unless** its `Catalog` page was read this run and says
+`your screenshots`; otherwise it is a screenshot car → fetch its `Parameters` page (batch these
+fetches) and save each per `catalog-read.md` → *Save the file*. A screenshot car whose page can't
+be read is left out: say in one line that its columns keep their current position until its page
+is readable. **Never drop the `SHOW`** for that reason, and never assemble a list by hand.
 
-**Which cars to pass, without extra reads.** The onboarded cars are the `{Car}` pages under the
-`ACR Setup Engineer` root — the root fetch you already did lists them. For each, decide its kind
-per *Where a car's catalog lives*: a `{Car}` page whose name matches a bundled template **counts
-as a template car for ordering purposes**, unless its `Catalog` page was read **in this run** and
-says `your screenshots`. **Never open a car's `Catalog` page just to build a `SHOW` list** — the
-worst a wrong guess does is order one car's columns as if they came from the other source, which
-the next run self-heals. A car whose name matches no template and whose page you haven't read is
-a screenshot car, so the `--all` part is needed.
-
-**No token, or no network egress** (including offline mode, `notion-rest-read.md` → *Offline
-mode*)**?** Run the template part on its own and tell the user in one
-plain line: the columns of cars onboarded from screenshots keep their current position until a
-run with network access. Never drop the `SHOW` for that reason, and never hand-merge.
-
-Whichever case applies, the script prints the exact, ready-to-paste property list: `"Name"`, then
+The script prints the exact, ready-to-use property list: `"Name"`, then
 value columns by `Order`, then the fixed meta columns (`Car` … `Model`, `Skill version`). Use it
 verbatim as the `SHOW` value:
 
-- **main `Setups` table view** → case 3; `SHOW <script output>`;
-- **per-car linked view** (on the car's `Setups` child page, filtered `Car = "{Car}"`) → case 1 or
-  2; `SHOW <script output>` — this orders the columns **and** hides the blank ones in one step
+- **main `Setups` table view** → `SHOW <script output>`;
+- **per-car linked view** (on the car's `Setups` child page, filtered `Car = "{Car}"`) →
+  `SHOW <script output>` — this orders the columns **and** hides the blank ones in one step
   (the script lists only that car's value columns);
 - **per-location / per-stage linked views** (on `{Location}` / `{Stage}` pages, filtered by
-  `Location` / `Stage` only — **not** `Car`, since many cars can share a place) → case 3;
+  `Location` / `Stage` only — **not** `Car`, since many cars can share a place) →
   `SHOW <script output>`.
 
 Push it with the view **`SHOW`** directive — `notion-update-view` for an existing view, or the
@@ -650,13 +542,15 @@ the first place is a separate operation — see *Creating an inline linked view*
 ## Car page
 
 The `{Car}` page — e.g. **`Lancia Stratos HF`** — is an **umbrella page with an empty body**. It
-carries no facts, no charts and no views of its own; it exists to hold exactly four child pages:
+carries no facts, no charts and no views of its own; it exists to hold five child pages (four for
+a template car — it has no `Parameters` page):
 
 | Child page | Owner | Written by the skill |
 |---|---|---|
 | **`Guidelines`** | **the user** | **Never** — created once, empty, then read-only forever |
 | **`Catalog`** | the skill | **Replaced wholesale** on every refresh, no merge, no asking |
 | **`Log`** | **shared — the user *and* the skill** | **Add-only** — the skill appends a new dated entry at the top and never edits, reorders or removes anything already on the page (the user edits their own notes freely) |
+| **`Parameters`** | the skill's | written by onboarding and `edit-catalog.md`; **never** by a refresh (except the *Not in use* line); the only copy |
 | **`Setups`** | the skill | Holds the `Setups[Car=this]` filtered linked view |
 
 **`Catalog` and `Log` both carry skill writing, but they behave oppositely, and confusing them
@@ -664,13 +558,13 @@ loses data.** `Catalog` is a *projection* of template data — regenerating it i
 replaced wholesale. `Log` is an *accumulated history* that exists nowhere else, and part of it was
 written by the user — so the skill only ever adds to it. Never rewrite `Log` as part of a refresh.
 
-Resolve all four **by name** under the `{Car}` page and create whichever is missing, exactly as
+Resolve them all **by name** under the `{Car}` page and create whichever is missing, exactly as
 everywhere else (*Resolution rule*). The one extra step is `Log`, which older versions of the
 skill called `Feedback`: before creating it, check for a page under the old name and **rename it
 in place** — see *Resolving the page (`Log`, and the legacy `Feedback` name)* below. Nothing else
 belongs under `{Car}`.
 
-**Every one of the four opens with a one-line maintenance note** — its first block, italic, so
+**Every one of them opens with a one-line maintenance note** — its first block, italic, so
 anyone landing on the page knows immediately whether their edits will survive. Use these exact
 lines; keep them as short as they are and don't add to them:
 
@@ -679,11 +573,8 @@ lines; keep them as short as they are and don't add to them:
 | `Guidelines` | *Yours. The skill reads this page and never writes to it.* |
 | `Catalog` | *Maintained entirely by the skill — don't edit this page, every refresh replaces it.* |
 | `Log` | *Your notes on this car go anywhere on this page. When you tell Claude how a drive felt, the skill adds a dated entry at the top. Building a setup adds nothing here. The skill never edits or removes anything on this page.* |
+| `Parameters` | screenshot car: *Your car's parameter list, kept by the skill. To change a range, say it in chat ("the front ARB goes 1 to 6 in steps of 1") — don't edit this page by hand. It survives refreshes.* — forked car: *Started {YYYY-MM-DD} as a copy of the bundled template (game version {tv}), with your edits. The skill keeps this list; say changes in chat.* |
 | `Setups` | *Kept up to date by the skill, but your own edits to these setups are never overwritten.* |
-
-For a **screenshot car**, the `Parameters[Car=this]` filtered view is accessible via the Notion
-sidebar / linked DB; it is **not** inlined anywhere in the car's pages, to keep them short. A
-template car has no rows to view — its `Catalog snapshot` is the readable copy.
 
 ### `Guidelines` page — the user's, never the skill's
 
@@ -716,7 +607,7 @@ Then, in order:
 
 1. **Car identity facts** — `Drivetrain`, `Engine layout`, `Weight bias`, `Weight`, `Max power`,
    `Max torque`, `Class`, `Gearbox`, `Steering lock`. Car facts that inform tuning reasoning —
-   **not** tunable parameters; they never go in the `Parameters` DB. Populated during onboarding
+   **not** tunable parameters; they are never part of the car's catalog. Populated during onboarding
    (`onboard-car.md` step 5) down the ladder **car information screenshot → bundled template →
    model knowledge → web lookup → ask the user (last resort)**; anything still unresolved is
    written as the literal **`couldn't determine`**. Because this page is skill-owned, a refresh
@@ -735,6 +626,9 @@ Then, in order:
      game version the user gave when they uploaded the screenshots (`onboard-car.md` step 2), or
      the literal `unknown` if they didn't know. Example:
      `**Catalog source:** your screenshots — game version unknown`.
+   - **Forked car** (a bundled template the user edited in chat):
+     `**Catalog source:** your screenshots — started from bundled template v{tv} on {YYYY-MM-DD}`.
+     It is a screenshot car for every rule.
 
    Write it on every `Catalog` page the skill builds or rebuilds. A car whose page predates it
    gets one on its next refresh; until then, rule 3 of *Where a car's catalog lives* decides.
@@ -749,8 +643,6 @@ Then, in order:
    speed-per-gear charts for every gear set, final drive and rev limit of this car, read from the
    game files. Emit it only when the template has `gearing_tool:`; a car with no bundled template
    gets no link — never build the URL from the car name.
-5. **The `Catalog snapshot` toggle** — the car's full catalog as YAML, always the
-   **last** block on the page (see *Catalog snapshot* below).
 
 ### `Log` page — shared; the skill only adds
 
@@ -829,6 +721,35 @@ found and says so; if neither `Log` nor `Feedback` exists, it skips the page sil
    - Tell the user in one line that the `Feedback` page is now called `Log`.
 3. Neither exists → **create `Log`** with its maintenance line as its first block.
 
+### `Parameters` page — screenshot cars only; the skill's; edited through chat
+
+The car's complete catalog, as a **template-format YAML file** in one fenced ```` ```yaml ````
+block. Read by `catalog-read.md`; written by `onboard-car.md` (screenshot path), by
+`edit-catalog.md`, and by the one-time migration in a refresh. A template car has no such page.
+
+**Body, in this order — nothing else on the page:**
+
+1. The maintenance line (*Car page* table above — the screenshot or the forked wording).
+2. **Only when the car has switched to a bundled template:** the *Not in use* line, italic:
+   *Not in use since {YYYY-MM-DD}: a newer bundled template (game version {v}) appeared, so this
+   car uses that now. Say 'onboard the {Car} from my screenshots' to use this list again.*
+3. One ```` ```yaml ```` block: the file printed by
+   `python scripts/load_catalog.py --to-template rows.json` — header (`car`, `drivetrain`, the
+   identity facts, `version`, `source: "screenshots"`, `forked_from` for a forked car,
+   `written_at`, `skill_version`, `parameter_count`), then `parameters:`. **Never write this
+   block by hand**: build `rows.json` from the rows in hand and use the script's output verbatim.
+
+**Rules:**
+- **The only copy.** A refresh never regenerates it — there is nothing to regenerate it from.
+  The one write a refresh makes here is inserting the *Not in use* line (item 2) when the car
+  switches to a bundled template; the block stays.
+- **Replace, never append.** An edit or a re-onboard replaces the block (delete it, write the new
+  one), so there is exactly one block on the page.
+- **A `parameter_count` mismatch on read means a truncated fetch, never a bad file** — the read
+  path stops and says so (`catalog-read.md` step 5).
+- **Never delete the page.** If the user asks for the car to be removed, tell them what to
+  delete in Notion; the skill deletes nothing.
+
 ### `Setups` page
 
 Holds its maintenance line, then the **`Setups[Car=this]` filtered linked view** and nothing else
@@ -888,121 +809,6 @@ because anything went looking for what was missing.
 catalogue below, not nested under any one car — a stage is referenced by `Stage` (and `Location`)
 tags on `Setups` rows, never duplicated per car.
 
-### Catalog snapshot
-
-The **last block on every car's `Catalog` page** is a collapsed **toggle** titled **`Catalog snapshot`**,
-holding the car's complete parameter catalog as YAML. **Both kinds of car get one** (*Where a
-car's catalog lives*, above), but it plays a different role for each:
-
-- **Screenshot car** — it is the **read fallback**. The connector can fetch a page body in full
-  even though it can't list database rows, so when the REST read path can't run (no network
-  egress, e.g. Claude's Free plan) the catalog is still readable. Reading it:
-  `notion-rest-read.md` → *The catalog snapshot fallback*.
-- **Template car** — it is a **readable copy for the user** and a record of what the car was
-  onboarded from. It is **not** a read path: the skill always reads the bundled template file on
-  disk, which needs no egress anyway. Build it with
-  `python scripts/load_catalog.py car-templates/<slug>.yaml --snapshot`.
-
-**This is the one deliberate exception to "never duplicate values into a page body"** (*Mobile
-conventions* below). It is a cache and is treated like one: it never becomes a source of truth —
-for a screenshot car the `Parameters` **rows** are, for a template car the **template file** is —
-it carries the metadata to be validated and dated, and every catalog write refreshes it.
-
-**Format.** Inside the toggle, first one banner line:
-
-> Auto-maintained copy of this car's parameter catalog. Don't edit it — it gets overwritten. For
-> a car you onboarded from screenshots, edit the `Parameters` rows instead; for a car that came
-> from a bundled template, these values change only when the skill is updated.
-
-— then a fenced `yaml` code block:
-
-```yaml
-car: Lancia Stratos HF
-written_at: 2026-09-05
-skill_version: v0.13.0
-source: bundled template v0.6
-row_count: 43
-rows:
-  - Adjustment: Adjuster Ring
-    Section: Suspensions — Front
-    Min: 20
-    Max: 45
-    Unit: mm
-    Discrete steps: ""
-    Order: 12
-  - Adjustment: Spring Stiffness Front
-    Section: Suspensions — Front
-    Min: 42300
-    Max: 73100
-    Unit: N/m
-    Discrete steps: "42300, 50000, 57700, 65400, 73100"
-    Order: 14
-  - Adjustment: Spring Stiffness Front
-    Section: Suspensions — Front
-    Surface: Gravel
-    Min: 21000
-    Max: 52000
-    Unit: N/m
-    Discrete steps: ""
-    Order: 14
-  - Adjustment: Primary Gear
-    Section: Gearbox
-    Min: "—"
-    Max: "—"
-    Unit: ""
-    # Always quoted, and every `*` intact — see "Value notation is literal" above.
-    Discrete steps: "35//30*33//28, 33//28*32//31, 33//31*31//30"
-    Order: 1020
-  # … one entry per catalog row for this car
-```
-
-- `source` says where the rows came from: **`bundled template v{version}`** (the template's
-  `version:`) for a template car, or **`screenshots`** for a screenshot car. A snapshot written
-  before this key existed simply doesn't have it — read the `Catalog source:` line instead.
-- `rows` holds **one entry per catalog row** for this car — for a screenshot car every
-  `Parameters` row, for a template car every parameter in the template — the baseline rows
-  **and** every `Surface`-tagged row, with keys mirroring the REST read's output exactly
-  (`notion-rest-read.md` → *Output*): `Surface` omitted on baseline rows, `Discrete steps` as
-  `""` when blank, numeric fields omitted when null. A snapshot parses into the same in-memory
-  catalog as the REST query, so every downstream rule (surface resolution, value legality)
-  applies unchanged.
-- `row_count` = the number of entries in `rows` — the read-side integrity check.
-- `written_at` = the date of the write; `skill_version` per `SKILL.md` → *Skill version*.
-
-**When to write it: every write of a car's `Catalog` page ends with it**, and for a screenshot
-car every write of its `Parameters` rows does too — such a run is **not finished** until the
-snapshot reflects the result. That means:
-- `onboard-car.md` step 7 — first onboard or refresh, screenshot or template path;
-- `onboard-car.md` step 8 — the gravel pass, screenshot path only (the new `Surface = Gravel`
-  rows go in too);
-- `onboard-car.md` step 9 — screenshot path only, when the user dictates `Discrete steps` in chat
-  and the rows are updated in-run;
-- `import-savegame.md` 5.2/5.3 — template auto-onboard.
-Build it from what **you already hold in the run** — the template rows for a template car
-(`load_catalog.py --snapshot`), the written rows for a screenshot car — never read the catalog
-back just to write the snapshot. (`refresh-catalog-snapshot.md` is the internal procedure that
-writes **only** the snapshot — called by a screenshot car's refresh and by the read path, with a
-paste path that needs no egress. It is not a user command.)
-
-**Backfill — screenshot cars, missing only, never a diff.** When a run (a) holds a **fresh, full
-REST read** of a **screenshot** car's catalog, (b) has the fetched `Catalog` page in hand, (c) is
-**already writing to Notion** for its own purposes, and (d) the page has **no** `Catalog snapshot`
-toggle — append one from the rows in hand. **A template car never needs this**: it has no REST
-read to backfill from, and its refresh rewrites the whole `Catalog` page including the snapshot. That's a presence glance at a page already loaded, and at most one extra write in
-a car's lifetime; it backfills cars onboarded before the snapshot existed. **Never compare an
-existing snapshot against the rows** — staleness is not checked on reads: catalog writes refresh
-it (above), and snapshot reads disclose `written_at`. Read-only workflows never gain a write from
-this rule, and never add reads just to run it.
-
-**Placement & refresh mechanics.** The toggle is the **last block of the `Catalog` page**, after
-the maintenance line, the identity facts, the catalog source line, the power/torque chart and the
-gearing-tool link. The `Catalog` page holds no linked view, so it is
-written as one ordered markdown replacement and the toggle simply comes last. A refresh rewrites
-the whole page, so there is nothing to replace in place and no way to end up with two snapshots.
-Like the `Parameter reference` page it holds no user content, so overwriting is safe; anything the
-user typed inside it is overwritten by design — the page's maintenance line says so, and their
-real edits belong in the `Parameters` rows (a screenshot car) or in `Guidelines`.
-
 ## Locations & stages catalogue — shared, immutable facts
 
 A **stage is reference data, not per-car content**: its road, surface, length, and corners don't
@@ -1041,16 +847,16 @@ table) into a page's `content`** — it is stored as literal text and no table a
 
 **Mechanism.** `notion-fetch` the `Setups` DB to get its **`data_source_id`** (from the
 `<data-source>` tag in the response). Get the **`SHOW` list from the script** (*Applying the order*
-above — case 1 or 2 for a car's own view, case 3 for a location/stage view). Then call
+above — the car's own file for its own view, every car's file for a location/stage view). Then call
 `notion-create-view` with
 `parent_page_id` = the target page, `data_source_id` = the `Setups` data source, `type: "table"`, a
 `name` (e.g. `"Setups"`), and a `configure` DSL string (see `notion://docs/view-dsl-spec`) carrying
 the filter and the script's `SHOW` list:
-- **car's `Setups` page** → `FILTER "Car" = "{Car}"; SHOW <case 1 or 2 output>` — `SHOW`
+- **car's `Setups` page** → `FILTER "Car" = "{Car}"; SHOW <script output>` — `SHOW`
   both orders the columns and hides the ones it omits (blank per-car columns).
-- **`{Location}` page** → `FILTER "Location" = "{location}"; SHOW <case 3 output>`
+- **`{Location}` page** → `FILTER "Location" = "{location}"; SHOW <script output>`
   — no `Car` filter, since many cars may share a location.
-- **`{Stage}` page** → `FILTER "Stage" = "{stage}"; SHOW <case 3 output>` — no
+- **`{Stage}` page** → `FILTER "Stage" = "{stage}"; SHOW <script output>` — no
   `Car` filter, same reasoning.
 Because the value columns must already exist for `SHOW` to order them, if you create the view before
 writing the setup's value columns, **re-assert `SHOW`** (*Applying the order*) right after the
@@ -1066,8 +872,7 @@ the end of the page**, so sequence the operations:
 
 The multi-page car layout makes this much less fiddly than it used to be: the view has a page to
 itself, and the `Catalog` page (maintenance line → facts → source line → chart → gearing-tool
-link → snapshot toggle) holds no view at all, so
-it can be written as one ordered markdown replacement.
+link) holds no view at all, so it can be written as one ordered markdown replacement.
 
 **Idempotent.** Before creating, `notion-fetch` the page; if a linked view of the `Setups` data
 source already exists there, re-assert it with `notion-update-view` (see *Applying the order*)
@@ -1161,8 +966,8 @@ Users often read these pages on a **phone while playing**, so:
      *Setups column order* above) — the same sequence as the in-game setup screens. The same
      `Order` governs share snippets and exported templates, so every projection matches the table.
   **Never duplicate values into a page body checklist** — the database row is the single source
-  of truth. A checklist would drift the moment the user edits a value in the table. (The car's
-  `Catalog` page's `Catalog snapshot` toggle is the one deliberate exception — a validated, dated cache,
-  refreshed on every catalog write; see *Catalog snapshot*.)
+  of truth. A checklist would drift the moment the user edits a value in the table. (A screenshot
+  car's `Parameters` page is not an exception: the YAML block there **is** the catalog, not a copy
+  of it.)
 - **No wide tables inside page bodies** (they scroll horizontally on a phone); use short
   headings + bullet lists. Keep property names concise.
