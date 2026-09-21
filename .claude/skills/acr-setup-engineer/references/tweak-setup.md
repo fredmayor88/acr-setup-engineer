@@ -201,8 +201,8 @@ When the user asks to save (and not before):
 - **Apply the column order — MANDATORY, never skip (even on a quick / low-effort run); the save is
   not done until you've done it** (`notion-structure.md` → *Applying the order*), **after the row is
   written**. Get the `SHOW` list from the bundled script — **never build or merge one by hand**
-  — running the form *Applying the order* gives, and set `SHOW`
-  (`notion-update-view`) on the main `Setups` table view (one `--from-template` per onboarded
+  — by running the form that *Applying the order* gives, and set `SHOW`
+  (`notion-update-view`) to its output on the main `Setups` table view (one `--from-template` per onboarded
   car), this car's linked view (this car's file only, which hides blanks in the same step), and
   — if a stage/location is set — its `{Stage}` / `{Location}` linked view (one `--from-template`
   per onboarded car, no per-car filtering). The script lists `Name`,

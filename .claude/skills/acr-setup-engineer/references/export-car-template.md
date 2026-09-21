@@ -19,13 +19,12 @@ screenshot-only by definition, so step 0 below never applies to it; the car's fi
 
 ## Inputs
 - **Car name** — ask if not provided or ambiguous (must match a car already onboarded in Notion).
-- **Game version** — the version the parameters were captured in (e.g. `0.4`), since tunable
-  ranges can shift between versions. **Step 0 already reads it**: a screenshot car's
-  `Catalog source:` line carries the version the user gave when they uploaded the screenshots
-  (or the literal `unknown`). Take it from there and **don't ask again**. Only ask when that line
-  is missing entirely — a car onboarded before the line existed — and write `"unknown"` if the
-  user doesn't know. (No other Notion lookup — never infer it from existing setups.) The file's
-  own `version:` header line normally already carries it.
+- **Game version** — **not an input you collect.** The file's own `version:` line is
+  authoritative: it was set when the car was captured, or carried over when it was forked from a
+  bundled template. Take it from there and **don't ask**. The one exception is `version:
+  "unknown"` — then ask once, *"Which game version did you capture the {Car} in? (If you're not
+  sure, say so and I'll leave it as unknown.)"*, and if they give one, set it in step 3's snippet
+  (`VERSION`). Never infer it from existing setups, and never hand-edit the line.
 
 ## Procedure
 
@@ -53,7 +52,7 @@ Also read the car's `Drivetrain` and its identity facts (`Engine layout`, `Weigh
 the file's header is missing them** — the header normally already carries them.
 
 ### 2. Completeness check
-Before formatting, scan for gaps and warn (but do NOT block the export):
+Scan the loaded catalog for gaps and warn (but do NOT block the export):
 
 - **Unnamed enumeration params** (`min: "—"` and `max: "—"`) with a blank `discrete_steps`:
   list them explicitly — these entries export with an empty `discrete_steps`, making
@@ -63,14 +62,17 @@ Before formatting, scan for gaps and warn (but do NOT block the export):
 Show the warning as a numbered list of parameter names and what's missing. Then make one offer:
 > "Say 'the {Car}'s {parameter} steps are …' and I'll add them, then export again."
 
-Proceed on either answer; if the user wants to fill the gaps first, stop here.
+If they give you the steps, run `edit-catalog.md` and start this workflow again from step 1.
+Anything else — carry on to step 3 with the gaps.
 
 ### 3. Normalise the header
 Rewrite the file's header for sharing, with Python (**never by hand**):
 - `source: "community"`;
-- delete `written_at`, `skill_version`, `parameter_count`, `forked_from`;
-- keep everything else (`car`, `game`, `save_ids` if present, `drivetrain`, the identity facts,
-  `version`).
+- delete `written_at`, `skill_version`, `parameter_count`, `forked_from` (Notion-side
+  bookkeeping — *Template file format* below);
+- `version:` only if the user just gave one for an `unknown` file (*Inputs*);
+- keep every other line the file has (`car`, `game`, `save_ids` if present, `drivetrain`, the
+  identity facts, `version`) exactly as it is.
 
 The `parameters:` list is already in `Order` (`--to-template` sorted it; baseline before surface).
 **Don't touch it** — don't reorder, reformat or "clean" a single entry.
@@ -78,9 +80,16 @@ The `parameters:` list is already in `Order` (`--to-template` sorted it; baselin
 Run this, with `SLUG` set to the car's slug:
 
 ```python
-import pathlib
+import pathlib, sys
+
+try:                                   # the file holds `—` and `°`; print them as UTF-8
+    sys.stdout.reconfigure(encoding='utf-8')
+except Exception:
+    pass
 
 SLUG = '<slug>'                        # e.g. fiat-131-abarth-1976
+VERSION = None                         # or "0.7" — ONLY when the file says version: "unknown"
+                                       # and the user just told you which version it was
 DROP = ('written_at', 'skill_version', 'parameter_count', 'forked_from')
 
 lines = pathlib.Path(f'parameters/{SLUG}.yaml').read_text(encoding='utf-8').split('\n')
@@ -96,35 +105,20 @@ for line in lines:
             continue
         if key == 'source':
             line, seen_source = 'source: "community"', True
+        elif key == 'version' and VERSION:
+            line = f'version: "{VERSION}"'
     out.append(line)
 
 pathlib.Path('exports').mkdir(exist_ok=True)
 pathlib.Path(f'exports/{SLUG}.yaml').write_text('\n'.join(out), encoding='utf-8')
-print(f'exports/{SLUG}.yaml written')
+print(pathlib.Path(f'exports/{SLUG}.yaml').read_text(encoding='utf-8'))
 ```
 
 It edits whole lines and only top-level (column-0) keys above `parameters:`, so every entry in the
-list passes through byte-for-byte.
+list passes through byte-for-byte. **It prints the finished file** — that printed text is what
+step 5 shows the user, and it is the only version of the file you may show.
 
-**What the header means** (for reading the result, not for retyping it):
-- `source` — where the values came from: `"game-files"` for a maintainer's template extracted from
-  the ACR game files, `"community"` for one a user exported. Always `"community"` here. It is read
-  back into the car's catalog source line on import (`notion-structure.md` → *Car page*). A
-  template with no `source:` line at all is treated as `community`.
-- `version` — the game version the parameters were captured in, from the **Game version** input;
-  `unknown` when it isn't known.
-- `save_ids` — the exact in-save car string(s) ACR writes for this car, used by save-file import
-  (`import-savegame.md` step 5.2) to match a save reliably. It is **normally absent** — Notion
-  doesn't store the save string. Leave it as the file has it; never invent one.
-- `power_torque_chart` / `engine_curve` / `gearing_tool` — **never in an export.** They are
-  generated from the ACR game files by `tools/torque-curves` and `tools/gearing-charts` in the
-  project repo, so the maintainer adds them when the car joins the bundled library. A template
-  without them imports and onboards cleanly; the car page just gets no chart and no gearing link.
-- The identity facts (`engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`,
-  `class`, `gearbox`, `steering_lock`) and the per-entry `order` and `surface` are **optional in
-  both directions** — a template missing any of them imports exactly as before.
-
-### 5. Verify the exported file loads
+### 4. Verify the exported file loads
 Before showing anything, run the loader on the file you just wrote:
 
 ```
@@ -140,12 +134,14 @@ Anything else is a **bug in the header rewrite, not a gap** — fix it and re-ru
 `discrete_steps` from step 2 are expected; a row that has steps in the loaded catalog but not in
 the export is not.)
 
-### 6. Present to user
-Show the exported file's contents as a fenced code block in chat:
+### 5. Present to user
+Step 3's snippet printed the finished file. Show **exactly that printed text**, unchanged, in one
+fenced ```` ```yaml ```` code block — **never retype or reformat it**, and never rebuild it from
+the pre-normalisation file:
 
 ````
 ```yaml
-<the contents of exports/<slug>.yaml>
+<the text step 3 printed, verbatim>
 ```
 ````
 
@@ -157,7 +153,7 @@ Then tell the user:
 > `lancia-stratos-hf.yaml`. Once committed, the skill will offer it automatically to anyone who
 > onboards this car."
 
-### 7. Offer to share it with the community
+### 6. Offer to share it with the community
 After showing the code block, invite the user to contribute it back — warmly, and without any
 pressure:
 
@@ -200,6 +196,94 @@ pressure:
   > That's it — the maintainers will review it and bundle it into the next release. Thank you 🙏"
 
 - **If the user says no:** Done — no follow-up, no nagging.
+
+## Template file format
+
+Reference for anyone reading a template file — **not a procedure step.** Every one of these files
+is produced by `python scripts/load_catalog.py --to-template rows.json` (bundled cars: by the
+maintainer tools in `tools/car-catalog` and `tools/torque-curves`). **Never write or edit one by
+hand**, here or anywhere else.
+
+```yaml
+car: "Lancia Stratos HF 1976"                  # the car's name, as Notion and the game show it
+game: "ACR"
+save_ids: ["LanciaStratosHF"]                  # optional; see below
+drivetrain: "RWD"                              # FWD | RWD | AWD
+engine_layout: "mid-rear transverse V6 behind the driver"
+weight_bias: "~44% front / ~56% rear"
+weight: "~950 kg"
+max_power: "250 hp at 7700 rpm"
+max_torque: "260 Nm at 6000 rpm"
+class: "Group 2/4 · H1"
+gearbox: "Manual 5-speed"
+steering_lock: "1170°"
+version: "0.6"                                 # game version the values were captured in, or "unknown"
+source: "game-files"                           # game-files | community | screenshots
+# --- bundled cars only, added by the maintainer tools ---
+gearing_tool: "https://…/lancia-stratos/gears/"
+power_torque_chart: "https://…/lancia-stratos-power-torque.png"
+engine_curve:
+  source: "ACR game files - FC_LanciaStratosHF_Torque"
+  peak_torque: "260 Nm at 6000 rpm"
+  peak_power: "265 hp at 7750 rpm"
+  rpm_step: 250
+  torque_points: [[0, 0], [250, 0], …]         # [rpm, Nm]; power is derived, not stored
+# --- a file stored on a car's `Parameters` page only ---
+forked_from: "bundled template v0.6"           # only when the car was forked from a bundled template
+written_at: "2026-09-21"
+skill_version: v0.19.1
+parameter_count: 42
+parameters:
+  - section: "Suspensions — Front"
+    adjustment: "Spring Stiffness Front"
+    order: 2020                                # integer display position, section-blocked
+    min: 42300                                 # bare number, or "—"
+    max: 73100
+    unit: "N/m"                                # "" when there is no unit
+    discrete_steps: "42300, 50000, 57700, 65400, 73100"
+    surface: "Gravel"                          # OMIT this line on a baseline row
+```
+
+The header keys appear in exactly that order (`TEMPLATE_HEADER_ORDER` in
+`scripts/load_catalog.py`); the rules:
+
+- `min` and `max`: a bare number (no quotes) for numeric parameters; `"—"` (quoted em-dash) for
+  named-selection ones.
+- `unit` and `discrete_steps` are **always quoted**, `""` when empty. `discrete_steps` carries the
+  car's step list **verbatim** as a comma-separated string (`"Short, Medium, Long"`,
+  `"42300, 50000, 57700, 65400, 73100"`) — whitespace normalised to one space after each comma
+  and nothing else. Never re-order, abbreviate, round, truncate, or replace a list with a range.
+  It applies to **numeric** parameters too: a real `min..max` **and** a step list can coexist.
+  A **gear value keeps its `*` exactly** (`SKILL.md` → *A gear value with a `*` in it is an
+  ordinary value*) — the quoting is what carries it through.
+- `order`: the integer display position (section-blocked, e.g. `2020`; `notion-structure.md` →
+  *Setups column order*). A surface-specific entry carries the **same** `order` as its baseline.
+- `surface`: **optional, per-entry.** Present only on a surface-specific entry (`Tarmac`,
+  `Gravel`, `Snow`); **omitted entirely on a baseline entry.** At the same `order`, the
+  **baseline entry comes first**, then the surface-tagged ones. A parameter whose range differs on
+  gravel is two entries: the baseline, then one with `surface: "Gravel"`.
+- `source`: where the values came from — `"game-files"` (the maintainer's, extracted from the ACR
+  game files), `"community"` (a user's export), `"screenshots"` (a user's own catalog, on their
+  `Parameters` page). It is read back into the car's catalog source line
+  (`notion-structure.md` → *Car page*). **A file with no `source:` line at all is treated as
+  `community`** — older templates predate the field.
+- `save_ids`: the exact in-save car string(s) ACR writes for this car (what the save parser emits,
+  e.g. `"MiniCooperS1275"`, `"LanciaRally037Evo2"`), which lets save-file import
+  (`import-savegame.md` 5.2) match a save **reliably** — those compact IDs often drop the year or
+  add tokens, so the human `car:` name can't be fuzzy-matched to them. **An export can't invent
+  one**; it is filled in only when an observed save reveals the string. A file without it just
+  matches by name.
+- `gearing_tool` / `power_torque_chart` / `engine_curve`: generated from the ACR game files by
+  `tools/gearing-charts` and `tools/torque-curves`, so **only bundled cars have them** — nothing
+  in this workflow can produce one. A file without them loads and onboards cleanly; the car page
+  just gets no chart and no gearing link.
+- `forked_from` / `written_at` / `skill_version` / `parameter_count`: written only onto a car's
+  `Parameters` page in Notion, as bookkeeping. `parameter_count` is checked on load — it must
+  equal the number of entries, which is how a truncated fetch is caught. A shared template carries
+  none of them (step 3 drops them).
+- Everything except `car` and `parameters:` is **optional in both directions** — a file missing any
+  of it loads exactly as before, and onboarding fills what it can from the car information
+  screenshot or a lookup (`onboard-car.md` step 5).
 
 ## Rules
 - Export reads the car's catalog; it never writes to the user's Notion.

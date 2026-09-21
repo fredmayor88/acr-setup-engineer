@@ -133,7 +133,7 @@ would rather just have a setup now, build one.
    tag. A parameter may have a baseline row (blank `Surface`) **and** a
    surface-specific row (e.g. `Gravel`); keep both for now. Once the surface is known in step 3,
    **resolve each parameter's legal range for it** by re-running `load_catalog.py --surface
-   {Surface}` on the **same file** (`catalog-read.md`, last step — no re-fetch); the rule it
+   {Surface}` on the **same file** (`catalog-read.md`, step 5 — no re-fetch); the rule it
    applies is in [notion-rest-read.md](notion-rest-read.md). Determine the car's
    **drivetrain** from its `Drivetrain` attribute (fallback, from the differential sections:
    front+rear or any centre diff ⇒ AWD; front-only ⇒ FWD; rear-only ⇒ RWD). This fixes the legal
@@ -459,8 +459,8 @@ would rather just have a setup now, build one.
    - **Apply the column order — MANDATORY, never skip (even on a quick / low-effort run).** The
      build is **not done** until you've done this (`notion-structure.md` → *Applying the order*),
      **after the row is written**. Get the `SHOW` list from the bundled script — **never build or
-     merge one by hand** — running the form *Applying the order* gives, then
-     set `SHOW` (`notion-update-view`) on every projection:
+     merge one by hand** — by running the form that *Applying the order* gives, then
+     set `SHOW` (`notion-update-view`) to its output on every projection:
      - **main `Setups` table view** → one `--from-template` per onboarded car;
      - **this car's linked view** (on the car's `Setups` page) → this car's file only, which lists
        only its value columns and so hides the blanks in the same step;
