@@ -18,16 +18,18 @@ catalog lives*):
    efficiently*) and read its `Catalog source:` line.
 2. **Template car** → the file is on disk. Go to step 5.
 3. **Screenshot car** → **fetch the car's `Parameters` page** with `notion-fetch`, in the same
-   batch as the car's other pages. Then check the response:
-   - It has `truncated: true` or `unknown_block_count` set, or there is no ```` ```yaml ````
-     block in it → the page is **unreadable**. Say: *"I can't read the {Car}'s `Parameters` page
-     in full, so I can't load its parameter list. Say 'refresh the {Car} in my Notion' to rebuild
-     it, or 'onboard the {Car} from my screenshots'."* and **stop this workflow**. Never fall back
-     to searching Notion, and never guess values.
-   - The page doesn't exist → this is a car from before catalogs became files. Run
-     `onboard-car.md` → *Migration — catalog rows to the `Parameters` page* **now** (it is the
-     one write a read workflow may make), then come back to step 3. If that migration ends at
-     its source 3 (nothing to recover), say its line and stop.
+   batch as the car's other pages. Then check the response — 3a and 3b are the two outcomes:
+
+   **3a — the page is unreadable.** It has `truncated: true` or `unknown_block_count` set, or
+   there is no ```` ```yaml ```` block in it → the page is **unreadable**. Say: *"I can't read
+   the {Car}'s `Parameters` page in full, so I can't load its parameter list. Say 'refresh the
+   {Car} in my Notion' to rebuild it, or 'onboard the {Car} from my screenshots'."* and **stop
+   this workflow**. Never fall back to searching Notion, and never guess values.
+
+   **3b — the page doesn't exist.** This is a car from before catalogs became files. Run
+   `onboard-car.md` → *Migration — catalog rows to the `Parameters` page* **now** (it is the one
+   write a read workflow may make), then come back to step 3. If that migration ends at its
+   source 3 (nothing to recover), say its line and stop.
 4. **Save the file** (*Save the file* below): write the block's text, exactly as fetched, to
    `parameters/<slug>.yaml` in the sandbox.
 5. **Run the loader** in one code-execution block, together with any other script the workflow
@@ -38,7 +40,7 @@ catalog lives*):
    `<file>` is `car-templates/<slug>.yaml` or `parameters/<slug>.yaml`. Its output rows are what
    every downstream rule consumes (`notion-rest-read.md` → *Output* shape; surface resolution is
    applied by `--surface`). **If it exits 1 with `parameter_count says …`**, the fetch was
-   truncated: treat the page as unreadable (step 3) — don't retry with the partial file.
+   truncated: treat the page as unreadable (step 3a) — don't retry with the partial file.
    **If it exits 1 with `no parameters found`**, the car's list is empty (a migration could not
    recover it): say *"The {Car} has no parameter list yet. Say 'onboard the {Car} from my
    screenshots' to capture it."* and stop.

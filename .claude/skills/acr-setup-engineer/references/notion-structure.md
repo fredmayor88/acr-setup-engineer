@@ -72,9 +72,10 @@ least as new as the game version on that line, and then it switches to the templ
 (`onboard-car.md` → *Refreshing an already-onboarded car*, step 4).
 
 **A legacy `Parameters` DB** — created by skill versions before every catalog became a file —
-is **never read and never deleted**. A refresh migrates each screenshot car's rows into its
-`Parameters` page once (`onboard-car.md` → *Migration — catalog rows to the `Parameters`
-page*) and then says, once, that the table can be deleted.
+is **never read and never deleted**. A refresh — or the first workflow that tries to load that
+car's catalog — migrates a screenshot car's rows into its `Parameters` page once
+(`onboard-car.md` → *Migration — catalog rows to the `Parameters` page*) and then says, once,
+that the table can be deleted.
 
 ### Legacy template car — check the `Setups` columns before the first write
 
@@ -192,9 +193,9 @@ Skill versions before every catalog became a file kept a screenshot car's catalo
 `Parameters` database under the root (`Car`, `Section`, `Adjustment`, `Min`, `Max`, `Unit`,
 `Discrete steps`, `Order`, optional `Surface`). **The skill no longer creates, reads or writes
 it.** It stays in the user's Notion until they delete it. The one thing the skill still does
-with it: a refresh of a screenshot car that has no `Parameters` page yet may read that car's
-rows over REST, once, to build the page (`onboard-car.md` → *Migration — catalog rows to the
-`Parameters` page*).
+with it: for a screenshot car that has no `Parameters` page yet, a refresh — or the first
+workflow that tries to load that car's catalog — may read that car's rows over REST, once, to
+build the page (`onboard-car.md` → *Migration — catalog rows to the `Parameters` page*).
 
 ## `Setups` DB — one row per setup
 - **Meta:** `Name` (title), `Car` (**Select**), `Location` (**Select**, optional), `Stage`
@@ -743,7 +744,9 @@ block. Read by `catalog-read.md`; written by `onboard-car.md` (screenshot path),
 2. **Only when the car has switched to a bundled template:** the *Not in use* line, italic:
    *Not in use since {YYYY-MM-DD}: a newer bundled template (game version {v}) appeared, so this
    car uses that now. Say 'onboard the {Car} from my screenshots' to use this list again.*
-   The date comes from the deterministic one-liner under *Date* (never a guess).
+   The date comes from the deterministic one-liner under *Date* (never a guess). **The line is
+   removed when the list comes back into use** — a re-onboard from screenshots, or an edit that
+   replaces the parked list (`edit-catalog.md` step 6.4).
 3. One ```` ```yaml ```` block: the file printed by
    `python scripts/load_catalog.py --to-template rows.json` — every header key `--to-template`
    accepts (`car`, `game`, `save_ids` when known, `drivetrain`, the eight other identity facts

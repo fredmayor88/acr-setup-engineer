@@ -589,8 +589,9 @@ whichever workflow first tries to load that car's catalog (the one write a read 
         page's ```` ```yaml ```` block, under the maintenance line (`notion-structure.md` →
         *`Parameters` page*). Create the page if missing; on a re-onboard, replace the block.
      3. Keep `rows.json` and the output: step 8, step 9 and the `SHOW` calls below use them.
-   - Ensure the `Setups` DB has a matching **value property** per Adjustment: **Number** for a
-     numeric parameter (has a numeric `Min..Max`), **Select** for an enumerated one
+   - **`Setups` value-columns check.** Ensure the `Setups` DB has a matching **value property**
+     per Adjustment: **Number** for a numeric parameter (has a numeric `Min..Max`), **Select**
+     for an enumerated one
      (`Min/Max = —`). **Add them in one call** (`SKILL.md` → *Batch Notion writes*): include every
      value column in the `CREATE TABLE` when the `Setups` DB is first created, or combine **all**
      the new columns into a **single `notion-update-data-source`** call (semicolon-separated

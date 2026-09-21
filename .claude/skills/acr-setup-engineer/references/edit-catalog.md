@@ -19,7 +19,7 @@ that changes what values a car's parameter may take. (A request to change a **se
 1. **Load the catalog** — `catalog-read.md` → *Load a car's catalog*. Keep the loader's JSON
    output; it is the list you'll edit. Note the car's kind from its `Catalog source:` line.
    **If the loader stops, this workflow stops**: say the exact line `catalog-read.md` gives for
-   that case (unreadable page at its step 3, `no parameters found` at its step 5) and write
+   that case (unreadable page at its step 3a, `no parameters found` at its step 5) and write
    nothing.
 
 2. **Name the parameter exactly.** Match what the user said against the `Adjustment` names in

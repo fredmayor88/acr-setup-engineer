@@ -70,7 +70,8 @@ Rewrite the file's header for sharing, with Python (**never by hand**):
 - `source: "community"`;
 - delete `written_at`, `skill_version`, `parameter_count`, `forked_from` (Notion-side
   bookkeeping — *Template file format* below);
-- `version:` only if the user just gave one for an `unknown` file (*Inputs*);
+- `version:` only if the user just gave one for an `unknown` file (*Inputs*) — the snippet
+  rewrites that line, or adds one right before `source:` when the file has none;
 - keep every other line the file has (`car`, `game`, `save_ids` if present, `drivetrain`, the
   identity facts, `version`) exactly as it is.
 
@@ -93,9 +94,11 @@ VERSION = None                         # or "0.7" — ONLY when the file says ve
 DROP = ('written_at', 'skill_version', 'parameter_count', 'forked_from')
 
 lines = pathlib.Path(f'parameters/{SLUG}.yaml').read_text(encoding='utf-8').split('\n')
-out, in_header, seen_source = [], True, False
+out, in_header, seen_source, seen_version = [], True, False, False
 for line in lines:
     if in_header and line.startswith('parameters:'):
+        if VERSION and not seen_version:       # no version: and no source: line — both here
+            out.append(f'version: "{VERSION}"')
         if not seen_source:
             out.append('source: "community"')
         in_header = False
@@ -104,9 +107,14 @@ for line in lines:
         if key in DROP:
             continue
         if key == 'source':
+            if VERSION and not seen_version:   # the file has no version: line — insert one
+                out.append(f'version: "{VERSION}"')
+                seen_version = True
             line, seen_source = 'source: "community"', True
-        elif key == 'version' and VERSION:
-            line = f'version: "{VERSION}"'
+        elif key == 'version':
+            seen_version = True
+            if VERSION:
+                line = f'version: "{VERSION}"'
     out.append(line)
 
 pathlib.Path('exports').mkdir(exist_ok=True)
@@ -114,8 +122,9 @@ pathlib.Path(f'exports/{SLUG}.yaml').write_text('\n'.join(out), encoding='utf-8'
 print(pathlib.Path(f'exports/{SLUG}.yaml').read_text(encoding='utf-8'))
 ```
 
-It edits whole lines and only top-level (column-0) keys above `parameters:`, so every entry in the
-list passes through byte-for-byte. **It prints the finished file** — that printed text is what
+It edits whole lines and only top-level (column-0) keys above `parameters:` — inserting
+`source:`, and `version:` when `VERSION` is set, if the file has no such line — so every entry in
+the list passes through byte-for-byte. **It prints the finished file** — that printed text is what
 step 5 shows the user, and it is the only version of the file you may show.
 
 ### 4. Verify the exported file loads

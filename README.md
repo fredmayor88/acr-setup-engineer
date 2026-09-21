@@ -345,8 +345,9 @@ onboarded from screenshots switches to a bundled list when a newer one ships —
 you.)
 
 **If you onboarded a car with an older version of the skill**, its parameter list may still be
-rows in a `Parameters` table under the root. The first refresh of that car moves the list onto its
-own `Parameters` page and tells you the table can be deleted. Nothing is deleted for you.
+rows in a `Parameters` table under the root. The first refresh of that car — or the next time the
+skill needs its list — moves it onto the car's own `Parameters` page and tells you the table can
+be deleted. Nothing is deleted for you.
 
 A car you onboarded from your own screenshots keeps its own list — until a refresh finds a bundled
 template for that car:

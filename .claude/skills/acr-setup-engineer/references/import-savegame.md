@@ -195,8 +195,8 @@ setup row is written. Pick the case:
   template, `onboard-car.md`) for the full build/tweak/review experience. Don't fabricate ranges or
   a catalog here — onboarding owns that. (Skip 5.4 for this path; values go in as-is.)
 
-**5.3 — Ensure the car has its four pages and its Setups view** (the view is what makes imported
-rows show up under the car — without it the rows exist only in the main `Setups` table). Build them
+**5.3 — Ensure the car has its pages (`notion-structure.md` → *Car page*) and its Setups view**
+(the view is what makes imported rows show up under the car — without it the rows exist only in the main `Setups` table). Build them
 the **same way onboarding does** (`onboard-car.md` step 7): the `{Car}` umbrella page with
 `Guidelines` (create-if-missing, seed stub, then never touched), `Catalog`, `Log`
 (create-if-missing with its maintenance line, shared with the user, add-only for the skill;
@@ -367,9 +367,9 @@ attached), and that connecting Notion later lets them save, build, tweak, and re
 - Always get user approval of the parsed output before writing.
 - Import works **without Notion** (chat table) and **without onboarding** (raw columns) — never
   block recovery on either.
-- **Every car imported into Notion gets its four pages, with the `Setups` linked view on the
-  `Setups` page** — without it the rows don't show under the car (create-if-missing,
-  re-assert-if-present; step 5).
+- **Every car imported into Notion gets its pages (`notion-structure.md` → *Car page*), with the
+  `Setups` linked view on the `Setups` page** — without it the rows don't show under the car
+  (create-if-missing, re-assert-if-present; step 5).
 - **If the car isn't onboarded but a bundled template matches it, auto-onboard from the template
   first** (step 5), then import onto that catalog.
 - **Decide each setup's value treatment by its game version (step 5), per setup.** When the setup's

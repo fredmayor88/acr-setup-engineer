@@ -80,6 +80,11 @@ parameters:
 '''
 
 
+# The same file as it looks on a car's `Parameters` page: `--to-template` adds the three
+# bookkeeping keys, and `parameter_count` is the one the loader checks on read.
+COUNTED_FIXTURE = FIXTURE.replace('source: "game-files"',
+                                  'source: "screenshots"\nparameter_count: 5')
+
 TARMAC_ROW_FIXTURE = '''\
 car: "Surfaced Car 2001"
 game: "ACR"
@@ -293,6 +298,21 @@ class TestPrettyAndUsage(LoadCatalogTestCase):
         self.assertIn('0.6', out)
         rows = json.loads(run(STRATOS)[0])
         self.assertGreaterEqual(len(out.strip().splitlines()), len(rows))
+
+    def test_pretty_leaves_parameter_count_out_of_the_facts_line(self):
+        """`parameter_count` is bookkeeping, not a fact about the car.
+
+        It exists so a truncated fetch of a `Parameters` page is caught on load
+        (`references/catalog-read.md` step 5); printing it on the facts line next to the
+        version and the drivetrain reads as if it described the car.
+        """
+        path = os.path.join(self._tmp.name, 'counted-car.yaml')
+        with open(path, 'w', encoding='utf-8', newline='\n') as fh:
+            fh.write(COUNTED_FIXTURE)
+        out, err = run(path, '--pretty')
+        self.assertEqual(err, '')
+        self.assertIn('screenshots', out)         # the facts line is there
+        self.assertNotIn('parameter_count', out)
 
     def test_no_arguments_is_a_usage_error(self):
         run(expect=2)

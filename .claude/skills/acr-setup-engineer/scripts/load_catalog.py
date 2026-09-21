@@ -404,8 +404,10 @@ def to_template(header, rows):
 
 def pretty(header, rows):
     out = [f'{header.get("car", "?")} — {len(rows)} parameters']
+    # `parameter_count` is load-time bookkeeping (the truncated-fetch check), not a fact
+    # about the car, so it stays off the facts line.
     facts = [f'{name}: {header[name]}' for name in HEADER_FIELDS
-             if name != 'car' and header.get(name)]
+             if name not in ('car', 'parameter_count') and header.get(name)]
     if facts:
         out.append('  ' + ' | '.join(facts))
     for row in rows:
