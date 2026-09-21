@@ -1,11 +1,15 @@
 # Workflow: review an existing setup
 
-Critique a setup that already exists in the user's Notion `Setups` database — checking it for
-constraint violations, guideline alignment, and internal consistency — then print the review in
-chat and append a timestamped AI Review section to the setup's Notion page.
+Review a setup that already exists in the user's Notion `Setups` database **the way an experienced
+rally mechanic would at the service park before the stage**: read the sheet, think about the road
+the car is about to drive, and say plainly whether it's ready — and what they'd change before the
+start if it isn't. Print the review in chat and append it, timestamped, to the setup's Notion page.
 
-Read `notion-structure.md` (structure + schemas) and `setup-tuning-principles.md` (reasoning
-base) before starting.
+The review is built around **the stage**, not around the parameter list. The question it answers is
+*"will this car work on this road for this driver?"* — not *"did this setup follow the rules?"*.
+
+Read `notion-structure.md` (structure + schemas), `setup-tuning-principles.md` (reasoning base) and
+`driving-feedback-interview.md` → *Fix-order ladder* before starting.
 
 ## Inputs
 - **Setup name** (e.g. `alsace dry fast`). The user can also provide **Car**, **Location**, and/or
@@ -13,10 +17,11 @@ base) before starting.
 
 ## Procedure
 
-> **Load steps 1–3 as one batched read** (`SKILL.md` → *Read efficiently*): after resolving the
+> **Load steps 1–4 as one batched read** (`SKILL.md` → *Read efficiently*): after resolving the
 > structure, issue the independent reads together (parallel tool calls) and run the REST queries in
 > one code-execution block — fetching the car's `Catalog` page (`Drivetrain`/identity facts,
-> step 2) and `Guidelines` page (step 3) once each, in the same batch.
+> step 2), its `Guidelines` page (step 3), its `Log` page (step 3) and the stage page (step 4) once
+> each, in the same batch.
 
 ### 1. Identify the setup
 Navigate to `ACR Setup Engineer → Setups` DB and find the row matching the given name. Stay
@@ -24,7 +29,8 @@ within `ACR Setup Engineer` scope — do not issue workspace-wide Notion searche
 
 - **Unique match:** Load all value properties, plus `Car`, `Location`, `Stage`, `Surface`,
   `Conditions` (may be blank — don't treat that as an error), `Mode`,
-  `Notes`, `Rating` (a **1–5 Select**, higher = better; blank = unrated).
+  `Notes`, `Rating` (a **1–5 Select**, higher = better; blank = unrated), and the page body's
+  **driving intent** bullet (the setup summary at the top of the page).
 - **Multiple matches:** List them (Name / Car / Stage / Date) and ask the user to pick one.
 - **No match:** Tell the user and stop.
 
@@ -39,15 +45,13 @@ car-templates/<slug>.yaml --surface {Surface}` (no token, no network); a **scree
 `ACR Setup Engineer → Parameters`. Decide which from the `Catalog` page's `Catalog source:` line
 (`notion-structure.md` → *Where a car's catalog lives*). Either way the rows carry `Adjustment`,
 `Min`, `Max`, `Unit`, `Discrete steps`, `Order`, `Surface`. Also read the `Drivetrain`
-(FWD/RWD/AWD) from the car's `Catalog` page — the same fetch that gave you the source line.
-When the review lists several parameters together, present them in `Order` sequence
-(`notion-structure.md` → *Setups column order*). This workflow is read-only — it never reorders
-Notion columns. **Resolve
-each parameter's legal range for the setup's `Surface`** (loaded in step 1) — the surface-specific
-row if the parameter has one; for `Snow`, fall back to a `Gravel` row before the baseline (see
-[notion-rest-read.md](notion-rest-read.md)).
+(FWD/RWD/AWD), weight bias and engine facts from the car's `Catalog` page — the same fetch that
+gave you the source line. This workflow is read-only on the database — it never reorders Notion
+columns. **Resolve each parameter's legal range for the setup's `Surface`** (loaded in step 1) —
+the surface-specific row if the parameter has one; for `Snow`, fall back to a `Gravel` row before
+the baseline (see [notion-rest-read.md](notion-rest-read.md)).
 
-### 3. Load guideline layers
+### 3. Load the guideline layers — and the driver's history
 Same precedence chain as `build-setup.md` (lowest → highest priority):
 1. **Base** — `setup-tuning-principles.md`.
 2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
@@ -59,89 +63,106 @@ Same precedence chain as `build-setup.md` (lowest → highest priority):
 4. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
    `Surface` (not a separate page).
 5. **Per-car guidelines** — the car's `Guidelines` page.
-The setup's own **driving intent** (its page-body summary) is the most specific layer. Apply only
-lines tagged `[All]` **or the car's drivetrain**. More specific is the default lean, not an
-auto-resolution — if reviewing surfaces a real contradiction between authored layers, note it as
-a finding rather than silently picking a side. Never read content outside `ACR Setup Engineer`.
+The setup's own **driving intent** is the most specific layer. Apply only lines tagged `[All]` **or
+the car's drivetrain**. If two authored layers really contradict each other on something that
+matters here, say so in the review rather than silently picking a side. Never read content outside
+`ACR Setup Engineer`.
 
-### 4. Load stage facts (if the setup references one)
-Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface, key
-corners/speeds, character. These are **objective facts**, not a guideline — what the driver was
-aiming for comes from the setup's own page-body summary, read alongside these facts.
+**Also read the car's `Log` page** — the way a mechanic asks the driver how the car has been
+feeling. Resolve it by name (`Log`, falling back to a legacy `Feedback` page, per
+`notion-structure.md` → *Resolving the page (`Log`, and the legacy `Feedback` name)*); **a read
+never renames anything**, and if neither page exists, skip it silently. Read the whole page — the
+skill's dated feedback entries **and** the user's own notes. It is **evidence, not a guideline
+layer**: `Guidelines` still outranks it. Use it to spot a complaint this setup doesn't answer (the
+driver has reported a loose rear on corner exit twice and this setup softens the front ARB — that
+makes it worse), or one it already answers.
 
-### 5. Review the setup
+### 4. Load the stage
+Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface, length,
+key corners and speeds, character. **This is the centre of the review** — the road the car is
+about to drive.
+
+**No stage on the setup?** Ask once which stage it's for (*"Which stage is this setup for? I can
+review it against the surface and your intent without one, but it's a better review with the
+road."*). If the user names one that's in the catalogue, load it; if they don't have one, review
+against the `Surface`, `Conditions` and the driving intent only, and **say at the top of the
+review** that it was done without a stage.
+
+### 5. Think like the mechanic
 
 > **A `Source = default` row is the game's own stock setup, not something the skill built.** Review
-> it as a *reference* — say how it sits relative to the stage and the user's guidelines, and where
-> it's likely to need moving — but never present it as a poorly-built setup, and never flag a value
-> as a mistake someone made. A shown value outside the catalog's captured range means the
-> **catalog range is stale**, not that the setup is illegal. For a **screenshot car**, the fix is
-> re-onboarding it — the exact request is *"onboard the {Car} from my screenshots"*. For a
-> **template car**, say the stale-template line (`onboard-car.md` → *When the template may be
-> stale*), which carries its own way out: *"re-onboard the {Car} from my screenshots"*. A bare
-> "re-onboard" is a template refresh and would take the same template again.
+> it as a *reference* — say how it sits for this stage and this driver, and where it's likely to
+> need moving — but never present it as a poorly-built setup, and never flag a value as a mistake
+> someone made. A shown value outside the catalog's captured range means the **catalog range is
+> stale**, not that the setup is illegal. For a **screenshot car**, the fix is re-onboarding it —
+> the exact request is *"onboard the {Car} from my screenshots"*. For a **template car**, say the
+> stale-template line (`onboard-car.md` → *When the template may be stale*), which carries its own
+> way out: *"re-onboard the {Car} from my screenshots"*. A bare "re-onboard" is a template refresh
+> and would take the same template again.
 
-Evaluate across three dimensions:
+Work through it in this order:
 
-**a. Constraint validation**
-For every parameter that has a value in the setup row, check against its **surface-resolved**
-range (the row for the setup's `Surface`; `Snow` falls back to `Gravel`, then baseline — step 2):
-- If that row has `Discrete steps` filled → the value must be exactly one of those steps.
-- Otherwise → the value must be within `Min..Max` (inclusive).
-Any violation is a **hard error** — list every one found; do not suppress or soften them.
+**a. Legality — the only hard check.** For every parameter that has a value, check it against its
+**surface-resolved** range (step 2): one of the `Discrete steps` when the row has them, else inside
+`Min..Max` (inclusive). Any violation is a **hard error** — list every one; never soften them. The
+game won't accept the value, so nothing else in the review matters until it's fixed.
+
+**b. Walk the stage.** From the stage facts, name the **3–5 things this road asks of the car** — for
+example: grip level and how it changes (tarmac → damp → gravel sections, snow ruts); tight hairpins
+vs fast flowing sections; jumps, crests and landings; bumps, cuts and kerbs; long braking zones;
+long straights. For each one, judge how **this setup** meets it, looking at the parameters that
+decide it (ride height and springs for bumps and landings; diff and ARBs for rotation in hairpins;
+gearing for the straights and the slow corners; brake bias and hardware for the braking zones; tyre
+choice for grip). Reason from the car's drivetrain and weight bias, the tuning principles and the
+car's troubleshooting file.
+
+**c. Check the driver.** Put the driving intent, `Notes`, `Rating` and the `Log` history next to
+what you found in (b). A setup can suit the stage and still fight the driver — say so.
+
+**d. Decide what you'd change before the start.** At most **3–5 changes**, ordered by the
+fix-order ladder (`driving-feedback-interview.md` → *Fix-order ladder*: tyres → differential →
+suspension → ARBs → dampers → wheel angles → brake bias; gearing is a parallel track; tyre pressure
+sits outside the ladder). Each change has a **concrete legal screen value** (surface-resolved, a
+member of `Discrete steps` when the row has them) and a one-line reason **in plain words tied to the
+stage or the driver** (*"the rear steps out landing the jumps after the ford — one step softer on
+the rear springs"*), not a rule citation. A setup that's right needs no changes — don't invent
+them.
+
+**e. Respect the user's own guidelines.** Cite a guideline when it's the reason for a change. And
+if a change you'd make goes **against** one of the user's guidelines, say so in the change itself
+(*"this goes against your 'prefer understeer on entry' guideline — your call"*). A concern no longer
+needs a citation to be raised; the mechanic's judgement of the stage is reason enough.
 
 > **Toe values read inverted** (`SKILL.md` → *ACR's toe sign is inverted*): a **positive** stored
-> toe is toe-**out**, a **negative** one is toe-**in**. Judge the alignment of a toe value by that
-> direction — e.g. a positive front toe on a turn-in-focused setup is *well-supported*, not a
-> concern — and state the direction in words whenever the review mentions a toe number, with the
-> one-line inversion warning. Any suggested alternative is likewise given as a screen number.
-
-**b. Guideline alignment**
-For each filled parameter, judge whether the value is consistent with the drivetrain-filtered
-guidelines for this surface, the stage facts, and the setup's own stated driving intent. Classify
-each notable parameter as:
-- **Well-supported** — the choice directly follows a guideline principle or the stated intent.
-- **Neutral** — within a reasonable range; no strong guideline signal either way.
-- **Concerns** — the value seems at odds with a specific guideline or the setup's stated intent;
-  state which one and why.
-
-Focus on parameters that matter most for the stage/intent (don't enumerate every neutral choice —
-only call out the interesting ones).
-
-**c. Internal consistency**
-Check whether parameter choices work together coherently. Examples of tensions to catch:
-- Rotation-focused diff settings paired with understeer-biased ARB/suspension on a car that
-  needs rotation.
-- Very soft springs with very stiff dampers (mismatch in suspension compliance).
-- Tyre choice inconsistent with the stage surface.
-- Brake bias misaligned with the car's weight distribution tendency on that surface.
-Flag 2–4 tensions if found; skip this section entirely if the setup is coherent.
+> toe is toe-**out**, a **negative** one is toe-**in**. Judge a toe value by that direction, say the
+> direction in words whenever the review mentions a toe number, and add the one-line inversion
+> warning. Any suggested value is likewise given as a screen number.
 
 ### 6. Produce the review
-Structure the review with these sections (omit a section if it has nothing to say):
+Talk like a mechanic to their driver: direct, plain words, no jargon the user hasn't used, no
+hedging. Structure it like this, and drop any section that has nothing to say:
 
 ```
-## Overall verdict
-[1–2 sentences. State clearly if there are hard violations. Otherwise: is this a solid setup,
-a reasonable starting point, or does it have significant alignment issues?]
+## Verdict
+**Ready to go** / **Fix these first** / **Wrong setup for this stage** — then 1–2 sentences on why.
+[Hard violations always make it "Fix these first". Without a stage, say so here.]
 
-## Constraint violations  ← omit section if none
-- {Parameter}: value {X} is outside {Min..Max} / not in {Discrete steps set}.
-  [One per line; be specific.]
+## Won't load in the game  ← only when there are violations
+- {Parameter}: {value} isn't allowed — the range is {Min..Max} / the options are {Discrete steps}.
 
-## Strengths
-- {Parameter}: {chosen value} — {why this aligns well with the guideline/intent}.
-  [2–4 bullets. Cite the guideline or the setup's stated intent.]
+## The stage
+- **{What the road asks — e.g. "Two hairpins after the bridge"}** — {how this setup copes, and why}.
+  [3–5 bullets, in the order the driver meets them on the stage where the facts say so.]
 
-## Concerns & suggestions
-- **{Parameter}** (current: {value}) — {what's misaligned and why}. Consider {suggested value
-  or range} instead. _(Guideline: [tag] …)_
-  [3–5 bullets. Each must cite the guideline principle or the setup's stated intent driving the
-  concern. Give a concrete alternative value, not just "lower it".]
+## What I'd change before the start
+1. **{Parameter}**: {current} → {new} — {plain reason tied to the stage or the driver}.
+  [At most 3–5, in fix-order-ladder order. Omit the section when nothing needs changing.]
 
-## User notes  ← omit section if Notes field is blank
-[Acknowledge what the user recorded in the Notes field. Don't restate it verbatim; connect it
-to the review findings where relevant.]
+## What's right
+- {Parameter or group}: {why it suits this stage or this driver}.  [2–3 bullets, short.]
+
+## From your notes  ← only when Notes or the Log has something relevant
+[What the driver has reported and how this setup answers it — or doesn't. Don't restate it verbatim.]
 ```
 
 ### 7. Print in chat
@@ -151,24 +172,29 @@ Output the full review as formatted markdown.
 Add the following block group to the **bottom** of the setup's page body. Never modify,
 delete, or reorder existing content.
 
-- **H2 heading:** `AI Review — {YYYY-MM-DD HH:MM} UTC`  
+- **H2 heading:** `AI Review — {YYYY-MM-DD HH:MM} UTC`
   (the timestamp of when this review runs)
 - **Toggle block** (collapsed by default, mobile-readable): the review content from step 6,
   formatted identically — short headings + bullets, no wide tables.
+
+The review writes **nothing to the `Log` page** — it records what the driver said, and a review is
+the mechanic talking, not the driver. If the user answers the review with how the car has actually
+been driving, that's feedback: switch to `tweak-setup.md`, which logs it.
 
 If the Notion write fails, tell the user and show the review text again so they can save it
 manually.
 
 ## Rules
+- **The stage comes first.** Every judgement is about this road, this car and this driver — not
+  about whether a value matches a rule in the abstract.
+- **Legality is the only hard check** — violations are listed first and never softened.
+- **Few, concrete changes** — at most 3–5, fix-order-ladder order, each with a legal screen value.
+  None when the setup is right.
+- **The user's guidelines are respected, not required** — a change that goes against one says so;
+  a concern doesn't need a citation to be raised.
 - **Append-only** — never modify or delete existing page content; only add to the bottom.
 - **Stay within `ACR Setup Engineer` scope** — same name-resolution and scope rules as every other
   workflow.
 - **Drivetrain-aware** — apply only guideline lines tagged `[All]` or the car's drivetrain.
-- **Cite the guideline** — every concern must reference which principle or user guideline it
-  comes from.
-- **Concrete suggestions** — every concern must include a specific alternative value or range,
-  not a vague direction.
-- **Hard errors first** — constraint violations are listed before everything else and never
-  softened.
 - **Toe sign is inverted** — positive = toe-out, negative = toe-in; say which direction a toe value
   actually gives and warn about the inversion whenever the review quotes one.

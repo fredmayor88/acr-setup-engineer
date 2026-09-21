@@ -188,7 +188,7 @@ It doesn't get in your way, and there's plenty here for you:
   the built-in ones, and it cites which one drove each choice.
 - **Surface-aware ranges** — several cars expose different suspension limits on gravel than on
   tarmac, and it validates against the right ones.
-- **Review any setup** against its legal ranges, your guidelines, and the stage.
+- **Review any setup** like a rally mechanic would before the stage: is it right for this road and for you?
 - **Share a setup** as a clean copy-paste block for Discord.
 - **Export a car** as a YAML template and contribute it back so the next driver skips the
   screenshots.
@@ -400,9 +400,14 @@ Can't describe it? Say so, and it runs the guided interview instead.
 
 ### Review a setup
 
-*"Review my alsace dry fast setup."* Every value checked against its legal ranges and your
-guidelines, misalignments flagged with concrete alternatives, printed in chat and appended as a
-timestamped **AI Review** section on the setup's Notion page.
+*"Review my alsace dry fast setup."* It reads the setup the way a rally mechanic would at the
+service park before the stage. First a verdict: *ready to go*, *fix these first*, or *wrong setup
+for this stage*. Then what the stage asks of the car (hairpins, jumps, bumps, braking zones, grip)
+and how this setup copes with each, and the few changes it would make before the start, each with
+an exact value and a plain reason. It also reads what you've told it after earlier drives (the
+car's `Log`) and says when a change would go against one of your guidelines. Values the game
+wouldn't accept are always listed first. The review is printed in chat and added as a timestamped
+**AI Review** section on the setup's Notion page. If the setup has no stage, it asks for one.
 
 ### Ask a question
 
@@ -448,7 +453,7 @@ line, no tokens.
 | Build a setup for a stage | [`build-setup.md`](.claude/skills/acr-setup-engineer/references/build-setup.md) |
 | Refine on driving feedback | [`tweak-setup.md`](.claude/skills/acr-setup-engineer/references/tweak-setup.md) |
 | Work out what's actually wrong | [`driving-feedback-interview.md`](.claude/skills/acr-setup-engineer/references/driving-feedback-interview.md) |
-| Critique an existing setup | [`review-setup.md`](.claude/skills/acr-setup-engineer/references/review-setup.md) |
+| Review a setup like a rally mechanic | [`review-setup.md`](.claude/skills/acr-setup-engineer/references/review-setup.md) |
 | Explain a setup or a concept | [`ask-setups.md`](.claude/skills/acr-setup-engineer/references/ask-setups.md) |
 | Produce a copy-paste snippet | [`share-setup.md`](.claude/skills/acr-setup-engineer/references/share-setup.md) |
 | Save a setup you built in-game, from photos | [`capture-setup.md`](.claude/skills/acr-setup-engineer/references/capture-setup.md) |

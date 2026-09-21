@@ -773,11 +773,12 @@ Rules:
   `Guidelines` in that respect, even though the skill also writes here. A refresh may **rename**
   a legacy `Feedback` page to `Log` and add the maintenance line — see *Resolving the page
   (`Log`, and the legacy `Feedback` name)* below — and nothing else.
-- **It is evidence, not a guideline layer.** **`build-setup.md` (step 2) and `tweak-setup.md`
-  (step 3) fetch this page**, batched with `Guidelines`, and read the **whole page** — the skill's
-  entries *and* the user's notes — as context about how this driver describes this car. (A read
-  never renames a legacy `Feedback` page; that happens on a write or a refresh.
-  `review-setup.md` and `ask-setups.md` don't read it at all.) It never outranks
+- **It is evidence, not a guideline layer.** **`build-setup.md` (step 2), `tweak-setup.md`
+  (step 3) and `review-setup.md` (step 3) fetch this page**, batched with `Guidelines`, and read
+  the **whole page** — the skill's entries *and* the user's notes — as context about how this
+  driver describes this car. (A read never renames a legacy `Feedback` page; that happens on a
+  write or a refresh. `ask-setups.md` doesn't read it at all; `review-setup.md` reads it but
+  never writes to it.) It never outranks
   `Guidelines`: anything that should actually steer tuning decisions belongs there, which the user
   owns and which wins (`SKILL.md` → *Layered guidelines*). When a user note on `Log` reads like a
   **standing rule for this car** rather than a one-off observation, **offer it for `Guidelines`**

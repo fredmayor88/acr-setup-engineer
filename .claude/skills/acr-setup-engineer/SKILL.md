@@ -29,7 +29,7 @@ Pick the matching workflow and read its file before acting:
 | Build a setup for a stage | `references/build-setup.md` |
 | Tweak / refine a setup, or describe a handling problem to work through (problem → tweak → test loop) | `references/tweak-setup.md` |
 | Work out **what's actually wrong** with how the car feels — guided questions after a drive, when the user can't put it into words (then continue into `tweak-setup.md` / `build-setup.md` with the diagnosis) | `references/driving-feedback-interview.md` |
-| Review an existing setup from Notion | `references/review-setup.md` |
+| Review an existing setup from Notion — a rally mechanic's verdict on whether it suits the stage and the driver, with the few changes they'd make before the start | `references/review-setup.md` |
 | Ask a question / explain a setup or a tuning concept (read-only) | `references/ask-setups.md` |
 | Share a setup as a plain-text snippet (copy-paste) | `references/share-setup.md` |
 | **Save/store a setup the user built themselves in-game**, from photos of the setup screens — *"store this as {name} for the {car}"*, *"save these screens as a setup"* (photos show **current values**, and a name to save it under is given or asked for) | `references/capture-setup.md` |
@@ -255,11 +255,12 @@ Bundled tools (stdlib Python, run via code execution):
     drives. **Add-only for the skill:** append one new dated entry directly below the maintenance
     line, so the newest is at the top; **never edit, reorder, merge or delete any existing block —
     the user's or an earlier entry of its own** — and **never rewrite it on a refresh**.
-    **`build` and `tweak` read the whole page** — a **separate fetch**, batched with `Guidelines`
-    (`build-setup.md` step 2, `tweak-setup.md` step 3) — as context about this driver and car. It
+    **`build`, `tweak` and `review` read the whole page** — a **separate fetch**, batched with
+    `Guidelines` (`build-setup.md` step 2, `tweak-setup.md` step 3, `review-setup.md` step 3) — as
+    context about this driver and car. It
     is evidence, **not a guideline layer**, so `Guidelines` still outranks it, and a user note
     that is really a standing tuning rule gets *offered* for `Guidelines` in chat, never moved
-    there. `review` and `ask` don't read it. Unlike `Catalog` none of it can be
+    there. `ask` doesn't read it. Unlike `Catalog` none of it can be
     regenerated. It was called `Feedback` before; a legacy page of that name is **renamed in
     place** (`notion-structure.md` → *Resolving the page (`Log`, and the legacy `Feedback`
     name)*).
@@ -343,7 +344,7 @@ Bundled tools (stdlib Python, run via code execution):
   time. After resolving the structure once, the remaining reads are **independent**: issue them
   **together in a single step (parallel tool calls)** — e.g. the `Setups` DB fetch (and the
   `Parameters` one when a screenshot car is involved) for their `data_source_id`s, the car's
-  `Catalog` / `Guidelines` / `Log` pages (`Log` in `build` and `tweak` only), the
+  `Catalog` / `Guidelines` / `Log` pages (`Log` in `build`, `tweak` and `review` only), the
   `Tuning guidelines` page, and any `{Stage}`/`{Location}` page — rather than one-by-one. Run
   **all** REST queries (`scripts/query_notion_parameters.py`) in **one code-execution block**.
   **For a template car that batch carries no `Parameters` query at all** — run

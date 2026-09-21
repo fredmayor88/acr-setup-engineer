@@ -76,7 +76,9 @@ Keep answers concrete and physical. Cite which lever pushes which way (front vs 
 coast ramp, slow vs fast damper) rather than vague "it depends".
 
 ## 3. Setup-specific path (load from Notion)
-Load data the same way `review-setup.md` does (steps 1–4) — **but to explain, not to critique**.
+Load data the same way `review-setup.md` does (steps 1–4) — **but to explain, not to critique**,
+and with two exceptions: **skip the `Log` read**, and **don't ask for a missing stage** (use the
+stage only when the setup names one).
 
 ### 3a. Identify the setup(s)
 Navigate to `ACR Setup Engineer → Setups` and find the row(s) matching the given name(s). Stay
