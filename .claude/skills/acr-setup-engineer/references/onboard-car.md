@@ -77,12 +77,14 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
      had **no `Catalog source:` line** (an older version onboarded it), say once:
      *"This car still has rows in the old `Parameters` table from an older version of the skill.
      They aren't read any more. Delete that table whenever you like."*
-   - **Screenshot car with no `Parameters` page yet** → run *Migration — catalog rows to the
+   - **Screenshot car with no `Parameters` page yet** (fetch the `{Car}` page — its child pages
+     are listed; no `Parameters` child means not yet) → run *Migration — catalog rows to the
      `Parameters` page* (below) first, then continue with this step as a screenshot car.
    - **Screenshot car** → decide by **game version**: the version on its source line (what the
      user gave when they captured it, `unknown`, or — for a forked car — the `forked_from`
-     template version) against the `version:` of a `car-templates/` file that matches the car.
-     Compare as version numbers (`0.10` is newer than `0.9`).
+     template version) against the `version:` of a `car-templates/` file that matches the car
+     (matching rule: *Procedure* step 1 → *Matching a car name*). Compare as version numbers
+     (`0.10` is newer than `0.9`).
      - **A template matches and its version is the same or newer** → **switch to the template,
        no question.** Run step 3 as a template car (its source line becomes `bundled template`),
        insert the *Not in use* line as the **second block** of the `Parameters` page, right under
@@ -148,7 +150,8 @@ that can't be regenerated, so it is the only thing handled carefully:**
 6. **Clear the old `{Car}` page body** so the umbrella page is empty and only its child pages
    remain. **Don't delete the `{Car}` page itself** — it keeps its identity, its URL, and any
    links the user has to it.
-7. **Say what happened** in the report: that the car moved to the four-page layout, and explicitly
+7. **Say what happened** in the report: that the car moved to the new page layout (four pages;
+   five for a car onboarded from screenshots), and explicitly
    what was carried across — their `Guidelines` text and any old driving-feedback entries, which
    now live on `Log` (or that there was none of either).
 
@@ -164,8 +167,10 @@ toggle (an older read fallback). This runs **once per car**, inside a refresh, o
 whichever workflow first tries to load that car's catalog (the one write a read workflow may make).
 
 1. **Get the rows, first source that works:**
-   1. **The `Catalog snapshot` toggle** on the car's `Catalog` page (you hold that page). Its
-      `yaml` block has `rows:` in the REST *Output* shape — save it with Python, then convert:
+   1. **The `Catalog snapshot` toggle** on the car's `Catalog` page (you hold that page) — or,
+      for a car you are migrating off the one-page layout in this same run, in the old `{Car}`
+      page body you fetched in that migration's step 1. Its `yaml` block has `rows:` in the REST
+      *Output* shape — save it with Python, then convert:
       ```python
       import json, pathlib, re
       text = """<the block, verbatim>"""
@@ -187,18 +192,29 @@ whichever workflow first tries to load that car's catalog (the one write a read 
       ```
       where `HEADER` is a dict of the identity facts from the `Catalog` page plus
       `car`, `version` (the game version on the source line, or `unknown`) and `source: "screenshots"`.
-   2. **The legacy `Parameters` DB over REST**, when this chat has network and a token
-      (`notion-rest-read.md`): query that data source with the car's name, and build the same
-      `rows.json` from the result.
-   3. **Neither** → create the `Parameters` page with its maintenance line and a `yaml` block
-      holding only the header and `parameters: []`, and tell the user: *"The {Car} was onboarded
-      by an older version and I can't recover its parameter list here. Say 'onboard the {Car}
-      from my screenshots' to capture it again."* Its catalog can't be loaded until then.
+   2. **The legacy `Parameters` DB over REST**, only when `python scripts/check_egress.py` printed
+      `egress: ok` in this chat. `notion-fetch` the `Parameters` database under the root for its
+      data source id (strip the `collection://` prefix), read the token off the `Config` page, and
+      run:
+      ```
+      python scripts/query_notion_parameters.py <legacy data source id> <token> "{Car}"
+      ```
+      The three-argument form filters any data source on its `Car` select. It prints the rows as
+      JSON with the keys already right (`Adjustment`, `Section`, `Min`, `Max`, `Unit`,
+      `Discrete steps`, `Order`, and `Surface` where the row has one) — drop `Car`, and write the
+      same `rows.json` as above. No legacy database, no token, or `egress: none` → source 3.
+   3. **Neither** → write `rows.json` with the header and `"rows": []`, run it through
+      `--to-template` in step 2 like any other, and create the page from that output — **never
+      write the block by hand**. Then tell the user: *"The {Car} was onboarded by an older version
+      and I can't recover its parameter list here. Say 'onboard the {Car} from my screenshots' to
+      capture it again."* A list with no parameters **can't be loaded**: every workflow that needs
+      it stops with that same re-onboard line until the user captures the car again.
 2. **Write the page**: `python scripts/load_catalog.py --to-template rows.json`, and create the
    `Parameters` page under `{Car}` with the maintenance line and the output as its `yaml` block
    (`notion-structure.md` → *`Parameters` page*).
-3. **Rebuild the `Catalog` page** without the snapshot toggle (refresh step 3 for a screenshot
-   car: identity facts, source line, nothing else).
+3. **Rebuild the `Catalog` page** without the snapshot toggle, as **one replacement** of the page
+   body: its maintenance line, the nine identity facts, the catalog source line, and nothing else
+   (`notion-structure.md` → *`Catalog` page*).
 4. **Say what happened**: *"Moved the {Car}'s parameter list to its own `Parameters` page."* Once
    per run, also: *"Your old `Parameters` table isn't read any more by any car. You can delete it."*
 
@@ -326,10 +342,13 @@ whichever workflow first tries to load that car's catalog (the one write a read 
      screenshots show (plus the standard ACR lists for `Tyre Type`/brake pads); for numeric
      params `Discrete steps` is left blank (user-owned).
 
-   **Pre-existing Notion content is NOT a source.** If the `{Car}` page or any other Notion
-   page already contains notes, tables, or parameter values — ignore them entirely. Notion is
-   a write destination; never read it to populate or replace extraction. Even if the existing
-   content looks complete, proceed with the chosen source and upsert the extracted values.
+   **Pre-existing Notion content is NOT a source *for an extraction*.** If the `{Car}` page or
+   any other Notion page already contains notes, tables, or parameter values — ignore them
+   entirely. Notion is a write destination; never read it to populate or correct what the
+   screenshots show. Even if the existing content looks complete, proceed with the chosen source
+   and write the extracted values. This does not apply to *Migration — catalog rows to the
+   `Parameters` page*, which moves a list the skill itself wrote earlier, nor to
+   `catalog-read.md`.
 
 2. **Read the attached screenshots** and pair each min shot with its max shot by the setup
    screen it shows. If a screen is missing, say so — don't guess its ranges. **Set the car
@@ -783,7 +802,7 @@ run's result stands.
 - Prefer canonical `Adjustment` names so `Setups` columns stay consistent across cars. If a car
   uses different wording for a familiar parameter, accept it and record it as shown — never
   reject or flag a parameter for non-standard naming. New parameter names are simply added to
-  the table.
+  the car's list.
 - This workflow only defines *legal ranges* — never write a value into a setup here.
 - Never ask for click counts or interpolate. **On the screenshot path**, for **numeric** params
   `Discrete steps` is **optional and user-owned** — onboarding never fabricates or infers it, and
@@ -795,7 +814,8 @@ run's result stands.
   params onboarding seeds it with the option names the screenshots show (observed values only,
   never fabricated) plus the standard ACR lists for `Tyre Type`/brake pads; the user completes
   it.
-- **Never use existing Notion content as parameter input.** The `{Car}` page is a write
-  destination. Any tables or notes already on it are the user's own work — do not read,
-  compare, or defer to them during extraction. Screenshots (or a bundled profile) are the only
-  valid sources.
+- **Never use existing Notion content as parameter input during an extraction.** The `{Car}` page
+  is a write destination. Any tables or notes already on it are the user's own work — do not read,
+  compare, or defer to them while extracting. Screenshots (or a bundled profile) are the only
+  valid sources. This does not apply to *Migration — catalog rows to the `Parameters` page*, which
+  moves a list the skill itself wrote earlier, nor to `catalog-read.md`.

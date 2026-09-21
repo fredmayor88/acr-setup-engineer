@@ -39,6 +39,9 @@ catalog lives*):
    every downstream rule consumes (`notion-rest-read.md` → *Output* shape; surface resolution is
    applied by `--surface`). **If it exits 1 with `parameter_count says …`**, the fetch was
    truncated: treat the page as unreadable (step 3) — don't retry with the partial file.
+   **If it exits 1 with `no parameters found`**, the car's list is empty (a migration could not
+   recover it): say *"The {Car} has no parameter list yet. Say 'onboard the {Car} from my
+   screenshots' to capture it."* and stop.
 6. **Use the same file again** for anything else this run needs: `--check values.json` for
    legality, `--show-order --from-template <file>` for column order. Don't re-fetch.
 
