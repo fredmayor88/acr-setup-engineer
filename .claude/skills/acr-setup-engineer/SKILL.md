@@ -265,9 +265,11 @@ Bundled tools (stdlib Python, run via code execution):
 - **Refining is an in-chat loop — save only when asked.** Describing a handling problem or asking
   for a tweak is **not** a request to build or save a setup. Work the *problem → tweak → test →
   feedback* cycle conversationally: propose legal value changes in chat and iterate as the user
-  reports back from driving — **write nothing to Notion**, with **one named exception**: when a
-  driving-feedback interview runs, its dated entry on the car's **`Log`** page is written as the
-  interview ends, on every path (`driving-feedback-interview.md` → *Recording the outcome*). That
+  reports back from driving — **write nothing to Notion**, with **one named exception**: every
+  round of feedback writes one dated entry on the car's **`Log`** page as it ends — a
+  driving-feedback interview's record when one ran (on every path,
+  `driving-feedback-interview.md` → *Recording the outcome*), otherwise the user's own words and
+  the changes proposed (`tweak-setup.md` step 5). That
   entry is add-only history of what the driver said, not a setup write. It is the **only** write
   the exception allows — never a `Setups` row, a `Notes` verdict, a row toggle or anything on
   `Guidelines`, and never anything at any other point in the loop. Persist a single new `Setups` row (the

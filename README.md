@@ -642,7 +642,8 @@ ACR Setup Engineer (root page)
     │                        ACR Car Lab gearing page, and a readable copy of the parameter
     │                        list. Rebuilt on every refresh.
     ├── Log                 SHARED. Your own notes about this car, anywhere on the page,
-    │                        plus what you said about the car after each drive, dated.
+    │                        plus what you told Claude about how a drive felt, dated.
+    │                        Building a setup adds nothing here.
     │                        Yours are yours to edit; the skill only ever adds — it never
     │                        edits or deletes anything on this page.
     └── Setups              a filtered view of your setups for this car
@@ -650,12 +651,15 @@ ACR Setup Engineer (root page)
 
 **Why four pages?** So the skill never has to guess which words on a page are yours. `Catalog` is
 regenerated wholesale whenever you refresh a car — no comparing, no questions, no risk of it
-clobbering something you wrote — precisely because everything you write lives in `Guidelines`,
-which it only ever reads. `Log` is the opposite kind of page: you and the skill both write on it,
-but the skill only ever *adds* — it puts a dated entry at the top after each drive and never edits
-or removes anything already there, yours or its own. Write whatever you want on it: notes about
-the car, reminders, things to try. (`Log` used to be called `Feedback`. Say *"refresh the {car} in
-my Notion"* and the existing page is renamed for you, with everything on it kept.)
+clobbering something you wrote — precisely because everything you write lives in `Guidelines`, which
+it only ever reads. `Log` is the opposite kind of page: you and the skill both write on it, but the
+skill only ever *adds* — it puts a dated entry at the top each time you tell it how a drive felt,
+and never edits or removes anything already there, yours or its own. Building a setup does not add
+an entry: the reasoning behind a new setup is on its own row in `Setups`, in the `Notes` column and
+inside the row's page. So an empty `Log` right after your first build is normal. Write whatever you
+want on it: notes about the car, reminders, things to try. (`Log` used to be called `Feedback`. Say
+*"refresh the {car} in my Notion"* and the existing page is renamed for you, with everything on it
+kept.)
 
 Two databases only. Car, location and stage pages are **filtered linked views**, never new
 databases — a stage is shared reference data, created once and referenced by any number of setups

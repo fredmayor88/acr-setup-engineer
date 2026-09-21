@@ -348,7 +348,9 @@ different moments**:
 `build-setup.md` step 6, `tweak-setup.md` step 5, or a direct entry from the routing table with no
 setup in scope at all. It is **add-only history of what the driver said**, not a setup write, and
 it is the only thing an interview is guaranteed to produce — a session that never saves a row
-would otherwise lose the whole conversation.
+would otherwise lose the whole conversation. (A tweak round that needs no interview still writes a
+`Log` entry of its own — the user's words and the changes proposed — per `tweak-setup.md` step 5.
+When an interview ran, its record *is* that round's entry; never write both.)
 
 **The row-level records need a saved row to sit on**, so they are written only where one exists:
 in `build-setup.md` step 6 they go on the **baseline row step 5 already saved** (the row the

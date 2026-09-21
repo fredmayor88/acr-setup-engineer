@@ -2,8 +2,8 @@
 
 Refine a setup by working the **problem → tweak → test → feedback** cycle conversationally.
 Each iteration proposes targeted, legal changes **in chat** and updates an in-chat **working
-setup** — **nothing is written to Notion** while iterating, except the dated `Log` entry a
-driving-feedback interview leaves on the car (step 5). The source setup is never modified.
+setup** — **nothing is written to Notion** while iterating, except the dated `Log` entry each
+round of feedback leaves on the car (step 5). The source setup is never modified.
 A single new `Setups` row (the session's final state) is created **only when the user explicitly
 asks to save** — see step 7.
 
@@ -107,9 +107,15 @@ Each time the user gives feedback, run one round — **all in chat, no Notion wr
   batches, plain language, defining each term as it comes up; accept "not sure" and move on. A
   clear, specific complaint ("soften the front ARB by one step", "understeers on entry") needs no
   interview — act on it directly.
-  **When an interview runs, write its `Log` entry as it ends** — the one dated collapsed toggle
-  at the top of the car's `Log` page, per
-  [driving-feedback-interview.md](driving-feedback-interview.md) → *Recording the outcome*. This
+  **Every round writes one `Log` entry as it ends** — one dated collapsed toggle
+  (`Driving feedback — {date}`) at the top of the car's `Log` page, whether or not an interview
+  ran. **If an interview ran**, that entry is the interview's record, per
+  [driving-feedback-interview.md](driving-feedback-interview.md) → *Recording the outcome* — one
+  block, not two. **If not**, the entry holds the user's feedback **in their own words**, which
+  setup it was about (the source setup's name, or *"working setup, round N"* after the first
+  round), and the changes proposed in answer (`parameter: old → new`). Page rules as for the
+  interview's entry: resolve `Log` by name first, add this one block directly below the
+  maintenance line, touch nothing else. This
   is **the single exception** to this workflow's "no Notion writes while iterating" rule: it is
   add-only history of what the driver said, it belongs to the car rather than to any setup, and a
   session that never saves a row would otherwise lose it. It is **not** permission to write
@@ -237,10 +243,10 @@ braking effect."* Omit it when the car has no brake disc/caliper params.
 ## Rules
 - **Iterate in chat — no Notion writes per round.** Refinement rounds (step 5) update only the
   in-chat working setup; nothing is written to Notion until the user explicitly asks to save.
-  **One named exception:** when a driving-feedback interview runs during a round, its dated
-  entry on the car's **`Log`** page is written as the interview ends (step 5). That one block is
-  the whole exception — no setup row, no `Notes`, no row toggle, nothing on `Guidelines`, and
-  nothing else at any other moment.
+  **One named exception:** every round writes one dated entry on the car's **`Log`** page as it ends —
+  the interview's record if one ran, otherwise the user's feedback and the changes proposed (step
+  5). That one block per round is the whole exception — no setup row, no `Notes`, no row toggle,
+  nothing on `Guidelines`, and nothing else at any other moment.
 - **Save only on explicit request — one final row.** The whole session culminates in a single new
   `Setups` row capturing the final state (step 7), not one row per tweak.
 - **Gentle single nudge** — remind the user once they can save when they're happy; don't nag.

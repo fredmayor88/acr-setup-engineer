@@ -528,6 +528,10 @@ would rather just have a setup now, build one.
    you asserted the column order** (step 11) on the affected views — if you can't, you skipped a
    required step: go back and do it before finishing. Link the new row; remind the
    user to **rate it `1`–`5`** and tick `Learn from this` if they like it after driving.
+   **Say where things are, in one line:** the reasoning for this setup is in the row's `Notes`
+   and page body. If step 6 ran no interview, add that the car's **`Log`** page gets an entry only
+   once the user drives and says how it felt, so nothing was written there this time. Without that
+   line, an empty `Log` after a build looks like a failed write.
    **Also ask for tyre-pressure feedback**: one line inviting the user to say, after driving,
    whether the pressures felt too low, too high, or right — the in-game pressure model is still
    being calibrated, and their answer should be recorded (in the setup's `Notes` and, if it's a

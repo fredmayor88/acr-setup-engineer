@@ -432,7 +432,8 @@ burying the values the user actually came to read:
   *"Driving feedback — 2026-07-30"*. Repeat interviews on the same row **stack chronologically** as
   additional toggles; never overwrite an earlier one.
 - **The car's `Log` page** — the car-level record: one dated collapsed toggle per interview,
-  added at the top. The rules for that page, including what happens to a **lasting preference**
+  added at the top. A tweak round that ran no interview adds its own entry the same way (the
+  user's words and the changes proposed — `tweak-setup.md` step 5). The rules for that page, including what happens to a **lasting preference**
   the interview spots (it is noted in the `Log` entry and **offered** to the user for their
   `Guidelines` page — the skill never writes `Guidelines` itself), live in one place: *`Log`
   page* below, with the interview's own side in `driving-feedback-interview.md` → *Recording the
@@ -663,7 +664,7 @@ lines; keep them as short as they are and don't add to them:
 |---|---|
 | `Guidelines` | *Yours. The skill reads this page and never writes to it.* |
 | `Catalog` | *Maintained entirely by the skill — don't edit this page, every refresh replaces it.* |
-| `Log` | *Your notes on this car go anywhere on this page. The skill adds a dated entry at the top after each drive and never edits or removes anything here.* |
+| `Log` | *Your notes on this car go anywhere on this page. When you tell Claude how a drive felt, the skill adds a dated entry at the top. Building a setup adds nothing here. The skill never edits or removes anything on this page.* |
 | `Setups` | *Kept up to date by the skill, but your own edits to these setups are never overwritten.* |
 
 For a **screenshot car**, the `Parameters[Car=this]` filtered view is accessible via the Notion
@@ -744,14 +745,16 @@ The car's running log. **Two kinds of writing live here side by side:**
 - **The user's own notes** — anything they want to record about this car: observations, reminders,
   things to try, what a stage felt like. They may write **anywhere on the page, in any format**.
 - **The skill's dated record of what the driver reported after drives** — the output of
-  `driving-feedback-interview.md`. This history is the most personal thing the skill has about a
+  `driving-feedback-interview.md`, and of every `tweak-setup.md` feedback round that needed no
+  interview. This history is the most personal thing the skill has about a
   car and is reconstructable from nothing else.
 
 Rules:
 
 - **The maintenance line stays first**, above everything else on the page.
-- **Add-only — for the skill. The user edits their own notes freely.** Each interview appends one
-  **dated collapsed toggle** — `Driving feedback — {date}` — holding that session's record. Put it
+- **Add-only — for the skill. The user edits their own notes freely.** Each interview, and each
+  tweak feedback round that ran none, appends one **dated collapsed toggle** —
+  `Driving feedback — {date}` — holding that record. Put it
   **directly below the maintenance line**, so the newest entry is at the **top** and the recent
   ones are on screen when the page is opened on a phone. **The skill never edits, reorders, merges
   or deletes any existing block on this page — the user's or its own — and never rewrites the
