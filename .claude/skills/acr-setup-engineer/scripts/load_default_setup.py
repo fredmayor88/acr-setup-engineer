@@ -8,7 +8,7 @@ straight out of the installed game; this script is the only thing that reads the
 
 Usage:
   # One entry as JSON: {"car","version","surface","preset","fallback","values"}
-  python scripts/load_default_setup.py --car <slug> --surface Tarmac|Gravel|Snow
+  python scripts/load_default_setup.py --car <slug> --surface Tarmac
   python scripts/load_default_setup.py --car <slug> --surface Gravel --preset Aggressive
 
   # What the file has: {"car","version","setups":[{"surface","preset"}, ...]}
@@ -18,6 +18,10 @@ Usage:
   python scripts/load_default_setup.py --game-version
 
 Options:
+  --surface S    Any surface name. The bundled files carry `Tarmac` and `Gravel` on every car
+                 and `Snow` on two, but the name is not checked against a list: a surface this
+                 car has no entry for is answered from the data (see below), not refused as a
+                 usage error.
   --preset NAME  Defaults to `Balanced`, which every car has. Pass another name only when the
                  user asked for it by name (`Aggressive` exists on a couple of cars).
   --pretty       Indent the JSON, for a human reading the output.
@@ -25,8 +29,8 @@ Options:
 
 A surface the file has no entry for falls back **Snow -> Gravel**, and the output's
 `"fallback"` then names the surface the values actually came from (`"surface"` stays the one
-that was asked for). There is no other fallback: a missing Tarmac or Gravel is an error,
-because every bundled car has both.
+that was asked for). There is no other fallback: any other surface the file lacks exits 1 with
+stderr naming the surfaces it has.
 
 Exit codes: 0 success · 1 the file is missing, the surface has no entry and no fallback, or
 the preset is not in the file (stderr names the ones that are) · 2 usage error.
@@ -48,12 +52,10 @@ HEADER_FIELDS = ('car', 'game', 'version', 'source', 'written_at')
 # its gravel ones. Spec -> Global Constraints.
 FALLBACKS = {'Snow': 'Gravel'}
 
-USAGE = ('usage: load_default_setup.py --car <slug> --surface Tarmac|Gravel|Snow\n'
+USAGE = ('usage: load_default_setup.py --car <slug> --surface <Surface>\n'
          '                             [--preset NAME] [--pretty] [--dir DIR]\n'
          '       load_default_setup.py --list <slug> [--pretty] [--dir DIR]\n'
          '       load_default_setup.py --game-version')
-
-SURFACES = ('Tarmac', 'Gravel', 'Snow')
 
 
 class SetupError(Exception):
@@ -255,8 +257,11 @@ def main():
 
     if not car or not surface:
         fail(USAGE, 2)
-    if surface not in SURFACES:
-        fail(f'--surface must be one of {", ".join(SURFACES)}\n{USAGE}', 2)
+    # `--surface` is not checked against a list of names. A surface this car has no entry for is
+    # a data question, not a usage error: `pick` answers it with the Snow -> Gravel fallback or
+    # exits 1 naming the surfaces the file does have, which is the one error path the caller can
+    # act on. Hard-coding three names here would turn a new surface in a game update into a
+    # usage error from the wrong script.
     try:
         doc = load_file(path_for(car, directory))
         entry, fallback = pick(doc, surface, preset)

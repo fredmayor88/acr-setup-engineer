@@ -209,6 +209,19 @@ class TestCli(unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         self.assertIn('Gravel', r.stderr)
 
+    def test_an_unrecognised_surface_is_a_data_error_not_a_usage_error(self):
+        """A surface name this script has never heard of still exits 1, not 2.
+
+        The script keeps no list of legal surface names: a surface the file lacks is answered
+        from the file (the Snow fallback, or exit 1 naming what it has), so a new surface in a
+        game update can't come back as a usage error from the wrong script.
+        """
+        r = run('--dir', self.dir, '--car', 'test-car', '--surface', 'Ice')
+        self.assertEqual(r.returncode, 1, r.stderr)
+        self.assertIn('Ice', r.stderr)
+        self.assertIn('Tarmac', r.stderr)
+        self.assertIn('Gravel', r.stderr)
+
     def test_an_unknown_preset_exits_1_and_lists_the_presets(self):
         r = run('--dir', self.dir, '--car', 'test-car', '--surface', 'Tarmac',
                 '--preset', 'Aggressive')

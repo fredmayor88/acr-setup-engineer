@@ -64,11 +64,11 @@ KNOWN_OFF_GRID = {
     # The Polo's tarmac front anti-roll bar: 19500 against a template Max of 17500, so the game
     # ships its own preset 2000 N/m outside the range it advertises for that parameter.
     ('volkswagen-polo-gti-r5-2018', 'Tarmac', 'Balanced', 'Anti-roll Bar Stiffness Front'): 19500,
-    # The Mini's gravel brake proportioning - the same pressure as the template's own "3.50"
-    # step, spelled with one decimal. `check_values` compares the text of a discrete step, not
-    # the number, so it rejects a value that is on the grid.
-    ('mini-cooper-s-1964', 'Gravel', 'Balanced', 'Proportioning Preload'): 3.5,
 }
+# Not here, and worth saying why: the Mini's gravel `Proportioning Preload 3.5` was allowlisted
+# in the first version. It was never off the grid - it is the template's own "3.50" step with one
+# decimal fewer, and `check_values` compared the text. `load_catalog.matching_step` now falls back
+# to a numeric comparison, so the value passes on its own merits and needs no excuse.
 
 
 # -------------------------------------------------------------------------- rendering
@@ -213,7 +213,8 @@ def main():
     table_names = list(ECC.WANTED_TABLES) + SETUP_TABLES
     wanted = set(table_names) | {ECC.CAR_MAP[s] for s in slugs}
     today = datetime.date.today().isoformat()
-    totals, problems, pending = {'changed': 0, 'added': 0, 'dropped': 0}, [], []
+    totals, pending = {'changed': 0, 'added': 0, 'dropped': 0}, []
+    bad_values, missing_surfaces = [], []
 
     with tempfile.TemporaryDirectory() as tmp:
         paths = ECC.extract(args.paks, wanted, tmp)
@@ -242,8 +243,8 @@ def main():
                 values = D.compose(decoded, surface, preset)
                 adjustments, missing = D.to_adjustments(values, template_rows, tables, car_keys)
                 adjustments = {k: clean(k, v, numeric) for k, v in adjustments.items()}
-                problems += illegal(slug, surface, preset,
-                                    LC.check_values(catalog_rows, adjustments, surface))
+                bad_values += illegal(slug, surface, preset,
+                                      LC.check_values(catalog_rows, adjustments, surface))
                 excused += [(surface, preset, name, value) for name, value
                             in allowlisted(slug, surface, preset, adjustments)]
                 entries.append({'surface': surface, 'preset': preset, 'values': adjustments})
@@ -288,18 +289,27 @@ def main():
                 print(f'    ! note: {note}')
             for required in ('Tarmac', 'Gravel'):
                 if required not in {e['surface'] for e in entries}:
-                    problems.append(f'{slug}: no {required} setup in the presets asset')
+                    missing_surfaces.append(f'{slug}: no {required} setup in the presets asset')
 
             if text != old_text:
                 pending.append((path, text))
 
-    # Nothing is written until every car validated: a run that stops on an illegal value must
-    # not leave half the bundled files refreshed and the other half stale.
-    if problems:
-        raise SystemExit('\n'.join(
-            ['', 'illegal values - nothing was written:'] + [f'  {line}' for line in problems] +
-            ['', 'Either the game moved (refresh the templates with `make extract-catalogs`) '
-             'or the value belongs in KNOWN_OFF_GRID with its evidence.']))
+    # Nothing is written until every car validated: a run that stops must not leave half the
+    # bundled files refreshed and the other half stale. The two ways it can stop are different
+    # problems with different remedies, so they are labelled and explained separately.
+    if bad_values or missing_surfaces:
+        lines = ['', 'nothing was written.']
+        if bad_values:
+            lines += ['', 'Illegal values:'] + [f'  {line}' for line in bad_values]
+            lines += ['  Either the game moved (refresh the templates with '
+                      '`make extract-catalogs`) or the value belongs in KNOWN_OFF_GRID with '
+                      'its evidence.']
+        if missing_surfaces:
+            lines += ['', 'Missing surfaces:'] + [f'  {line}' for line in missing_surfaces]
+            lines += ['  Every bundled car has Tarmac and Gravel. A car that no longer does '
+                      'means the surface mapping moved - check decode_setups.surfaces_and_'
+                      'presets against the asset before trusting any of this run.']
+        raise SystemExit('\n'.join(lines))
     if not args.dry_run and pending:
         os.makedirs(SETUPS, exist_ok=True)
         for path, text in pending:
