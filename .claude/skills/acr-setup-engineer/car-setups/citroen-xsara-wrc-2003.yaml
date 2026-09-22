@@ -1,0 +1,89 @@
+car: "Citroen Xsara WRC 2003"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.076
+      "Spring Stiffness Front": 47500
+      "Adjuster Ring Rear": 0.057
+      "Spring Stiffness Rear": 50000
+      "Slow Bump Front": 4250
+      "Slow Rebound Front": 8250
+      "Fast Bump Front": 3250
+      "Fast Rebound Front": 7750
+      "Slow Bump Rear": 5250
+      "Slow Rebound Rear": 7250
+      "Fast Bump Rear": 4750
+      "Fast Rebound Rear": 6750
+      "Anti-roll Bar Stiffness Front": 9500
+      "Anti-roll Bar Stiffness Rear": 13500
+      "LSD Power/Coast Ramp Front": "55/60"
+      "LSD Preload Front": 105
+      "Plates Number Front": 6
+      "Center Differential Ratio": "37//26"
+      "LSD Power/Coast Ramp Center": "35/50"
+      "LSD Preload Center": 250
+      "Plates Number Center": 8
+      "LSD Power/Coast Ramp Rear": "55/75"
+      "LSD Preload Rear": 130
+      "Plates Number Rear": 6
+      "Pressure Front": 26
+      "Camber Front": -3.2
+      "Toe Front": 0
+      "Pressure Rear": 27
+      "Camber Rear": -2.3
+      "Toe Rear": 0
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.5
+      "Front Cylinder": 19.05
+      "Rear Cylinder": 19.05
+      "Handbrake Force": 1
+      "Brake Calipers Rear": "4X31.8/34.9 TYPE1"
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "5"
+      "Adjuster Ring Front": 0.15
+      "Spring Stiffness Front": 32500
+      "Adjuster Ring Rear": 0.12
+      "Spring Stiffness Rear": 35000
+      "Slow Bump Front": 3750
+      "Slow Rebound Front": 4250
+      "Fast Bump Front": 2750
+      "Fast Rebound Front": 3750
+      "Slow Bump Rear": 4750
+      "Slow Rebound Rear": 4250
+      "Fast Bump Rear": 4250
+      "Fast Rebound Rear": 3750
+      "Anti-roll Bar Stiffness Front": 0
+      "Anti-roll Bar Stiffness Rear": 6500
+      "LSD Power/Coast Ramp Front": "45/55"
+      "LSD Preload Front": 95
+      "Plates Number Front": 4
+      "Center Differential Ratio": "39//24"
+      "LSD Power/Coast Ramp Center": "35/50"
+      "LSD Preload Center": 250
+      "Plates Number Center": 8
+      "LSD Power/Coast Ramp Rear": "55/75"
+      "LSD Preload Rear": 110
+      "Plates Number Rear": 6
+      "Pressure Front": 28
+      "Camber Front": -2.7
+      "Toe Front": 0
+      "Pressure Rear": 29
+      "Camber Rear": -2
+      "Toe Rear": 0
+      "Brake Calipers Front": "4X41.3 TYPE1"
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.5
+      "Front Cylinder": 19.05
+      "Rear Cylinder": 19.05
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"
+      "Engine Map": 1

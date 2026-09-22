@@ -1,0 +1,41 @@
+car: "Lancia Fulvia Coupé HF 1970"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "2"
+      "Adjuster Ring Front": 0.063
+      "Adjuster Ring Rear": 0.054
+      "Differential Ratio Front": "41//10"
+      "LSD Power/Coast Ramp Front": "70/80"
+      "LSD Preload Front": 85
+      "Plates Number Front": 4
+      "Pressure Front": 26
+      "Toe Front": 0
+      "Pressure Rear": 27
+      "Brake Pads Front": "MEDIUM"
+      "Proportioning Ratio": 0.3
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "3"
+      "Adjuster Ring Front": 0.074
+      "Adjuster Ring Rear": 0.07
+      "Differential Ratio Front": "43//10"
+      "LSD Power/Coast Ramp Front": "70/80"
+      "LSD Preload Front": 80
+      "Plates Number Front": 4
+      "Pressure Front": 30
+      "Toe Front": 0
+      "Pressure Rear": 31
+      "Brake Pads Front": "MEDIUM"
+      "Proportioning Ratio": 0.6
+      "Proportioning Preload": 2.25
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"

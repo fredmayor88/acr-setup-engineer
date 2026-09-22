@@ -1,0 +1,76 @@
+car: "Peugeot 306 II Maxi 1997"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "2"
+      "Adjuster Ring Front": 0.038
+      "Spring Stiffness Front": 80000
+      "Adjuster Ring Rear": 0.031
+      "Spring Stiffness Rear": 60000
+      "Slow Bump Front": 6750
+      "Slow Rebound Front": 8250
+      "Fast Bump Front": 4750
+      "Fast Rebound Front": 7750
+      "Slow Bump Rear": 5750
+      "Slow Rebound Rear": 6750
+      "Fast Bump Rear": 5250
+      "Fast Rebound Rear": 6250
+      "Anti-roll Bar Stiffness Front": 5500
+      "Anti-roll Bar Stiffness Rear": 13500
+      "Differential Ratio Front": "69//15"
+      "LSD Power/Coast Ramp Front": "30/90"
+      "LSD Preload Front": 60
+      "Plates Number Front": 6
+      "Pressure Front": 25
+      "Camber Front": -2.7
+      "Toe Front": 0
+      "Pressure Rear": 27
+      "Camber Rear": -3
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.53
+      "Front Cylinder": 19.05
+      "Rear Cylinder": 22.23
+      "Handbrake Force": 1
+      "Brake Discs Rear": "280/192X9.6 B TYPE1"
+      "Brake Calipers Rear": "4x38.1 Type5"
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "6"
+      "Adjuster Ring Front": 0.16
+      "Spring Stiffness Front": 25000
+      "Adjuster Ring Rear": 0.103
+      "Spring Stiffness Rear": 30000
+      "Slow Bump Front": 2750
+      "Slow Rebound Front": 3750
+      "Fast Bump Front": 2250
+      "Fast Rebound Front": 3250
+      "Slow Bump Rear": 1750
+      "Slow Rebound Rear": 2250
+      "Fast Bump Rear": 1250
+      "Fast Rebound Rear": 1750
+      "Anti-roll Bar Stiffness Front": 0
+      "Anti-roll Bar Stiffness Rear": 5500
+      "Differential Ratio Front": "52//13"
+      "LSD Power/Coast Ramp Front": "45/45"
+      "LSD Preload Front": 120
+      "Plates Number Front": 6
+      "Pressure Front": 28
+      "Camber Front": -1.5
+      "Toe Front": 0
+      "Pressure Rear": 31
+      "Camber Rear": -2.2
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.5
+      "Proportioning Preload": 4.85
+      "Front Cylinder": 15.88
+      "Rear Cylinder": 15.88
+      "Handbrake Force": 1
+      "Brake Discs Rear": "280/192X9.6 B TYPE1"
+      "Brake Pads Rear": "MEDIUM"

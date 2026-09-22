@@ -1,0 +1,78 @@
+car: "Lancia Stratos HF 1976"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Primary Gear": "33//31*31//30"
+      "Adjuster Ring Front": 0.048
+      "Spring Stiffness Front": 65000
+      "Adjuster Ring Rear": 0.067
+      "Spring Stiffness Rear": 42500
+      "Slow Bump Front": 6250
+      "Slow Rebound Front": 7250
+      "Fast Bump Front": 4750
+      "Fast Rebound Front": 6250
+      "Slow Bump Rear": 4250
+      "Slow Rebound Rear": 5750
+      "Fast Bump Rear": 3750
+      "Fast Rebound Rear": 5250
+      "Anti-roll Bar Stiffness Front": 3250
+      "Anti-roll Bar Stiffness Rear": 2500
+      "Differential Ratio Rear": "65//19"
+      "LSD Power/Coast Ramp Rear": "50/65"
+      "LSD Preload Rear": 100
+      "Plates Number Rear": 4
+      "Pressure Front": 27
+      "Camber Front": -2.4
+      "Toe Front": 0
+      "Pressure Rear": 26
+      "Camber Rear": -1.9
+      "Brake Discs Front": "267/156X28 B TYPE1"
+      "Brake Calipers Front": "4X44.4 TYPE1"
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.57
+      "Handbrake Force": 1
+      "Brake Discs Rear": "267/156X28 B TYPE1"
+      "Brake Calipers Rear": "4X38.1 TYPE1"
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "2"
+      "Primary Gear": "33//31*31//30"
+      "Adjuster Ring Front": 0.115
+      "Spring Stiffness Front": 35000
+      "Adjuster Ring Rear": 0.179
+      "Spring Stiffness Rear": 20000
+      "Slow Bump Front": 5000
+      "Slow Rebound Front": 5500
+      "Fast Bump Front": 4500
+      "Fast Rebound Front": 5000
+      "Slow Bump Rear": 2250
+      "Slow Rebound Rear": 4250
+      "Fast Bump Rear": 1750
+      "Fast Rebound Rear": 3750
+      "Anti-roll Bar Stiffness Front": 4250
+      "Anti-roll Bar Stiffness Rear": 0
+      "Differential Ratio Rear": "65//19"
+      "LSD Power/Coast Ramp Rear": "45/50"
+      "LSD Preload Rear": 90
+      "Plates Number Rear": 4
+      "Pressure Front": 30
+      "Camber Front": -2
+      "Toe Front": 0
+      "Pressure Rear": 28
+      "Camber Rear": -3
+      "Brake Discs Front": "271/160X22 P TYPE1"
+      "Brake Calipers Front": "2X48 TYPE4"
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.53
+      "Handbrake Force": 1
+      "Brake Discs Rear": "271/180X20 P TYPE1"
+      "Brake Calipers Rear": "2X38 TYPE2"
+      "Brake Pads Rear": "MEDIUM"

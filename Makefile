@@ -8,7 +8,10 @@
 #   make test        run the full test suite
 #   make charts      regenerate every car chart (power/torque only)
 #   make car-lab     regenerate the ACR Car Lab data in ../acr-car-lab
+#   make extract     everything that reads the installed game, in order
 #   make extract-version     write the installed game's version into GAME_VERSION
+#   make extract-catalogs    rebuild every car template's parameters block
+#   make extract-setups      rebuild every car's bundled default setups
 #   make charts-power        power/torque curves, and each template's engine_curve block
 #   make zip         rebuild dist/acr-setup-engineer-skill-<version>.zip (commit changes first)
 #   make check-zip   verify ZIP entries + that the filename version matches VERSION inside
@@ -37,7 +40,7 @@ SKILL_VERSION = $(shell python -c "import subprocess as s; r = s.run(['git','sho
 ZIP = dist/acr-setup-engineer-skill-$(SKILL_VERSION).zip
 
 .PHONY: all test zip check-zip release stamp-version clean charts charts-power \
-        car-lab extract-version
+        car-lab extract extract-version extract-catalogs extract-setups
 
 all: test zip
 
@@ -76,6 +79,19 @@ car-lab:
 # `make extract`; every bundled file is stamped with this version.
 extract-version:
 	python tools/car-catalog/write_game_version.py $(PAKS_FLAG)
+
+# Rebuilds every bundled car template's `parameters:` block from the game files.
+extract-catalogs:
+	python tools/car-catalog/extract_car_catalog.py $(PAKS_FLAG)
+
+# Rebuilds every car's bundled default setups (car-setups/*.yaml) from the game files.
+extract-setups:
+	python tools/car-catalog/extract_default_setups.py $(PAKS_FLAG)
+
+# Everything that reads the installed game, in order: version first (every file is stamped with
+# it), then catalogs, default setups, power/torque charts, ACR Car Lab data. Re-run after a game
+# update, read the diff, run `make test`, commit.
+extract: extract-version extract-catalogs extract-setups charts-power car-lab
 
 # Stamps the release tag into VERSION and commits it, so the archived ZIP (built from HEAD's
 # committed tree, not from a tag ref) self-reports the released version instead of "dev".

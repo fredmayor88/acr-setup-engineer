@@ -1,0 +1,78 @@
+car: "Hyundai i20 Rally2 2021"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.064
+      "Spring Stiffness Front": 56000
+      "Adjuster Ring Rear": 0.067
+      "Spring Stiffness Rear": 44000
+      "Slow Bump Front": 4500
+      "Slow Rebound Front": 6750
+      "Fast Bump Front": 3625
+      "Fast Rebound Front": 6250
+      "Slow Bump Rear": 5250
+      "Slow Rebound Rear": 6250
+      "Fast Bump Rear": 4875
+      "Fast Rebound Rear": 5875
+      "Anti-roll Bar Stiffness Front": 5500
+      "Anti-roll Bar Stiffness Rear": 11500
+      "LSD Power/Coast Ramp Front": "50/70"
+      "LSD Preload Front": 110
+      "Plates Number Front": 6
+      "LSD Power/Coast Ramp Rear": "55/75"
+      "LSD Preload Rear": 130
+      "Plates Number Rear": 6
+      "Pressure Front": 26
+      "Camber Front": -2.8
+      "Toe Front": 0.0001
+      "Pressure Rear": 26
+      "Camber Rear": -2.3
+      "Toe Rear": -5e-05
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.52
+      "Front Cylinder": 19.05
+      "Rear Cylinder": 20.64
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "2"
+      "Adjuster Ring Front": 0.196
+      "Spring Stiffness Front": 23000
+      "Adjuster Ring Rear": 0.18
+      "Spring Stiffness Rear": 21000
+      "Slow Bump Front": 3875
+      "Slow Rebound Front": 5125
+      "Fast Bump Front": 3375
+      "Fast Rebound Front": 4125
+      "Slow Bump Rear": 4375
+      "Slow Rebound Rear": 4875
+      "Fast Bump Rear": 3875
+      "Fast Rebound Rear": 3625
+      "Anti-roll Bar Stiffness Front": 1500
+      "Anti-roll Bar Stiffness Rear": 12500
+      "LSD Power/Coast Ramp Front": "50/70"
+      "LSD Preload Front": 90
+      "Plates Number Front": 6
+      "LSD Power/Coast Ramp Rear": "45/75"
+      "LSD Preload Rear": 115
+      "Plates Number Rear": 6
+      "Pressure Front": 29
+      "Camber Front": -2.6
+      "Toe Front": 0.0001
+      "Pressure Rear": 29
+      "Camber Rear": -2.3
+      "Toe Rear": -5e-05
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.5
+      "Front Cylinder": 20.64
+      "Rear Cylinder": 20.64
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"

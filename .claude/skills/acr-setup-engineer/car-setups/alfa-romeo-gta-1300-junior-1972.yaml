@@ -1,0 +1,42 @@
+car: "Alfa Romeo GTA 1300 Junior 1972"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Differential Ratio Rear": "43//9"
+      "LSD Power/Coast Ramp Rear": "60/70"
+      "LSD Preload Rear": 80
+      "Plates Number Rear": 4
+      "Pressure Front": 27
+      "Camber Front": -0.5
+      "Toe Front": 0.0005
+      "Pressure Rear": 27
+      "Brake Discs Front": "250/140X22 P TYPE1"
+      "Brake Calipers Front": "2X48 TYPE2"
+      "Brake Pads Front": "MEDIUM"
+      "Proportioning Ratio": 0.4
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "5"
+      "Differential Ratio Rear": "43//7"
+      "LSD Power/Coast Ramp Rear": "60/70"
+      "LSD Preload Rear": 80
+      "Plates Number Rear": 4
+      "Pressure Front": 31
+      "Camber Front": -1.9
+      "Toe Front": 0.0005
+      "Pressure Rear": 30
+      "Brake Discs Front": "267/175X11 P TYPE1"
+      "Brake Calipers Front": "2X48 TYPE1"
+      "Brake Pads Front": "MEDIUM"
+      "Proportioning Ratio": 0.4
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"

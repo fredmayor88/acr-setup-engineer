@@ -1,0 +1,78 @@
+car: "Audi Quattro Gr.4 1981"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "2"
+      "Adjuster Ring Front": 0.051
+      "Spring Stiffness Front": 70000
+      "Adjuster Ring Rear": 0.049
+      "Spring Stiffness Rear": 50000
+      "Slow Bump Front": 5500
+      "Slow Rebound Front": 7500
+      "Fast Bump Front": 4500
+      "Fast Rebound Front": 7000
+      "Slow Bump Rear": 3500
+      "Slow Rebound Rear": 6000
+      "Fast Bump Rear": 3000
+      "Fast Rebound Rear": 5000
+      "Anti-roll Bar Stiffness Front": 12500
+      "Anti-roll Bar Stiffness Rear": 9500
+      "Differential Ratio Front": "37//10"
+      "LSD Power/Coast Ramp Front": "70/90"
+      "LSD Preload Front": 80
+      "Plates Number Front": 6
+      "Differential Ratio Rear": "37//10"
+      "LSD Power/Coast Ramp Rear": "45/75"
+      "LSD Preload Rear": 110
+      "Plates Number Rear": 6
+      "Pressure Front": 25
+      "Camber Front": -2.5
+      "Toe Front": 0.0001
+      "Pressure Rear": 27
+      "Camber Rear": -1.2
+      "Toe Rear": 0
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.55
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.071
+      "Spring Stiffness Front": 50000
+      "Adjuster Ring Rear": 0.06
+      "Spring Stiffness Rear": 40000
+      "Slow Bump Front": 3250
+      "Slow Rebound Front": 5750
+      "Fast Bump Front": 2750
+      "Fast Rebound Front": 5250
+      "Slow Bump Rear": 3250
+      "Slow Rebound Rear": 4750
+      "Fast Bump Rear": 2250
+      "Fast Rebound Rear": 4250
+      "Anti-roll Bar Stiffness Front": 1500
+      "Anti-roll Bar Stiffness Rear": 4500
+      "Differential Ratio Front": "43//9"
+      "LSD Power/Coast Ramp Front": "70/90"
+      "LSD Preload Front": 80
+      "Plates Number Front": 6
+      "Differential Ratio Rear": "43//9"
+      "LSD Power/Coast Ramp Rear": "45/75"
+      "LSD Preload Rear": 110
+      "Plates Number Rear": 6
+      "Pressure Front": 28
+      "Camber Front": -2.1
+      "Toe Front": 0.0001
+      "Pressure Rear": 29
+      "Camber Rear": -1.1
+      "Toe Rear": 0
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.55
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"

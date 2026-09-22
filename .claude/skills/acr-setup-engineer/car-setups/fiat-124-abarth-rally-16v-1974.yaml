@@ -1,0 +1,72 @@
+car: "Fiat 124 Abarth Rally 16V 1974"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.035
+      "Spring Stiffness Front": 130000
+      "Adjuster Ring Rear": 0.045
+      "Spring Stiffness Rear": 50000
+      "Slow Bump Front": 5500
+      "Slow Rebound Front": 8500
+      "Fast Bump Front": 3750
+      "Fast Rebound Front": 7250
+      "Slow Bump Rear": 2250
+      "Slow Rebound Rear": 3250
+      "Fast Bump Rear": 1750
+      "Fast Rebound Rear": 2750
+      "Anti-roll Bar Stiffness Front": 7800
+      "Anti-roll Bar Stiffness Rear": 3830
+      "Differential Ratio Rear": "43//10"
+      "LSD Power/Coast Ramp Rear": "45/45"
+      "LSD Preload Rear": 70
+      "Plates Number Rear": 4
+      "Pressure Front": 27
+      "Toe Front": 0
+      "Pressure Rear": 26
+      "Brake Discs Front": "256/145X20 P TYPE1"
+      "Brake Calipers Front": "2X48 TYPE2"
+      "Brake Pads Front": "MEDIUM"
+      "Proportioning Ratio": 0.3
+      "Handbrake Force": 1
+      "Brake Discs Rear": "256/145X9.6 P TYPE1"
+      "Brake Calipers Rear": "2X38 TYPE4"
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.11
+      "Spring Stiffness Front": 52000
+      "Adjuster Ring Rear": 0.1
+      "Spring Stiffness Rear": 32500
+      "Slow Bump Front": 4000
+      "Slow Rebound Front": 6000
+      "Fast Bump Front": 3250
+      "Fast Rebound Front": 5000
+      "Slow Bump Rear": 1500
+      "Slow Rebound Rear": 2750
+      "Fast Bump Rear": 1250
+      "Fast Rebound Rear": 2500
+      "Anti-roll Bar Stiffness Front": 6500
+      "Anti-roll Bar Stiffness Rear": 4532
+      "Differential Ratio Rear": "43//8"
+      "LSD Power/Coast Ramp Rear": "45/45"
+      "LSD Preload Rear": 120
+      "Plates Number Rear": 4
+      "Pressure Front": 30
+      "Toe Front": 0
+      "Pressure Rear": 29
+      "Brake Discs Front": "256/145X12.4 P TYPE1"
+      "Brake Calipers Front": "2X48 TYPE5"
+      "Brake Pads Front": "MEDIUM"
+      "Proportioning Ratio": 0.3
+      "Handbrake Force": 1
+      "Brake Discs Rear": "256/145X9.6 P TYPE1"
+      "Brake Calipers Rear": "2X38 TYPE4"
+      "Brake Pads Rear": "MEDIUM"

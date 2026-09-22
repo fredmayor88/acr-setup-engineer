@@ -1,0 +1,45 @@
+car: "Mini Cooper S 1964"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.012
+      "Adjuster Ring Rear": 0.01
+      "Anti-roll Bar Stiffness Front": 3500
+      "Anti-roll Bar Stiffness Rear": 0
+      "Differential Ratio Front": "63//16"
+      "LSD Power/Coast Ramp Front": "35/60"
+      "LSD Preload Front": 70
+      "Plates Number Front": 4
+      "Pressure Front": 26
+      "Toe Front": 0
+      "Pressure Rear": 27
+      "Brake Pads Front": "MEDIUM"
+      "Proportioning Ratio": 0.5
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "4"
+      "Adjuster Ring Front": 0.0155
+      "Adjuster Ring Rear": 0.0107
+      "Anti-roll Bar Stiffness Front": 3500
+      "Anti-roll Bar Stiffness Rear": 0
+      "Differential Ratio Front": "63//16"
+      "LSD Power/Coast Ramp Front": "35/60"
+      "LSD Preload Front": 70
+      "Plates Number Front": 4
+      "Pressure Front": 29
+      "Toe Front": 0
+      "Pressure Rear": 31
+      "Brake Pads Front": "HARD"
+      "Proportioning Ratio": 0.6
+      "Proportioning Preload": 3.5
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"

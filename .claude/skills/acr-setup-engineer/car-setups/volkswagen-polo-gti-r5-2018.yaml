@@ -1,0 +1,78 @@
+car: "Volkswagen Polo GTI R5 2018"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "2"
+      "Adjuster Ring Front": 0.063
+      "Spring Stiffness Front": 55000
+      "Adjuster Ring Rear": 0.049
+      "Spring Stiffness Rear": 52500
+      "Slow Bump Front": 5500
+      "Slow Rebound Front": 7500
+      "Fast Bump Front": 4500
+      "Fast Rebound Front": 7000
+      "Slow Bump Rear": 3500
+      "Slow Rebound Rear": 6000
+      "Fast Bump Rear": 3000
+      "Fast Rebound Rear": 5000
+      "Anti-roll Bar Stiffness Front": 19500
+      "Anti-roll Bar Stiffness Rear": 16500
+      "LSD Power/Coast Ramp Front": "55/75"
+      "LSD Preload Front": 45
+      "Plates Number Front": 6
+      "LSD Power/Coast Ramp Rear": "50/85"
+      "LSD Preload Rear": 75
+      "Plates Number Rear": 8
+      "Pressure Front": 26
+      "Camber Front": -2.3
+      "Toe Front": 0.0001
+      "Pressure Rear": 27
+      "Camber Rear": -1.9
+      "Toe Rear": 0
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.55
+      "Front Cylinder": "19.05"
+      "Rear Cylinder": "20.64"
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.138
+      "Spring Stiffness Front": 45000
+      "Adjuster Ring Rear": 0.122
+      "Spring Stiffness Rear": 42500
+      "Slow Bump Front": 4000
+      "Slow Rebound Front": 5000
+      "Fast Bump Front": 3500
+      "Fast Rebound Front": 4000
+      "Slow Bump Rear": 4250
+      "Slow Rebound Rear": 4750
+      "Fast Bump Rear": 3750
+      "Fast Rebound Rear": 3750
+      "Anti-roll Bar Stiffness Front": 0
+      "Anti-roll Bar Stiffness Rear": 9500
+      "LSD Power/Coast Ramp Front": "55/75"
+      "LSD Preload Front": 45
+      "Plates Number Front": 6
+      "LSD Power/Coast Ramp Rear": "50/85"
+      "LSD Preload Rear": 65
+      "Plates Number Rear": 8
+      "Pressure Front": 29
+      "Camber Front": -2.8
+      "Toe Front": 0.0001
+      "Pressure Rear": 29
+      "Camber Rear": -2.2
+      "Toe Rear": 0
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.5
+      "Front Cylinder": "20.64"
+      "Rear Cylinder": "20.64"
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"
