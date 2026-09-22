@@ -30,6 +30,11 @@ Decide what the iteration starts from — **don't immediately write anything**:
   its current in-chat values as the working setup and say which one. For a saved setup, load all
   value properties plus `Car`, `Location`, `Stage`, `Surface`, `Conditions` (may be blank), `Mode` (navigate
   `ACR Setup Engineer → Setups`; stay within that scope — no workspace-wide searches).
+  **In offline mode** (`egress: none` this chat — `notion-rest-read.md` → *Offline mode*) look
+  the name up in the car's `Setup index` first: [setups-list-read.md](setups-list-read.md) →
+  *Finding one setup by name* (`scripts/setups_list.py --find`), then `notion-fetch` the
+  matched page — its properties are the row. Only when the name isn't in the index fall back
+  to the lookup above.
 - **Multiple plausible matches** → list them (Name / Car / Stage / Date) and ask the user to pick.
 - **Nothing in scope** (the user described a problem but nothing has been built or loaded yet) →
   **ask what to start from**: which saved setup to load, or whether to run `build-setup.md` — which

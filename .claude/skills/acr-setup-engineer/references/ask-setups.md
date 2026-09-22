@@ -84,6 +84,13 @@ stage only when the setup names one).
 Navigate to `ACR Setup Engineer → Setups` and find the row(s) matching the given name(s). Stay
 within `ACR Setup Engineer` scope — never issue workspace-wide Notion searches; discard any result from
 outside `ACR Setup Engineer`.
+
+**In offline mode** (`egress: none` this chat — `notion-rest-read.md` → *Offline mode*) look the
+name up in the car's `Setup index` first: [setups-list-read.md](setups-list-read.md) →
+*Finding one setup by name* (`scripts/setups_list.py --find`), then `notion-fetch` the matched
+page — its properties are the row. Only when the name isn't in the index fall back to the
+lookup above.
+
 - **Unique match:** load all value properties plus `Car`, `Location`, `Stage`, `Surface`,
   `Conditions` (may be blank), `Mode`,
   `Notes`, `Rating`.

@@ -28,6 +28,12 @@ Read `notion-structure.md` (structure + schemas), `setup-tuning-principles.md` (
 Navigate to `ACR Setup Engineer → Setups` DB and find the row matching the given name. Stay
 within `ACR Setup Engineer` scope — do not issue workspace-wide Notion searches.
 
+**In offline mode** (`egress: none` this chat — `notion-rest-read.md` → *Offline mode*) look the
+name up in the car's `Setup index` first: [setups-list-read.md](setups-list-read.md) →
+*Finding one setup by name* (`scripts/setups_list.py --find`), then `notion-fetch` the matched
+page — its properties are the row. Only when the name isn't in the index fall back to the
+lookup above.
+
 - **Unique match:** Load all value properties, plus `Car`, `Location`, `Stage`, `Surface`,
   `Conditions` (may be blank — don't treat that as an error), `Mode`,
   `Notes`, `Rating` (a **1–5 Select**, higher = better; blank = unrated), and the page body's

@@ -102,6 +102,10 @@ class TestSetupIndex(unittest.TestCase):
         self.assertIn('scripts/setups_list.py', text)
         self.assertIn('references/setups-list-read.md', text)
 
+    def test_named_setup_workflows_use_the_index_on_free(self):
+        for name in ('review-setup.md', 'ask-setups.md', 'share-setup.md', 'tweak-setup.md'):
+            self.assertIn('Finding one setup by name', self.ref(name), name)
+
 
 if __name__ == '__main__':
     unittest.main()
