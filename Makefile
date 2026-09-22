@@ -8,6 +8,7 @@
 #   make test        run the full test suite
 #   make charts      regenerate every car chart (power/torque only)
 #   make car-lab     regenerate the ACR Car Lab data in ../acr-car-lab
+#   make extract-version     write the installed game's version into GAME_VERSION
 #   make charts-power        power/torque curves, and each template's engine_curve block
 #   make zip         rebuild dist/acr-setup-engineer-skill-<version>.zip (commit changes first)
 #   make check-zip   verify ZIP entries + that the filename version matches VERSION inside
@@ -17,6 +18,12 @@
 
 TAG ?= v0.1.0
 VERSION_FILE := .claude/skills/acr-setup-engineer/VERSION
+
+# Optional override for the installed game's Paks directory, used by extract-version (and
+# passed through wherever a maintainer tool needs the game files but the default Steam path
+# doesn't apply).
+PAKS ?=
+PAKS_FLAG = $(if $(PAKS),--paks "$(PAKS)",)
 
 # Version baked into the ZIP filename. Read from HEAD rather than the working tree because `zip`
 # archives HEAD — so the filename always matches the VERSION file *inside* the archive.
@@ -30,7 +37,7 @@ SKILL_VERSION = $(shell python -c "import subprocess as s; r = s.run(['git','sho
 ZIP = dist/acr-setup-engineer-skill-$(SKILL_VERSION).zip
 
 .PHONY: all test zip check-zip release stamp-version clean charts charts-power \
-        car-lab
+        car-lab extract-version
 
 all: test zip
 
@@ -64,6 +71,11 @@ charts-power:
 # version in the site footer is read from the paks too (ProjectVersion in DefaultGame.ini).
 car-lab:
 	python tools/gearing-charts/export_car_data.py --all
+
+# Writes the installed game's version into the skill's GAME_VERSION file. First step of
+# `make extract`; every bundled file is stamped with this version.
+extract-version:
+	python tools/car-catalog/write_game_version.py $(PAKS_FLAG)
 
 # Stamps the release tag into VERSION and commits it, so the archived ZIP (built from HEAD's
 # committed tree, not from a tag ref) self-reports the released version instead of "dev".

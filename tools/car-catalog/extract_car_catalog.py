@@ -34,7 +34,16 @@ import make_gearing_chart as GC              # noqa: E402  (DT_Wheels prefix per
 DEFAULT_PAKS = ('C:/Program Files (x86)/Steam/steamapps/common/'
                 'Assetto Corsa Rally/acr/Content/Paks')
 TEMPLATES = os.path.join(REPO, '.claude', 'skills', 'acr-setup-engineer', 'car-templates')
-GAME_VERSION = '0.6'
+SKILL = os.path.join(REPO, '.claude', 'skills', 'acr-setup-engineer')
+GAME_VERSION_FILE = os.path.join(SKILL, 'GAME_VERSION')
+
+
+def read_game_version_file(path=GAME_VERSION_FILE):
+    with open(path, encoding='utf-8') as f:
+        return f.read().strip()
+
+
+GAME_VERSION = read_game_version_file()
 
 # Base of the ACR Car Lab, where each template's `gearing_tool:` link points. A car's page is
 # this + its template slug + '/gears/' (tests/test_car_templates.py pins the same shape).
