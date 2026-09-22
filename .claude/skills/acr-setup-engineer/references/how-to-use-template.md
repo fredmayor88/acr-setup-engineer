@@ -36,7 +36,9 @@ Swap in your own car, stage and setup names.
 - **Add a car** — "onboard the Lancia Stratos". Bundled cars are ready at once. For other cars,
   attach screenshots of the setup screens with everything at minimum, then at maximum.
 - **Build a setup** — "build a setup for Col de Turini with the Lancia Stratos". Say how you like
-  the car to feel, and it builds for you.
+  the car to feel, and it builds for you. Setups start from the game's own default for the car and
+  surface. Say "start from the Aggressive preset" for a car that has one (Lancia Delta, Peugeot 208
+  Rally4).
 - **Change a setup after driving** — "stratos turini understeers on corner entry". It suggests
   changes in the chat and saves a new setup only when you ask.
 - **Not sure what's wrong** — "I drove stratos turini, it felt off". It asks a few simple

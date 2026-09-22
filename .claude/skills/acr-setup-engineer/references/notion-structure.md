@@ -307,6 +307,9 @@ read off the user's setup-screen screenshots. It is the **numeric anchor** a bui
 supplies legal *ranges* but nothing about where inside them ACR actually sits, and the captured
 default supplies exactly that.
 
+- **Read only for cars without a bundled setups file.** Every template car anchors on
+  `car-setups/<slug>.yaml` (`build-setup.md` step 4); its stored default rows are left where they
+  are and never read.
 - **Written like any other `Setups` row**, with: `Source = default`, `Car`, `Stage`/`Location` (when
   the build named them), `Surface`, `Date`, `Game version` (when known), `Skill version`, `Name`
   ≤15 chars, **`Learn from this` unchecked**, and **`Model` blank** — the values are the game's, not

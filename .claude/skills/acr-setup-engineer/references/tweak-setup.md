@@ -198,6 +198,9 @@ When the user asks to save (and not before):
   - Set: `Name`, `Car`, `Location` (if the source/feedback names one), `Stage` (likewise),
     `Surface`, `Conditions` (inherit from the source row; update it if the user re-targeted the
     conditions this session — **optional**, leave blank if the source's was blank),
+    `Game version` — the content of the skill's `GAME_VERSION` file
+    (`python scripts/load_default_setup.py --game-version`), unless the user said they run
+    another version in this chat (do **not** copy from the source),
     `Source = generated`, `Mode` (inherit source mode, default `learn`), `Date`
     (current date/time — per `notion-structure.md` → `Date`: run the Python one-liner, don't guess),
     **`Model`** (just your current model name + version, e.g. `Opus 4.8`; do

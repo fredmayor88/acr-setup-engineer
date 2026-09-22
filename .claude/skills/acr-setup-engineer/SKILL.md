@@ -92,6 +92,8 @@ Shared knowledge (read as needed):
   it is a **guideline layer that overrides the base principles** for the symptoms it names (see the
   *Layered guidelines* core rule).
 - `VERSION` — the skill's own version (or `dev` for a source checkout); see *Skill version* below.
+- `GAME_VERSION` — the current game version every bundled `car-setups/` default setup was
+  extracted from; read with `scripts/load_default_setup.py --game-version`, never by eye.
 
 Bundled tools (stdlib Python, run via code execution):
 - `scripts/parse_acr_save.py` — import workflow: parse ACR `.sav` files into JSON. **Version-aware**:
@@ -119,6 +121,10 @@ Bundled tools (stdlib Python, run via code execution):
   line every saver writes (**never hand-format it**); `--pick`, `--find` and `--overrides` read
   the list back — the Free-plan way to find a car's setups (`references/setups-list-read.md`) and
   the `learn:` override on every plan.
+- `scripts/load_default_setup.py` — the bundled default setup for a car and surface (`--car <slug>
+  --surface Tarmac|Gravel|Snow [--preset Balanced|Aggressive]`, JSON; Snow falls back to Gravel and
+  says so; `--list <slug>`; `--game-version` prints the skill's `GAME_VERSION` file — the current
+  game version every bundled file was extracted from).
 - `scripts/query_notion_parameters.py` — `Setups` slices over REST, and
   `--show-order --from-template <file> …` for every view; it never reads a catalog. Call as
   `python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_name>"` (add
@@ -146,14 +152,17 @@ Bundled tools (stdlib Python, run via code execution):
   so anchoring a build on it never produces a blank.)
 - **Baseline first — anchor on the game's own default setup.** The catalog gives legal *ranges* but
   no sense of where inside them the game itself sits, so a from-scratch build is anchored on nothing.
-  For any new setup: if a **captured default** (`Source = default`) exists for this car in this
-  context, start from **its values** and move only what the driver's reported symptoms and the build's
-  intent justify — parameters nothing points at keep the default's value. If none exists, the default
-  path is to ask for **setup-screen screenshots of the in-game default first**, capture it, and
-  **check it (below) before recommending a drive** — then brief the user on what to notice
-  *before* they drive (`references/driving-feedback-interview.md` → *Pre-drive briefing*). This is a
-  **strong recommendation, never a gate** — if the user would rather just have a setup now, build one
-  and say no baseline anchor was used.
+  The anchor, in this order: **the bundled default** in `car-setups/<slug>.yaml` (every template
+  car; per surface, `Balanced` unless the user names another preset; read with
+  `scripts/load_default_setup.py` — no Notion read, no screenshots, on every plan); else, for a
+  screenshot car, a **captured default** (`Source = default`) for this car in this context; else
+  ask for **setup-screen screenshots of the in-game default first**, capture it, and **check it
+  (below) before recommending a drive**. Start from the anchor's values and move only what the
+  driver's reported symptoms and the build's intent justify — parameters nothing points at keep
+  the anchor's value. With no bundled file and no captured default, brief the user on what to
+  notice *before* they drive (`references/driving-feedback-interview.md` → *Pre-drive briefing*).
+  This is a **strong recommendation, never a gate** — if the user would rather just have a setup
+  now, build one and say no baseline anchor was used.
   **Never infer how the game scopes its defaults** — per stage, per surface, per conditions (a
   wet-tarmac default may differ from dry), or not at all is **unknown and changes between releases**.
   Match on the full capture context, and when a stored default was captured in a *different* context,

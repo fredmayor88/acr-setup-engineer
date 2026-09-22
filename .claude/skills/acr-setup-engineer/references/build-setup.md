@@ -189,12 +189,25 @@ would rather just have a setup now, build one.
    doesn't care, leave conditions **blank** and carry on: step 4 then matches on stage + surface
    alone and simply shows the user what context each candidate baseline came from.
 
-4. **Establish the baseline (the game's default setup).** Fetch this car's `Source = default` rows
-   (`… --source default`, per [notion-rest-read.md](notion-rest-read.md)) in the step 1–4 batch — or,
-   in offline mode, the default the car's `Setup index` gives ([setups-list-read.md](setups-list-read.md)
-   → *Reading a car's setups on Free*, whose step 4 hands back the same two cases: a matching default,
-   or one from a differing context) — then
-   match on the **full capture context** — stage, surface, **and conditions**. Read values from the
+4. **Establish the baseline (the game's default setup).**
+
+   **A car with a bundled setups file** (`car-setups/<slug>.yaml` exists in the skill — the same
+   slug as its template) anchors on it, on every plan, with no Notion read and no screenshots:
+   ```
+   python scripts/load_default_setup.py --car <slug> --surface {Surface}
+   ```
+   (add `--preset Aggressive` only when the user asked for that preset by name; run it in the
+   same code-execution block as `load_catalog.py`). Its `values` are the **numeric anchor** —
+   go to **step 5b**. In the report (step 12) say *"anchored on the game's {preset} default for
+   {Surface} (game version {version})"*, and when the output's `fallback` is `"Gravel"`, say the
+   Snow anchor is the gravel preset because the game has no Snow default for this car. Notion
+   `Source = default` rows are **not read** for such a car, whatever they hold.
+
+   **A car with no bundled setups file** (a screenshot car) uses the stored defaults: fetch this
+   car's `Source = default` rows (`… --source default`, per [notion-rest-read.md](notion-rest-read.md))
+   in the step 1–4 batch — or, in offline mode, the default the car's `Setup index` gives
+   ([setups-list-read.md](setups-list-read.md) → *Reading a car's setups on Free*) — then match on
+   the **full capture context** — stage, surface, **and conditions**. Read values from the
    **row value properties**, never the page prose (`SKILL.md` → *A setup's real values are its row*).
 
    **Never infer how the game scopes its defaults.** Whether ACR's default setup varies per stage,
@@ -228,9 +241,9 @@ would rather just have a setup now, build one.
    name is [capture-setup.md](capture-setup.md) — none of the baseline machinery below (step 5b
    included) applies to it.
 
-5. **Capture the default (when the screenshots arrive).** Use the **conditions settled in step 3** —
-   don't ask again here; if they were left blank there because the user didn't know, ask once now,
-   since this row is the one that will be matched against later.
+5. **Capture the default (when the screenshots arrive — screenshot cars only).** Use the **conditions
+   settled in step 3** — don't ask again here; if they were left blank there because the user didn't
+   know, ask once now, since this row is the one that will be matched against later.
 
    Read the values off the screenshots: the **same setup screens** as
    [onboard-car.md](onboard-car.md) → *Inputs*, but recording the **currently displayed value**
@@ -459,7 +472,9 @@ would rather just have a setup now, build one.
      hold both sides of the comparison, so this adds no read.
    - Create **one new row** in `Setups`: `Name`, `Car`, `Location` (if given), `Stage` (if given),
      `Surface`, `Conditions` (if known from step 3 — **optional, leave blank rather than guessing**;
-     no need to fill it when the name already says it), `Game version` (if known), `Date` (current date/time — per `notion-structure.md`
+     no need to fill it when the name already says it), `Game version` — the content of the skill's
+     `GAME_VERSION` file (`python scripts/load_default_setup.py --game-version`), unless the user
+     said they run another version in this chat — `Date` (current date/time — per `notion-structure.md`
      → `Date`: run the Python one-liner; don't guess the time), `Source = generated`, `Mode`, the
      chosen `Tyre type`, a value for **every** parameter the car has, **`Model`** (just your model
      name + version, e.g. `Opus 4.8`), and
@@ -547,6 +562,10 @@ would rather just have a setup now, build one.
    user comes back with how it drove and wants changes, switch to the refine loop
    (`tweak-setup.md`) and iterate **in chat** — don't rebuild from scratch; if what they say is
    vague ("it felt off"), run [driving-feedback-interview.md](driving-feedback-interview.md) first.
+   - **The anchor line (step 4).** For a bundled-setup car, name which default anchored the build —
+     the preset and the surface — plus the game version, and, when the loader's `fallback` was
+     `"Gravel"`, that the Snow anchor is the gravel preset because the game has no Snow default for
+     this car.
    - **Toe sign warning — always include it when the setup has toe values.** Add this one-line note
      to the chat report: *"Note: ACR's setup screen shows toe with an **inverted sign** (game bug) —
      a **positive** value is toe-**out**, a **negative** value is toe-**in**. The numbers above are

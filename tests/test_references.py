@@ -118,5 +118,27 @@ class TestSetupIndex(unittest.TestCase):
         self.assertIn('Setup index', text)
 
 
+class TestBundledDefaults(unittest.TestCase):
+    def ref(self, name):
+        return read(os.path.join(SKILL, 'references', name))
+
+    def test_build_anchors_on_the_bundled_setup(self):
+        text = self.ref('build-setup.md')
+        self.assertIn('load_default_setup.py --car', text)
+        self.assertIn('car-setups/', text)
+
+    def test_skill_md_names_the_loader_and_game_version(self):
+        text = read(os.path.join(SKILL, 'SKILL.md'))
+        self.assertIn('scripts/load_default_setup.py', text)
+        self.assertIn('GAME_VERSION', text)
+
+    def test_game_version_fills_the_column(self):
+        for name in ('build-setup.md', 'tweak-setup.md', 'capture-setup.md'):
+            self.assertIn('GAME_VERSION', self.ref(name), name)
+
+    def test_free_read_path_defers_to_bundled_defaults(self):
+        self.assertIn('car-setups/', self.ref('setups-list-read.md'))
+
+
 if __name__ == '__main__':
     unittest.main()

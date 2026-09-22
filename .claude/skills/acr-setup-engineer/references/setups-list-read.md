@@ -55,6 +55,9 @@ save again only after the skill has inserted a line.
    - `defaults_named` — only with `--names`: names that matched only a `Source = default` line. A
      default is never learn material, so it's kept out of `learn` and reported separately from
      `not_found`.
+
+   `default` and `other_defaults` are only ever used for a **screenshot car** — a car with a
+   bundled `car-setups/<slug>.yaml` anchors on `load_default_setup.py` instead (step 4 below).
 3. **Fetch the picked pages** — `notion-fetch` on each `url` in `learn`, and on `default` if it
    isn't `null`; if `default` is `null` and `other_defaults` isn't, fetch **only the newest** of
    `other_defaults` (for `build-setup.md` step 4's "a default in a differing context" question).
@@ -63,8 +66,10 @@ save again only after the skill has inserted a line.
    that fails to fetch is dropped and named in the report.
 4. **Build the two results** and hand them to the calling workflow where the REST rows would have
    gone:
-   - **The default anchor** (`build-setup.md` step 4): the fetched `default` page — same stage,
-     surface, conditions as the build — or the fetched newest `other_defaults` page for the
+   - **The default anchor** (`build-setup.md` step 4): For a car with a bundled
+     `car-setups/<slug>.yaml` the anchor comes from `load_default_setup.py` (`build-setup.md`
+     step 4) and the `default` line here is ignored. Otherwise: the fetched `default` page — same
+     stage, surface, conditions as the build — or the fetched newest `other_defaults` page for the
      "does this match what the game gives you here?" question. Nothing → the screenshots-first
      path, unchanged (it explains what the anchor is for and builds without one if the user says
      so).
