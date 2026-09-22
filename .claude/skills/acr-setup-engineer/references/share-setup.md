@@ -12,13 +12,14 @@ never writes to Notion.
 ## Procedure
 
 1. **Locate the setup.** Fetch the car's `Setups` DB rows (filtered to that car, per
-   `notion-rest-read.md`). Find the row matching the requested setup name. If not found, list
-   the available setups and ask the user to pick; do not proceed until one is identified.
+   `notion-rest-read.md`). Find the row matching the requested setup name.
    **In offline mode** (`egress: none` this chat — `notion-rest-read.md` → *Offline mode*) look
    the name up in the car's `Setup index` first: [setups-list-read.md](setups-list-read.md) →
    *Finding one setup by name* (`scripts/setups_list.py --find`), then `notion-fetch` the
    matched page — its properties are the row. Only when the name isn't in the index fall back
    to the lookup above.
+   If not found, list the available setups and ask the user to pick; do not proceed until one
+   is identified.
    **Fetch the car's `Catalog` page — and the car's `Parameters` page for a screenshot car — in
    the same batch** (`SKILL.md` → *Read efficiently*): step 2
    needs its `Catalog source:` line to know where the catalog comes from. Nothing else on that
