@@ -7,8 +7,9 @@ Free plan` pages*). The skill's once-per-chat offline message points here
 (`notion-rest-read.md` → *Offline mode*).
 
 > When writing the Notion page, copy everything below the line. Replace `{version}` with the skill
-> version (`SKILL.md` → *Skill version*). Every section is a normal heading — this page is short and
-> Free users read all of it.
+> version (`SKILL.md` → *Skill version*). Replace `{game_version}` with the content of the skill's
+> `GAME_VERSION` file (`python scripts/load_default_setup.py --game-version`). Every section is a
+> normal heading — this page is short and Free users read all of it.
 
 ---
 
@@ -31,8 +32,8 @@ it can't connect, says so in one line. Nothing is broken. This is what changes.
   in Notion, don't count until you add them: say **"index these setups:"** followed by the setups' Notion
   links (open a setup in Notion and copy its link). As many links as you like, in one message.
 - **Setups start from the game's own default setup**, built into the skill for every bundled car
-  (game version {version}) — no screenshots. Only a car you onboarded from screenshots still uses
-  a default you captured, or asks for its screenshots.
+  (game version {game_version}) — no screenshots. Only a car you onboarded from screenshots still
+  uses a default you captured, or asks for its screenshots.
 - **You can force a setup in or out.** On the car's `Setups` page, add ` - learn: yes` to the end
   of a setup's line to always learn from it, or ` - learn: no` to never read it. Only edit the end
   of the line; the skill never writes that part.

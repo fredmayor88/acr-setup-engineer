@@ -7,9 +7,11 @@ reference` (`notion-structure.md` → *`How to use` and `Claude Free plan` pages
 whenever the skill version changes, and by *"refresh my ACR Notion"*.
 
 > When writing the Notion page, copy everything below the line. Replace `{version}` with the skill
-> version (`SKILL.md` → *Skill version*). Write **`After you update the skill`** as a normal
-> heading and each other `##` section as a **collapsed toggle heading**, so the page opens short on
-> a phone. Keep the prompts exactly as written — the user copies them.
+> version (`SKILL.md` → *Skill version*). Replace `{game_version}` with the content of the skill's
+> `GAME_VERSION` file (`python scripts/load_default_setup.py --game-version`). Write **`After you
+> update the skill`** as a normal heading and each other `##` section as a **collapsed toggle
+> heading**, so the page opens short on a phone. Keep the prompts exactly as written — the user
+> copies them.
 
 Covers: onboard-car.md, build-setup.md, tweak-setup.md, driving-feedback-interview.md, review-setup.md, ask-setups.md, share-setup.md, capture-setup.md, import-savegame.md, export-car-template.md, edit-catalog.md, refresh-notion.md, setups-list-read.md
 
@@ -37,8 +39,8 @@ Swap in your own car, stage and setup names.
   attach screenshots of the setup screens with everything at minimum, then at maximum.
 - **Build a setup** — "build a setup for Col de Turini with the Lancia Stratos". Say how you like
   the car to feel, and it builds for you. Setups start from the game's own default for the car and
-  surface. Say "start from the Aggressive preset" for a car that has one (Lancia Delta, Peugeot 208
-  Rally4).
+  surface (game version {game_version}). Say "start from the Aggressive preset" for a car that has
+  one (Lancia Delta, Peugeot 208 Rally4).
 - **Change a setup after driving** — "stratos turini understeers on corner entry". It suggests
   changes in the chat and saves a new setup only when you ask.
 - **Not sure what's wrong** — "I drove stratos turini, it felt off". It asks a few simple

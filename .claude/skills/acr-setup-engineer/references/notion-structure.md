@@ -1045,8 +1045,10 @@ Two short documentation pages directly under the root, for the user to read on a
 Both are **skill-owned and auto-maintained, exactly like `Parameter reference`**: never a user
 layer, and a whole-page replacement is always safe because nothing of the user's lives on them.
 **Create / refresh** the same way — copy everything below the template's `---` line, replace
-`{version}` with the skill version (`SKILL.md` → *Skill version*), and on a refresh delete every
-existing block first and write the body fresh (never append).
+`{version}` with the skill version (`SKILL.md` → *Skill version*) and `{game_version}` with the
+content of the skill's `GAME_VERSION` file
+(`python scripts/load_default_setup.py --game-version`) wherever either template uses it, and on a
+refresh delete every existing block first and write the body fresh (never append).
 
 ### Keeping them current — the version check
 
