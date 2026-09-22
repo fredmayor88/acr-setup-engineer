@@ -87,6 +87,22 @@ above.
 is also the shape `load_catalog.py` prints, so every downstream rule reads one shape, whichever
 file the catalog came from.
 
+## The `learn:` override on paid plans
+
+The user may mark a line in the car's `Setup index` by hand with ` - learn: yes` or
+` - learn: no` (`notion-structure.md` → *`Setups` page*). It means the same thing on every plan,
+so a build that read its learn pool over REST honours it too — one extra page fetch, once per
+build, right after the REST queries:
+
+1. Fetch the car's `Setups` page (it's fetched anyway for the column order), save it to
+   `setups/<slug>.md`, run `python scripts/setups_list.py --overrides setups/<slug>.md` → JSON
+   `{"yes": [names], "no": [names], "malformed": n}`.
+2. **Drop** from the learn pool every row whose `Name` is in `no`.
+3. **Add** every row whose `Name` is in `yes` and isn't in the pool yet — its row is in the plain
+   `Setups` slice for the car (the same query **without** `--learn-only`, run in the same
+   code-execution block), so no extra REST call is needed.
+4. Both lists empty → nothing to do, say nothing.
+
 ## Resolving the range for a surface
 Applied for you by `load_catalog.py --surface`; documented here because `catalog-read.md` points
 to it.
@@ -121,25 +137,21 @@ later workflow in the chat — don't re-run it per read.
 - **`egress: none`** → **offline mode for the rest of the chat.** Run **no** REST query at all, and
   don't fetch `Config` for a token or ask for one — a token can't help without network. Each read
   goes straight to the rung it would have fallen back to anyway:
-  - every **`Setups` slice** (the learn pool, a stored default, any other) → **empty**, as rung 2
-    describes;
+  - every **`Setups` slice** (the learn pool, a stored default) → **read from the car's `Setup
+    index` instead**, per [setups-list-read.md](setups-list-read.md): the list of links on the
+    car's `Setups` page, a capped set of page fetches through the connector. Never empty by
+    default, never a search;
+  - a **named setup** (review, tweak, ask, share) → `setups-list-read.md` → *Finding one setup by
+    name*;
   - **column order** → unchanged — it never needed the network (`notion-structure.md` → *Applying
     the order*), still pushed as `SHOW`.
 
   Nothing else changes: template catalogs (`load_catalog.py`), every connector read and write,
   and saving setups to Notion all work as usual.
-- **Tell the user once per chat, in plain words** — the first time offline mode changes what a
-  workflow does, never before each read, and never worded as an error:
-
-  > *This chat can't reach Notion's API. That's normal on Claude's Free plan. It means I can't
-  > read your saved setups, so the ones you ticked `Learn from this` won't shape this setup, and
-  > I can't reuse a stored game default. Everything else works, and new setups still save to
-  > Notion. The `Claude Free plan` page in your Notion has the details. (On Pro or Max you can
-  > turn this on: Settings → Capabilities → Network egress → All domains, then start a new
-  > chat.)*
-
-  Keep the `Learn from this` sentence whenever the workflow would have read the learn pool — it
-  is the part the user loses without noticing.
+- **Tell the user once per chat, in plain words** — the exact text is in `setups-list-read.md` →
+  *Telling the user*. Say it the first time offline mode changes what a workflow does, never
+  before each read, never as an error. Never claim the skill has no access to what's saved: it
+  reads it fine, for the setups the skill saved from this version on.
 
 ## When the REST query can't run — the fallback ladder
 This REST query **is** the primary read path — **never** substitute the connector's row-listing
@@ -159,7 +171,8 @@ and produces silently wrong setups. When the query can't run, walk this ladder i
      why: a learn-pool read ⇒ the setup is built without the user's setup history; a
      stored-default read ⇒ no stored baseline is visible, so follow the normal no-baseline path
      (ask for fresh default screenshots). Anything captured **in the current chat** is unaffected
-     — those values are already in context.
+     — those values are already in context. This rung is for a plan **with** egress whose query
+     failed; it never applies in offline mode, which reads the index instead.
 3. **The query can't run and the workflow needs the rows:** say which feature was skipped and go
    on without them (rung 2). Never assemble rows from search results, and never guess.
 

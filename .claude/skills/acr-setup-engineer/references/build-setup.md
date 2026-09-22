@@ -190,7 +190,10 @@ would rather just have a setup now, build one.
    alone and simply shows the user what context each candidate baseline came from.
 
 4. **Establish the baseline (the game's default setup).** Fetch this car's `Source = default` rows
-   (`… --source default`, per [notion-rest-read.md](notion-rest-read.md)) in the step 1–4 batch, then
+   (`… --source default`, per [notion-rest-read.md](notion-rest-read.md)) in the step 1–4 batch — or,
+   in offline mode, the default the car's `Setup index` gives ([setups-list-read.md](setups-list-read.md)
+   → *Reading a car's setups on Free*, whose step 4 hands back the same two cases: a matching default,
+   or one from a differing context) — then
    match on the **full capture context** — stage, surface, **and conditions**. Read values from the
    **row value properties**, never the page prose (`SKILL.md` → *A setup's real values are its row*).
 
@@ -330,7 +333,10 @@ would rather just have a setup now, build one.
 
 7. **Handle prior setups by mode.**
    - `learn` (default): fetch existing `Setups` rows for this car **where `Learn from this` is
-     checked** (the compound-filter query in [notion-rest-read.md](notion-rest-read.md); read
+     checked** (the compound-filter query in [notion-rest-read.md](notion-rest-read.md); in offline
+     mode the fetched pages from [setups-list-read.md](setups-list-read.md), whose `learn: yes`
+     lines count whatever their checkbox says; on a paid plan apply `notion-rest-read.md` → *The
+     `learn:` override on paid plans*; read
      values from each row's **value properties** — never from its page-body justification, which
      can go stale after manual edits — plus `Notes` + `Rating`); infer preferences, weighting by
      `Rating` (a **1–5 Select** — read the

@@ -34,6 +34,7 @@ Pick the matching workflow and read its file before acting:
 | Review an existing setup from Notion — a rally mechanic's verdict on whether it suits the stage and the driver, with the few changes they'd make before the start | `references/review-setup.md` |
 | Ask a question / explain a setup or a tuning concept (read-only) | `references/ask-setups.md` |
 | Share a setup as a plain-text snippet (copy-paste) | `references/share-setup.md` |
+| **Add a setup by its link** — the user pastes a Notion link to a setup and says to use it, learn from it, or add it to the index | `references/setups-list-read.md` → *Adding a setup by link* |
 | **Save/store a setup the user built themselves in-game**, from photos of the setup screens — *"store this as {name} for the {car}"*, *"save these screens as a setup"* (photos show **current values**, and a name to save it under is given or asked for) | `references/capture-setup.md` |
 | Import existing setups from a save file | `references/import-savegame.md` |
 | Export a car's parameters as a community template file | `references/export-car-template.md` |
@@ -51,8 +52,12 @@ Shared knowledge (read as needed):
   `Setups`**; the connector can't list database rows, so query the data source over REST. Follow
   this wherever a workflow says "fetch the car's `Setups` rows". **A catalog is never read here.**
   It also carries **offline mode** and the **fallback ladder** for when the sandbox can't reach
-  `api.notion.com` (no network egress — e.g. Claude's Free plan): `Setups` slices degrade to
-  empty, stated plainly, while catalogs are unaffected because they never needed the network.
+  `api.notion.com` (no network egress — e.g. Claude's Free plan): `Setups` slices are read from
+  the car's `Setup index` instead, while catalogs are unaffected because they never needed the network.
+- `references/setups-list-read.md` — **the only way to read a car's setups without the REST
+  query** (offline mode): the `Setup index` list on the car's `Setups` page, a capped set of page
+  fetches, `Learn from this` and `Rating` read live. Also: finding one setup by name on Free,
+  "load more", and adding a setup the user pastes a link to.
 - `references/setup-tuning-principles.md` — the tuning reasoning base (drivetrain-tagged).
 - `references/driving-feedback-interview.md` — the shared **symptom → cause** question bank: how to
   interview a beginner about how the car felt (plain language, terms defined inline, "not sure" always
@@ -110,6 +115,10 @@ Bundled tools (stdlib Python, run via code execution):
 - `scripts/check_egress.py` — once per chat, before the first REST query: prints `egress: ok` or
   `egress: none`. On `none` the chat runs in **offline mode** — no REST query, no token request,
   one plain line to the user (`references/notion-rest-read.md` → *Offline mode*).
+- `scripts/setups_list.py` — the `Setup index` line on a car's `Setups` page: `--line` formats the
+  line every saver writes (**never hand-format it**); `--pick`, `--find` and `--overrides` read
+  the list back — the Free-plan way to find a car's setups (`references/setups-list-read.md`) and
+  the `learn:` override on every plan.
 - `scripts/query_notion_parameters.py` — `Setups` slices over REST, and
   `--show-order --from-template <file> …` for every view; it never reads a catalog. Call as
   `python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_name>"` (add
@@ -358,8 +367,9 @@ Bundled tools (stdlib Python, run via code execution):
   on the car's `Parameters` page — loaded by `references/catalog-read.md`: no token, no network,
   on every plan. **Reading `Setups` rows** (learn pool, stored default) is the REST query in
   `references/notion-rest-read.md`; check the network once per chat first
-  (`scripts/check_egress.py`) and on `egress: none` run no REST query for the rest of the chat
-  (that doc's *Offline mode*). Never substitute connector row-listing, never guess.
+  (`scripts/check_egress.py`) and on `egress: none` run no REST query for the rest of the chat —
+  read the car's `Setup index` instead (`references/setups-list-read.md`). Never substitute
+  connector row-listing, never guess.
 - **Read efficiently — collapse round-trips.** Seeding context is slow when reads are done one at a
   time. After resolving the structure once, the remaining reads are **independent**: issue them
   **together in a single step (parallel tool calls)** — e.g. the `Setups` DB fetch for its

@@ -79,6 +79,29 @@ class TestSetupIndex(unittest.TestCase):
         self.assertEqual(text.count('Adding a line to `Setup index`'), 2,
                          'build-setup must add a line for the built setup AND for a captured default')
 
+    def test_free_read_path_exists_and_never_searches(self):
+        path = os.path.join(SKILL, 'references', 'setups-list-read.md')
+        self.assertTrue(os.path.isfile(path))
+        text = read(path)
+        for section in ('## Reading a car\'s setups on Free', '## Load more',
+                        '## Finding one setup by name', '## Adding a setup by link'):
+            self.assertIn(section, text, section)
+        self.assertNotIn('notion-search', text.replace('never `notion-search`', ''))
+
+    def test_offline_mode_routes_to_the_list(self):
+        text = self.ref('notion-rest-read.md')
+        self.assertIn('setups-list-read.md', text)
+        self.assertNotIn("can't read your saved setups", text)
+        self.assertIn('--overrides', text)
+
+    def test_build_names_the_free_path(self):
+        self.assertIn('setups-list-read.md', self.ref('build-setup.md'))
+
+    def test_skill_md_lists_the_script_and_the_reference(self):
+        text = read(os.path.join(SKILL, 'SKILL.md'))
+        self.assertIn('scripts/setups_list.py', text)
+        self.assertIn('references/setups-list-read.md', text)
+
 
 if __name__ == '__main__':
     unittest.main()
