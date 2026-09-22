@@ -84,7 +84,7 @@ class TestSetupIndex(unittest.TestCase):
         self.assertTrue(os.path.isfile(path))
         text = read(path)
         for section in ('## Reading a car\'s setups on Free', '## Load more',
-                        '## Finding one setup by name', '## Adding a setup by link'):
+                        '## Finding one setup by name', '## Adding setups by link'):
             self.assertIn(section, text, section)
         self.assertNotIn('notion-search', text.replace('never `notion-search`', ''))
 
@@ -101,6 +101,12 @@ class TestSetupIndex(unittest.TestCase):
         text = read(os.path.join(SKILL, 'SKILL.md'))
         self.assertIn('scripts/setups_list.py', text)
         self.assertIn('references/setups-list-read.md', text)
+
+    def test_index_by_links_is_named_everywhere(self):
+        self.assertIn('index these setups:', read(os.path.join(SKILL, 'SKILL.md')))
+        self.assertIn('index these setups:', self.ref('how-to-use-template.md'))
+        self.assertIn('One insert per car', self.ref('setups-list-read.md'))
+        self.assertNotIn('Adding a setup by link', self.ref('setups-list-read.md'))
 
     def test_named_setup_workflows_use_the_index_on_free(self):
         for name in ('review-setup.md', 'ask-setups.md', 'share-setup.md', 'tweak-setup.md'):

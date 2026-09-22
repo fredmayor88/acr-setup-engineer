@@ -28,8 +28,8 @@ it can't connect, says so in one line. Nothing is broken. This is what changes.
   ones you ticked **`Learn from this`**, with their ratings. It tells you which ones it read. Say
   **"also learn from my other Lancia Stratos setups"** to read more.
 - **Older setups aren't on the list.** Setups saved before v{version}, and setups you made by hand
-  in Notion, don't count until you add them, one at a time: paste that setup's Notion link in the
-  chat and say **"learn from this one too"**.
+  in Notion, don't count until you add them: say **"index these setups:"** followed by the setups' Notion
+  links (open a setup in Notion and copy its link). As many links as you like, in one message.
 - **A saved game default is reused when it's on the list.** If the skill saved the default for
   this stage from v{version} on, it finds it. Otherwise it asks for screenshots of the default,
   and builds without them if you'd rather not.

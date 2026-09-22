@@ -493,7 +493,7 @@ You don't have to remember this: the first time you use the skill after an updat
 | Export a community template | [`export-car-template.md`](.claude/skills/acr-setup-engineer/references/export-car-template.md) |
 | Change a car's parameter list | [`edit-catalog.md`](.claude/skills/acr-setup-engineer/references/edit-catalog.md) |
 | Refresh everything after an update | [`refresh-notion.md`](.claude/skills/acr-setup-engineer/references/refresh-notion.md) |
-| Add a setup by pasting its link (and read setups on the Free plan) | [`setups-list-read.md`](.claude/skills/acr-setup-engineer/references/setups-list-read.md) |
+| Index setups by their links — "index these setups: link link link" (and read setups on the Free plan) | [`setups-list-read.md`](.claude/skills/acr-setup-engineer/references/setups-list-read.md) |
 
 ## Flows
 
@@ -849,8 +849,8 @@ which. What follows is about your setup history, which affects every car. This i
   version on is listed under `Setup index` on the car's `Setups` page. A build reads the listed
   setups closest to the stage, up to 6, and learns from the ones you ticked `Learn from this`; say
   "also learn from my other Lancia Stratos setups" to read more. Setups saved by older versions or made by
-  hand aren't listed — paste a setup's link in the chat and say "learn from this one too" to add
-  it. Add ` - learn: yes` or ` - learn: no` to the end of a line to force a setup in or out.
+  hand aren't listed — say "index these setups:" and paste their Notion links, as many as you like
+  in one message, to add them. Add ` - learn: yes` or ` - learn: no` to the end of a line to force a setup in or out.
 - **A stored game default is found the same way** — only when the skill saved it from this version
   on. Otherwise you're asked to screenshot it, and can say no.
 - **Skip the read-only token setup.** The token only feeds the REST path, which can't run on

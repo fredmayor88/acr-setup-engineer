@@ -46,10 +46,11 @@ Swap in your own car, stage and setup names.
 - **Ask a question** — "why is the rear anti-roll bar so soft in stratos turini?", or "what does
   diff preload do?".
 - **Share a setup** — "share stratos turini". Plain text to paste anywhere.
-- **Use an older setup on Claude's Free plan** — paste its Notion link in the chat and
-  say "learn from this one too". Setups the skill saves are listed on the car's `Setups` page
-  under `Setup index`; add ` - learn: yes` to the end of a line to always learn from that setup,
-  or ` - learn: no` to never read it.
+- **Index your older setups** — "index these setups:" followed by the Notion links of the setups
+  you want the skill to know about (open a setup in Notion and copy its link). Do this once after
+  you install a new version. Setups the skill saves are listed by itself on the car's `Setups`
+  page under `Setup index`; add ` - learn: yes` to the end of a line to always learn from that
+  setup, or ` - learn: no` to never read it.
 - **Save your own setup** — "store these screens as my tarmac for the Lancia Stratos", with photos
   of the setup screens.
 - **Import a save file** — "import my setups from this save file", with the game's `.sav` file

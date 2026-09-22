@@ -857,7 +857,7 @@ plan** — `build-setup.md` (the built setup, and a captured game default), `twe
 4. Several rows in one call (an import) → **one insert** holding all the lines, newest first.
 
 **Adding a setup the user points at** (a pasted Notion link) is in `setups-list-read.md` →
-*Adding a setup by link*.
+*Adding setups by link*.
 
 ### Engine chart and gearing tool
 

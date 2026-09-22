@@ -34,7 +34,7 @@ Pick the matching workflow and read its file before acting:
 | Review an existing setup from Notion — a rally mechanic's verdict on whether it suits the stage and the driver, with the few changes they'd make before the start | `references/review-setup.md` |
 | Ask a question / explain a setup or a tuning concept (read-only) | `references/ask-setups.md` |
 | Share a setup as a plain-text snippet (copy-paste) | `references/share-setup.md` |
-| **Add a setup by its link** — the user pastes a Notion link to a setup and says to use it, learn from it, or add it to the index | `references/setups-list-read.md` → *Adding a setup by link* |
+| **Index setups by their links** — *"index these setups: <link> <link>"*, *"add this one to the index"*, *"learn from this: <link>"*: the user pastes one or more Notion links to setups | `references/setups-list-read.md` → *Adding setups by link* |
 | **Save/store a setup the user built themselves in-game**, from photos of the setup screens — *"store this as {name} for the {car}"*, *"save these screens as a setup"* (photos show **current values**, and a name to save it under is given or asked for) | `references/capture-setup.md` |
 | Import existing setups from a save file | `references/import-savegame.md` |
 | Export a car's parameters as a community template file | `references/export-car-template.md` |

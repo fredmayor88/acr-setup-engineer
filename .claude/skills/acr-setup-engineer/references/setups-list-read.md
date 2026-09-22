@@ -2,7 +2,7 @@
 
 **The only way to read a car's setups when `scripts/check_egress.py` printed `egress: none`** in
 this chat (`notion-rest-read.md` → *Offline mode*). With `egress: ok` the REST query is the source
-for reads; only *Adding a setup by link* below runs on every plan. Catalogs are never read here
+for reads; only *Adding setups by link* below runs on every plan. Catalogs are never read here
 (`catalog-read.md`).
 
 The index is the `Setup index` list on the car's `Setups` page (`notion-structure.md` →
@@ -110,7 +110,7 @@ all of them"*) or names some (*"learn from turini fast and monte v2 too"*):
 2. Fetch **only** the pages not already fetched in this chat.
 3. Redo the step that used the learn pool (`build-setup.md` step 7 onward, or the tweak's
    reasoning) with the larger pool, and say in one line what was added. Names in `not_found`
-   are reported as not in the index, with the paste-a-link hint (*Adding a setup by link*).
+   are reported as not in the index, with the paste-a-link hint (*Adding setups by link*).
    Names in `defaults_named` are **not** "not in the index" — a `Source = default` line is never
    learn material — say instead: *"that's the game's default for {stage} — it is the build's
    anchor, not something to learn from"*.
@@ -136,27 +136,37 @@ For a workflow that needs **one named setup** (`review-setup.md`, `tweak-setup.m
    the index or have been made by hand — and offer the paste-a-link route (*Adding a setup by
    link*).
 
-## Adding a setup by link
+## Adding setups by link
 
-The user pastes a Notion link to a setup, in any wording that says to use it, learn from it, or
-add it (*"add this one to the index"*, *"learn from this: <link>"*). On every plan:
+The user pastes one or more Notion links to setups — *"index these setups: <link> <link> <link>"*,
+*"add this one to the index"*, *"learn from this: <link>"* — in any wording that says to add, index,
+use or learn from them. **This is the only way a setup that the skill didn't save gets into the
+index** (setups saved before the index existed, or made by hand), and it works the same on every
+plan. It is what to run right after a skill update, with the links of the setups worth keeping.
 
-1. `notion-fetch` the link.
-2. Check it is a setup: its `<parent-data-source>` is the `Setups` data source under
-   `ACR Setup Engineer`, and its `Car` property names a car with a `{Car}` page under the root.
-   Anything else → *"That page isn't one of your setups, so I can't add it."* and stop.
-3. **Before inserting, check it isn't already there:** fetch the car's `Setups` page and save it
-   per *Saving the page to a file*, then run
-   `python scripts/setups_list.py --find "{Name}" setups/<slug>.md`; if a match has the same
-   `url`, say it's already in the index and don't insert. No `Setup index` heading on the page →
-   treat the index as empty and don't run the script.
-4. Build the line from the page's properties — `Name`, the page URL, `Source`, `Stage`,
-   `Surface`, `Conditions`, `Date` — with `scripts/setups_list.py --line`, and insert it per
-   `notion-structure.md` → *Adding a line to `Setup index`*.
-5. Say in one line that it's in the {Car}'s index now, and — when the user asked to learn from it
-   — use it in this chat as a fetched learn-pool page (its `Learn from this` checkbox still
-   decides, unless the user says to count it: then treat it as `learn: yes` for this chat and
-   suggest they add ` - learn: yes` to its line so it always counts).
+1. **Collect the links** from the message. One link or fifty — the steps are the same.
+2. **`notion-fetch` every link** (parallel tool calls). For each page, check it is a setup: its
+   `<parent-data-source>` is the `Setups` data source under `ACR Setup Engineer`, and its `Car`
+   property names a car with a `{Car}` page under the root. A page that fails either check is
+   **skipped**, not fatal: note it for the report and go on with the others.
+3. **Group the good pages by `Car`.** For each car: fetch its `Setups` page once and save it per
+   *Saving the page to a file* (no `Setup index` heading → treat the index as empty and don't run
+   the script). For each page of that car run
+   `python scripts/setups_list.py --find "{Name}" setups/<slug>.md`; a match with the same `url`
+   means it's **already listed** — note it and don't add it again.
+4. **Build one line per remaining page** from its properties — `Name`, the page URL, `Source`,
+   `Stage`, `Surface`, `Conditions`, `Date` — with `scripts/setups_list.py --line` (a script error
+   → skip that page and note it).
+5. **One insert per car**, holding all of that car's new lines newest first, per
+   `notion-structure.md` → *Adding a line to `Setup index`* (its step 3 covers a page with no
+   heading yet and a car with no `Setups` page).
+6. **Report**, one line per link, in the order given: *added to the {Car}'s index* / *already
+   listed* / *not one of your setups* / *the {Car} has no `Setups` page — say "refresh the {Car}
+   in my Notion" first*. Then one line: *"Add ` - learn: yes` or ` - learn: no` to the end of a
+   line on the car's `Setups` page to force a setup in or out."*
+7. When the user asked to **learn from** a link in this chat, use that fetched page as a learn-pool
+   page now (its `Learn from this` checkbox still decides, unless the user says to count it: then
+   treat it as `learn: yes` for this chat and suggest the ` - learn: yes` mark).
 
 ## Rules
 - **Reads only on `egress: none`**; the REST query stays the source whenever it can run. *Adding
