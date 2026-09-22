@@ -31,14 +31,14 @@ Read `notion-structure.md` (schemas + create-if-missing) before writing.
 
 1. **Read once, in parallel.** Resolve the `ACR Setup Engineer` structure, then issue the remaining
    reads **together in a single step** (`SKILL.md` → *Read efficiently*): the `Setups` data source,
-   the car's `Catalog` page, and the car's catalog, in **one** code-execution block.
-   **Load the car's catalog:** a **template car** → `python scripts/load_catalog.py
-   car-templates/<slug>.yaml --surface {Surface}` (no token, no network) — **leave `--surface`
-   off when the surface isn't known yet** (the *Inputs* allow "doesn't matter"), which gives every
-   row, baseline and surface-tagged, to resolve later; a **screenshot car** →
-   its `Parameters` rows via [notion-rest-read.md](notion-rest-read.md) (fetch the `Parameters`
-   data source too, for that). Decide which from the `Catalog` page's `Catalog source:` line
-   (`notion-structure.md` → *Where a car's catalog lives*). Do **not** load
+   the car's `Catalog` page, the car's `Parameters` page for a screenshot car, and the catalog
+   load itself, in **one** code-execution block.
+   **Load the car's catalog per [catalog-read.md](catalog-read.md)** — a bundled file for a
+   template car, the car's `Parameters` page (fetched in this same batch) for a screenshot car;
+   one `load_catalog.py` call either way, `--surface {Surface}` when the workflow resolves a
+   surface. **Leave `--surface` off when the surface isn't known yet** (the *Inputs* allow
+   "doesn't matter"), which gives every row, baseline and surface-tagged, to resolve later.
+   Do **not** load
    `setup-tuning-principles.md`, the `Tuning guidelines` page, the car's guidelines, the
    `car-troubleshooting/` file, or the learn pool — none of them are used here.
 
@@ -116,13 +116,18 @@ Read `notion-structure.md` (schemas + create-if-missing) before writing.
 7. **Assert the column order — MANDATORY** (`SKILL.md` → *Assert column order*;
    `notion-structure.md` → *Applying the order*, which says which form to run). Run
    `scripts/query_notion_parameters.py … --show-order` and apply the `SHOW` to the car's linked
-   view (case 1, `--show-order --from-template car-templates/<slug>.yaml`, for a template car;
-   case 2, `<params_ds> <token> "{Car}" --show-order`, for a screenshot car), and to the main
-   `Setups` view and any stage/location view (case 3: one call, a `--from-template` per onboarded
-   template car plus `<params_ds> <token> --all` only if a screenshot car exists). The capture is **not done** until this
+   view (this car's file only), and to the main
+   `Setups` view and any stage/location view (one `--from-template` per onboarded
+   car). The capture is **not done** until this
    is applied, on quick runs too.
 
-8. **Report — one line, plus exceptions.** *"Saved **{name}** for the {Car} ({n} parameters,
+8. **Add the row to the car's `Setup index`** — `notion-structure.md` →
+   *Adding a line to `Setup index`*: `scripts/setups_list.py --line` with the row's `Name`, page
+   URL, `Source = screenshot`, `Stage`, `Surface`, `Conditions` (blank when not given), `Date`;
+   insert it under the heading on the car's `Setups` page (fetched in step 7 — reuse it). On
+   every plan.
+
+9. **Report — one line, plus exceptions.** *"Saved **{name}** for the {Car} ({n} parameters,
    {stage/surface/conditions})."* Then, only if there were any: the flagged readings, unmapped
    labels, or ambiguous tyre names. Add the toe-sign warning line whenever toe values were captured.
    Nothing else — no summary of the setup, no opinion on it, no suggested improvements unless the

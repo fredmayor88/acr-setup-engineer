@@ -2,8 +2,8 @@
 
 Refine a setup by working the **problem → tweak → test → feedback** cycle conversationally.
 Each iteration proposes targeted, legal changes **in chat** and updates an in-chat **working
-setup** — **nothing is written to Notion** while iterating, except the dated `Log` entry a
-driving-feedback interview leaves on the car (step 5). The source setup is never modified.
+setup** — **nothing is written to Notion** while iterating, except the dated `Log` entry each
+round of feedback leaves on the car (step 5). The source setup is never modified.
 A single new `Setups` row (the session's final state) is created **only when the user explicitly
 asks to save** — see step 7.
 
@@ -30,6 +30,13 @@ Decide what the iteration starts from — **don't immediately write anything**:
   its current in-chat values as the working setup and say which one. For a saved setup, load all
   value properties plus `Car`, `Location`, `Stage`, `Surface`, `Conditions` (may be blank), `Mode` (navigate
   `ACR Setup Engineer → Setups`; stay within that scope — no workspace-wide searches).
+  **In offline mode** (`egress: none` this chat — `notion-rest-read.md` → *Offline mode*) look
+  the name up in the car's `Setup index` first: [setups-list-read.md](setups-list-read.md) →
+  *Finding one setup by name* (`scripts/setups_list.py --find`), then `notion-fetch` the
+  matched page — its properties are the row. If the name isn't in the index, don't search the
+  database — say the setup isn't in the {Car}'s index and offer to add it: *"Paste its Notion
+  link here and I'll add it to the index and use it"* (`setups-list-read.md` → *Adding a setup
+  by link*). The lookup above is for `egress: ok` only.
 - **Multiple plausible matches** → list them (Name / Car / Stage / Date) and ask the user to pick.
 - **Nothing in scope** (the user described a problem but nothing has been built or loaded yet) →
   **ask what to start from**: which saved setup to load, or whether to run `build-setup.md` — which
@@ -39,15 +46,14 @@ Decide what the iteration starts from — **don't immediately write anything**:
 ### 2. Load constraints + the car's identity facts
 > **Load steps 2–4 as one batched read** (`SKILL.md` → *Read efficiently*): once the structure is
 > resolved, issue the independent reads together (parallel tool calls) and run the REST queries in
-> one code-execution block, fetching the car's `Catalog` page (identity facts, this step) and its
+> one code-execution block, fetching the car's `Catalog` page (identity facts, this step), **the
+> car's `Parameters` page for a screenshot car**, and its
 > `Guidelines` and `Log` pages (step 3) once each, in the same batch. Skip any read whose data is already in the thread.
 
-**Load the car's catalog:** a **template car** → `python scripts/load_catalog.py
-car-templates/<slug>.yaml --surface {Surface}` (no token, no network); a **screenshot car** → its
-`Parameters` rows via [notion-rest-read.md](notion-rest-read.md). Decide which from the `Catalog`
-page's `Catalog source:` line (`notion-structure.md` → *Where a car's catalog lives*). Either way
-the rows are the same (`notion-rest-read.md` → *Output*): `Adjustment`, `Min`, `Max`, `Unit`,
-`Discrete steps`, `Order`, `Surface`. Read the car's identity
+**Load the car's catalog per [catalog-read.md](catalog-read.md)** — a bundled file for a template
+car, the car's `Parameters` page (fetched in this same batch) for a screenshot car; one
+`load_catalog.py` call either way, `--surface {Surface}` when the workflow resolves a surface.
+Here the surface is the working setup's, so pass it. Read the car's identity
 facts from the car's `Catalog` page — `Drivetrain` (FWD/RWD/AWD), `Engine layout`, `Weight bias`, `Weight`
 — and feed them into the balance reasoning (same facts a build loads; not drivetrain alone). If a
 field is blank, infer the bias from drivetrain + engine layout, or proceed drivetrain-only.
@@ -107,9 +113,15 @@ Each time the user gives feedback, run one round — **all in chat, no Notion wr
   batches, plain language, defining each term as it comes up; accept "not sure" and move on. A
   clear, specific complaint ("soften the front ARB by one step", "understeers on entry") needs no
   interview — act on it directly.
-  **When an interview runs, write its `Log` entry as it ends** — the one dated collapsed toggle
-  at the top of the car's `Log` page, per
-  [driving-feedback-interview.md](driving-feedback-interview.md) → *Recording the outcome*. This
+  **Every round writes one `Log` entry as it ends** — one dated collapsed toggle
+  (`Driving feedback — {date}`) at the top of the car's `Log` page, whether or not an interview
+  ran. **If an interview ran**, that entry is the interview's record, per
+  [driving-feedback-interview.md](driving-feedback-interview.md) → *Recording the outcome* — one
+  block, not two. **If not**, the entry holds the user's feedback **in their own words**, which
+  setup it was about (the source setup's name, or *"working setup, round N"* after the first
+  round), and the changes proposed in answer (`parameter: old → new`). Page rules as for the
+  interview's entry: resolve `Log` by name first, add this one block directly below the
+  maintenance line, touch nothing else. This
   is **the single exception** to this workflow's "no Notion writes while iterating" rule: it is
   add-only history of what the driver said, it belongs to the car rather than to any setup, and a
   session that never saves a row would otherwise lose it. It is **not** permission to write
@@ -196,16 +208,17 @@ When the user asks to save (and not before):
 - **Apply the column order — MANDATORY, never skip (even on a quick / low-effort run); the save is
   not done until you've done it** (`notion-structure.md` → *Applying the order*), **after the row is
   written**. Get the `SHOW` list from the bundled script — **never build or merge one by hand**
-  — running the form *Applying the order* names for each projection, and set `SHOW`
-  (`notion-update-view`) on the main `Setups` table view (*Applying the order* case 3: **one**
-  call with a `--from-template` per onboarded template car, plus `<params_ds> <token> --all` only
-  if a screenshot car exists), this car's linked view (case 1 —
-  `--show-order --from-template car-templates/<slug>.yaml`, no token — for a template car; case 2
-  — `<params_ds> <token> "{Car}" --show-order` — for a screenshot car; hides blanks), and — if a
-  stage/location is set — its `{Stage}` / `{Location}` linked view (case 3, no per-car
-  filtering). The script lists `Name`,
+  — by running the form that *Applying the order* gives, and set `SHOW`
+  (`notion-update-view`) to its output on the main `Setups` table view (one `--from-template` per onboarded
+  car), this car's linked view (this car's file only, which hides blanks in the same step), and
+  — if a stage/location is set — its `{Stage}` / `{Location}` linked view (one `--from-template`
+  per onboarded car, no per-car filtering). The script lists `Name`,
   value columns by `Order`, then the full meta columns (including `Model` and `Skill version`).
   Idempotent view update — the row write above stays append-only.
+- **Add the new row to the car's `Setup index`** — `notion-structure.md` →
+  *Adding a line to `Setup index`*: `scripts/setups_list.py --line` with the new row's `Name`,
+  page URL, `Source = generated`, `Stage`, `Surface`, `Conditions`, `Date`; insert it under the
+  heading on the car's `Setups` page. On every plan.
 - **Ensure the stage facts page exists in the catalogue** (per `notion-structure.md` → *Locations &
   stages catalogue*) if a stage/location is set and didn't already exist; create its filtered
   `Setups[Stage=this]` linked view with `notion-create-view` (never a page-markdown placeholder).
@@ -237,10 +250,10 @@ braking effect."* Omit it when the car has no brake disc/caliper params.
 ## Rules
 - **Iterate in chat — no Notion writes per round.** Refinement rounds (step 5) update only the
   in-chat working setup; nothing is written to Notion until the user explicitly asks to save.
-  **One named exception:** when a driving-feedback interview runs during a round, its dated
-  entry on the car's **`Log`** page is written as the interview ends (step 5). That one block is
-  the whole exception — no setup row, no `Notes`, no row toggle, nothing on `Guidelines`, and
-  nothing else at any other moment.
+  **One named exception:** every round writes one dated entry on the car's **`Log`** page as it ends —
+  the interview's record if one ran, otherwise the user's feedback and the changes proposed (step
+  5). That one block per round is the whole exception — no setup row, no `Notes`, no row toggle,
+  nothing on `Guidelines`, and nothing else at any other moment.
 - **Save only on explicit request — one final row.** The whole session culminates in a single new
   `Setups` row capturing the final state (step 7), not one row per tweak.
 - **Gentle single nudge** — remind the user once they can save when they're happy; don't nag.

@@ -294,15 +294,18 @@ ladder. These need to be noticed *while driving*, so they also go in the pre-dri
 Never reach top gear? That's fine and not a problem to fix — what matters is staying in the power
 band where the driving actually happens.
 
-**Use real numbers when the car has them.** If the car's bundled template carries an
-`engine_curve:` block, the "power band" isn't a guess: `peak_torque` and `peak_power` give the two
-rpm figures the answers above turn on, and `torque_points` is the whole curve if you need to see how
-flat or peaky it is between them. Quote those rpm when explaining a gearing change; it's far more
+**Use real numbers when the car has them.** Read the curve and the link from **the bundled
+`car-templates/*.yaml` file that matches the car**, whatever its `Catalog source:` line says —
+never from its `Parameters` page (`notion-structure.md` → *Engine chart and gearing tool*). If
+that bundled file carries an `engine_curve:` block, the "power band" isn't a guess:
+`peak_torque` and `peak_power` give the two rpm figures the answers above turn on, and
+`torque_points` is the whole curve if you need to see how flat or peaky it is between them.
+Quote those rpm when explaining a gearing change; it's far more
 use to the driver than "keep it in the power band". Where the band usefully *ends* is the driver's
-call, not a number to assert — show them the curve and let them decide. A car with no bundled
-template has no curve; then reason qualitatively, and say that's what you're doing. When the
+call, not a number to assert — show them the curve and let them decide. A car with no matching
+bundled file has no curve; then reason qualitatively, and say that's what you're doing. When the
 discussion turns to which **gear set or final drive** to run, give the user the car's
-`gearing_tool` link from its template so they can see every gear set's speed per gear themselves.
+`gearing_tool` link so they can see every gear set's speed per gear themselves.
 
 ## Fix-order ladder (major → fine)
 
@@ -348,7 +351,9 @@ different moments**:
 `build-setup.md` step 6, `tweak-setup.md` step 5, or a direct entry from the routing table with no
 setup in scope at all. It is **add-only history of what the driver said**, not a setup write, and
 it is the only thing an interview is guaranteed to produce — a session that never saves a row
-would otherwise lose the whole conversation.
+would otherwise lose the whole conversation. (A tweak round that needs no interview still writes a
+`Log` entry of its own — the user's words and the changes proposed — per `tweak-setup.md` step 5.
+When an interview ran, its record *is* that round's entry; never write both.)
 
 **The row-level records need a saved row to sit on**, so they are written only where one exists:
 in `build-setup.md` step 6 they go on the **baseline row step 5 already saved** (the row the

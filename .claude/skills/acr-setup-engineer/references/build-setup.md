@@ -82,8 +82,8 @@ would rather just have a setup now, build one.
 
 0. **Ensure the car is onboarded — auto-onboard from a bundled template if needed.** A build is
    *legal by construction* only against the car's catalog, so the catalog must exist before
-   anything else. **The test of "onboarded" is the Notion structure, not `Parameters` rows** — a
-   template car has none: under the `ACR Setup Engineer` root, does a `{Car}` page with a
+   anything else. **The test of "onboarded" is the Notion structure, not where the catalog
+   lives**: under the `ACR Setup Engineer` root, does a `{Car}` page with a
    `Catalog` child page exist? That `Catalog` page is the fetch step 1 needs anyway (identity
    facts, and the `Catalog source:` line that says where the catalog lives), **so don't repeat
    it**. Then, exactly as in [import-savegame.md](import-savegame.md) §5.2:
@@ -92,11 +92,11 @@ would rather just have a setup now, build one.
    - **No `{Car}`/`Catalog` page, but a bundled template matches this car** → **auto-onboard
      now**, before building. Match `car-templates/` by `car:` using the **same rule as
      `onboard-car.md` step 1** (→ *Matching a car name*), then
-     run **`onboard-car.md`'s bundled-template path**: **write no `Parameters` rows** (the
-     template is the catalog — `notion-structure.md` → *Where a car's catalog lives*), add all the
-     `Setups` value columns in **one `notion-update-data-source` call** (`SKILL.md` → *Batch
+     run **`onboard-car.md`'s bundled-template path**: it **writes no catalog to Notion** (the
+     template file is the catalog — `notion-structure.md` → *Where a car's catalog lives*), add all
+     the `Setups` value columns in **one `notion-update-data-source` call** (`SKILL.md` → *Batch
      Notion writes*), build the car's four pages including the `Catalog` page with its **catalog
-     source line** and its `Catalog snapshot` (`load_catalog.py --snapshot`), and set the car's
+     source line**, and set the car's
      `Drivetrain` + **every identity fact the template carries**
      (`Engine layout` / `Weight bias` / `Weight` / `Max power` / `Max torque` / `Class` /
      `Gearbox` / `Steering lock` — see `notion-structure.md` → *Car page*) from the template.
@@ -116,26 +116,25 @@ would rather just have a setup now, build one.
 > **Load steps 1–4 as one batched read** (`SKILL.md` → *Read efficiently*): after resolving the
 > structure, issue the independent reads together (parallel tool calls) and run the REST queries in
 > one code-execution block — and fetch the car's `Catalog` page (identity facts and the
-> `Catalog source:` line, step 1), its `Guidelines` page and its `Log` page (step 2) once each, in
+> `Catalog source:` line, step 1), **and the car's `Parameters` page for a screenshot car**, its
+> `Guidelines` page and its `Log` page (step 2) once each, in
 > the same batch. The `Setups` slices of step 4 (default baseline) and step 7 (learn pool) both go
-> in that **same** code-execution block, and for a **template car** so does `load_catalog.py` —
-> the batch then carries **no `Parameters` query at all**, and needs no token for the catalog.
+> in that **same** code-execution block, and so does `load_catalog.py`.
 > (When step 0 just auto-onboarded the car from a template, you already hold its rows — don't
 > load them again.)
 
-1. **Load the constraints + drivetrain + identity facts.** **Load the car's catalog:** a
-   **template car** → `python scripts/load_catalog.py car-templates/<slug>.yaml` (no token, no
-   network); a **screenshot car** → its `Parameters` rows via
-   [notion-rest-read.md](notion-rest-read.md). Decide which from the `Catalog` page's
-   `Catalog source:` line (`notion-structure.md` → *Where a car's catalog lives*). Both give the
-   same rows (`notion-rest-read.md` → *Output*), so everything below is unchanged. Leave
+1. **Load the constraints + drivetrain + identity facts.** **Load the car's catalog per
+   [catalog-read.md](catalog-read.md)** — a bundled file for a template car, the car's
+   `Parameters` page (fetched in this same batch) for a screenshot car; one `load_catalog.py` call
+   either way, `--surface {Surface}` when the workflow resolves a surface. Leave
    `--surface` off here — the surface isn't known until step 3, and you want every row for now.
    For each row, record `Min`, `Max`, `Unit`, the optional **`Discrete steps`** set, the
    **`Order`** (drives column / page-body ordering — step 11), and the optional **`Surface`**
    tag. A parameter may have a baseline row (blank `Surface`) **and** a
-   surface-specific row (e.g. `Gravel`); keep both for now — you'll **resolve each parameter's
-   legal range for the stage's surface** (per [notion-rest-read.md](notion-rest-read.md)) once the
-   surface is known in step 3. Determine the car's
+   surface-specific row (e.g. `Gravel`); keep both for now. Once the surface is known in step 3,
+   **resolve each parameter's legal range for it** by re-running `load_catalog.py --surface
+   {Surface}` on the **same file** (`catalog-read.md`, step 5 — no re-fetch); the rule it
+   applies is in [notion-rest-read.md](notion-rest-read.md). Determine the car's
    **drivetrain** from its `Drivetrain` attribute (fallback, from the differential sections:
    front+rear or any centre diff ⇒ AWD; front-only ⇒ FWD; rear-only ⇒ RWD). This fixes the legal
    value set and which guideline tags apply. Also read the car's identity facts from the `{Car}`
@@ -191,7 +190,10 @@ would rather just have a setup now, build one.
    alone and simply shows the user what context each candidate baseline came from.
 
 4. **Establish the baseline (the game's default setup).** Fetch this car's `Source = default` rows
-   (`… --source default`, per [notion-rest-read.md](notion-rest-read.md)) in the step 1–4 batch, then
+   (`… --source default`, per [notion-rest-read.md](notion-rest-read.md)) in the step 1–4 batch — or,
+   in offline mode, the default the car's `Setup index` gives ([setups-list-read.md](setups-list-read.md)
+   → *Reading a car's setups on Free*, whose step 4 hands back the same two cases: a matching default,
+   or one from a differing context) — then
    match on the **full capture context** — stage, surface, **and conditions**. Read values from the
    **row value properties**, never the page prose (`SKILL.md` → *A setup's real values are its row*).
 
@@ -251,6 +253,11 @@ would rather just have a setup now, build one.
    column order** exactly as step 11 requires — it's a `Setups` write like any other. Append-only: a
    re-capture adds a **new** row and the most recent matching context wins. Full conventions:
    `notion-structure.md` → *Default (stock) baseline rows*.
+
+   After the `default` row is written, **add it to the car's `Setup index`** the same way
+   (`notion-structure.md` → *Adding a line to `Setup index`*), with `Source = default` and this
+   row's stage, surface, conditions and date — this is the line a later build on Claude's Free
+   plan finds the stored default by.
 
    The values are now captured — but **not yet judged fit to drive**. Go to step 5b.
 
@@ -326,7 +333,10 @@ would rather just have a setup now, build one.
 
 7. **Handle prior setups by mode.**
    - `learn` (default): fetch existing `Setups` rows for this car **where `Learn from this` is
-     checked** (the compound-filter query in [notion-rest-read.md](notion-rest-read.md); read
+     checked** (the compound-filter query in [notion-rest-read.md](notion-rest-read.md); in offline
+     mode the fetched pages from [setups-list-read.md](setups-list-read.md), whose `learn: yes`
+     lines count whatever their checkbox says; on a paid plan apply `notion-rest-read.md` → *The
+     `learn:` override on paid plans*; read
      values from each row's **value properties** — never from its page-body justification, which
      can go stale after manual edits — plus `Notes` + `Rating`); infer preferences, weighting by
      `Rating` (a **1–5 Select** — read the
@@ -396,8 +406,9 @@ would rather just have a setup now, build one.
      only integer values — output an exact integer, no `~` or "dial to nearest".
    - **`Min/Max = —` with no `Discrete steps`** → the car *has* this parameter but its range was
      never captured during onboarding. **Do not leave it blank** and do not treat it as a
-     default: surface the gap to the user and ask them to enumerate the range (or re-onboard the
-     car). Once the range is known, fill an explicit value like any other parameter.
+     default: say the gap out loud and make one offer —
+     *"Say 'the {Car}'s {parameter} steps are …' and I'll add them."* Once the range is known,
+     fill an explicit value like any other parameter.
    Never go outside `Min..Max` or off the `Discrete steps` set; never invent a parameter the car
    doesn't have.
    - **Brake hardware (`Brake Discs` / `Brake Calipers`, front & rear — when the car has them):**
@@ -431,12 +442,10 @@ would rather just have a setup now, build one.
    `Setups[Stage=this]` view exists (and `Setups[Location=this]` on the location page if newly
    created). The linked view is **not** page markdown — create it with `notion-create-view`
    (`parent_page_id` = the `{Stage}` / `{Location}` page, `data_source_id` = the `Setups` data
-   source, `type: "table"`, `configure: 'FILTER "Stage" = "{stage}"; SHOW <case 3 output>'` — get
-   the `SHOW` list from the script per `notion-structure.md` → *Applying the order*, **case 3**:
-   one call carrying a `--from-template car-templates/<slug>.yaml` for every onboarded template
-   car, plus `<params_ds> <token> --all` in the same call only if a screenshot car exists. A
-   stage view spans every car that's run the stage, which is why it is case 3 and not the per-car
-   form; no `Car` filter, for the same reason). Never
+   source, `type: "table"`, `configure: 'FILTER "Stage" = "{stage}"; SHOW <script output>'` — get
+   the `SHOW` list from the script per `notion-structure.md` → *Applying the order*. A stage view
+   spans **every car that's run the stage**, so pass one `--from-template` per onboarded car, not
+   just this one; no `Car` filter, for the same reason). Never
    write a `<linked-view />`-style placeholder into the page body (`notion-structure.md` →
    *Creating an inline linked view*).
 
@@ -460,24 +469,23 @@ would rather just have a setup now, build one.
      page body below.
    - **Apply the column order — MANDATORY, never skip (even on a quick / low-effort run).** The
      build is **not done** until you've done this (`notion-structure.md` → *Applying the order*),
-     **after the row is written**. Get the `SHOW` list from the bundled script — **never build or merge one by
-     hand** — running the form *Applying the order* names for each projection below, then
-     set `SHOW` (`notion-update-view`) on every projection:
-     - **main `Setups` table view** → *Applying the order* case 3: **one** call with a
-       `--from-template car-templates/<slug>.yaml` per onboarded template car, plus
-       `<params_ds> <token> --all` in the same call only if a screenshot car exists;
-     - **this car's linked view** (on the car's `Setups` page) → case 1 for a template car
-       (`--show-order --from-template car-templates/<slug>.yaml`, no token), case 2 for a
-       screenshot car (`<params_ds> <token> "{Car}" --show-order`). Either lists only this car's
-       value columns, hiding blanks — but the token form returns **nothing** for a template car,
-       which would hide every value column;
-     - **its `{Stage}` / `{Location}` linked view**, if a stage/location was referenced → case 3
-       as well (no per-car filtering).
+     **after the row is written**. Get the `SHOW` list from the bundled script — **never build or
+     merge one by hand** — by running the form that *Applying the order* gives, then
+     set `SHOW` (`notion-update-view`) to its output on every projection:
+     - **main `Setups` table view** → one `--from-template` per onboarded car;
+     - **this car's linked view** (on the car's `Setups` page) → this car's file only, which lists
+       only its value columns and so hides the blanks in the same step;
+     - **its `{Stage}` / `{Location}` linked view**, if a stage/location was referenced → one
+       `--from-template` per onboarded car as well (no per-car filtering).
      Idempotent — re-asserting `SHOW` makes the new setup's projection and the table read in
      game-menu order (an alphabetized table or an edited `Order` self-heals). It's a view update,
      not a row/schema rebuild — the append above stays a single row. (The script handles the
-     blank-`Order` fallback; on a **screenshot car** you may still backfill a blank `Order` onto
-     the `Parameters` row — a template car has no row to backfill.)
+     blank-`Order` fallback on its own.)
+   - **Add the setup to the car's `Setup index`** — `notion-structure.md` →
+     *Adding a line to `Setup index`*: run `scripts/setups_list.py --line` with this row's
+     `Name`, page URL, `Source = generated`, `Stage`, `Surface`, `Conditions` and `Date`, and
+     insert the line under the heading on the car's `Setups` page (you fetched that page for the
+     column order — reuse it). On every plan. The build is not done without it.
    - First, write a **brief setup summary** directly in the page body (not inside a toggle, so
      it's always visible without expanding anything):
      - **H2 heading** with the setup name (e.g. `## alsace dry fast`).
@@ -528,6 +536,10 @@ would rather just have a setup now, build one.
    you asserted the column order** (step 11) on the affected views — if you can't, you skipped a
    required step: go back and do it before finishing. Link the new row; remind the
    user to **rate it `1`–`5`** and tick `Learn from this` if they like it after driving.
+   **Say where things are, in one line:** the reasoning for this setup is in the row's `Notes`
+   and page body. If step 6 ran no interview, add that the car's **`Log`** page gets an entry only
+   once the user drives and says how it felt, so nothing was written there this time. Without that
+   line, an empty `Log` after a build looks like a failed write.
    **Also ask for tyre-pressure feedback**: one line inviting the user to say, after driving,
    whether the pressures felt too low, too high, or right — the in-game pressure model is still
    being calibrated, and their answer should be recorded (in the setup's `Notes` and, if it's a
@@ -547,6 +559,8 @@ would rather just have a setup now, build one.
      exact disc+caliper combination may not be selectable. If so, keep the recommended calipers and
      pick the closest available disc size — the caliper carries the bigger braking effect."* Omit it
      when the car has no brake disc/caliper params.
+   - **In offline mode**, include the index line from `setups-list-read.md` → *Reading a car's
+     setups on Free* step 5 (what was read, what was skipped, how to read more).
 
 ## Rules
 - **Onboard first (step 0).** If the car has no `{Car}`/`Catalog` page in Notion: a matching bundled template ⇒

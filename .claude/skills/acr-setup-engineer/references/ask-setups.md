@@ -76,12 +76,23 @@ Keep answers concrete and physical. Cite which lever pushes which way (front vs 
 coast ramp, slow vs fast damper) rather than vague "it depends".
 
 ## 3. Setup-specific path (load from Notion)
-Load data the same way `review-setup.md` does (steps 1–4) — **but to explain, not to critique**.
+Load data the same way `review-setup.md` does (steps 1–4) — **but to explain, not to critique**,
+and with two exceptions: **skip the `Log` read**, and **don't ask for a missing stage** (use the
+stage only when the setup names one).
 
 ### 3a. Identify the setup(s)
 Navigate to `ACR Setup Engineer → Setups` and find the row(s) matching the given name(s). Stay
 within `ACR Setup Engineer` scope — never issue workspace-wide Notion searches; discard any result from
 outside `ACR Setup Engineer`.
+
+**In offline mode** (`egress: none` this chat — `notion-rest-read.md` → *Offline mode*) look the
+name up in the car's `Setup index` first: [setups-list-read.md](setups-list-read.md) →
+*Finding one setup by name* (`scripts/setups_list.py --find`), then `notion-fetch` the matched
+page — its properties are the row. If the name isn't in the index, don't search the
+database — say the setup isn't in the {Car}'s index and offer to add it: *"Paste its Notion
+link here and I'll add it to the index and use it"* (`setups-list-read.md` → *Adding a setup
+by link*). The lookup above is for `egress: ok` only.
+
 - **Unique match:** load all value properties plus `Car`, `Location`, `Stage`, `Surface`,
   `Conditions` (may be blank), `Mode`,
   `Notes`, `Rating`.
@@ -91,12 +102,10 @@ outside `ACR Setup Engineer`.
   nothing to explain — and stop.
 
 ### 3b. Load constraints + drivetrain
-**Load the car's catalog:** a **template car** → `python scripts/load_catalog.py
-car-templates/<slug>.yaml --surface {Surface}` (no token, no network); a **screenshot car** → its
-`Parameters` rows via [notion-rest-read.md](notion-rest-read.md)
-(`scripts/query_notion_parameters.py`). Decide which from the `Catalog` page's `Catalog source:`
-line (`notion-structure.md` → *Where a car's catalog lives*). Either way the rows carry
-`Adjustment`, `Min`, `Max`, `Unit`, `Discrete steps`, `Order`, `Surface`. Read `Drivetrain`
+**Load the car's catalog per [catalog-read.md](catalog-read.md)** — a bundled file for a template
+car, the car's `Parameters` page (fetched in this same batch) for a screenshot car; one
+`load_catalog.py` call either way, `--surface {Surface}` when the workflow resolves a surface.
+Here it is the setup's `Surface` (step 3a), so pass it. Read `Drivetrain`
 (FWD/RWD/AWD) from the car's `Catalog` page. **Resolve each parameter's legal
 range for the setup's `Surface`** — the surface-specific row if one exists; for `Snow`, fall back
 to a `Gravel` row before the baseline (see `notion-rest-read.md`).
