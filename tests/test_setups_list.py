@@ -74,6 +74,11 @@ class TestFormatLine(unittest.TestCase):
         with self.assertRaises(ValueError):
             setups_list.format_line('a', URL, 'generated', 'Saverne - up', 'Tarmac', 'Dry', '2026-09-16')
 
+    def test_url_with_whitespace_is_refused(self):
+        with self.assertRaises(ValueError):
+            setups_list.format_line('a', 'https://www.notion.so/3dd9 abc', 'generated', 'S',
+                                    'Tarmac', 'Dry', '2026-09-16')
+
     def test_round_trip(self):
         line = setups_list.format_line('turini def', URL, 'default', 'Col de Turini (Uphill)',
                                        'Tarmac', '', '2026-09-12')

@@ -61,8 +61,8 @@ setups**, which is capped, semantic and mixes cars.
 
 ## Telling the user
 
-Once per chat, the first time offline mode changes what a workflow does (this replaces the older
-"I can't read your saved setups" wording — never say that any more):
+Once per chat, the first time offline mode changes what a workflow does (this replaces the old
+line that claimed offline setups couldn't be read at all — don't revert to that phrasing):
 
 > *This chat can't reach Notion's API. That's normal on Claude's Free plan. I can still use the
 > setups the skill saved from v{version} on: I read the ones closest to this stage, up to 6, and

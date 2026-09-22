@@ -46,6 +46,8 @@ def format_line(name, url, source, stage, surface, conditions, date):
         raise ValueError(f'name cannot be written as a link: {name!r}')
     if ')' in url or not url.strip():
         raise ValueError(f'url cannot be written as a link: {url!r}')
+    if any(c.isspace() for c in url.strip()):
+        raise ValueError(f'url cannot contain whitespace: {url!r}')
     stage = (stage or '').strip() or BLANK
     conditions = (conditions or '').strip() or BLANK
     date = (date or '').strip()[:10]

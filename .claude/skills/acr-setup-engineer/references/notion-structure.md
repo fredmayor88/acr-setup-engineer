@@ -826,10 +826,9 @@ Example: `- [turini dry def](https://www.notion.so/3a89abc6c7738129ba47e0d23b52b
 - **Add-only, newest first.** A new line goes directly under the heading. The skill never edits,
   reorders or removes a line, and never rewrites the section. A deleted setup keeps its line; the
   reader skips a page that can't be fetched and says so.
-- **A refresh, a re-onboard and a save never write, rewrite or remove this section.** The only
-  writes are the one-line inserts in *Adding a line to `Setup index`* below. The section starts
-  when the first line is added — a save creates the heading when it is missing; a refresh never
-  does.
+- **A refresh and a re-onboard never write, rewrite or remove this section.** A save only ever
+  inserts one line (*Adding a line to `Setup index`* below), creating the heading first when the
+  page has none; a refresh never creates it.
 
 ### Adding a line to `Setup index`
 

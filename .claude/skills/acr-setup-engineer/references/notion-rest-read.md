@@ -72,8 +72,9 @@ python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_
   both in the **same** code-execution block when a build needs the anchor and the learn pool.
 - The **plain slice** (no `--source`/`--learn-only` filter) is what *The `learn:` override on paid
   plans* below adds `learn: yes` rows from. Run it in the **same** code-execution block as the
-  other two whenever the build reads its learn pool — the override step needs it, and it costs
-  nothing extra since it's the same call pattern.
+  other two whenever the build reads its learn pool — the override step needs it. It is one more
+  REST query, but a small one, and it reuses the token and data source id already in hand from the
+  other calls in the same block.
 
 **Output:** a JSON array — one object per row, property names as keys:
 - `title` / `rich_text` properties → string (`""` when blank).
