@@ -562,7 +562,7 @@ a template car — it has no `Parameters` page):
 | **`Catalog`** | the skill | **Replaced wholesale** on every refresh, no merge, no asking |
 | **`Log`** | **shared — the user *and* the skill** | **Add-only** — the skill appends a new dated entry at the top and never edits, reorders or removes anything already on the page (the user edits their own notes freely) |
 | **`Parameters`** | the skill's | written by onboarding and `edit-catalog.md`; **never** by a refresh (except the *Not in use* line and the one-time migration that creates the page — `onboard-car.md` → *Migration — catalog rows to the `Parameters` page*); the only copy |
-| **`Setups`** | the skill | Holds the `Setups[Car=this]` filtered linked view |
+| **`Setups`** | the skill | Holds the `Setups[Car=this]` filtered linked view, then the `Setup index` list |
 
 **`Catalog` and `Log` both carry skill writing, but they behave oppositely, and confusing them
 loses data.** `Catalog` is a *projection* of template data — regenerating it is free, so it's
@@ -792,11 +792,71 @@ block. Read by `catalog-read.md`; written by `onboard-car.md` (screenshot path),
 
 ### `Setups` page
 
-Holds its maintenance line, then the **`Setups[Car=this]` filtered linked view** and nothing else
-  (hide blank columns). The line is worth having here because the view is *live database rows*: the
-  skill adds setups, but anything the user changes in a row stays changed.
-Created with `notion-create-view` per *Creating an inline linked view*; the column order is set
-from `--show-order` on every write, per *Applying the order*.
+Holds, in this order and nothing else:
+
+1. its maintenance line (*Car page* table above);
+2. the **`Setups[Car=this]` filtered linked view** (hide blank columns) — created with
+   `notion-create-view` per *Creating an inline linked view*; the column order is set from
+   `--show-order` on every write, per *Applying the order*;
+3. an H2 heading **`Setup index`**, then one bulleted line per setup the skill saved for this car,
+   **newest at the top**.
+
+The maintenance line is worth having because the view is *live database rows*: the skill adds
+setups, but anything the user changes in a row stays changed.
+
+**`Setup index`** is the list of links the skill uses to find this car's setups **without the REST
+query** (on Claude's Free plan — `setups-list-read.md`). Each line is written by
+`scripts/setups_list.py --line` and has exactly this shape (the separator is a hyphen with one
+space on each side; a blank field is `-`):
+
+```
+- [{Name}]({page url}) - {Source} - {Stage} - {Surface} - {Conditions} - {YYYY-MM-DD}
+```
+
+Example: `- [turini dry def](https://www.notion.so/3a89abc6c7738129ba47e0d23b52b4c9) - default - Col de Turini (Uphill) - Tarmac - Dry - 2026-09-12`
+
+- The six fields are facts that never change after the save. `Rating`, `Notes` and `Learn from
+  this` are **not** on the line — they are read live from the setup page, because the user sets
+  them later.
+- **The `learn:` override.** The user may add a seventh field by hand, ` - learn: yes` or
+  ` - learn: no`, on any plan. `learn: yes` makes the setup learn material whatever its checkbox
+  says, and it is read ahead of every other candidate; `learn: no` means the setup is never read
+  for learning. **The skill never writes this field.** How it is honoured: `setups-list-read.md`
+  (Free) and `notion-rest-read.md` → *The `learn:` override on paid plans*.
+- **Add-only, newest first.** A new line goes directly under the heading. The skill never edits,
+  reorders or removes a line, and never rewrites the section. A deleted setup keeps its line; the
+  reader skips a page that can't be fetched and says so.
+- **A refresh, a re-onboard and a save never write, rewrite or remove this section.** The only
+  writes are the one-line inserts in *Adding a line to `Setup index`* below. The section starts
+  when the first line is added — a save creates the heading when it is missing; a refresh never
+  does.
+
+### Adding a line to `Setup index`
+
+Every workflow that creates a `Setups` row does this **right after the row is created, on every
+plan** — `build-setup.md` (the built setup, and a captured game default), `tweak-setup.md`,
+`capture-setup.md`, `import-savegame.md`:
+
+1. Take the new row's page URL from the create call's result.
+2. Build the line — never by hand:
+   ```
+   python scripts/setups_list.py --line --name "{Name}" --url "{page url}" --source {Source} --stage "{Stage}" --surface {Surface} --conditions "{Conditions}" --date "{Date}"
+   ```
+   Pass a blank `--stage` / `--conditions` when the row's is blank; pass the row's `Date` as
+   written (the script keeps its first 10 characters). If the script exits 1, print its message
+   and skip the line — the row is saved, only the index line is missing; say so in one sentence.
+3. Fetch the car's `Setups` page (it was fetched already when the column order was asserted —
+   reuse it).
+   - **It has a `Setup index` heading** → insert the line **directly under the heading**, above
+     the first existing line (`notion-update-page`, insert after the heading block).
+   - **It has none** → append, at the bottom of the page, the H2 `Setup index` and then the line.
+   - **The car has no `Setups` page** (a car from an old layout that was never refreshed) → don't
+     create it. Say once: *"The {Car} has no `Setups` page yet, so this setup isn't in its index.
+     Say 'refresh the {Car} in my Notion' once and new setups will be listed."*
+4. Several rows in one call (an import) → **one insert** holding all the lines, newest first.
+
+**Adding a setup the user points at** (a pasted Notion link) is in `setups-list-read.md` →
+*Adding a setup by link*.
 
 ### Engine chart and gearing tool
 

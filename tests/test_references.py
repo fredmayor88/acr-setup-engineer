@@ -55,5 +55,20 @@ class TestNoRemovedMachinery(unittest.TestCase):
             self.assertIn('catalog-read.md', read(os.path.join(SKILL, 'references', name)), name)
 
 
+class TestSetupIndex(unittest.TestCase):
+    def ref(self, name):
+        return read(os.path.join(SKILL, 'references', name))
+
+    def test_data_model_has_the_section(self):
+        text = self.ref('notion-structure.md')
+        self.assertIn('### Adding a line to `Setup index`', text)
+        self.assertIn('setups_list.py --line', text)
+
+    def test_refresh_docs_never_write_the_index(self):
+        for name in ('onboard-car.md', 'refresh-notion.md'):
+            self.assertIn('`Setup index`', self.ref(name), name)
+            self.assertRegex(self.ref(name), r'`Setup index`[^\n]*never', name)
+
+
 if __name__ == '__main__':
     unittest.main()

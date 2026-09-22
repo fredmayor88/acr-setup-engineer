@@ -167,7 +167,9 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
    the only place that says which form to run).
 
 **What a refresh never touches:** the content of the `Guidelines` page, the content of the `Log`
-page, and `Setups` rows (append-only, as always).
+page, `Setups` rows (append-only, as always), and the car's **`Setup index`** — never written,
+rewritten or removed by a refresh, which only recreates the linked view on the `Setups` page when
+it is missing (`notion-structure.md` → *`Setups` page*).
 
 **A refresh needs no screenshots and asks nothing** — for every kind of car. The car's own
 file is the source for the facts (the bundled file for a template car, the `Parameters` page yaml
@@ -207,7 +209,8 @@ that can't be regenerated, so it is the only thing handled carefully:**
    gearing-tool link are
    all regenerated (the chart and the link from the bundled file that matches the car, whatever
    the source line says — `notion-structure.md` → *Engine chart and gearing tool*), and the
-   linked view is recreated on the `Setups` page. **This is where a migrated screenshot car's
+   linked view is recreated on the `Setups` page. The `Setup index` section there is never
+   rewritten or removed — it's left exactly as it is. **This is where a migrated screenshot car's
    `Catalog` page is first created** (the old layout had none); it writes the same body the
    refresh's own step 4 writes.
 6. **Clear the old `{Car}` page body** so the umbrella page is empty and only its child pages

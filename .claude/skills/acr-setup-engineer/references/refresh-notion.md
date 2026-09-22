@@ -14,8 +14,9 @@ is the per-car refresh in `onboard-car.md`, not this.
 
 ## What it never touches
 The content of `Config`, `Tuning guidelines`, any car's `Guidelines`, the user's notes and the
-skill's entries on any car's `Log`, and every `Setups` row. Same rules as the per-car refresh —
-this workflow only runs it for every car.
+skill's entries on any car's `Log`, every `Setups` row, and every car's **`Setup index`** — never
+written, rewritten or removed by a refresh (the list under the view on its `Setups` page). Same
+rules as the per-car refresh — this workflow only runs it for every car.
 
 ## Procedure
 
