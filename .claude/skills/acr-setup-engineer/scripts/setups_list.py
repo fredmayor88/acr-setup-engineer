@@ -108,12 +108,56 @@ def find(entries, name):
     return [e for e in entries if wanted.lower() in e['name'].lower()]
 
 
+def _norm(value):
+    return (value or '').strip().lower()
+
+
+def _context_matches(entry, stage, surface, conditions):
+    return (_norm(entry['stage']) == _norm(stage)
+            and _norm(entry['surface']) == _norm(surface)
+            and _norm(entry['conditions']) == _norm(conditions))
+
+
+def _newest_first(entries):
+    return sorted(entries, key=lambda e: e['date'], reverse=True)
+
+
 def pick(entries, stage, surface, conditions, limit, names, malformed):
-    raise NotImplementedError
+    """What a build fetches on Free: the matching default, the other defaults, the learn
+    candidates (forced `learn: yes` first, then same stage, same surface, newest), a skipped count."""
+    defaults = [e for e in entries if _norm(e['source']) == 'default']
+    matching = [e for e in defaults if _context_matches(e, stage, surface, conditions)]
+    default = _newest_first(matching)[0] if matching else None
+    other_defaults = _newest_first([e for e in defaults if e is not default])
+    pool = [e for e in entries if _norm(e['source']) != 'default']
+    out = {'default': default, 'other_defaults': other_defaults, 'malformed': malformed}
+
+    if names:
+        learn, not_found = [], []
+        for wanted in names:
+            hits = find(pool, wanted)
+            if hits:
+                learn.extend(h for h in hits if h not in learn)
+            else:
+                not_found.append(wanted)
+        out.update(learn=learn, skipped=0, not_found=not_found)
+        return out
+
+    forced = _newest_first([e for e in pool if e['learn'] == 'yes'])
+    candidates = [e for e in pool if e['learn'] is None]
+    candidates.sort(key=lambda e: (_norm(e['stage']) == _norm(stage),
+                                   _norm(e['surface']) == _norm(surface),
+                                   e['date']), reverse=True)
+    limit = max(0, limit)
+    out.update(learn=forced + candidates[:limit], skipped=max(0, len(candidates) - limit))
+    return out
 
 
 def overrides(entries, malformed):
-    raise NotImplementedError
+    """The names the user marked by hand: `learn: yes` and `learn: no`."""
+    return {'yes': [e['name'] for e in entries if e['learn'] == 'yes'],
+            'no': [e['name'] for e in entries if e['learn'] == 'no'],
+            'malformed': malformed}
 
 
 def _read(path):

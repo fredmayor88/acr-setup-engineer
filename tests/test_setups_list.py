@@ -132,6 +132,71 @@ class TestFind(unittest.TestCase):
         self.assertEqual(setups_list.find(self.entries, 'nothing like it'), [])
 
 
+class TestPick(unittest.TestCase):
+    def setUp(self):
+        self.entries, self.malformed = setups_list.parse_text(PAGE)
+
+    def pick(self, **kw):
+        base = dict(stage='Col de Turini (Uphill)', surface='Tarmac', conditions='Dry',
+                    limit=6, names=None, malformed=self.malformed)
+        base.update(kw)
+        return setups_list.pick(self.entries, **base)
+
+    def test_matching_default_and_other_defaults(self):
+        out = self.pick()
+        self.assertEqual(out['default']['name'], 'turini def')
+        self.assertEqual([e['name'] for e in out['other_defaults']], ['saverne def'])
+
+    def test_no_matching_default(self):
+        out = self.pick(stage='Greece', surface='Gravel')
+        self.assertIsNone(out['default'])
+        self.assertEqual([e['name'] for e in out['other_defaults']], ['saverne def', 'turini def'])
+
+    def test_blank_conditions_match_only_blank(self):
+        out = self.pick(stage='Saverne', conditions='')
+        self.assertEqual(out['default']['name'], 'saverne def')
+        out = self.pick(stage='Saverne', conditions='Dry')
+        self.assertIsNone(out['default'])
+
+    def test_matching_is_case_insensitive_and_trimmed(self):
+        out = self.pick(stage='  col de turini (uphill) ', surface='tarmac', conditions='DRY')
+        self.assertEqual(out['default']['name'], 'turini def')
+
+    def test_learn_order_forced_first_then_stage_then_surface_then_date(self):
+        out = self.pick()
+        self.assertEqual([e['name'] for e in out['learn']],
+                         ['forced', 'newest', 'same surface', 'monte', 'other surface'])
+        self.assertEqual(out['skipped'], 0)
+        self.assertEqual(out['malformed'], 2)
+
+    def test_learn_no_is_never_a_candidate(self):
+        out = self.pick(limit=50)
+        self.assertNotIn('skipme', [e['name'] for e in out['learn']])
+
+    def test_limit_excludes_forced_and_counts_skipped(self):
+        out = self.pick(limit=2)
+        self.assertEqual([e['name'] for e in out['learn']], ['forced', 'newest', 'same surface'])
+        self.assertEqual(out['skipped'], 2)  # monte, other surface
+
+    def test_names_bypass_ordering_and_report_missing(self):
+        out = self.pick(names=['skipme', 'Monte', 'ghost'])
+        self.assertEqual([e['name'] for e in out['learn']], ['skipme', 'monte'])
+        self.assertEqual(out['learn'][0]['learn'], 'no')
+        self.assertEqual(out['not_found'], ['ghost'])
+        self.assertEqual(out['skipped'], 0)
+
+    def test_defaults_never_in_learn(self):
+        out = self.pick(limit=50)
+        self.assertFalse([e for e in out['learn'] if e['source'] == 'default'])
+
+
+class TestOverrides(unittest.TestCase):
+    def test_lists_yes_and_no(self):
+        entries, malformed = setups_list.parse_text(PAGE)
+        out = setups_list.overrides(entries, malformed)
+        self.assertEqual(out, {'yes': ['forced'], 'no': ['skipme'], 'malformed': 2})
+
+
 class TestCli(unittest.TestCase):
     def test_line_mode(self):
         r = run('--line', '--name', 'x', '--url', URL, '--source', 'generated', '--stage', '',
@@ -152,6 +217,28 @@ class TestCli(unittest.TestCase):
         out = json.loads(r.stdout)
         self.assertEqual([e['name'] for e in out['matches']], ['monte'])
         self.assertEqual(out['malformed'], 2)
+
+    def test_pick_mode(self):
+        path = write(PAGE)
+        r = run('--pick', path, '--stage', 'Col de Turini (Uphill)', '--surface', 'Tarmac',
+                '--conditions', 'Dry', '--limit', '1')
+        self.assertEqual(r.returncode, 0, r.stderr)
+        out = json.loads(r.stdout)
+        self.assertEqual(out['default']['name'], 'turini def')
+        self.assertEqual([e['name'] for e in out['learn']], ['forced', 'newest'])
+        self.assertEqual(out['skipped'], 3)
+
+    def test_pick_mode_with_names(self):
+        path = write(PAGE)
+        r = run('--pick', path, '--stage', 'x', '--surface', 'Tarmac', '--names', 'monte', 'ghost')
+        out = json.loads(r.stdout)
+        self.assertEqual([e['name'] for e in out['learn']], ['monte'])
+        self.assertEqual(out['not_found'], ['ghost'])
+
+    def test_overrides_mode(self):
+        path = write(PAGE)
+        r = run('--overrides', path)
+        self.assertEqual(json.loads(r.stdout)['yes'], ['forced'])
 
     def test_unknown_flag_exits_2(self):
         self.assertEqual(run('--bogus').returncode, 2)
