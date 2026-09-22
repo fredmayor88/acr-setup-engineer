@@ -148,6 +148,9 @@ For each release:
   Claude Code desktop is cheap since all data lives in Notion.
 
 ## Working guidelines for Claude
+- **Plans are executed with `superpowers:subagent-driven-development` by default** — a fresh
+  subagent per task, a review after each task, a whole-branch review at the end. Don't offer the
+  inline option; go straight to it once the plan is approved.
 - After finishing a feature or request, **do not run `make test` or build the ZIP
   (`make zip` / `make release`) by default** — only do so when explicitly instructed. These are
   part of the release procedure above, not a routine post-task check.
