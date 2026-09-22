@@ -294,6 +294,12 @@ Each row:
   context — the user checks it after deciding a setup is worth learning from);
 - plus the mapped (catalog) or raw value properties.
 
+Then **add every imported row to its car's `Setup index`** — `notion-structure.md` →
+*Adding a line to `Setup index`*: one `scripts/setups_list.py --line` per row (`Source = imported`,
+blank `--conditions`, the row's `Stage` or blank, its `Surface`, its `Date`), and **one insert per
+car** holding that car's lines newest first, under the heading on that car's `Setups` page. On
+every plan. A car with no `Setups` page gets the one sentence that section gives, once.
+
 Record each value **per its treatment in 5.4**: **snapped to the catalog** for official-parse
 (version-matched) setups, **as-is** for the rest (older version / no template / `unknown` / raw
 path). **Never modify or delete existing rows.**

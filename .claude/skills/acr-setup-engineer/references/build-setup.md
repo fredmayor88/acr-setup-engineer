@@ -251,6 +251,11 @@ would rather just have a setup now, build one.
    re-capture adds a **new** row and the most recent matching context wins. Full conventions:
    `notion-structure.md` → *Default (stock) baseline rows*.
 
+   After the `default` row is written, **add it to the car's `Setup index`** the same way
+   (`notion-structure.md` → *Adding a line to `Setup index`*), with `Source = default` and this
+   row's stage, surface, conditions and date — this is the line a later build on Claude's Free
+   plan finds the stored default by.
+
    The values are now captured — but **not yet judged fit to drive**. Go to step 5b.
 
 5b. **Sanity-check the baseline before recommending a drive.** Run this whenever a default's values
@@ -470,6 +475,11 @@ would rather just have a setup now, build one.
      game-menu order (an alphabetized table or an edited `Order` self-heals). It's a view update,
      not a row/schema rebuild — the append above stays a single row. (The script handles the
      blank-`Order` fallback on its own.)
+   - **Add the setup to the car's `Setup index`** — `notion-structure.md` →
+     *Adding a line to `Setup index`* — run `scripts/setups_list.py --line` with this row's
+     `Name`, page URL, `Source = generated`, `Stage`, `Surface`, `Conditions` and `Date`, and
+     insert the line under the heading on the car's `Setups` page (you fetched that page for the
+     column order — reuse it). On every plan. The build is not done without it.
    - First, write a **brief setup summary** directly in the page body (not inside a toggle, so
      it's always visible without expanding anything):
      - **H2 heading** with the setup name (e.g. `## alsace dry fast`).

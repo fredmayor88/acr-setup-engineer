@@ -121,7 +121,13 @@ Read `notion-structure.md` (schemas + create-if-missing) before writing.
    car). The capture is **not done** until this
    is applied, on quick runs too.
 
-8. **Report — one line, plus exceptions.** *"Saved **{name}** for the {Car} ({n} parameters,
+8. **Add the row to the car's `Setup index`** — `notion-structure.md` →
+   *Adding a line to `Setup index`*: `scripts/setups_list.py --line` with the row's `Name`, page
+   URL, `Source = screenshot`, `Stage`, `Surface`, `Conditions` (blank when not given), `Date`;
+   insert it under the heading on the car's `Setups` page (fetched in step 7 — reuse it). On
+   every plan.
+
+9. **Report — one line, plus exceptions.** *"Saved **{name}** for the {Car} ({n} parameters,
    {stage/surface/conditions})."* Then, only if there were any: the flagged readings, unmapped
    labels, or ambiguous tyre names. Add the toe-sign warning line whenever toe values were captured.
    Nothing else — no summary of the setup, no opinion on it, no suggested improvements unless the

@@ -69,6 +69,16 @@ class TestSetupIndex(unittest.TestCase):
             self.assertIn('`Setup index`', self.ref(name), name)
             self.assertRegex(self.ref(name), r'`Setup index`[^\n]*never', name)
 
+    def test_every_saver_adds_an_index_line(self):
+        for name in ('build-setup.md', 'tweak-setup.md', 'capture-setup.md', 'import-savegame.md'):
+            text = self.ref(name)
+            self.assertIn('Adding a line to `Setup index`', text, name)
+
+    def test_build_indexes_the_default_too(self):
+        text = self.ref('build-setup.md')
+        self.assertEqual(text.count('Adding a line to `Setup index`'), 2,
+                         'build-setup must add a line for the built setup AND for a captured default')
+
 
 if __name__ == '__main__':
     unittest.main()
