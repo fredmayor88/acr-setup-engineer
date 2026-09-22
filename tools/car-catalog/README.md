@@ -63,6 +63,24 @@ screenshot-derived templates exactly, which is what makes the rest of the number
 Ride height, LSD preload and handbrake force step so finely that listing every value is noise;
 `min`/`max` says it better. Anti-roll bars, dampers, springs and pressures still get a list.
 
+### The *values*, not the ranges — `decode_setups.py`
+
+The same presets asset also holds every car's **default setup** per surface and per named
+preset, and `decode_setups.py` reads it. Its module docstring is the reference: it pins the
+schema of `PhysicsCarSetup`, a nested unversioned struct that carries no setting ids at all
+(a value's meaning is its slot position), with byte offsets from the checked-in Stratos
+fixture. Re-verify it after a game update — `tests/test_decode_setups.py` asserts the
+Stratos's tarmac and gravel numbers and that the walk lands exactly on the export's trailer,
+which is what catches a moved slot.
+
+Two things worth knowing before looking for them:
+
+- **Tyre type is not in the presets asset.** There is no tyre setting and no `TireCompounds`
+  name in it. The car asset `DA_<Car>` names one (`TarmacSoft`), but that is the physics tyre,
+  not a per-surface setup value, so the default setups leave `Tyre Type` unfilled.
+- **Brake discs, calipers and pads are never in the base struct** — the three per-corner part
+  arrays are all-zero on every car. Every surface overrides them explicitly instead.
+
 ## What it doesn't touch
 
 These stay as the previous template had them, and the run prints which ones were carried over:
