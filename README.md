@@ -209,7 +209,7 @@ It doesn't get in your way, and there's plenty here for you:
 - **Claude's Free plan runs a reduced mode** — every car works fully, and setups the skill saves
   from this version on are learned from through the car's `Setup index`. Older setups need their
   link pasted once. Details in
-  [What Claude's Free plan can't do](#whats-different-on-claudes-free-plan).
+  [What's different on Claude's Free plan](#whats-different-on-claudes-free-plan).
 - The skill is free; running Claude heavily may not be.
 
 ---
@@ -231,7 +231,7 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
 ## Prerequisites
 
 - A **Claude account** at [claude.ai](https://claude.ai). Works on **Free**, with limits — see
-  [What Claude's Free plan can't do](#whats-different-on-claudes-free-plan); **Pro** removes them and
+  [What's different on Claude's Free plan](#whats-different-on-claudes-free-plan); **Pro** removes them and
   has more headroom for the longer workflows.
 - A **Notion account** (free is fine). All setups live there.
 
@@ -248,7 +248,7 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
    **On the Free plan the "All domains" option doesn't exist** — egress stops at package managers,
    and no setting changes that. The skill still works, and every car works fully; only your saved
    setups are read through the car's `Setup index` instead of the table (see
-   [What Claude's Free plan can't do](#whats-different-on-claudes-free-plan)).
+   [What's different on Claude's Free plan](#whats-different-on-claudes-free-plan)).
 3. **Add the skill.** Download **`acr-setup-engineer-skill-vX.Y.Z.zip`** (the latest version) from
    [Releases](../../releases). claude.ai → Settings → **Customize → Skills → Add skill** →
    upload the ZIP.
@@ -256,7 +256,7 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
    Rally."* This creates the whole Notion structure on first use.
 5. **Give the skill read access to Notion** (below) — 3 minutes, and reads become fast and
    exact. **Skip this on Free** — the token feeds a read path Free can't run (see
-   [What Claude's Free plan can't do](#whats-different-on-claudes-free-plan)).
+   [What's different on Claude's Free plan](#whats-different-on-claudes-free-plan)).
 
 ### The read-only Notion token
 
@@ -493,6 +493,7 @@ You don't have to remember this: the first time you use the skill after an updat
 | Export a community template | [`export-car-template.md`](.claude/skills/acr-setup-engineer/references/export-car-template.md) |
 | Change a car's parameter list | [`edit-catalog.md`](.claude/skills/acr-setup-engineer/references/edit-catalog.md) |
 | Refresh everything after an update | [`refresh-notion.md`](.claude/skills/acr-setup-engineer/references/refresh-notion.md) |
+| Add a setup by pasting its link (and read setups on the Free plan) | [`setups-list-read.md`](.claude/skills/acr-setup-engineer/references/setups-list-read.md) |
 
 ## Flows
 
@@ -698,7 +699,9 @@ ACR Setup Engineer (root page)
     ├── Parameters          only for cars onboarded from screenshots (or edited away from a
     │                        bundled template): the car's complete parameter list. Kept by
     │                        the skill. To change it, say the change in chat
-    └── Setups              a filtered view of your setups for this car
+    └── Setups              a filtered view of your setups for this car, then the `Setup
+                             index`: one link line per setup the skill saved. On the Free
+                             plan that list is how the skill finds your setups
 ```
 
 **Why five pages?** (Four for a car that came from a bundled template.) So the skill never has to
@@ -814,7 +817,10 @@ Two channels, on purpose:
 - **Reading** rows goes through Notion's **REST API** with the **read-only token**. This exists
   because the connector *can't* reliably list a database's rows: `notion-fetch` returns a table's
   schema but no rows, and search is capped and mixes cars. The REST API gives one exact, paginated
-  read instead. It is used for your **setup history** only.
+  read instead. It is used for your **setup history** only. On Claude's Free plan, where the
+  sandbox can't reach the REST API, the skill reads your history from each car's `Setup index`
+  instead — a list of links on the car's `Setups` page, one per setup it saved, fetched page by
+  page through the connector (see [What's different on Claude's Free plan](#whats-different-on-claudes-free-plan)).
 - **A car's parameter list never needs the token.** A bundled car's list is inside the skill; a
   screenshot car's is on its `Parameters` page, which the connector can read in full — on every
   plan.
@@ -837,7 +843,7 @@ configuration problem to fix; it's the plan.
 The skill still works on Free. **Every car works fully** — the bundled ones and the ones you
 onboarded from screenshots. Their parameter lists need no token and no network. A car set up by a
 much older version of the skill may need one re-onboard from screenshots. The skill tells you
-which. What follows is about your setup history, which affects every car. What that costs you:
+which. What follows is about your setup history, which affects every car. This is what changes:
 
 - **Setup history comes from a list, not the table.** Every setup the skill saves from this
   version on is listed under `Setup index` on the car's `Setups` page. A build reads the listed
@@ -865,7 +871,7 @@ On Pro or Max, set **Network egress → All domains** (install step 2) and none 
   (Settings → Capabilities, install step 2), then start a **new chat** — capability changes don't
   apply to one that's already open. On **Free** that option doesn't exist, so your setup history
   is read from each car's `Setup index` — by design (see
-  [What Claude's Free plan can't do](#whats-different-on-claudes-free-plan)). Every car still works.
+  [What's different on Claude's Free plan](#whats-different-on-claudes-free-plan)). Every car still works.
 - **Hitting limits on Free** → the workflows run several steps; Pro has more headroom.
 - **A value looks slightly "off"** → expected for continuous settings; dial to the nearest in-game
   position. To force exact values, say the setting's exact steps in chat.
