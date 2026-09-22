@@ -17,6 +17,7 @@ Usage:
 
 import argparse
 import datetime
+import decimal
 import json
 import os
 import sys
@@ -103,7 +104,18 @@ def numeric_adjustments(catalog_rows):
         if any(LC.steps_of(row) for row in rows):
             continue
         base = next((row for row in rows if not row.get('Surface')), None)
-        if base and all(isinstance(base.get(k), (int, float)) for k in ('Min', 'Max')):
+        if base is None:
+            # Every numeric range in a template has a base (blank `Surface`) row; a
+            # surface-only numeric row would silently fall out of `numeric`, and the game's
+            # own value for it would then be written as text and rejected by `--check` with a
+            # confusing "not a number". Fail with the name instead of skipping.
+            if any(all(isinstance(row.get(k), (int, float)) for k in ('Min', 'Max'))
+                   for row in rows):
+                raise SystemExit(f'{adjustment}: a numeric range with no base (blank Surface) '
+                                 f'template row - add one, or teach numeric_adjustments how to '
+                                 f'resolve a surface-only numeric range')
+            continue
+        if all(isinstance(base.get(k), (int, float)) for k in ('Min', 'Max')):
             out.add(adjustment)
     return out
 
@@ -115,6 +127,10 @@ def clean(name, value, numeric):
     number in the file that is on no grid and reads as a decoding bug. Six significant digits
     is well past anything a setup screen shows. An integral float is written as an int, the way
     the templates write theirs, and a `numeric` adjustment's text is parsed back to a number.
+
+    A float that survives here stays a float - `previous()` reads the file back with the skill's
+    own loader, which parses numbers as numbers, and the diff compares the two. `number_text`
+    below is what decides how that float is *spelled* in the file.
     """
     if isinstance(value, str) and name in numeric:
         try:
@@ -127,6 +143,20 @@ def clean(name, value, numeric):
     return value
 
 
+def number_text(value):
+    """A number as the bundled file spells it: a plain decimal, never `-5e-05`.
+
+    Python's own repr switches to exponent notation below 1e-4, and the i20's rear toe
+    (`-0.00005`) is under it - `-5e-05` in a file a human reads as a setup value looks like a
+    decoding bug, and no setup screen has ever shown one. `Decimal(repr(value))` is exact for
+    the shortest round-tripping decimal of that float, so this only changes the spelling: the
+    loader parses the text straight back to the same float.
+    """
+    if isinstance(value, float):
+        return format(decimal.Decimal(repr(value)), 'f')
+    return str(value)
+
+
 def render(doc, orders):
     lines = [f'car: "{doc["car"]}"', 'game: "ACR"', f'version: "{doc["version"]}"',
              'source: "game-files"', f'written_at: "{doc["written_at"]}"', 'setups:']
@@ -136,7 +166,8 @@ def render(doc, orders):
         for key in sorted(entry['values'], key=lambda k: (orders.get(k, 10 ** 6), k)):
             value = entry['values'][key]
             bare = isinstance(value, (int, float)) and not isinstance(value, bool)
-            lines.append(f'      "{key}": {value if bare else json.dumps(value)}')
+            lines.append(f'      "{key}": '
+                         f'{number_text(value) if bare else json.dumps(value)}')
     return '\n'.join(lines) + '\n'
 
 
@@ -166,10 +197,22 @@ def illegal(slug, surface, preset, adjustments, report):
     return out
 
 
-def allowlisted(slug, surface, preset, values):
-    """[(adjustment, value)] this entry carries that KNOWN_OFF_GRID excuses."""
-    return [(name, value) for name, value in sorted(values.items())
-            if KNOWN_OFF_GRID.get((slug, surface, preset, name)) == value]
+def allowlisted(slug, surface, preset, values, report):
+    """(excused, stale) - what KNOWN_OFF_GRID is doing for this entry, as two lists.
+
+    `excused` is [(adjustment, value)] the allowlist is really suppressing: the value is on the
+    allowlist *and* `check_values` flagged it. `stale` is [(adjustment, value)] whose allowlist
+    entry no longer excuses anything, because the value passes the catalog check on its own -
+    reporting those as "off the grid" claimed the game ships an illegal value when it doesn't
+    (the Mini's `Proportioning Preload 3.5` was exactly that case).
+    """
+    flagged = {problem['Adjustment'] for problem in report['problems']}
+    excused, stale = [], []
+    for name, value in sorted(values.items()):
+        if KNOWN_OFF_GRID.get((slug, surface, preset, name)) != value:
+            continue
+        (excused if name in flagged else stale).append((name, value))
+    return excused, stale
 
 
 # ------------------------------------------------------------------------------ diffing
@@ -247,17 +290,31 @@ def main():
             # car's own template doesn't have as a row at all - restrict what gets reported as
             # "unfilled" to rows the template actually declares, or the report claims a gap in a
             # parameter the car never had in the first place.
+            #
+            # Base rows only, and the assertion below is why that is safe: `to_adjustments`
+            # keys on the same set, so an adjustment that existed *only* as a surface-tagged
+            # template row would be dropped from every composed setup and never reported as
+            # unfilled. No template has one today; this fails the whole run the day one does.
             wanted_adjustments = {r['adjustment'] for r in template_rows if not r.get('surface')}
+            surface_only = sorted({r['adjustment'] for r in template_rows} - wanted_adjustments)
+            if surface_only:
+                raise SystemExit(f'{slug}: {", ".join(surface_only)} has only surface-tagged '
+                                 f'template row(s) and no base row - it would be dropped from '
+                                 f'every setup and reported nowhere. Give it a base row, or '
+                                 f'teach decode_setups.to_adjustments about surface-only rows.')
 
-            entries, unfilled, excused = [], {}, []
+            entries, unfilled, excused, stale = [], {}, [], []
             for surface, preset in D.surfaces_and_presets(decoded):
                 values = D.compose(decoded, surface, preset)
                 adjustments, missing = D.to_adjustments(values, template_rows, tables, car_keys)
                 adjustments = {k: clean(k, v, numeric) for k, v in adjustments.items()}
-                bad_values += illegal(slug, surface, preset, adjustments,
-                                      LC.check_values(catalog_rows, adjustments, surface))
-                excused += [(surface, preset, name, value) for name, value
-                            in allowlisted(slug, surface, preset, adjustments)]
+                report = LC.check_values(catalog_rows, adjustments, surface)
+                bad_values += illegal(slug, surface, preset, adjustments, report)
+                off_grid, no_longer_needed = allowlisted(slug, surface, preset, adjustments,
+                                                         report)
+                excused += [(surface, preset, name, value) for name, value in off_grid]
+                stale += [(surface, preset, name, value)
+                          for name, value in no_longer_needed]
                 entries.append({'surface': surface, 'preset': preset, 'values': adjustments})
                 unfilled[(surface, preset)] = [n for n in missing if n in wanted_adjustments]
 
@@ -296,6 +353,9 @@ def main():
             for surface, preset, name, value in excused:
                 print(f'    ! off the grid, written as the game ships it: '
                       f'{surface}/{preset} {name} = {value}')
+            for surface, preset, name, value in stale:
+                print(f'    ! allowlist entry no longer needed (the value is legal now): '
+                      f'{surface}/{preset} {name} = {value} - drop it from KNOWN_OFF_GRID')
             for note in decoded['notes']:
                 print(f'    ! note: {note}')
             for required in ('Tarmac', 'Gravel'):

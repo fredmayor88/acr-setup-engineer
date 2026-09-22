@@ -364,6 +364,26 @@ class Structure(unittest.TestCase):
         with self.assertRaises(AssertionError):
             D._disc_options(broken, 'X', 'Front')
 
+    def test_an_unhandled_override_class_raises(self):
+        """A `CarSettingOverride*` kind the decoder can't read must not be skipped.
+
+        `override_value` returns None for a class it doesn't know; dropping the entry would
+        leave the setting at the base value and the bundled file would claim that is the
+        game's default. Here a real override's export class is renamed to a kind that doesn't
+        exist, and the decode has to stop.
+        """
+        pkg = package(STRATOS)
+        exp = pkg.surface_variants(pkg.main_export())['Tarmac']
+        target = next(ref for sid, ref in D._entries(pkg, exp)
+                      if '.' in sid and sid not in D.M.IGNORED
+                      and D.override_value(pkg, ref) is not None)
+        offset, size, _ = pkg.exports[target]
+        pkg.exports[target] = (offset, size, 'CarSettingOverrideText')
+        with self.assertRaises(AssertionError) as ctx:
+            D.variant_values(pkg, exp)
+        self.assertIn('CarSettingOverrideText', str(ctx.exception))
+        self.assertIn('re-pin it', str(ctx.exception))
+
     def test_a_per_corner_array_that_is_not_four_long_raises(self):
         with self.assertRaises(AssertionError):
             D._by_corner([{}, {}, {}], 'Dampers')

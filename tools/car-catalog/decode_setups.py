@@ -513,6 +513,10 @@ def variant_values(pkg, exp):
     The complement of `acrpkg.variant_ranges`, which keeps the range overrides and skips
     these. Range overrides (`CarSettingOverrideRange*`, `RangeOverride*`) are the catalog
     extractor's business.
+
+    A `CarSettingOverride*` class that is neither a range nor one of the four kinds
+    `override_value` reads raises: silently dropping it would leave a setting at the base
+    value and call the result the game's default.
     """
     out = {}
     for sid, ref in _entries(pkg, exp):
@@ -522,8 +526,11 @@ def variant_values(pkg, exp):
         if 'Range' in cls or not cls.startswith('CarSettingOverride'):
             continue
         v = override_value(pkg, ref)
-        if v is not None:
-            out[sid] = v
+        if v is None:
+            raise AssertionError(
+                f'{sid}: {cls} is not a CarSettingOverride kind this decoder reads - the '
+                f'game files changed, re-read the module docstring and re-pin it')
+        out[sid] = v
     return out
 
 
@@ -906,6 +913,10 @@ def to_adjustments(values, template_rows, tables, car_keys):
             out[name] = display
         else:
             out[name] = v
+    # Base rows only (blank `Surface`). Latent gap: an adjustment that exists *only* as a
+    # surface-tagged template row would be dropped from the output and never reported as
+    # unfilled. No car has one today; `extract_default_setups.main` asserts that, so the day it
+    # happens the extraction fails loudly instead of quietly shipping a short setup.
     wanted = [r['adjustment'] for r in template_rows if not r.get('surface')]
     unfilled = sorted(set(notes) | {n for n in wanted if n not in out})
     return {k: out[k] for k in sorted(out) if k in set(wanted)}, unfilled

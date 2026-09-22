@@ -33,7 +33,7 @@ setups:
       "Toe Front": 0.0001
       "Pressure Rear": 26
       "Camber Rear": -2.3
-      "Toe Rear": -5e-05
+      "Toe Rear": -0.00005
       "Brake Pads Front": "MEDIUM"
       "Front Bias": 0.52
       "Front Cylinder": 19.05
@@ -69,7 +69,7 @@ setups:
       "Toe Front": 0.0001
       "Pressure Rear": 29
       "Camber Rear": -2.3
-      "Toe Rear": -5e-05
+      "Toe Rear": -0.00005
       "Brake Pads Front": "MEDIUM"
       "Front Bias": 0.5
       "Front Cylinder": 20.64

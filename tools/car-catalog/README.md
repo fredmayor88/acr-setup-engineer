@@ -146,8 +146,14 @@ that made it necessary.
 
 ### What stays unfilled
 
-A "complete setup" is still missing a few rows on every car, because the presets asset never
-gives them a base value: **`Tyre Type`, `ABS Map`, `TCS Map`, `Additional Lights`**. On top of
+`values` carries only the parameters the game's default data holds. **Any parameter absent from
+`values` has no anchor and is chosen from scratch in step 8** of `build-setup.md` — always
+`Tyre Type`, `ABS Map`, `TCS Map`, `Additional Lights`; on many cars brake parts, master cylinders,
+proportioning preload, engine/throttle maps; on the 206 the primary gear. Don't read the list that
+follows as exhaustive: the rule is the absence, not the roll call.
+
+The first four are missing on every car because the presets asset never gives them a base value:
+**`Tyre Type`, `ABS Map`, `TCS Map`, `Additional Lights`**. On top of
 that, a car's brake-part row (`Brake Discs` / `Brake Calipers`, front or rear) is left unfilled
 whenever the car's own option list for that axle is longer than the template's `Discrete steps`
 — the decoder names the gap rather than guessing a position. The bore fallback
@@ -167,7 +173,9 @@ python extract_default_setups.py --car lancia-stratos
 
 Or, as part of a full refresh after a game update: `make extract` (runs `extract-version`,
 `extract-catalogs`, `extract-setups`, then the charts and car-lab targets in order), or just
-`make extract-setups` on its own once the catalogs and `GAME_VERSION` are current. Idempotent —
+`make extract-setups` on its own once the catalogs are current — it checks `GAME_VERSION` against
+the installed game first (its `check-game-version` prerequisite) and aborts with the mismatch until
+you run `make extract-version`, so it can never stamp files with a stale version. Idempotent —
 a second run reports zero changes. Nothing is written until every car validates: an illegal value
 or a missing Tarmac/Gravel surface aborts the whole run before any file is touched, so a bad run
 never leaves half the bundled files refreshed and the other half stale.

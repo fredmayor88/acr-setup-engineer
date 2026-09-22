@@ -40,6 +40,7 @@ setups:
       "Spring Stiffness Front": 65000
       "Adjuster Ring Front": 0.048
       "Camber Rear": -1.9
+      "Toe Rear": -0.00005
   - surface: "Gravel"
     preset: "Balanced"
     values:
@@ -127,6 +128,17 @@ class TestParser(unittest.TestCase):
         self.assertEqual(values['Adjuster Ring Front'], 0.048)
         self.assertEqual(repr(values['Adjuster Ring Front']), '0.048')
         self.assertEqual(values['Camber Rear'], -1.9)
+
+    def test_a_small_decimal_reads_back_as_a_float(self):
+        """The extractor writes tiny values as plain decimals, not `-5e-05`.
+
+        The Hyundai i20's rear toe is -0.00005. The file spells it out so a human reading it
+        sees a setup value rather than what looks like a decoding bug, and the loader has to
+        parse that spelling back to the same float.
+        """
+        value = self.doc['setups'][0]['values']['Toe Rear']
+        self.assertIsInstance(value, float)
+        self.assertEqual(value, -5e-05)
 
     def test_a_missing_file_raises(self):
         with self.assertRaises(lds.SetupError):

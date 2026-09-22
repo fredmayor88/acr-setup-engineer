@@ -30,6 +30,15 @@ if "acr-setup-engineer/SKILL.md" not in names:
 if not any(n.startswith("acr-setup-engineer/car-templates/") and n.endswith(".yaml") for n in names):
     errors.append("no car-templates/*.yaml found")
 
+# The bundled default setups and the game version they were extracted from ship with the skill:
+# build-setup step 4 anchors on car-setups/<slug>.yaml and stamps rows with GAME_VERSION, so a
+# ZIP without them installs a skill that asks every user for default screenshots.
+if not any(n.startswith("acr-setup-engineer/car-setups/") and n.endswith(".yaml") for n in names):
+    errors.append("no car-setups/*.yaml found")
+
+if "acr-setup-engineer/GAME_VERSION" not in names:
+    errors.append("GAME_VERSION missing")
+
 # The version in the filename must match the VERSION file inside, or a published asset would
 # advertise a version the skill doesn't self-report.
 m = re.search(r"acr-setup-engineer-skill-(.+)\.zip$", path.replace("\\", "/"))

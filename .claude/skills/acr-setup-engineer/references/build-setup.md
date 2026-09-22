@@ -193,38 +193,53 @@ would rather just have a setup now, build one.
 
 4. **Establish the baseline (the game's default setup).**
 
-   **Decide the branch with a command**, not a file-existence guess — `<slug>` is the car's slug,
-   the same one its template uses:
-   ```
-   python scripts/load_default_setup.py --list <slug>
-   ```
-   Exit 0 → the car has a bundled `car-setups/<slug>.yaml` file — the **bundled-anchor branch**
-   below. Exit 1 → no such file — the **screenshot-car branch** further down.
-
-   **Bundled-anchor branch.** Anchors on the bundled file, on every plan, with no Notion read and
-   no screenshots:
+   **Decide the branch with the one command that also produces the anchor** — no separate probe,
+   no file-existence guess. `<slug>` is the **same slug you loaded the catalog with**
+   ([catalog-read.md](catalog-read.md), step 1) — never guess it from the car's name:
    ```
    python scripts/load_default_setup.py --car <slug> --surface {Surface}
    ```
    (add `--preset Aggressive` only when the user asked for that preset by name; run it in the
-   same code-execution block as `load_catalog.py`). Its `values` are the **numeric anchor** —
-   go to **step 5b**. In the report (step 12) say *"anchored on the game's {preset} default for
+   same code-execution block as `load_catalog.py`). Read its exit code and, on a failure, the one
+   line it printed to stderr:
+   - **Exit 0** → the car has a bundled `car-setups/<slug>.yaml` and you are holding the anchor —
+     the **bundled-anchor branch** below.
+   - **Exit 1, message says the file can't be read** (`cannot read bundled setups file`) → there is
+     no bundled file for this car — the **screenshot-car branch** further down.
+   - **Exit 1, message names the surfaces the file has** (`no {Surface} setup in the bundled file
+     (it has …)`) → the file exists but has nothing for this surface and no fallback. Say that in
+     one line, then take the **screenshot-car branch** for this build.
+   - **Exit 1, message names the presets the file has** (`no {preset} preset on {Surface}
+     (it has …)`) → the preset the user asked for doesn't exist here. Run
+     `python scripts/load_default_setup.py --list <slug>`, then say in one line *"this car's
+     Aggressive preset exists only on {the surfaces `--list` shows it for}; using Balanced for
+     {Surface}"*, re-run the command without `--preset`, and carry on in the bundled-anchor branch.
+
+   **Bundled-anchor branch.** Anchors on the bundled file, on every plan, with no Notion read and
+   no screenshots. The `values` from the command above are the **numeric anchor** — go to
+   **step 5b**. In the report (step 12) say *"anchored on the game's {preset} default for
    {Surface} (game version {version})"*, and when the output's `fallback` is `"Gravel"`, say the
    Snow anchor is the gravel preset because the game has no Snow default for this car. Notion
    `Source = default` rows are **not read** for such a car, whatever they hold.
-   - **This command can fail too — handle both exit-1 cases.** If it exits 1 because the preset
-     isn't in the file (the user asked for `Aggressive` on a car that has only `Balanced`), run it
-     again without `--preset` and say in one line that this car has only the Balanced default. If
-     it exits 1 because the surface isn't in the file and there is no fallback, say so in one line
-     and continue as a car with no bundled file for this build (the screenshot-car branch below).
-   - **`values` never carries every parameter.** `Tyre Type`, `ABS Map`, `TCS Map`, `Additional
-     Lights` are not in the game's default data and are absent from `values`; on some cars a
-     brake-part row is absent too. Step 8 chooses those exactly as it always has (tyre first, from
-     the catalog) — never leave one blank.
-   - **A bundled value that fails the catalog check is the game's own.** Keep it in the anchor
-     exactly as loaded, say in one line *"the game's default {Parameter} is {value}, which is off
-     this template's grid — kept as the game ships it"*, never clamp it, and never treat the
-     template as stale because of it. Only values the build **changes** must be legal (step 9).
+   - **`values` carries only the parameters the game's default data holds. Any parameter absent
+     from `values` has no anchor and is chosen from scratch in step 8** — always `Tyre Type`,
+     `ABS Map`, `TCS Map`, `Additional Lights`; on many cars brake parts, master cylinders,
+     proportioning preload, engine/throttle maps; on the 206 the primary gear. Step 8 chooses
+     those exactly as it always has (tyre first, from the catalog) — never leave one blank.
+   - **Check the anchor against the car's own grid, once, in the same block.** Write the loader's
+     `values` to `anchor.json`, then run the catalog check on that file — these exact two lines
+     (add the same `--preset NAME` to the inner command if the build used one):
+     ```
+     python -c "import json,subprocess,sys; json.dump(json.loads(subprocess.run([sys.executable,'scripts/load_default_setup.py','--car','<slug>','--surface','{Surface}'],capture_output=True,text=True).stdout)['values'],open('anchor.json','w'))"
+     python scripts/load_catalog.py car-templates/<slug>.yaml --surface {Surface} --check anchor.json
+     ```
+     **Exit 0 → say nothing.**
+     **Exit 3 → for each flagged parameter** say in one line *"the game's default {Parameter} is
+     {value}, which is off this template's grid — kept as the game ships it"* and **keep the value
+     exactly as loaded**: never clamp it, and never treat the template as stale because of it.
+     Only values the build **changes** must be legal (step 9). The two known cases on game 0.6 are
+     examples of what this catches: the Peugeot 208 Rally4's tarmac `Slow Bump Front` and the VW
+     Polo GTI R5's tarmac `Anti-roll Bar Stiffness Front`.
 
    **Screenshot-car branch** uses the stored defaults: fetch this car's `Source = default` rows
    (`… --source default`, per [notion-rest-read.md](notion-rest-read.md)) in the step 1–4 batch —
@@ -280,7 +295,9 @@ would rather just have a setup now, build one.
    Then write **one** `Setups` row: `Source = default`, `Car`, `Stage`/`Location` (when the build
    names them), `Surface`, **`Conditions`** (from step 3 — fill it whenever they're known, since
    this is what a later build matches on; leave **blank** rather than guessing), `Date`,
-   `Game version` (if known), `Skill version`, `Learn from this`
+   `Game version` — the content of the skill's `GAME_VERSION` file
+   (`python scripts/load_default_setup.py --game-version`), unless the user said they run another
+   version in this chat — `Skill version`, `Learn from this`
    **unchecked**, `Model` **blank** (the values are the game's, not a model's), `Name` ≤15 chars.
    Also record the **capture context** — stage, surface, **conditions**, game version, date — in a
    visible **"Captured under"** block at the top of the page body (*not* in a toggle) plus a compact
@@ -413,7 +430,9 @@ would rather just have a setup now, build one.
      Every departure is reasoned and reported as `default → new`. A parameter with nothing pointing
      at it **keeps the default's value** — that's the whole point of the anchor, and it does not
      weaken `SKILL.md` → *Every parameter the car has gets a value*, because the default row is a
-     fully captured explicit row, not a blank. Work the changes in **fix-order ladder** order (tyre
+     fully captured explicit row, not a blank. **For a bundled anchor, a parameter absent from
+     `values` is not carried — choose it here; never write a blank.** Work the changes in
+     **fix-order ladder** order (tyre
      type → differential → ride height/springs → ARBs → dampers → alignment → brake bias; gearing in
      parallel), fixing the major problem before the fine tuning — see
      [driving-feedback-interview.md](driving-feedback-interview.md) → *Fix-order ladder*. **What the

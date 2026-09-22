@@ -149,9 +149,12 @@ Bundled tools (stdlib Python, run via code execution):
   documented `FFB Multiplier` exception below. Never leave an applicable parameter blank because
   a default "would be fine." (This is about *blank cells*, and does not conflict with the
   baseline-first rule below: a **captured** default row holds explicit values for every parameter,
-  so anchoring a build on it never produces a blank. A **bundled** anchor may lack `Tyre Type`,
-  `ABS Map`, `TCS Map`, `Additional Lights` and, on some cars, a brake-part row — `build-setup.md`
-  step 8 chooses those exactly as it always has, so this never produces a blank either.)
+  so anchoring a build on it never produces a blank. A **bundled** anchor's `values` carries only
+  the parameters the game's default data holds. **Any parameter absent from `values` has no anchor
+  and is chosen from scratch in step 8** — always `Tyre Type`, `ABS Map`, `TCS Map`, `Additional
+  Lights`; on many cars brake parts, master cylinders, proportioning preload, engine/throttle maps;
+  on the 206 the primary gear. `build-setup.md` step 8 chooses those exactly as it always has, so
+  this never produces a blank either.)
 - **Baseline first — anchor on the game's own default setup.** The catalog gives legal *ranges* but
   no sense of where inside them the game itself sits, so a from-scratch build is anchored on nothing.
   The anchor, in this order: **the bundled default** in `car-setups/<slug>.yaml` (every template
@@ -182,13 +185,14 @@ Bundled tools (stdlib Python, run via code execution):
   parameters ⇒ **keep the anchor and override just those**, naming them to the user. Wrong across the
   board ⇒ **tell the user the game's default looks broken**, don't recommend driving it, and build a
   proper setup with no anchor. A user who wants to drive it anyway gets to. The broken default is
-  still **stored and flagged** as a `Source = default` row, never withheld. Full procedure:
+  still **stored and flagged** as a `Source = default` row, never withheld (a screenshot car's
+  capture; a bundled anchor has no row — the build report carries the verdict). Full procedure:
   `references/build-setup.md` step 5b.
 - **Fix major issues before fine tuning.** When several things could be changed, work the
   **fix-order ladder**: tyre type → differential (preload → ramp angles → plates) → suspension (ride
   height → springs) → ARBs → dampers → alignment (camber, toe) → brake bias (and brake hardware when
   braking itself is the complaint). Gearing is a **parallel track**; **tyre pressure sits outside the
-  ladder** and is held at the captured default unless a symptom points at it (ACR's pressure model
+  ladder** and is held at the anchor unless a symptom points at it (ACR's pressure model
   isn't physically sensible). **What the driver actually reports always outranks this order.** See
   `references/driving-feedback-interview.md` → *Fix-order ladder*.
 - **Surface-resolved ranges.** A catalog row may carry an optional **`Surface`** tag

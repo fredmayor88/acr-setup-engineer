@@ -311,7 +311,9 @@ default supplies exactly that.
   `car-setups/<slug>.yaml` (`build-setup.md` step 4); its stored default rows are left where they
   are and never read.
 - **Written like any other `Setups` row**, with: `Source = default`, `Car`, `Stage`/`Location` (when
-  the build named them), `Surface`, `Date`, `Game version` (when known), `Skill version`, `Name`
+  the build named them), `Surface`, `Date`, `Game version` — the content of the skill's
+  `GAME_VERSION` file (`python scripts/load_default_setup.py --game-version`), unless the user said
+  they run another version in this chat — `Skill version`, `Name`
   ≤15 chars, **`Learn from this` unchecked**, and **`Model` blank** — the values are the game's, not
   a model's, exactly as for `imported` rows.
 - **Excluded from the learn pool.** These are the game's values, not the user's taste; the
