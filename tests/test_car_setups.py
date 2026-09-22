@@ -8,6 +8,7 @@ import json
 import os
 import subprocess
 import sys
+import tempfile
 import unittest
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -65,13 +66,16 @@ class TestFiles(unittest.TestCase):
                 # catalog check can't know about them, so they are dropped before it runs.
                 checked = {k: v for k, v in e['values'].items()
                            if KNOWN_OFF_GRID.get((s, e['surface'], e['preset'], k)) != v}
-                values = os.path.join(REPO, 'tests', '_tmp_values.json')
-                with open(values, 'w', encoding='utf-8') as f:
-                    json.dump(checked, f)
-                r = subprocess.run([sys.executable, CATALOG, os.path.join(TEMPLATES, s + '.yaml'),
-                                    '--surface', e['surface'], '--check', values],
-                                   capture_output=True, text=True, encoding='utf-8')
-                os.remove(values)
+                fd, values = tempfile.mkstemp(suffix='.json')
+                try:
+                    with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                        json.dump(checked, f)
+                    r = subprocess.run(
+                        [sys.executable, CATALOG, os.path.join(TEMPLATES, s + '.yaml'),
+                         '--surface', e['surface'], '--check', values],
+                        capture_output=True, text=True, encoding='utf-8')
+                finally:
+                    os.remove(values)
                 self.assertEqual(r.returncode, 0, f'{s} {e["surface"]} {e["preset"]}: {r.stdout}{r.stderr}')
 
     def test_every_allowlisted_off_grid_value_is_really_in_its_file(self):

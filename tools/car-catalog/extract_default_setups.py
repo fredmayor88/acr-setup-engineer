@@ -142,11 +142,17 @@ def render(doc, orders):
 
 # ------------------------------------------------------------------------- validation
 
-def illegal(slug, surface, preset, report):
+def illegal(slug, surface, preset, adjustments, report):
     """The problems `check_values` found that the game doesn't itself ship. Lines of text."""
     out = []
     for problem in report['problems']:
-        name, value = problem['Adjustment'], problem['value']
+        name = problem['Adjustment']
+        # Match the allowlist against the value the extractor is about to write, not
+        # `problem['value']`: `check_values` can rewrite that value in place
+        # (`repair_compound_gear` restores a markdown-eaten `*` in a compound gear), so the two
+        # can differ and an allowlist entry keyed on the composed value would silently stop
+        # matching.
+        value = adjustments.get(name, problem['value'])
         if KNOWN_OFF_GRID.get((slug, surface, preset, name)) == value:
             continue
         legal = problem.get('legal')
@@ -237,18 +243,23 @@ def main():
             header, raw_rows = LC.load_template(template_path)     # load_catalog's row shape
             catalog_rows = LC.build_rows(header, raw_rows)
             numeric = numeric_adjustments(catalog_rows)
+            # `to_adjustments`'s `missing` can name a setting that maps to an adjustment this
+            # car's own template doesn't have as a row at all - restrict what gets reported as
+            # "unfilled" to rows the template actually declares, or the report claims a gap in a
+            # parameter the car never had in the first place.
+            wanted_adjustments = {r['adjustment'] for r in template_rows if not r.get('surface')}
 
             entries, unfilled, excused = [], {}, []
             for surface, preset in D.surfaces_and_presets(decoded):
                 values = D.compose(decoded, surface, preset)
                 adjustments, missing = D.to_adjustments(values, template_rows, tables, car_keys)
                 adjustments = {k: clean(k, v, numeric) for k, v in adjustments.items()}
-                bad_values += illegal(slug, surface, preset,
+                bad_values += illegal(slug, surface, preset, adjustments,
                                       LC.check_values(catalog_rows, adjustments, surface))
                 excused += [(surface, preset, name, value) for name, value
                             in allowlisted(slug, surface, preset, adjustments)]
                 entries.append({'surface': surface, 'preset': preset, 'values': adjustments})
-                unfilled[(surface, preset)] = missing
+                unfilled[(surface, preset)] = [n for n in missing if n in wanted_adjustments]
 
             doc = {'car': header.get('car', ''), 'version': ECC.GAME_VERSION,
                    'written_at': today, 'setups': entries}

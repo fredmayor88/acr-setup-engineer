@@ -33,8 +33,8 @@ import make_gearing_chart as GC              # noqa: E402  (DT_Wheels prefix per
 
 DEFAULT_PAKS = ('C:/Program Files (x86)/Steam/steamapps/common/'
                 'Assetto Corsa Rally/acr/Content/Paks')
-TEMPLATES = os.path.join(REPO, '.claude', 'skills', 'acr-setup-engineer', 'car-templates')
 SKILL = os.path.join(REPO, '.claude', 'skills', 'acr-setup-engineer')
+TEMPLATES = os.path.join(SKILL, 'car-templates')
 GAME_VERSION_FILE = os.path.join(SKILL, 'GAME_VERSION')
 
 

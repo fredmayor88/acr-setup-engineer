@@ -6,13 +6,15 @@ to the car's catalog (legal by construction). Read `setup-tuning-principles.md` 
 and `notion-structure.md` (structure + mobile conventions) before writing.
 
 **Baseline first — but capture and check the default before anyone drives it.** A build is anchored
-on the **game's own default setup** wherever possible: if a captured default exists for this context,
-the build starts from its values and moves only what the driver's feedback justifies. If none exists,
-the default path is to ask for **setup-screen screenshots of the default first**, capture it,
+on the **game's own default setup** wherever possible, in this order: the **bundled default** in
+`car-setups/<slug>.yaml` for a template car (step 4's bundled-anchor branch — no Notion read, no
+screenshots, on any plan); else, for a screenshot car, a **captured default** for this exact context,
+whose values the build starts from and moves only what the driver's feedback justifies; else the
+default path is to ask for **setup-screen screenshots of the default first**, capture it,
 **sanity-check it**, and only *then* recommend driving it and interview the driver (steps 4–6) —
 never the other way round. The catalog gives legal *ranges* but no sense of where inside them the
-game itself sits; the captured default supplies exactly that, so every later change is a targeted
-fix instead of a guess.
+game itself sits; the anchor supplies exactly that, so every later change is a targeted fix instead
+of a guess.
 
 **ACR's defaults are not always sane.** The game sometimes hands out a setup from the wrong regime
 entirely — a dry-tarmac setup for the same stage in snow conditions, say. Driving that wastes a run
@@ -618,9 +620,10 @@ would rather just have a setup now, build one.
 - **Onboard first (step 0).** If the car has no `{Car}`/`Catalog` page in Notion: a matching bundled template ⇒
   auto-onboard from it (announce, no Yes/No gate) before building; no template ⇒ ask the user to
   onboard via screenshots (`onboard-car.md`) and don't build until the catalog exists.
-- **Baseline first, but never a gate (steps 4–6).** With a captured default for this context, anchor
-  on it and move only what the driver's feedback justifies. Without one, ask for the default's
-  **screenshots first**, capture it, and check it — then build anyway the moment they ask.
+- **Baseline first, but never a gate (steps 4–6).** Anchor in this order: the **bundled default**
+  (no Notion read, no screenshots, on any plan); else a **captured default** for this context, moving
+  only what the driver's feedback justifies; else ask for the default's **screenshots first**,
+  capture it, and check it — then build anyway the moment they ask.
 - **Capture and check before the drive (step 5b).** Never send the user out to drive a default that
   hasn't been sanity-checked against this surface and these conditions. The pre-drive briefing goes
   with the drive that actually happens, not with the screenshot request.

@@ -43,7 +43,10 @@ def main():
             version = read_game_version(args.paks, tmp)
 
     if args.check:
-        current = open(args.file, encoding='utf-8').read().strip() if os.path.exists(args.file) else ''
+        current = ''
+        if os.path.exists(args.file):
+            with open(args.file, encoding='utf-8') as f:
+                current = f.read().strip()
         if current != version:
             sys.stderr.write(f'GAME_VERSION says {current!r}, the game says {version!r}\n')
             return 1
