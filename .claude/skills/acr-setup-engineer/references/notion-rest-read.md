@@ -59,6 +59,9 @@ python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_
 
 # Captured game-default (stock) baseline rows for a car (build-setup step 4 anchor):
 python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_name>" --source default
+
+# Plain (unfiltered) Setups slice for the car — every row, learn pool and defaults alike:
+python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_name>"
 ```
 
 - `<car_name>` must **exactly** match the `Car` select option (e.g. `Alpine A110 1.8 1973`).
@@ -67,13 +70,17 @@ python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_
   the game's values, not the user's taste, so it is consumed only as the build anchor
   (`notion-structure.md` → *Default (stock) baseline rows*). The two slices are complementary: run
   both in the **same** code-execution block when a build needs the anchor and the learn pool.
+- The **plain slice** (no `--source`/`--learn-only` filter) is what *The `learn:` override on paid
+  plans* below adds `learn: yes` rows from. Run it in the **same** code-execution block as the
+  other two whenever the build reads its learn pool — the override step needs it, and it costs
+  nothing extra since it's the same call pattern.
 
 **Output:** a JSON array — one object per row, property names as keys:
 - `title` / `rich_text` properties → string (`""` when blank).
 - `select` → string or omitted when null.
 - `checkbox` → boolean. `number` → number or omitted when null.
 
-**`Setups` rows** (what the two queries above return): one object per setup, keyed by the meta
+**`Setups` rows** (what the queries above return): one object per setup, keyed by the meta
 columns — `Name`, `Car`, `Location`, `Stage`, `Surface`, `Conditions`, `Date`, `Source`, `Mode`,
 `Rating`, `Learn from this`, `Game version`, `Notes`, `Model`, `Skill version` (the exact list is
 `notion-structure.md` → *`Setups` DB*) — plus **one key per tunable parameter, named after the
@@ -98,9 +105,10 @@ build, right after the REST queries:
    `setups/<slug>.md`, run `python scripts/setups_list.py --overrides setups/<slug>.md` → JSON
    `{"yes": [names], "no": [names], "malformed": n}`.
 2. **Drop** from the learn pool every row whose `Name` is in `no`.
-3. **Add** every row whose `Name` is in `yes` and isn't in the pool yet — its row is in the plain
-   `Setups` slice for the car (the same query **without** `--learn-only`, run in the same
-   code-execution block), so no extra REST call is needed.
+3. **Add** every row whose `Name` is in `yes` and isn't in the pool yet — its row is in the **plain
+   slice** run above (`## The query — run the bundled script`, the third command, no
+   `--source`/`--learn-only` filter), already fetched in the same code-execution block, so no extra
+   REST call is needed.
 4. Both lists empty → nothing to do, say nothing.
 
 ## Resolving the range for a surface

@@ -11,7 +11,7 @@ whenever the skill version changes, and by *"refresh my ACR Notion"*.
 > heading and each other `##` section as a **collapsed toggle heading**, so the page opens short on
 > a phone. Keep the prompts exactly as written — the user copies them.
 
-Covers: onboard-car.md, build-setup.md, tweak-setup.md, driving-feedback-interview.md, review-setup.md, ask-setups.md, share-setup.md, capture-setup.md, import-savegame.md, export-car-template.md, edit-catalog.md, refresh-notion.md setups-list-read.md
+Covers: onboard-car.md, build-setup.md, tweak-setup.md, driving-feedback-interview.md, review-setup.md, ask-setups.md, share-setup.md, capture-setup.md, import-savegame.md, export-car-template.md, edit-catalog.md, refresh-notion.md, setups-list-read.md
 
 ---
 

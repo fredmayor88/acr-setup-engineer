@@ -1,8 +1,9 @@
 # Reading `Setups` without the REST query — the car's `Setup index`
 
 **The only way to read a car's setups when `scripts/check_egress.py` printed `egress: none`** in
-this chat (`notion-rest-read.md` → *Offline mode*). With `egress: ok` this file is not used: the
-REST query is the source. Catalogs are never read here (`catalog-read.md`).
+this chat (`notion-rest-read.md` → *Offline mode*). With `egress: ok` the REST query is the source
+for reads; only *Adding a setup by link* below runs on every plan. Catalogs are never read here
+(`catalog-read.md`).
 
 The index is the `Setup index` list on the car's `Setups` page (`notion-structure.md` →
 *`Setups` page*): one line per setup the skill saved, newest first. This workflow reads the list,
@@ -16,9 +17,10 @@ setups**, which is capped, semantic and mixes cars.
    `ACR Setup Engineer`, resolved by name per `notion-structure.md`). Save the page's whole
    text to `setups/<slug>.md` in the sandbox (`<slug>` as in `catalog-read.md`). The script
    starts reading after the `Setup index` heading by itself.
-   - No `Setup index` heading, or no `Setups` page → the list is empty. Say the once-per-chat
-     line (*Telling the user*) if not yet said, and go on with **no stored default and no learn
-     pool** — exactly `build-setup.md`'s no-default and no-prior-setups paths.
+   - No `Setup index` heading, or no `Setups` page → the list is empty — don't run `--pick` on a
+     page without the heading. Say the once-per-chat line (*Telling the user*) if not yet said,
+     and go on with **no stored default and no learn pool** — exactly `build-setup.md`'s
+     no-default and no-prior-setups paths.
 2. **Pick the candidates** — one command, in code execution:
    ```
    python scripts/setups_list.py --pick setups/<slug>.md --stage "{Stage}" --surface {Surface} --conditions "{Conditions}"
@@ -28,9 +30,11 @@ setups**, which is capped, semantic and mixes cars.
    - `default` — the `Source = default` line whose stage, surface and conditions all match, or
      `null`;
    - `other_defaults` — every other `default` line for the car, newest first;
-   - `learn` — up to 6 non-default lines: every `learn: yes` line first, then the others ordered
-     same stage, then same surface, then newest. `learn: no` lines are never here;
-   - `skipped` — how many non-default lines were left out by the cap;
+   - `learn` — every `learn: yes` line first (these don't count against the cap, so `learn` can
+     hold more than 6), then up to 6 of the other non-default lines, ordered same stage, then same
+     surface, then newest. `learn: no` lines are never here;
+   - `skipped` — how many **unmarked** non-default lines were left out by the cap (never `learn: no`
+     lines — those are excluded outright, not skipped by the cap);
    - `malformed` — how many bullet lines under the heading couldn't be read.
 3. **Fetch the picked pages** — `notion-fetch` on each `url` in `learn`, and on `default` if it
    isn't `null`; if `default` is `null` and `other_defaults` isn't, fetch **only the newest** of
@@ -74,9 +78,16 @@ Once per chat, the first time offline mode changes what a workflow does (this re
 When the user asks to learn from more setups (*"also learn from my other Stratos setups"*, *"read
 all of them"*) or names some (*"learn from turini fast and monte v2 too"*):
 
-1. Re-run the picker on the same file — `--limit 100` for "more / all", or `--names "{a}" "{b}"`
-   for named ones (`--names` returns exactly those lines, a `learn: no` line included when named
-   — say the user marked it `learn: no` and ask whether to use it anyway).
+1. Re-run the picker on the same file, in code execution — for "more / all":
+   ```
+   python scripts/setups_list.py --pick setups/<slug>.md --stage "{Stage}" --surface {Surface} --conditions "{Conditions}" --limit 100
+   ```
+   or for named ones:
+   ```
+   python scripts/setups_list.py --pick setups/<slug>.md --stage "{Stage}" --surface {Surface} --conditions "{Conditions}" --names "{a}" "{b}"
+   ```
+   (`--names` returns exactly those lines, a `learn: no` line included when named — say the user
+   marked it `learn: no` and ask whether to use it anyway).
 2. Fetch **only** the pages not already fetched in this chat.
 3. Redo the step that used the learn pool (`build-setup.md` step 7 onward, or the tweak's
    reasoning) with the larger pool, and say in one line what was added. Names in `not_found`
@@ -110,17 +121,20 @@ add it (*"add this one to the index"*, *"learn from this: <link>"*). On every pl
 2. Check it is a setup: its `<parent-data-source>` is the `Setups` data source under
    `ACR Setup Engineer`, and its `Car` property names a car with a `{Car}` page under the root.
    Anything else → *"That page isn't one of your setups, so I can't add it."* and stop.
-3. Build the line from the page's properties — `Name`, the page URL, `Source`, `Stage`,
+3. **Before inserting, check it isn't already there:** fetch the car's `Setups` page, save it to
+   `setups/<slug>.md`, run `python scripts/setups_list.py --find "{Name}" setups/<slug>.md`; if a
+   match has the same `url`, say it's already in the index and don't insert.
+4. Build the line from the page's properties — `Name`, the page URL, `Source`, `Stage`,
    `Surface`, `Conditions`, `Date` — with `scripts/setups_list.py --line`, and insert it per
-   `notion-structure.md` → *Adding a line to `Setup index`*. If `--find` already lists the same
-   URL, don't add it twice; say it's already there.
-4. Say in one line that it's in the {Car}'s index now, and — when the user asked to learn from it
+   `notion-structure.md` → *Adding a line to `Setup index`*.
+5. Say in one line that it's in the {Car}'s index now, and — when the user asked to learn from it
    — use it in this chat as a fetched learn-pool page (its `Learn from this` checkbox still
    decides, unless the user says to count it: then treat it as `learn: yes` for this chat and
    suggest they add ` - learn: yes` to its line so it always counts).
 
 ## Rules
-- **Only on `egress: none`** for reads; the REST query stays the source whenever it can run.
+- **Reads only on `egress: none`**; the REST query stays the source whenever it can run. *Adding
+  a setup by link* runs on every plan.
 - **The index and pasted links are the only way in — never `notion-search` for a car's setups.**
 - **Values from properties, never from the page body.**
 - **The cap is 6 and the user can lift it** — always say what was read and how to read more.
