@@ -234,8 +234,8 @@ Stdlib only, like the other scripts. Three modes; unknown flags exit 2.
 - `notion-rest-read.md`: *Offline mode* sends `Setups` slices to `setups-list-read.md`; the
   once-per-chat message becomes the new text; rung 2 of the ladder (query errors with egress ok)
   stays "proceed as empty" — the list is a Free-plan path, not a retry path.
-- `notion-structure.md`: `Setups` page section (the new shape), a new *Adding a line to `Saved by
-  the skill`* section, and the refresh rule that the section is never touched.
+- `notion-structure.md`: `Setups` page section (the new shape), a new *Adding a line to `Setup
+  index`* section, and the refresh rule that the section is never touched.
 - `build-setup.md`, `tweak-setup.md`, `capture-setup.md`, `import-savegame.md`: one bullet each
   at the row-creation step pointing at the shared section; `build-setup.md` steps 4 and 7 name the
   Free path.

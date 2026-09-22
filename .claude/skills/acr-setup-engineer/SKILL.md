@@ -293,7 +293,8 @@ Bundled tools (stdlib Python, run via code execution):
   - **`Parameters` is the skill's, and the only copy** (screenshot cars only). Written by
     onboarding and `edit-catalog.md`; a refresh never regenerates it. Users change it by saying
     the change in chat.
-  - **`Setups`** holds the car's filtered linked view and nothing else.
+  - **`Setups`** holds the car's filtered linked view, then the `Setup index` list
+    (`notion-structure.md` → *`Setups` page*).
 - **Refining is an in-chat loop — save only when asked.** Describing a handling problem or asking
   for a tweak is **not** a request to build or save a setup. Work the *problem → tweak → test →
   feedback* cycle conversationally: propose legal value changes in chat and iterate as the user

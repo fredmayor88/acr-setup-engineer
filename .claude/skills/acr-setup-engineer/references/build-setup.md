@@ -559,6 +559,8 @@ would rather just have a setup now, build one.
      exact disc+caliper combination may not be selectable. If so, keep the recommended calipers and
      pick the closest available disc size — the caliper carries the bigger braking effect."* Omit it
      when the car has no brake disc/caliper params.
+   - **In offline mode**, include the index line from `setups-list-read.md` → *Reading a car's
+     setups on Free* step 5 (what was read, what was skipped, how to read more).
 
 ## Rules
 - **Onboard first (step 0).** If the car has no `{Car}`/`Catalog` page in Notion: a matching bundled template ⇒

@@ -26,7 +26,7 @@ it can't connect, says so in one line. Nothing is broken. This is what changes.
   from v{version} on is listed on the car's `Setups` page, under the heading `Setup index`. When
   you build, the skill reads the listed setups closest to your stage, **up to 6**, and uses the
   ones you ticked **`Learn from this`**, with their ratings. It tells you which ones it read. Say
-  **"also learn from my other {Car} setups"** to read more.
+  **"also learn from my other Lancia Stratos setups"** to read more.
 - **Older setups aren't on the list.** Setups saved before v{version}, and setups you made by hand
   in Notion, don't count until you add them, one at a time: paste that setup's Notion link in the
   chat and say **"learn from this one too"**.

@@ -799,7 +799,8 @@ Holds, in this order and nothing else:
    `notion-create-view` per *Creating an inline linked view*; the column order is set from
    `--show-order` on every write, per *Applying the order*;
 3. an H2 heading **`Setup index`**, then one bulleted line per setup the skill saved for this car,
-   **newest at the top**.
+   **newest at the top** (present only once a setup has been saved — a save creates it, a refresh
+   never does).
 
 The maintenance line is worth having because the view is *live database rows*: the skill adds
 setups, but anything the user changes in a row stays changed.
@@ -842,8 +843,9 @@ plan** — `build-setup.md` (the built setup, and a captured game default), `twe
    python scripts/setups_list.py --line --name "{Name}" --url "{page url}" --source {Source} --stage "{Stage}" --surface {Surface} --conditions "{Conditions}" --date "{Date}"
    ```
    Pass a blank `--stage` / `--conditions` when the row's is blank; pass the row's `Date` as
-   written (the script keeps its first 10 characters). If the script exits 1, print its message
-   and skip the line — the row is saved, only the index line is missing; say so in one sentence.
+   written (the script keeps its first 10 characters). If the script exits with an error (1 or 2),
+   print its message and skip the line — the row is saved, only the index line is missing; say so
+   in one sentence.
 3. Fetch the car's `Setups` page (it was fetched already when the column order was asserted —
    reuse it).
    - **It has a `Setup index` heading** → insert the line **directly under the heading**, above

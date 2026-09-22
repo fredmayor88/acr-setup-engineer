@@ -102,9 +102,11 @@ The user may mark a line in the car's `Setup index` by hand with ` - learn: yes`
 so a build that read its learn pool over REST honours it too — one extra page fetch, once per
 build, right after the REST queries:
 
-1. Fetch the car's `Setups` page (it's fetched anyway for the column order), save it to
-   `setups/<slug>.md`, run `python scripts/setups_list.py --overrides setups/<slug>.md` → JSON
-   `{"yes": [names], "no": [names], "malformed": n}`.
+1. Fetch the car's `Setups` page (fetch it now; `build-setup.md` step 11 reuses the same fetch
+   when it asserts the column order and adds the index line) and save it per `setups-list-read.md`
+   → *Saving the page to a file*, then run `python scripts/setups_list.py --overrides
+   setups/<slug>.md` → JSON `{"yes": [names], "no": [names], "malformed": n}`. No `Setup index`
+   heading on the page → treat the index as empty and don't run the script.
 2. **Drop** from the learn pool every row whose `Name` is in `no`.
 3. **Add** every row whose `Name` is in `yes` and isn't in the pool yet — its row is in the **plain
    slice** run above (`## The query — run the bundled script`, the third command, no

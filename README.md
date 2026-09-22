@@ -209,7 +209,7 @@ It doesn't get in your way, and there's plenty here for you:
 - **Claude's Free plan runs a reduced mode** — every car works fully, and setups the skill saves
   from this version on are learned from through the car's `Setup index`. Older setups need their
   link pasted once. Details in
-  [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do).
+  [What Claude's Free plan can't do](#whats-different-on-claudes-free-plan).
 - The skill is free; running Claude heavily may not be.
 
 ---
@@ -231,7 +231,7 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
 ## Prerequisites
 
 - A **Claude account** at [claude.ai](https://claude.ai). Works on **Free**, with limits — see
-  [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do); **Pro** removes them and
+  [What Claude's Free plan can't do](#whats-different-on-claudes-free-plan); **Pro** removes them and
   has more headroom for the longer workflows.
 - A **Notion account** (free is fine). All setups live there.
 
@@ -248,7 +248,7 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
    **On the Free plan the "All domains" option doesn't exist** — egress stops at package managers,
    and no setting changes that. The skill still works, and every car works fully; only your saved
    setups are read through the car's `Setup index` instead of the table (see
-   [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)).
+   [What Claude's Free plan can't do](#whats-different-on-claudes-free-plan)).
 3. **Add the skill.** Download **`acr-setup-engineer-skill-vX.Y.Z.zip`** (the latest version) from
    [Releases](../../releases). claude.ai → Settings → **Customize → Skills → Add skill** →
    upload the ZIP.
@@ -256,7 +256,7 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
    Rally."* This creates the whole Notion structure on first use.
 5. **Give the skill read access to Notion** (below) — 3 minutes, and reads become fast and
    exact. **Skip this on Free** — the token feeds a read path Free can't run (see
-   [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)).
+   [What Claude's Free plan can't do](#whats-different-on-claudes-free-plan)).
 
 ### The read-only Notion token
 
@@ -825,7 +825,7 @@ faster per call, but writes are rare and small — you read on every workflow, y
 rows when saving. Granting the stored token write access would trade real safety for a speedup on
 the path that needs it least.
 
-## What Claude's Free plan can't do
+## What's different on Claude's Free plan
 
 The same information is on the **`Claude Free plan`** page in your Notion.
 
@@ -842,7 +842,7 @@ which. What follows is about your setup history, which affects every car. What t
 - **Setup history comes from a list, not the table.** Every setup the skill saves from this
   version on is listed under `Setup index` on the car's `Setups` page. A build reads the listed
   setups closest to the stage, up to 6, and learns from the ones you ticked `Learn from this`; say
-  "also learn from my other {car} setups" to read more. Setups saved by older versions or made by
+  "also learn from my other Lancia Stratos setups" to read more. Setups saved by older versions or made by
   hand aren't listed — paste a setup's link in the chat and say "learn from this one too" to add
   it. Add ` - learn: yes` or ` - learn: no` to the end of a line to force a setup in or out.
 - **A stored game default is found the same way** — only when the skill saved it from this version
@@ -865,7 +865,7 @@ On Pro or Max, set **Network egress → All domains** (install step 2) and none 
   (Settings → Capabilities, install step 2), then start a **new chat** — capability changes don't
   apply to one that's already open. On **Free** that option doesn't exist, so your setup history
   is read from each car's `Setup index` — by design (see
-  [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)). Every car still works.
+  [What Claude's Free plan can't do](#whats-different-on-claudes-free-plan)). Every car still works.
 - **Hitting limits on Free** → the workflows run several steps; Pro has more headroom.
 - **A value looks slightly "off"** → expected for continuous settings; dial to the nearest in-game
   position. To force exact values, say the setting's exact steps in chat.

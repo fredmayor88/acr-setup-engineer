@@ -49,9 +49,10 @@ def format_line(name, url, source, stage, surface, conditions, date):
     if any(c.isspace() for c in url.strip()):
         raise ValueError(f'url cannot contain whitespace: {url!r}')
     stage = (stage or '').strip() or BLANK
+    surface = (surface or '').strip() or BLANK
     conditions = (conditions or '').strip() or BLANK
     date = (date or '').strip()[:10]
-    return f'- [{name.strip()}]({url.strip()}){SEP}{source.strip()}{SEP}{stage}{SEP}{surface.strip()}{SEP}{conditions}{SEP}{date}'
+    return f'- [{name.strip()}]({url.strip()}){SEP}{source.strip()}{SEP}{stage}{SEP}{surface}{SEP}{conditions}{SEP}{date}'
 
 
 def parse_line(text):
@@ -69,7 +70,7 @@ def parse_line(text):
         if not lm:
             return None
         entry['learn'] = lm.group(1).lower()
-    for key in ('stage', 'conditions'):
+    for key in ('stage', 'surface', 'conditions'):
         if entry[key] == BLANK:
             entry[key] = ''
     entry['name'] = m.group('name').strip()
@@ -135,14 +136,17 @@ def pick(entries, stage, surface, conditions, limit, names, malformed):
     out = {'default': default, 'other_defaults': other_defaults, 'malformed': malformed}
 
     if names:
-        learn, not_found = [], []
+        learn, not_found, defaults_named = [], [], []
         for wanted in names:
             hits = find(pool, wanted)
             if hits:
                 learn.extend(h for h in hits if h not in learn)
+                continue
+            if find(defaults, wanted):
+                defaults_named.append(wanted)
             else:
                 not_found.append(wanted)
-        out.update(learn=learn, skipped=0, not_found=not_found)
+        out.update(learn=learn, skipped=0, not_found=not_found, defaults_named=defaults_named)
         return out
 
     forced = _newest_first([e for e in pool if e['learn'] == 'yes'])
@@ -163,8 +167,12 @@ def overrides(entries, malformed):
 
 
 def _read(path):
-    with open(path, encoding='utf-8') as f:
-        return f.read()
+    try:
+        with open(path, encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        sys.stderr.write(f'setups_list: file not found: {path}\n')
+        sys.exit(1)
 
 
 def _emit(obj):
@@ -190,7 +198,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
 
     if args.line:
-        missing = [k for k in ('name', 'url', 'source', 'surface', 'date') if not getattr(args, k)]
+        missing = [k for k in ('name', 'url', 'source', 'date') if not getattr(args, k)]
         if missing:
             ap.error('--line needs ' + ', '.join('--' + k for k in missing))
         try:

@@ -11,12 +11,24 @@ picks the few pages a build needs, fetches each one with `notion-fetch`, and rea
 this`, `Rating` and the values from the page's properties — **never `notion-search` for a car's
 setups**, which is capped, semantic and mixes cars.
 
+## Saving the page to a file
+
+Every mode of `scripts/setups_list.py` reads the car's `Setups` page from a file. After the
+`notion-fetch`, save the page's whole text (everything inside `<content>…</content>`) — run this in
+code execution, with the fetched text in `page_text`:
+
+    import os, pathlib
+    os.makedirs('setups', exist_ok=True)
+    pathlib.Path('setups/<slug>.md').write_text(page_text, encoding='utf-8')
+
+`<slug>` is the car's slug as `catalog-read.md` forms it. Save once per chat and reuse the file;
+save again only after the skill has inserted a line.
+
 ## Reading a car's setups on Free
 
 1. **Fetch the car's `Setups` page** (`notion-fetch`; the page is a child of `{Car}` under
-   `ACR Setup Engineer`, resolved by name per `notion-structure.md`). Save the page's whole
-   text to `setups/<slug>.md` in the sandbox (`<slug>` as in `catalog-read.md`). The script
-   starts reading after the `Setup index` heading by itself.
+   `ACR Setup Engineer`, resolved by name per `notion-structure.md`) and save it per *Saving the
+   page to a file*. The script starts reading after the `Setup index` heading by itself.
    - No `Setup index` heading, or no `Setups` page → the list is empty — don't run `--pick` on a
      page without the heading. Say the once-per-chat line (*Telling the user*) if not yet said,
      and go on with **no stored default and no learn pool** — exactly `build-setup.md`'s
@@ -25,6 +37,10 @@ setups**, which is capped, semantic and mixes cars.
    ```
    python scripts/setups_list.py --pick setups/<slug>.md --stage "{Stage}" --surface {Surface} --conditions "{Conditions}"
    ```
+   - **`Mode = independent`** (`build-setup.md` step 7): use only `default` and `other_defaults`
+     from the output — ignore `learn`, fetch none of those pages, and skip the learn part of the
+     report line.
+
    Pass the build's stage, surface and conditions as settled in `build-setup.md` step 3 (blank
    `--conditions` when they were left blank; blank `--stage` when there is none). It prints JSON:
    - `default` — the `Source = default` line whose stage, surface and conditions all match, or
@@ -35,7 +51,10 @@ setups**, which is capped, semantic and mixes cars.
      surface, then newest. `learn: no` lines are never here;
    - `skipped` — how many **unmarked** non-default lines were left out by the cap (never `learn: no`
      lines — those are excluded outright, not skipped by the cap);
-   - `malformed` — how many bullet lines under the heading couldn't be read.
+   - `malformed` — how many bullet lines under the heading couldn't be read;
+   - `defaults_named` — only with `--names`: names that matched only a `Source = default` line. A
+     default is never learn material, so it's kept out of `learn` and reported separately from
+     `not_found`.
 3. **Fetch the picked pages** — `notion-fetch` on each `url` in `learn`, and on `default` if it
    isn't `null`; if `default` is `null` and `other_defaults` isn't, fetch **only the newest** of
    `other_defaults` (for `build-setup.md` step 4's "a default in a differing context" question).
@@ -92,6 +111,9 @@ all of them"*) or names some (*"learn from turini fast and monte v2 too"*):
 3. Redo the step that used the learn pool (`build-setup.md` step 7 onward, or the tweak's
    reasoning) with the larger pool, and say in one line what was added. Names in `not_found`
    are reported as not in the index, with the paste-a-link hint (*Adding a setup by link*).
+   Names in `defaults_named` are **not** "not in the index" — a `Source = default` line is never
+   learn material — say instead: *"that's the game's default for {stage} — it is the build's
+   anchor, not something to learn from"*.
 
 ## Finding one setup by name
 
@@ -100,17 +122,19 @@ For a workflow that needs **one named setup** (`review-setup.md`, `tweak-setup.m
 
 1. The car is known from the request, or from the setup just built or loaded in this chat. If it
    isn't, ask *"Which car is that setup for?"* before reading anything.
-2. Fetch the car's `Setups` page, save it to `setups/<slug>.md`, and run
+2. Fetch the car's `Setups` page and save it per *Saving the page to a file*, then run
    ```
    python scripts/setups_list.py --find "{name}" setups/<slug>.md
    ```
    It prints `matches` (exact name first; else case-insensitive; else lines whose name contains
-   the text) and `malformed`.
+   the text) and `malformed`. No `Setup index` heading on the page → treat the index as empty and
+   don't run the script.
 3. **One match** → `notion-fetch` its `url`; that page's properties are the row. **Several** →
-   list them (Name / Stage / Date) and ask the user to pick. **None** → fall back to the lookup
-   the workflow uses today (the setup may predate the index, or was made by hand), and if that
-   also finds nothing, say the setup isn't in the {Car}'s index and can be added by pasting its
-   link (*Adding a setup by link*).
+   list them (Name / Stage / Date) and ask the user to pick. **None** → don't search the
+   database (it can't list a car's rows — never `notion-search` for them, and a database
+   `notion-fetch` returns no rows). Say the setup isn't in the {Car}'s index — it may predate
+   the index or have been made by hand — and offer the paste-a-link route (*Adding a setup by
+   link*).
 
 ## Adding a setup by link
 
@@ -121,9 +145,11 @@ add it (*"add this one to the index"*, *"learn from this: <link>"*). On every pl
 2. Check it is a setup: its `<parent-data-source>` is the `Setups` data source under
    `ACR Setup Engineer`, and its `Car` property names a car with a `{Car}` page under the root.
    Anything else → *"That page isn't one of your setups, so I can't add it."* and stop.
-3. **Before inserting, check it isn't already there:** fetch the car's `Setups` page, save it to
-   `setups/<slug>.md`, run `python scripts/setups_list.py --find "{Name}" setups/<slug>.md`; if a
-   match has the same `url`, say it's already in the index and don't insert.
+3. **Before inserting, check it isn't already there:** fetch the car's `Setups` page and save it
+   per *Saving the page to a file*, then run
+   `python scripts/setups_list.py --find "{Name}" setups/<slug>.md`; if a match has the same
+   `url`, say it's already in the index and don't insert. No `Setup index` heading on the page →
+   treat the index as empty and don't run the script.
 4. Build the line from the page's properties — `Name`, the page URL, `Source`, `Stage`,
    `Surface`, `Conditions`, `Date` — with `scripts/setups_list.py --line`, and insert it per
    `notion-structure.md` → *Adding a line to `Setup index`*.

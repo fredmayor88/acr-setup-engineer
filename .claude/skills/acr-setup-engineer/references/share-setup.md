@@ -16,8 +16,10 @@ never writes to Notion.
    **In offline mode** (`egress: none` this chat — `notion-rest-read.md` → *Offline mode*) look
    the name up in the car's `Setup index` first: [setups-list-read.md](setups-list-read.md) →
    *Finding one setup by name* (`scripts/setups_list.py --find`), then `notion-fetch` the
-   matched page — its properties are the row. Only when the name isn't in the index fall back
-   to the lookup above.
+   matched page — its properties are the row. If the name isn't in the index, don't search the
+   database — say the setup isn't in the {Car}'s index and offer to add it: *"Paste its Notion
+   link here and I'll add it to the index and use it"* (`setups-list-read.md` → *Adding a
+   setup by link*). The lookup above is for `egress: ok` only.
    If not found, list the available setups and ask the user to pick; do not proceed until one
    is identified.
    **Fetch the car's `Catalog` page — and the car's `Parameters` page for a screenshot car — in

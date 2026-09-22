@@ -64,6 +64,12 @@ class TestFormatLine(unittest.TestCase):
         line = setups_list.format_line('x', URL, 'imported', '', 'Gravel', '   ', '2026-09-16')
         self.assertTrue(line.endswith(' - imported - - - Gravel - - - 2026-09-16'))
 
+    def test_blank_surface_becomes_hyphen_and_round_trips(self):
+        line = setups_list.format_line('x', URL, 'imported', 'S', '', 'Dry', '2026-09-16')
+        self.assertTrue(line.endswith(' - imported - S - - - Dry - 2026-09-16'))
+        entry = setups_list.parse_line(line)
+        self.assertEqual(entry['surface'], '')
+
     def test_never_writes_learn_field(self):
         line = setups_list.format_line('x', URL, 'generated', 'S', 'Tarmac', 'Dry', '2026-09-16')
         self.assertNotIn('learn:', line)
@@ -194,6 +200,12 @@ class TestPick(unittest.TestCase):
         out = self.pick(limit=50)
         self.assertFalse([e for e in out['learn'] if e['source'] == 'default'])
 
+    def test_names_matching_only_a_default_go_to_defaults_named(self):
+        out = self.pick(names=['turini def'])
+        self.assertEqual(out['defaults_named'], ['turini def'])
+        self.assertEqual(out['not_found'], [])
+        self.assertEqual(out['learn'], [])
+
 
 class TestOverrides(unittest.TestCase):
     def test_lists_yes_and_no(self):
@@ -247,6 +259,11 @@ class TestCli(unittest.TestCase):
 
     def test_unknown_flag_exits_2(self):
         self.assertEqual(run('--bogus').returncode, 2)
+
+    def test_missing_file_exits_1(self):
+        r = run('--find', 'x', 'missing.md')
+        self.assertEqual(r.returncode, 1)
+        self.assertIn('file not found', r.stderr)
 
 
 if __name__ == '__main__':

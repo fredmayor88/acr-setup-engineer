@@ -88,8 +88,10 @@ outside `ACR Setup Engineer`.
 **In offline mode** (`egress: none` this chat — `notion-rest-read.md` → *Offline mode*) look the
 name up in the car's `Setup index` first: [setups-list-read.md](setups-list-read.md) →
 *Finding one setup by name* (`scripts/setups_list.py --find`), then `notion-fetch` the matched
-page — its properties are the row. Only when the name isn't in the index fall back to the
-lookup above.
+page — its properties are the row. If the name isn't in the index, don't search the
+database — say the setup isn't in the {Car}'s index and offer to add it: *"Paste its Notion
+link here and I'll add it to the index and use it"* (`setups-list-read.md` → *Adding a setup
+by link*). The lookup above is for `egress: ok` only.
 
 - **Unique match:** load all value properties plus `Car`, `Location`, `Stage`, `Surface`,
   `Conditions` (may be blank), `Mode`,
