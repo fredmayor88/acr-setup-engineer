@@ -294,12 +294,6 @@ Each row:
   context — the user checks it after deciding a setup is worth learning from);
 - plus the mapped (catalog) or raw value properties.
 
-Then **add every imported row to its car's `Setup index`** — `notion-structure.md` →
-*Adding a line to `Setup index`*: one `scripts/setups_list.py --line` per row (`Source = imported`,
-blank `--conditions`, the row's `Stage` or blank, its `Surface`, its `Date`), and **one insert per
-car** holding that car's lines newest first, under the heading on that car's `Setups` page. On
-every plan. A car with no `Setups` page gets the one sentence that section gives, once.
-
 Record each value **per its treatment in 5.4**: **snapped to the catalog** for official-parse
 (version-matched) setups, **as-is** for the rest (older version / no template / `unknown` / raw
 path). **Never modify or delete existing rows.**
@@ -320,6 +314,12 @@ This step **re-asserts `SHOW` on views that already exist** (an idempotent view 
 rebuild), so the car's linked Setups view must have been created in 5.3 — applying the order does
 **not** create a missing view. A newly created view is alphabetical until this `SHOW` is asserted,
 so don't skip it.
+
+Then **add every imported row to its car's `Setup index`** — `notion-structure.md` →
+*Adding a line to `Setup index`*: one `scripts/setups_list.py --line` per row (`Source = imported`,
+blank `--conditions`, the row's `Stage` or blank, its `Surface`, its `Date`), and **one insert per
+car** holding that car's lines newest first, under the heading on that car's `Setups` page. On
+every plan. A car with no `Setups` page gets the one sentence that section gives, once.
 
 ### 6. Report (Notion path)
 Cover, in order:

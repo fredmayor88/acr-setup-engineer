@@ -476,7 +476,7 @@ would rather just have a setup now, build one.
      not a row/schema rebuild — the append above stays a single row. (The script handles the
      blank-`Order` fallback on its own.)
    - **Add the setup to the car's `Setup index`** — `notion-structure.md` →
-     *Adding a line to `Setup index`* — run `scripts/setups_list.py --line` with this row's
+     *Adding a line to `Setup index`*: run `scripts/setups_list.py --line` with this row's
      `Name`, page URL, `Source = generated`, `Stage`, `Surface`, `Conditions` and `Date`, and
      insert the line under the heading on the car's `Setups` page (you fetched that page for the
      column order — reuse it). On every plan. The build is not done without it.

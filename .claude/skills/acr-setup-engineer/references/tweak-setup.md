@@ -198,10 +198,6 @@ When the user asks to save (and not before):
     **`Skill version`** (per `SKILL.md` → *Skill version* — do not copy from the source; this
     records the skill version that ran *this* refinement). Leave
     **`Learn from this` unchecked** — the user opts in after vetting.
-- **Add the new row to the car's `Setup index`** — `notion-structure.md` →
-  *Adding a line to `Setup index`*: `scripts/setups_list.py --line` with the new row's `Name`,
-  page URL, `Source = generated`, `Stage`, `Surface`, `Conditions`, `Date`; insert it under the
-  heading on the car's `Setups` page. On every plan.
 - **Apply the column order — MANDATORY, never skip (even on a quick / low-effort run); the save is
   not done until you've done it** (`notion-structure.md` → *Applying the order*), **after the row is
   written**. Get the `SHOW` list from the bundled script — **never build or merge one by hand**
@@ -212,6 +208,10 @@ When the user asks to save (and not before):
   per onboarded car, no per-car filtering). The script lists `Name`,
   value columns by `Order`, then the full meta columns (including `Model` and `Skill version`).
   Idempotent view update — the row write above stays append-only.
+- **Add the new row to the car's `Setup index`** — `notion-structure.md` →
+  *Adding a line to `Setup index`*: `scripts/setups_list.py --line` with the new row's `Name`,
+  page URL, `Source = generated`, `Stage`, `Surface`, `Conditions`, `Date`; insert it under the
+  heading on the car's `Setups` page. On every plan.
 - **Ensure the stage facts page exists in the catalogue** (per `notion-structure.md` → *Locations &
   stages catalogue*) if a stage/location is set and didn't already exist; create its filtered
   `Setups[Stage=this]` linked view with `notion-create-view` (never a page-markdown placeholder).
