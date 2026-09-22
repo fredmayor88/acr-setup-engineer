@@ -11,11 +11,10 @@ default setup, per surface and per named preset.
 
     pkg = Package(open('DA_LanciaStratosHFPresets.uasset', 'rb').read())
     decoded = D.decode_car(pkg, tables)
+    keys = D.car_keys_from(pkg)
     for surface, preset in D.surfaces_and_presets(decoded):
         values = D.compose(decoded, surface, preset)
-        adjustments, unfilled = D.to_adjustments(
-            values, template_rows, tables,
-            dict(D.car_keys_from(pkg), surface=surface))
+        adjustments, unfilled = D.to_adjustments(values, template_rows, tables, keys)
 
 Three layers, applied in this order (spec: *What the game files hold*):
 
@@ -179,8 +178,19 @@ through `mapping.py`, and resolves DB references through the `DT_*Lists` tables:
 | discs             | position in the car's disc list for that axle, taken as the |
 |                   | same position in the template's `Discrete steps`            |
 | calipers          | same, over the calipers the axle's discs can take; a car    |
-|                   | whose list is longer than the template's falls back to      |
-|                   | matching the caliper's bore (`4x42` -> `4x42 Type1`)        |
+|                   | whose list is longer than the template's falls back to the  |
+|                   | caliper's bore (`4x42` -> `4x42 Type1`), and only when that |
+|                   | bore is unique among both the options and the steps         |
+
+The option lists are the union of the car's four per-surface `DT_DiscsLists` rows for that
+axle, which works because every one of those rows is a *prefix* of the union on all 18 cars
+- so a part's position is the same whatever surface is asking, and `to_adjustments` needs no
+surface. `_disc_options` asserts that prefix property rather than trusting it.
+
+`decode_car` also returns `notes`: every DB reference whose row is not in the car's own list
+for that setting (`db_row_notes`). On 0.6 that finds ten cars whose base primary gear is the
+struct's filler, the Alpine A110's gravel rear caliper, and the Audi Quattro's master
+cylinder - all real, all worth reading after an extraction.
 
 A resolved list value the template doesn't list is dropped and named as unfilled rather
 than written: the Peugeot 206 WRC's base primary gear is the struct's `25//25` filler and
@@ -266,8 +276,16 @@ BRAKE_IDS = {
     9: 'Brakes.BrakesMain.MasterCylinderRear',
 }
 
-# the hint FName inside a DB reference -> the DataTable that holds the option list
-TABLE_ALIASES = {'LSDRampAnglesLists': 'DT_DiffRampsLists'}
+# A `Gears` DB reference names no table of its own - which gear list it has to come from
+# is decided by the setting it belongs to.
+GEAR_TABLES = {
+    'Gearbox.GearboxMain.GearPrimary':              'DT_PrimaryGearsLists',
+    'Differentials.Front.DifferentialRatio':        'DT_FrontGearsLists',
+    'Differentials.Rear.DifferentialRatio':         'DT_RearGearsLists',
+    'Differentials.Centre.CentreDifferentialRatio': 'DT_CentreGearsLists',
+    'Differentials.Centre.CentreRatioToFront':      'DT_CentreToFrontGearsLists',
+    'Differentials.Centre.CentreRatioToRear':       'DT_CentreToRearGearsLists',
+}
 
 
 # -------------------------------------------------------------- the struct walk
@@ -349,6 +367,20 @@ def _dbref(ref):
 
 # --------------------------------------------------------------- layer 1: base
 
+def _by_corner(array, what):
+    """[(corner, element)] for a per-corner array, which is four long or absent.
+
+    Zipping against `CORNERS` would quietly drop a fifth element or leave a corner
+    undecoded; a per-corner array that isn't four long means the schema moved.
+    """
+    if not array:
+        return []
+    if len(array) != len(CORNERS):
+        raise AssertionError(f'{what}: {len(array)} corners, expected {len(CORNERS)} '
+                             f'- the pinned schema no longer matches the game files')
+    return list(zip(CORNERS, array))
+
+
 def decode_base(pkg):
     """{setting id: value} for the car's `PhysicsCarSetup` export.
 
@@ -389,11 +421,11 @@ def decode_base(pkg):
     if axles:
         for slot, sid in AXLE_IDS.items():
             out[sid] = _value(axles.get(slot, 0.0))
-    for corner, susp in zip(CORNERS, axles.get(4) or []):
+    for corner, susp in _by_corner(axles.get(4), 'Suspensions'):
         for slot, suffix in SUSPENSION_IDS.items():
             out[f'Suspensions.{corner}.{suffix}'] = _value(susp.get(slot, 0.0))
 
-    for corner, damper in zip(CORNERS, root.get(2) or []):
+    for corner, damper in _by_corner(root.get(2), 'Dampers'):
         for slot, names in DAMPER_PAIR_IDS.items():
             pair = damper.get(slot) or {}
             for k, suffix in enumerate(names):
@@ -401,7 +433,7 @@ def decode_base(pkg):
         for slot, suffix in DAMPER_IDS.items():
             out[f'Dampers.{corner}.{suffix}'] = _value(damper.get(slot, 0.0))
 
-    for corner, wheel in zip(CORNERS, root.get(3) or []):
+    for corner, wheel in _by_corner(root.get(3), 'Wheels'):
         for slot, suffix in WHEEL_IDS.items():
             out[f'Wheels.{corner}.{suffix}'] = _value(wheel.get(slot, 0.0))
 
@@ -524,17 +556,65 @@ def decode_car(pkg, tables=None):
         out['surfaces'][surface] = {'overrides': variant_values(pkg, exp),
                                     'presets': presets}
     if tables:
-        seen = set()
-        for values in [out['base']] + [d['overrides'] for d in out['surfaces'].values()] \
-                + [p for d in out['surfaces'].values() for p in d['presets'].values()]:
-            for sid, v in values.items():
-                if not (isinstance(v, tuple) and v[0] == 'db') or v in seen:
-                    continue
-                seen.add(v)
-                table = tables.get(TABLE_ALIASES.get(v[1], 'DT_' + v[1]))
-                if table is not None and not any(v[2] in rows for rows in table.values()):
-                    out['notes'].append(f'{sid}: {v[2]} is in no {v[1]} list')
+        out['notes'] = db_row_notes(out, tables, car_keys_from(pkg))
     return out
+
+
+def db_options(setting_id, value, tables, car_keys):
+    """The car's legal rows for one DB-referenced setting, or None when there are none.
+
+    None means "nothing to check this against" - the table isn't loaded, or the car has no
+    list for that setting (a rear-drive car has no centre-differential list, and no `Pads`
+    list ships in the game files at all). It is the same lookup `resolve` does, so the two
+    can't drift: a row this returns nothing for is a row `resolve` can't spell either.
+    """
+    _, hint, row = value
+    wheels = car_keys.get('wheels')
+    axle = setting_id.split('.')[1].replace('Left', '').replace('Right', '')
+    if hint == 'GearsSets':
+        sets = tables.get('DT_GearsSetsLists') or {}
+        return sets.get(car_keys.get('gears_sets')) or sets.get(wheels)
+    if hint == 'Gears':
+        table = tables.get(GEAR_TABLES.get(setting_id, ''))
+        return (table or {}).get(wheels)
+    if hint == 'LSDRampAngles':
+        return (tables.get('DT_DiffRampsLists') or {}).get(f'{wheels}_{axle}')
+    if hint == 'MasterCylinders':
+        return (tables.get('DT_MasterCylindersLists') or {}).get(wheels)
+    if hint == 'Discs' and tables.get('DT_DiscsLists'):
+        return _disc_options(tables, wheels, axle) or None
+    if hint == 'Calipers' and tables.get('DT_CalipersLists'):
+        return _caliper_options(tables, wheels, axle) or None
+    return None
+
+
+def db_row_notes(decoded, tables, car_keys):
+    """Every DB reference in a decoded car whose row is not in the car's own list.
+
+    Worth reading after an extraction: it is how a game update that renames a part, or a
+    slot that has quietly moved, shows up as words rather than as a wrong value in a
+    bundled file. The `25//25` filler the drivetrain struct leaves in the gear-ratio slots
+    it doesn't use is the common honest hit - see the Peugeot 206 WRC in the docstring.
+    """
+    notes, seen = [], set()
+    layers = [decoded['base']]
+    for layer in decoded['surfaces'].values():
+        layers.append(layer['overrides'])
+        layers += list(layer['presets'].values())
+    for values in layers:
+        for sid in sorted(values):
+            v = values[sid]
+            if not (isinstance(v, tuple) and v and v[0] == 'db') or (sid, v) in seen:
+                continue
+            seen.add((sid, v))
+            if v[2] is None:
+                notes.append(f'{sid}: the {v[1]} row is unset')
+                continue
+            options = db_options(sid, v, tables, car_keys)
+            if options and v[2] not in options:
+                notes.append(f'{sid}: {v[2]} is in no {v[1]} list for '
+                             f'{car_keys.get("wheels")}')
+    return notes
 
 
 def compose(decoded, surface, preset=None):
@@ -664,16 +744,31 @@ def _steps(template_rows, adjustment):
 def _disc_options(tables, wheels_key, axle):
     """Every disc this car can fit on one axle, in DT_DiscsLists order, deduplicated.
 
-    The per-surface rows (`<prefix>_Tarmac_Front`, `_Gravel_Front`, ...) overlap; the union
-    in table order is what the template's one `Brake Discs <axle>` list is built from.
+    A car has four `DT_DiscsLists` rows per axle - `<prefix>_Tarmac_Front`, `_Gravel_Front`,
+    `_Montecarlo_Front`, `_Sweden_Front` - and they are **not** all the same: on 14 of the
+    36 car/axle groups in `CAR_MAP` they differ, the Lancia Delta's front axle listing 9
+    discs on tarmac and 5 on gravel. What *is* true on all 18 cars is that every per-surface
+    row is a **prefix** of the union in table order, and that is the whole reason a single
+    union can stand in for the per-surface list: a disc has the same index in both, so
+    "position in the option list" is surface-independent and the caller needs no surface.
+
+    That prefix property is asserted here, because the day it stops holding is the day the
+    union silently starts naming the wrong disc.
     """
-    out = []
+    out, rows = [], []
     for row, discs in (tables.get('DT_DiscsLists') or {}).items():
         if not (row.startswith(wheels_key + '_') and row.endswith('_' + axle)):
             continue
+        rows.append((row, list(discs)))
         for d in discs:
             if d not in out:
                 out.append(d)
+    for row, discs in rows:
+        if discs != out[:len(discs)]:
+            raise AssertionError(
+                f'{wheels_key} {axle}: {row} is not a prefix of the union of that axle\'s '
+                f'disc lists, so a disc\'s position is no longer surface-independent - '
+                f'resolve discs and calipers per surface instead')
     return out
 
 
@@ -692,7 +787,11 @@ def _caliper_key(disc_row):
 
 
 def _caliper_options(tables, wheels_key, axle):
-    """Every caliper this car can fit on one axle, in disc order, deduplicated."""
+    """Every caliper this car can fit on one axle, in disc order, deduplicated.
+
+    Surface-independent for the same reason the disc list is: a first-appearance union over
+    a prefix of the discs is a prefix of the union over all of them.
+    """
     calipers = tables.get('DT_CalipersLists') or {}
     out = []
     for disc in _disc_options(tables, wheels_key, axle):
@@ -705,19 +804,34 @@ def _caliper_options(tables, wheels_key, axle):
 BORE = re.compile(r'\d+x[\d.]+(?:/[\d.]+)?', re.I)
 
 
-def _by_bore(part, steps):
-    """The one template step whose text starts with this caliper's bore, or None.
+def _bore(part):
+    """`Brembo_4Pot_Type6_4x42_BremboCaliper02` -> `4x42`, or None."""
+    found = BORE.findall(part)
+    return found[-1].lower() if found else None
+
+
+def _by_bore(part, steps, options):
+    """The one template step this caliper's bore names, or None when it isn't the one.
 
     The fallback for a car whose caliper option list is longer than the template's - the
-    037's rear axle lists three calipers where the screenshot-era template kept two. A
-    part id spells its bore (`Brembo_4Pot_Type6_4x42_BremboCaliper02` -> `4x42`), and the
-    template's strings start with it (`4x42 Type1`), so the match is exact whenever it is
-    unique. Ambiguous (the Stratos front has two `2X48` calipers) means None.
+    037's rear axle lists three calipers where the screenshot-era template kept two, so
+    position-for-position mapping is off the table. A part id spells its bore, and the
+    template's strings start with it (`4x42 Type1`).
+
+    It refuses unless the bore identifies the caliper on **both** sides: exactly one
+    template step may start with it, and exactly one of the car's options for that axle may
+    carry it. The `TYPE<n>` index in the template's strings is a UI number that is in no
+    game file (see README.md - *What it doesn't touch*), so with two same-bore options
+    there is nothing left to tell them apart - the 037's rear axle fits both a
+    `Brembo_2Pot_Type4_2x48` and an `ATE_Porsche_911_S-Type_2x48`, and guessing between
+    them would put a wrong part in a bundled setup. Unfilled and reported is the honest
+    answer; the Stratos's front axle is the same story.
     """
-    found = BORE.findall(part)
-    if not found:
+    bore = _bore(part)
+    if bore is None:
         return None
-    bore = found[-1].lower()
+    if len([o for o in options if _bore(o) == bore]) != 1:
+        return None
     hits = [s for s in steps if s.lower().replace(' ', '').startswith(bore)]
     return hits[0] if len(hits) == 1 else None
 
@@ -736,6 +850,8 @@ def resolve(value, adjustment, template_rows, tables, car_keys):
     |                   | as the same position in the template's Discrete steps   |
     """
     _, hint, row = value
+    if row is None:
+        return None            # a zero-masked FName: the row was never set
     if hint == 'GearsSets':
         sets = tables.get('DT_GearsSetsLists') or {}
         # the Peugeot 208 declares no gear-set range override, so its asset names no
@@ -757,7 +873,7 @@ def resolve(value, adjustment, template_rows, tables, car_keys):
         steps = _steps(template_rows, adjustment)
         if row in options and len(options) == len(steps):
             return steps[options.index(row)]
-        return _by_bore(row, steps) if hint == 'Calipers' else None
+        return _by_bore(row, steps, options) if hint == 'Calipers' else None
     return None
 
 
@@ -766,8 +882,9 @@ def to_adjustments(values, template_rows, tables, car_keys):
 
     `values` is one composed setup (`compose`); `template_rows` the car template's
     parameter rows as `extract_car_catalog.read_old` returns them; `tables` the DataTables
-    `extract_car_catalog` already loads; `car_keys` the car's DataTable row keys plus the
-    surface these values are for - `dict(car_keys_from(pkg), surface=surface)`.
+    `extract_car_catalog` already loads; `car_keys` the car's DataTable row keys, exactly
+    `car_keys_from(pkg)` - **no surface**, because a disc's and a caliper's position in the
+    car's option list is the same on every surface (see `_disc_options`).
 
     Corner values are collapsed to axles and left is asserted equal to right. A value the
     game data has no source for - `Tyre Type`, `ABS Map`, `TCS Map` - is left out and

@@ -55,8 +55,7 @@ def setup_of(basename, slug, surface, preset='Balanced', tabs=None):
     pkg = package(basename)
     decoded = D.decode_car(pkg, tabs)
     values = D.compose(decoded, surface, preset)
-    return D.to_adjustments(values, template(slug), tabs,
-                            dict(D.car_keys_from(pkg), surface=surface))
+    return D.to_adjustments(values, template(slug), tabs, D.car_keys_from(pkg))
 
 
 def off_grid(slug, surface, adjustments):
@@ -224,6 +223,23 @@ class Evo2(unittest.TestCase):
         self.assertEqual(6, tarmac['Plates Number Rear'])
         self.assertEqual([], off_grid('lancia-037-evoluzione-2-1984', 'Tarmac', tarmac))
 
+    def test_the_bore_fallback_fills_one_rear_caliper_and_refuses_the_other(self):
+        """The 037's rear axle is where position-for-position mapping runs out.
+
+        Three calipers fit its rear discs and the screenshot-era template lists two, so the
+        fallback matches the part's bore instead. Tarmac fits the `4x42`, which is the only
+        `4x42` on either side - filled. Gravel fits `Brembo_2Pot_Type4_2x48`, and the axle
+        also takes an `ATE_Porsche_911_S-Type_2x48`; the `TYPE<n>` in the template's strings
+        is a UI number that is in no game file, so nothing can say which of the two the
+        single `2x48 Type3` step means - refused and reported, not guessed.
+        """
+        tarmac, tarmac_gaps = setup_of(EVO2, 'lancia-037-evoluzione-2-1984', 'Tarmac')
+        gravel, gravel_gaps = setup_of(EVO2, 'lancia-037-evoluzione-2-1984', 'Gravel')
+        self.assertEqual('4x42 Type1', tarmac['Brake Calipers Rear'])
+        self.assertNotIn('Brake Calipers Rear', tarmac_gaps)
+        self.assertNotIn('Brake Calipers Rear', gravel)
+        self.assertIn('Brake Calipers Rear', gravel_gaps)
+
     def test_master_cylinders_come_out_of_the_base_struct(self):
         """The 037 has the two brake slots the Stratos doesn't - slots 8 and 9."""
         base = D.decode_car(package(EVO2), tables())['base']
@@ -268,7 +284,7 @@ class Structure(unittest.TestCase):
         values['Wheels.RearLeft.Camber'] = -1.2
         with self.assertRaises(AssertionError):
             D.to_adjustments(values, template('lancia-stratos'), tabs,
-                             dict(D.car_keys_from(pkg), surface='Tarmac'))
+                             D.car_keys_from(pkg))
 
     def test_every_composed_value_is_on_the_template_grid(self):
         for basename, slug in ((STRATOS, 'lancia-stratos'),
@@ -284,6 +300,75 @@ class Structure(unittest.TestCase):
         for basename in (STRATOS, EVO2):
             with self.subTest(basename):
                 self.assertTrue(D.decode_base(package(basename)))
+
+    def test_a_db_row_the_car_cannot_take_is_reported(self):
+        """The DB-row check has to look in the list the value is actually resolved from.
+
+        A bare `Discs` hint is not a table name, so checking `DT_Discs` finds nothing and
+        the check passes on anything. Here a disc the Stratos does not fit is planted in a
+        decoded car and the note has to name it.
+        """
+        tabs = tables()
+        keys = D.car_keys_from(package(STRATOS))
+        decoded = D.decode_car(package(STRATOS), tabs)
+        self.assertNotIn('Brakes.FrontLeft.Disc', [n.split(':')[0] for n in decoded['notes']])
+        decoded['surfaces']['Tarmac']['overrides']['Brakes.FrontLeft.Disc'] = (
+            'db', 'Discs', 'Brembo_332mm_Type1_332x30_Baffled&Drilled_4x98')
+        notes = D.db_row_notes(decoded, tabs, keys)
+        self.assertIn('Brakes.FrontLeft.Disc: Brembo_332mm_Type1_332x30_Baffled&Drilled_4x98'
+                      ' is in no Discs list for LanciaStratosHF', notes)
+
+    def test_the_only_note_on_the_fixtures_is_the_primary_gear_filler(self):
+        """The check is live, not vacuous - and what it finds on 0.6 is real.
+
+        The Stratos's `PhysicsCarSetup` leaves `25//25` in the primary-gear slot and its
+        `DT_PrimaryGearsLists` row has no such entry, so the base carries no usable primary
+        gear; both of its surfaces override it, which is why the composed setups are fine.
+        """
+        self.assertEqual(['Gearbox.GearboxMain.GearPrimary: 25//25 is in no Gears list '
+                          'for LanciaStratosHF'],
+                         D.decode_car(package(STRATOS), tables())['notes'])
+        self.assertEqual([], D.decode_car(package(EVO2), tables())['notes'])
+
+    def test_an_unset_db_row_is_unfilled_not_a_crash(self):
+        """A zero-masked FName decodes as None; `resolve` must not try to spell it."""
+        tabs = tables()
+        pkg = package(STRATOS)
+        values = D.compose(D.decode_car(pkg, tabs), 'Tarmac', 'Balanced')
+        values['Brakes.FrontLeft.PadCompound'] = ('db', 'Pads', None)
+        values['Brakes.FrontRight.PadCompound'] = ('db', 'Pads', None)
+        adjustments, unfilled = D.to_adjustments(values, template('lancia-stratos'), tabs,
+                                                 D.car_keys_from(pkg))
+        self.assertNotIn('Brake Pads Front', adjustments)
+        self.assertIn('Brake Pads Front', unfilled)
+
+    def test_per_surface_disc_lists_are_prefixes_of_the_union(self):
+        """What makes one union stand in for four per-surface lists - and its guard.
+
+        The rows are not identical (the Delta fits 9 front discs on tarmac and 5 on
+        gravel), but each is a prefix of the union on all 18 cars, so a disc's index is the
+        same whichever surface asks. `_disc_options` raises the moment that stops holding.
+        """
+        tabs = tables()
+        for wheels, axle in (('LanciaStratosHF', 'Front'), ('LanciaStratosHF', 'Rear'),
+                             ('LanciaRally037Evoluzione2', 'Front'),
+                             ('LanciaRally037Evoluzione2', 'Rear')):
+            with self.subTest(wheels=wheels, axle=axle):
+                union = D._disc_options(tabs, wheels, axle)
+                rows = [v for r, v in tabs['DT_DiscsLists'].items()
+                        if r.startswith(wheels + '_') and r.endswith('_' + axle)]
+                self.assertEqual(4, len(rows))
+                for row in rows:
+                    self.assertEqual(list(row), union[:len(row)])
+        broken = {'DT_DiscsLists': {'X_Tarmac_Front': ['a', 'b'], 'X_Gravel_Front': ['b']}}
+        with self.assertRaises(AssertionError):
+            D._disc_options(broken, 'X', 'Front')
+
+    def test_a_per_corner_array_that_is_not_four_long_raises(self):
+        with self.assertRaises(AssertionError):
+            D._by_corner([{}, {}, {}], 'Dampers')
+        self.assertEqual([], D._by_corner([], 'Dampers'))
+        self.assertEqual(4, len(D._by_corner([{}] * 4, 'Dampers')))
 
     def test_car_keys_come_out_of_the_asset(self):
         self.assertEqual({'wheels': 'LanciaStratosHF', 'gears_sets': 'LanciaStratos'},
