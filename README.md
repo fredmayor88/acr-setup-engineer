@@ -342,7 +342,7 @@ identity facts — without touching your setups.
 A refresh does not change a car's parameter list. To change it, say the change in chat (see
 [Change a car's parameter list](#change-a-cars-parameter-list)). (One exception: a car you
 onboarded from screenshots switches to a bundled list when a newer one ships — the refresh tells
-you.)
+you. A list you changed in chat is only ever replaced by a **newer** bundled list.)
 
 **If you onboarded a car with an older version of the skill**, its parameter list may still be
 rows in a `Parameters` table under the root. The first refresh of that car — or the next time the
@@ -359,6 +359,11 @@ template for that car:
   refresh offers to send your capture back to the project as a template.
 - **You didn't give a game version when you took the screenshots** → it asks once. If you're not
   sure, say yes.
+
+**A list you changed in chat works differently.** It is a copy of a bundled list, so the same
+version is not an improvement on it. A refresh switches such a car only when the bundled list is
+for a **newer** game version than the one you copied. Same version: nothing happens, and your
+change stays in use.
 
 **Contributing it back.** If your car had no bundled template, you've just built its catalog by
 hand — and you're the only person who can hand it to the next driver of that car. So at the end it
@@ -457,7 +462,7 @@ line, no tokens.
 *"The Lancia Stratos' front anti-roll bar goes 1 to 6 in steps of 1."* It checks the change and
 updates the car's list. For a bundled car this makes a copy of the list under the car, with your
 change — the skill says so in one line. If that car still has an older list of its own on its
-`Parameters` page, the skill asks before replacing it.
+`Parameters` page, the skill explains what would be replaced and asks first.
 
 ### After you update the skill
 

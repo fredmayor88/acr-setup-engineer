@@ -67,9 +67,10 @@ batched with its other reads:
    `car-templates/` file matches its name, else **screenshot car**.
 
 A user who **declines** the bundled template at onboarding and uploads screenshots gets a car
-whose line says `your screenshots`: it is a screenshot car until a refresh finds a template at
-least as new as the game version on that line, and then it switches to the template on its own
-(`onboard-car.md` → *Refreshing an already-onboarded car*, step 5).
+whose line says `your screenshots`: it is a screenshot car until a refresh finds a bundled
+template that is new enough, and then it switches to the template on its own. **How new the
+template has to be differs between a captured car and a forked one, and `onboard-car.md` →
+*Refreshing an already-onboarded car*, step 5 is the only place that says it.**
 
 **A legacy `Parameters` DB** — created by skill versions before every catalog became a file —
 is **never read and never deleted**. A refresh — or the first workflow that tries to load that

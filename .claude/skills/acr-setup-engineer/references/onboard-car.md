@@ -82,8 +82,9 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
    python scripts/load_catalog.py <file> --header
    ```
    It prints the file's header as one JSON object. `<file>` is `car-templates/<slug>.yaml` for a
-   template car and `parameters/<slug>.yaml` for a screenshot car (`catalog-read.md` → *Slug*;
-   you usually already hold that file from this run — don't fetch it twice). The nine keys are
+   template car and `parameters/<slug>.yaml` for a screenshot car (`catalog-read.md` → *Slug*,
+   *Save the file*: fetch and save the page if you don't already hold the file from this run —
+   step 3 or an earlier read). The nine keys are
    `drivetrain`, `engine_layout`, `weight_bias`, `weight`, `max_power`, `max_torque`, `class`,
    `gearbox`, `steering_lock`.
 
@@ -128,14 +129,25 @@ field-by-field comparison and no questions**, because nothing the user wrote liv
      template version) against the `version:` of a `car-templates/` file that matches the car
      (matching rule: *Procedure* step 1 → *Matching a car name*). Compare as version numbers
      (`0.10` is newer than `0.9`).
-     - **A template matches and its version is the same or newer** → **switch to the template,
-       no question.** Run step 4 as a template car (its source line becomes `bundled template`),
+     - **A template matches and its version clears the bar for this kind of car** → **switch to
+       the template, no question.** Two kinds, two bars:
+       - **Captured car** (its source line says `your screenshots — game version {v}`) → switch
+         when the template's `version:` is **the same as or newer than** `{v}`.
+       - **Forked car** (its source line says `started from bundled template v{tv}`, and its
+         header has `forked_from`) → switch only when the template's `version:` is **strictly
+         newer than the version in `forked_from`**.
+
+       To switch: run step 4 as a template car (its source line becomes `bundled template`),
        insert the *Not in use* line as the **second block** of the `Parameters` page, right under
        its maintenance line (exact wording: `notion-structure.md` → *`Parameters` page*, item 2)
        — leave the `yaml` block as it is — and say in one line: *"The {Car} now uses the bundled
        template (game version {template version}) instead of your own list (game version
        {capture version}). Your list stays on its `Parameters` page, not in use. To go back, say
        'onboard the {Car} from my screenshots'."*
+     - **A forked car whose matching template is the same version as its `forked_from`** →
+       **keep the car's own list, and say nothing about it.** The fork was copied from that very
+       template, so switching would silently undo the user's own edit. Write nothing to its
+       `Parameters` page — no *Not in use* line — and don't mention the template in the report.
      - **The capture version is `unknown`** → ask **once**, and recommend yes: *"The skill has a
        bundled template for the {Car} (game version {template version}). Switch to it? If you're
        not sure, say yes — the template is kept up to date with the game, and your own list stays
@@ -284,7 +296,9 @@ whichever workflow first tries to load that car's catalog (the one write a read 
       it stops with that same re-onboard line until the user captures the car again.
 2. **Write the page**: `python scripts/load_catalog.py --to-template rows.json`, and create the
    `Parameters` page under `{Car}` with the maintenance line and the output as its `yaml` block
-   (`notion-structure.md` → *`Parameters` page*).
+   (`notion-structure.md` → *`Parameters` page*), and write the same output to
+   `parameters/<slug>.yaml` in the sandbox (`catalog-read.md` → *Slug*, *Save the file*), so the
+   rest of this run can load it without fetching the page again.
 3. **Rebuild the `Catalog` page** without the snapshot toggle, as **one replacement** of the page
    body: its maintenance line, the nine identity facts, the catalog source line, and nothing else
    (`notion-structure.md` → *`Catalog` page*). Inside a refresh, refresh step 4 rebuilds this

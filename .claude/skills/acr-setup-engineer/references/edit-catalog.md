@@ -55,7 +55,7 @@ that changes what values a car's parameter may take. (A request to change a **se
 5. **Show before → after** for each changed row (`Adjustment`, surface if any, `Min`, `Max`,
    `Unit`, `Discrete steps`) and ask: *"Write this to the {Car}'s parameter list?"* Only on yes.
 
-6. **Write the page.** These sub-steps in order; don't skip 6.5.
+6. **Write the page.** These sub-steps in order; don't skip 6.5, unless 6.4 stopped on a "no".
 
    1. **Build `rows.json`**: `{"header": …, "rows": <the edited list>}`. For the header, run
       ```
@@ -95,20 +95,39 @@ that changes what values a car's parameter may take. (A request to change a **se
         (`notion-structure.md` → *`Parameters` page*, item 2). **Fetch that page** — you need
         its blocks to replace them, its *Not in use* line for the date, and the `version:` in its
         `yaml` header for the game version. **That parked list is the user's own captured data
-        and this replaces it, so ask first**: say in one line what is parked there (*"The {Car}'s
-        `Parameters` page still holds your own captured list from game version {version}, not in
-        use since {date}. Writing this change replaces it."* — drop either fact from the sentence
-        if the page doesn't give it) and ask *"Replace it?"* **Only on yes.** On no, stop — nothing is written
-        anywhere. On yes, **don't create a second page**: on that page, replace its `yaml` block
-        with the output, replace its first line with the **forked** maintenance line, and
-        **delete the *Not in use* line** — the list is in use again.
+        and this replaces it, so explain the situation and ask first — before anything is
+        written to Notion.** Say exactly this, with the facts filled in:
 
-   5. **Any template car — page created or reused — then rewrite the `Catalog` page.** One
+        > *"Quick check before I change anything. The {Car} has two parameter lists. One is the
+        > list built into the skill, which the car uses right now. The other is an older list of
+        > your own (from {date}, game version {version}) that is parked on the car's `Parameters`
+        > page and not in use. To make your change, I copy the built-in list, apply your change
+        > to the copy, and put that copy on the `Parameters` page — which replaces the parked
+        > list. The parked list is not kept anywhere else. Do you want me to replace it?
+        > (yes / no)"*
+
+        `{Car}` is the car's Notion page title, `{date}` comes from the page's *Not in use* line
+        and `{version}` from the `version:` in its `yaml` header. **If one of those facts is
+        unreadable, drop that clause and keep the rest of the text.** **Only on yes.**
+        - **No** → stop. **Nothing is written to Notion at all**: the car keeps the built-in
+          list, and the parked list stays on the page exactly as it is (6.2's
+          `parameters/<slug>.yaml` is a sandbox file and is simply not used). Say one line:
+          *"Nothing changed. If you want the parked list back in use, say 'onboard the {Car} from
+          my screenshots' and give it again."*
+        - **Yes** → **don't create a second page**: on that page, replace its `yaml` block with
+          the output, replace its first line with the **forked** maintenance line, and **delete
+          the *Not in use* line** — the list is in use again.
+
+   5. **Any template car whose list 6.4 just wrote — page created or reused — then rewrite the
+      `Catalog` page.** One
       replacement of the page body (it is disposable — `onboard-car.md` refresh step 4), with the
       source line
       `**Catalog source:** your screenshots — started from bundled template v{tv} on {YYYY-MM-DD}`.
       **Without this the car still reads as a template car and the list you just wrote is never
-      read again**, so it runs in **every** fork case, not just the one that created the page.
+      read again**, so it runs in **every** fork case that wrote a list — the created page and
+      the replaced parked list alike — not just the one that created the page. **It does not run
+      when 6.4 stopped on a "no"**: nothing was written there, so there is nothing to point the
+      `Catalog` page at.
       **The power/torque chart and the gearing-tool link are written exactly as a refresh writes
       them — from the bundled file that matches this car, which is where they still live**
       (`notion-structure.md` → *Engine chart and gearing tool*). Forking does not lose them.
@@ -122,15 +141,15 @@ that changes what values a car's parameter may take. (A request to change a **se
 
 8. **Report, one line.** Screenshot car: *"Updated the {Car}'s parameter list: {what changed}."*
    Forked template car: *"Done. The {Car} now uses its own parameter list (copied from the
-   bundled template, with this change). When a newer bundled template ships, a refresh will
-   offer to switch back."* Forked onto a page that held a parked list (6.4's second case), add:
+   bundled template, with this change). When a newer bundled template ships, a refresh switches
+   the car to it and parks this list; the refresh tells you."* Forked onto a page that held a parked list (6.4's second case), add:
    *"It replaces the earlier list that was parked on the `Parameters` page."*
 
 ## Rules
 - **Validate, show, confirm, then write.** Never write an unconfirmed change.
 - **The page's block is replaced whole**, from the script's output — never patched by hand.
 - **Forking a bundled car asks no question** — unless it would overwrite a parked list on an
-  existing `Parameters` page (6.4), which is the user's own captured data and is asked about
-  first. Otherwise the one-line report says what happened.
+  existing `Parameters` page (6.4), which is the user's own captured data: there the skill
+  asks first, explaining what is replaced. Otherwise the one-line report says what happened.
 - **Never touch `Setups` rows** — a range change doesn't rewrite existing setups.
 - Stay within `ACR Setup Engineer` scope.
