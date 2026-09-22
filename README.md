@@ -206,8 +206,9 @@ It doesn't get in your way, and there's plenty here for you:
   still yours.
 - **It needs Notion** for the full experience (free account is fine). Save-file recovery works
   without it.
-- **Claude's Free plan runs a reduced mode** — every car works fully, but it can't read your
-  saved setups back, so it can't learn from them. Details in
+- **Claude's Free plan runs a reduced mode** — every car works fully, and setups the skill saves
+  from this version on are learned from through the car's `Setup index`. Older setups need their
+  link pasted once. Details in
   [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do).
 - The skill is free; running Claude heavily may not be.
 
@@ -246,7 +247,7 @@ Two channels talk to Notion on purpose: **writes** go through the claude.ai Noti
    only** — if one is already open, start another.
    **On the Free plan the "All domains" option doesn't exist** — egress stops at package managers,
    and no setting changes that. The skill still works, and every car works fully; only your saved
-   setups can't be read back (see
+   setups are read through the car's `Setup index` instead of the table (see
    [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)).
 3. **Add the skill.** Download **`acr-setup-engineer-skill-vX.Y.Z.zip`** (the latest version) from
    [Releases](../../releases). claude.ai → Settings → **Customize → Skills → Add skill** →
@@ -838,10 +839,14 @@ onboarded from screenshots. Their parameter lists need no token and no network. 
 much older version of the skill may need one re-onboard from screenshots. The skill tells you
 which. What follows is about your setup history, which affects every car. What that costs you:
 
-- **No setup history.** Saved setups can't be read back: setups you ticked `Learn from this`
-  don't shape new builds, and a stored game-default baseline can't be reused — you'll be asked to
-  screenshot the default again. Anything captured in the current chat works normally. The skill
-  checks this once at the start of a chat and tells you in one line; it doesn't keep trying.
+- **Setup history comes from a list, not the table.** Every setup the skill saves from this
+  version on is listed under `Setup index` on the car's `Setups` page. A build reads the listed
+  setups closest to the stage, up to 6, and learns from the ones you ticked `Learn from this`; say
+  "also learn from my other {car} setups" to read more. Setups saved by older versions or made by
+  hand aren't listed — paste a setup's link in the chat and say "learn from this one too" to add
+  it. Add ` - learn: yes` or ` - learn: no` to the end of a line to force a setup in or out.
+- **A stored game default is found the same way** — only when the skill saved it from this version
+  on. Otherwise you're asked to screenshot it, and can say no.
 - **Skip the read-only token setup.** The token only feeds the REST path, which can't run on
   Free. Nothing to configure.
 
@@ -859,7 +864,7 @@ On Pro or Max, set **Network egress → All domains** (install step 2) and none 
 - **Token is set but reads still fail** → confirm **Network egress** is **All domains**
   (Settings → Capabilities, install step 2), then start a **new chat** — capability changes don't
   apply to one that's already open. On **Free** that option doesn't exist, so your setup history
-  can't be read — by design (see
+  is read from each car's `Setup index` — by design (see
   [What Claude's Free plan can't do](#what-claudes-free-plan-cant-do)). Every car still works.
 - **Hitting limits on Free** → the workflows run several steps; Pro has more headroom.
 - **A value looks slightly "off"** → expected for continuous settings; dial to the nearest in-game

@@ -106,6 +106,11 @@ class TestSetupIndex(unittest.TestCase):
         for name in ('review-setup.md', 'ask-setups.md', 'share-setup.md', 'tweak-setup.md'):
             self.assertIn('Finding one setup by name', self.ref(name), name)
 
+    def test_readme_no_longer_says_no_setup_history(self):
+        text = read(os.path.join(SKILL, '..', '..', '..', 'README.md'))
+        self.assertNotIn('**No setup history.**', text)
+        self.assertIn('Setup index', text)
+
 
 if __name__ == '__main__':
     unittest.main()

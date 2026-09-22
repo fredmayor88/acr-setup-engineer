@@ -46,6 +46,10 @@ Swap in your own car, stage and setup names.
 - **Ask a question** — "why is the rear anti-roll bar so soft in stratos turini?", or "what does
   diff preload do?".
 - **Share a setup** — "share stratos turini". Plain text to paste anywhere.
+- **Use an older setup on Claude's Free plan** — paste its Notion link in the chat and
+  say "learn from this one too". Setups the skill saves are listed on the car's `Setups` page
+  under `Setup index`; add ` - learn: yes` to the end of a line to always learn from that setup,
+  or ` - learn: no` to never read it.
 - **Save your own setup** — "store these screens as my tarmac for the Lancia Stratos", with photos
   of the setup screens.
 - **Import a save file** — "import my setups from this save file", with the game's `.sav` file
@@ -63,7 +67,9 @@ Swap in your own car, stage and setup names.
   writes to them.
 - Each car's **`Log`** — shared. Write your own notes anywhere; the skill adds a dated entry each
   time you tell it how a drive felt, and never changes anything already there.
-- Each car's **`Setups`** — the skill adds setups; your own edits to them are never overwritten.
+- Each car's **`Setups`** — the skill adds setups and keeps the `Setup index` list under the
+  table; your own edits to setups are never overwritten, and the only part of the list you edit
+  is a ` - learn: yes` / ` - learn: no` at the end of a line.
 - **`How to use`**, **`Claude Free plan`**, **`Parameter reference`** and each car's **`Catalog`**
   — the skill's. Updates replace them, so don't write there.
 - **`Config`** — holds your read-only Notion token, if you set one up.

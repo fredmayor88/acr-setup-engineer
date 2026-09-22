@@ -15,8 +15,10 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
     documentation pages. `tests/test_notion_docs_pages.py` fails when a routed workflow is missing
     from the `How to use` template's `Covers:` line — give the page a line for it, then add it.
     `tests/test_references.py` guards the references against the machinery this design removed —
-    catalog snapshots, `Parameters` DB reads, paste routes — and checks that every
-    catalog-loading workflow points at `catalog-read.md`.
+    catalog snapshots, `Parameters` DB reads, paste routes — checks that every
+    catalog-loading workflow points at `catalog-read.md`, and guards the `Setup index` rules
+    (every saver adds a line, refresh never writes it). `tests/test_setups_list.py` covers
+    `scripts/setups_list.py` itself — line formatting and parsing back.
   - `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions,
     create-if-missing rules. **The source of truth for the data model.**
   - `references/notion-rest-read.md` — the way every workflow reads **rows in Notion**: the
@@ -27,11 +29,15 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
   - `references/catalog-read.md` — the **one** path that loads a car's catalog, for every
     workflow that needs legal values. The two kinds of car are defined in
     `references/notion-structure.md` → *Where a car's catalog lives*.
+  - `references/setups-list-read.md` — the **one** path that reads a car's setups when the REST
+    query can't run (offline mode): the `Setup index` list on the car's `Setups` page, parsed by
+    `scripts/setups_list.py`.
   - `scripts/` — the stdlib-only Python the skill runs in the user's code sandbox (no PyYAML
     there): `parse_acr_save.py` (save-file import), `load_catalog.py` (a template file read as a
     catalog — rows in the REST read's shape, surface resolution, `--check` validation,
-    `--to-template`) and `query_notion_parameters.py` (`Setups` reads and
-    `--show-order --from-template`).
+    `--to-template`), `query_notion_parameters.py` (`Setups` reads and
+    `--show-order --from-template`) and `setups_list.py` (the `Setup index` line format — write
+    a line, pick or find setups, never hand-formatted).
   - `references/setup-tuning-principles.md` — drivetrain-tagged tuning reasoning base.
   - `references/driving-feedback-interview.md` — the shared symptom→cause question bank (beginner
     interviewing rules, pre-drive briefing, gearing sub-interview) and the **fix-order ladder**.

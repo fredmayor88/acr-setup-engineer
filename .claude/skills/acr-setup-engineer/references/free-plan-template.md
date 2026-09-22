@@ -20,13 +20,22 @@ On Claude's Free plan the skill can't connect to Notion's API. Only Pro and Max 
 that, and it can't be turned on for Free. The skill checks once at the start of each chat and, when
 it can't connect, says so in one line. Nothing is broken. This is what changes.
 
-## What doesn't work
+## What's different
 
-- **Your saved setups can't be read back.** Setups you ticked **`Learn from this`** don't shape new
-  setups, and ratings don't either. Your setups are still saved to Notion, and you can open them
-  there as usual.
-- **A saved game default can't be reused.** When a build starts from the game's default setup,
-  you'll be asked for screenshots of it again.
+- **Your saved setups are read from a list, not from the table.** Every setup the skill saves
+  from v{version} on is listed on the car's `Setups` page, under the heading `Setup index`. When
+  you build, the skill reads the listed setups closest to your stage, **up to 6**, and uses the
+  ones you ticked **`Learn from this`**, with their ratings. It tells you which ones it read. Say
+  **"also learn from my other {Car} setups"** to read more.
+- **Older setups aren't on the list.** Setups saved before v{version}, and setups you made by hand
+  in Notion, don't count until you add them: paste its Notion link in the chat and say
+  **"learn from this one too"**.
+- **A saved game default is reused when it's on the list.** If the skill saved the default for
+  this stage from v{version} on, it finds it. Otherwise it asks for screenshots of the default,
+  and builds without them if you'd rather not.
+- **You can force a setup in or out.** On the car's `Setups` page, add ` - learn: yes` to the end
+  of a setup's line to always learn from it, or ` - learn: no` to never read it. Only edit the end
+  of the line; the skill never writes that part.
 
 ## What works
 
@@ -40,11 +49,11 @@ it can't connect, says so in one line. Nothing is broken. This is what changes.
 ## Things to know
 
 - **Skip the token on the `Config` page.** It needs the connection Free doesn't have.
-- **Long chats can hit Free's limits.** Some requests run several steps. If a chat stops, start a
-  new one and ask again.
+- **Long chats can hit Free's limits.** Some requests run several steps, and each saved setup the
+  skill reads costs a step. If a chat stops, start a new one and ask again.
 
 ## Moving to Pro or Max
 
 Open Settings → Capabilities → Network egress, choose **All domains**, set up the token on the
-`Config` page, and start a new chat. Everything above then works, including learning from your
-saved setups.
+`Config` page, and start a new chat. The skill then reads your whole `Setups` table, including
+setups made before v{version} and by hand. The `learn: yes` / `learn: no` marks keep working.

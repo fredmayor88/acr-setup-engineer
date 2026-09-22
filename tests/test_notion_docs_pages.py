@@ -59,6 +59,11 @@ class TestHowToUsePage(unittest.TestCase):
         _, body = split(HOW_TO)
         self.assertIn('Claude Free plan', body)
 
+    def test_mentions_the_setup_index_override(self):
+        _, body = split(HOW_TO)
+        self.assertIn('learn: yes', body)
+        self.assertIn('paste', body.lower())
+
 
 class TestFreePlanPage(unittest.TestCase):
     def test_banner_carries_the_version(self):
@@ -68,6 +73,13 @@ class TestFreePlanPage(unittest.TestCase):
     def test_names_learn_from_this(self):
         _, body = split(FREE)
         self.assertIn('Learn from this', body)
+
+    def test_no_longer_claims_setups_cannot_be_read(self):
+        _, body = split(FREE)
+        self.assertNotIn("can't be read back", body)
+        self.assertIn('Setup index', body)
+        self.assertIn('up to 6', body)
+        self.assertIn('learn: yes', body)
 
 
 class TestNoRemovedCommands(unittest.TestCase):
