@@ -30,9 +30,9 @@ it can't connect, says so in one line. Nothing is broken. This is what changes.
 - **Older setups aren't on the list.** Setups saved before v{version}, and setups you made by hand
   in Notion, don't count until you add them: say **"index these setups:"** followed by the setups' Notion
   links (open a setup in Notion and copy its link). As many links as you like, in one message.
-- **A saved game default is reused when it's on the list.** If the skill saved the default for
-  this stage from v{version} on, it finds it. Otherwise it asks for screenshots of the default,
-  and builds without them if you'd rather not.
+- **Setups start from the game's own default setup**, built into the skill for every bundled car
+  (game version {version}) — no screenshots. Only a car you onboarded from screenshots still uses
+  a default you captured, or asks for its screenshots.
 - **You can force a setup in or out.** On the car's `Setups` page, add ` - learn: yes` to the end
   of a setup's line to always learn from it, or ` - learn: no` to never read it. Only edit the end
   of the line; the skill never writes that part.

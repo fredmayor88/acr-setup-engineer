@@ -191,8 +191,16 @@ would rather just have a setup now, build one.
 
 4. **Establish the baseline (the game's default setup).**
 
-   **A car with a bundled setups file** (`car-setups/<slug>.yaml` exists in the skill — the same
-   slug as its template) anchors on it, on every plan, with no Notion read and no screenshots:
+   **Decide the branch with a command**, not a file-existence guess — `<slug>` is the car's slug,
+   the same one its template uses:
+   ```
+   python scripts/load_default_setup.py --list <slug>
+   ```
+   Exit 0 → the car has a bundled `car-setups/<slug>.yaml` file — the **bundled-anchor branch**
+   below. Exit 1 → no such file — the **screenshot-car branch** further down.
+
+   **Bundled-anchor branch.** Anchors on the bundled file, on every plan, with no Notion read and
+   no screenshots:
    ```
    python scripts/load_default_setup.py --car <slug> --surface {Surface}
    ```
@@ -202,10 +210,23 @@ would rather just have a setup now, build one.
    {Surface} (game version {version})"*, and when the output's `fallback` is `"Gravel"`, say the
    Snow anchor is the gravel preset because the game has no Snow default for this car. Notion
    `Source = default` rows are **not read** for such a car, whatever they hold.
+   - **This command can fail too — handle both exit-1 cases.** If it exits 1 because the preset
+     isn't in the file (the user asked for `Aggressive` on a car that has only `Balanced`), run it
+     again without `--preset` and say in one line that this car has only the Balanced default. If
+     it exits 1 because the surface isn't in the file and there is no fallback, say so in one line
+     and continue as a car with no bundled file for this build (the screenshot-car branch below).
+   - **`values` never carries every parameter.** `Tyre Type`, `ABS Map`, `TCS Map`, `Additional
+     Lights` are not in the game's default data and are absent from `values`; on some cars a
+     brake-part row is absent too. Step 8 chooses those exactly as it always has (tyre first, from
+     the catalog) — never leave one blank.
+   - **A bundled value that fails the catalog check is the game's own.** Keep it in the anchor
+     exactly as loaded, say in one line *"the game's default {Parameter} is {value}, which is off
+     this template's grid — kept as the game ships it"*, never clamp it, and never treat the
+     template as stale because of it. Only values the build **changes** must be legal (step 9).
 
-   **A car with no bundled setups file** (a screenshot car) uses the stored defaults: fetch this
-   car's `Source = default` rows (`… --source default`, per [notion-rest-read.md](notion-rest-read.md))
-   in the step 1–4 batch — or, in offline mode, the default the car's `Setup index` gives
+   **Screenshot-car branch** uses the stored defaults: fetch this car's `Source = default` rows
+   (`… --source default`, per [notion-rest-read.md](notion-rest-read.md)) in the step 1–4 batch —
+   or, in offline mode, the default the car's `Setup index` gives
    ([setups-list-read.md](setups-list-read.md) → *Reading a car's setups on Free*) — then match on
    the **full capture context** — stage, surface, **and conditions**. Read values from the
    **row value properties**, never the page prose (`SKILL.md` → *A setup's real values are its row*).
@@ -275,10 +296,10 @@ would rather just have a setup now, build one.
    The values are now captured — but **not yet judged fit to drive**. Go to step 5b.
 
 5b. **Sanity-check the baseline before recommending a drive.** Run this whenever a default's values
-   are in hand and about to become the anchor — a fresh capture (step 5), an exact-context match, or
-   a user-confirmed reuse (step 4). **ACR's defaults are sometimes from the wrong regime entirely**
-   (the recurring case: a dry-tarmac setup offered for the same stage in snow conditions), and the
-   numbers say so before anyone drives it.
+   are in hand and about to become the anchor — **a bundled anchor (step 4)**, a fresh capture
+   (step 5), an exact-context match, or a user-confirmed reuse (step 4). **ACR's defaults are
+   sometimes from the wrong regime entirely** (the recurring case: a dry-tarmac setup offered for
+   the same stage in snow conditions), and the numbers say so before anyone drives it.
 
    **The bar is *wrong-regime or self-contradictory*, not *suboptimal*.** A default that's merely
    not ideal is exactly what the anchor-plus-interview flow exists for — don't fail it. Only fail a
@@ -309,7 +330,11 @@ would rather just have a setup now, build one.
      [driving-feedback-interview.md](driving-feedback-interview.md) (corner-phase vocabulary, a short
      "what to pay attention to" list tailored to this stage's facts, the gearing prompts), ask them to
      drive it, and **stop** — step 6 picks up when they report back. **On a stored default that
-     passes, stay silent**: no commentary, no write. Don't re-litigate a baseline on every repeat build.
+     passes, stay silent**: no commentary, no write. **On a bundled anchor that passes, also stay
+     silent — and skip asking them to drive it at all**: go straight on to step 6 (which then finds
+     nothing was driven and skips itself, per its own rule) and step 7 — the anchor already holds the
+     game's exact values for this surface, so there is nothing to send them out to confirm first.
+     Don't re-litigate a baseline on every repeat build.
    - **Locally broken** — a few parameters are wrong-regime but the rest is plausible → **keep the
      default as the anchor and override only the flagged parameters** (step 8). Name them in plain
      language and say why (*"the game's giving you tarmac tyres on a snow stage — I've swapped those
@@ -321,6 +346,12 @@ would rather just have a setup now, build one.
      briefing them before they drive the built setup, and say so in the report (step 12) and page
      body (step 11).
 
+   **A bundled anchor that fails is judged the same way — it is just never re-captured.** The
+   *Locally broken* and *Broadly broken* routes above apply to it unchanged: say what's wrong and
+   handle it exactly as they describe. The one difference is that a bundled anchor has no
+   screenshots to re-shoot and no capture path to fall through to (unlike step 4's screenshot-car
+   branch) — the two routes above are the whole story for it.
+
    **Never a gate.** If the user wants to drive the default anyway, accept it without arguing and
    continue the normal path (briefing → drive → step 6).
 
@@ -329,7 +360,8 @@ would rather just have a setup now, build one.
    dated **"Baseline assessment"** block in the page body (same placement and shape as "Captured
    under" — not inside a toggle): the verdict, what was flagged, and how it was handled (anchored with
    overrides / no anchor / driven anyway). Conventions: `notion-structure.md` → *Default (stock)
-   baseline rows*.
+   baseline rows*. **A bundled anchor has no row to record this on — there is no `Setups` row for
+   it — so skip the write entirely** and let the report (step 12) carry the verdict instead.
 
 6. **Interview the driver.** Only when the default was actually driven (step 5b's *sensible* route,
    or a user who chose to drive it anyway) — a rejected default is never driven, so this step is
@@ -441,10 +473,11 @@ would rather just have a setup now, build one.
    of `Brake Discs` and `Brake Calipers` is a member of **its own** `Discrete steps` — **do not**
    enforce disc+caliper *pair* compatibility (the catalog doesn't encode it; the step 12 caveat
    covers a pair that isn't co-selectable in-game). Fix any violation
-   before writing. **Completeness:** confirm **every parameter the car has** (every applicable
-   catalog row for this car, except `FFB Multiplier`) received an explicit value — no
-   applicable parameter is left blank. Any gap from an uncaptured range (step 8) must be
-   resolved with the user before writing.
+   before writing. **A value carried unchanged from a bundled anchor is exempt** (step 4); every
+   value the build **chose or changed** must be legal. **Completeness:** confirm **every parameter
+   the car has** (every applicable catalog row for this car, except `FFB Multiplier`) received an
+   explicit value — no applicable parameter is left blank. Any gap from an uncaptured range
+   (step 8) must be resolved with the user before writing.
 
 10. **Ensure the stage facts page exists in the catalogue (skip if no stage/location was given).**
    Per `notion-structure.md` → *Locations & stages catalogue*, resolve by name under

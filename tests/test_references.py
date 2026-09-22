@@ -139,6 +139,12 @@ class TestBundledDefaults(unittest.TestCase):
     def test_free_read_path_defers_to_bundled_defaults(self):
         self.assertIn('car-setups/', self.ref('setups-list-read.md'))
 
+    def test_off_grid_bundled_values_are_kept_not_clamped(self):
+        self.assertIn('kept as the game ships it', self.ref('build-setup.md'))
+
+    def test_free_plan_template_no_longer_promises_screenshots_for_bundled_cars(self):
+        self.assertNotIn('asks for screenshots of the default', self.ref('free-plan-template.md'))
+
 
 if __name__ == '__main__':
     unittest.main()
