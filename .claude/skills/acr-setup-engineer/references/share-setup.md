@@ -20,7 +20,7 @@ never writes to Notion.
    database — say the setup isn't in the {Car}'s index and offer to add it: *"Paste its Notion
    link here and I'll add it to the index and use it"* (`setups-list-read.md` → *Adding a
    setup by link*). The lookup above is for `egress: ok` only.
-   If not found, list the available setups and ask the user to pick; do not proceed until one
+   If not found on a paid plan (`egress: ok`), list the available setups and ask the user to pick; do not proceed until one
    is identified.
    **Fetch the car's `Catalog` page — and the car's `Parameters` page for a screenshot car — in
    the same batch** (`SKILL.md` → *Read efficiently*): step 2

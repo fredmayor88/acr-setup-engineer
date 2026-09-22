@@ -18,7 +18,7 @@ Usage:
   python scripts/setups_list.py --pick page.md --stage ST --surface SU --conditions C [--limit 6] [--names A B …]
   python scripts/setups_list.py --find NAME page.md
   python scripts/setups_list.py --overrides page.md
-Exit codes: 0 ok · 1 a value can't be written as a line (--line) · 2 bad usage.
+Exit codes: 0 ok · 1 a value can't be written as a line (--line), or the page file doesn't exist · 2 bad usage.
 """
 import argparse
 import json
