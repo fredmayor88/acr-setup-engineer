@@ -118,5 +118,52 @@ class TestSetupIndex(unittest.TestCase):
         self.assertIn('Setup index', text)
 
 
+class TestBundledDefaults(unittest.TestCase):
+    def ref(self, name):
+        return read(os.path.join(SKILL, 'references', name))
+
+    def test_build_anchors_on_the_bundled_setup(self):
+        text = self.ref('build-setup.md')
+        self.assertIn('load_default_setup.py --car', text)
+        self.assertIn('car-setups/', text)
+
+    def test_skill_md_names_the_loader_and_game_version(self):
+        text = read(os.path.join(SKILL, 'SKILL.md'))
+        self.assertIn('scripts/load_default_setup.py', text)
+        self.assertIn('GAME_VERSION', text)
+
+    def test_game_version_fills_the_column(self):
+        for name in ('build-setup.md', 'tweak-setup.md', 'capture-setup.md'):
+            self.assertIn('GAME_VERSION', self.ref(name), name)
+
+    def test_free_read_path_defers_to_bundled_defaults(self):
+        self.assertIn('car-setups/', self.ref('setups-list-read.md'))
+
+    def test_the_notion_read_path_defers_to_bundled_defaults(self):
+        """The `--source default` query is for screenshot cars only.
+
+        Every place notion-rest-read.md mentions the stored-default slice has to say so, or a
+        template car's build spends a read on rows it must not use.
+        """
+        self.assertIn('car-setups/', self.ref('notion-rest-read.md'))
+
+    def test_off_grid_bundled_values_are_kept_not_clamped(self):
+        self.assertIn('kept as the game ships it', self.ref('build-setup.md'))
+
+    def test_free_plan_page_promises_the_bundled_default_and_its_version(self):
+        """The page body has to state where the default comes from, with the game version.
+
+        The old test asserted the *absence* of a sentence nobody had written, so it passed on
+        an empty page. This one fails if the promise or the version placeholder goes away.
+        """
+        body = self.ref('free-plan-template.md').partition('\n---\n')[2]
+        self.assertIn('built into the skill', body)
+        self.assertIn('{game_version}', body)
+
+    def test_how_to_use_page_carries_the_game_version(self):
+        body = self.ref('how-to-use-template.md').partition('\n---\n')[2]
+        self.assertIn('{game_version}', body)
+
+
 if __name__ == '__main__':
     unittest.main()

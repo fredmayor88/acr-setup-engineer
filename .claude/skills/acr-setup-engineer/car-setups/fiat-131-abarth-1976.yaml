@@ -1,0 +1,126 @@
+car: "Fiat 131 Abarth 1976"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.017
+      "Spring Stiffness Front": 36200
+      "Adjuster Ring Rear": 0.052
+      "Spring Stiffness Rear": 23678
+      "Slow Bump Front": 4250
+      "Slow Rebound Front": 4250
+      "Fast Bump Front": 2750
+      "Fast Rebound Front": 3750
+      "Bump Transition Front": 0.15
+      "Rebound Transition Front": 0.15
+      "Slow Bump Rear": 2750
+      "Slow Rebound Rear": 5500
+      "Fast Bump Rear": 2250
+      "Fast Rebound Rear": 5250
+      "Bump Transition Rear": 0.15
+      "Rebound Transition Rear": 0.15
+      "Anti-roll Bar Stiffness Front": 7500
+      "Anti-roll Bar Stiffness Rear": 0
+      "Differential Ratio Rear": "40//7"
+      "LSD Power/Coast Ramp Rear": "45/45"
+      "LSD Preload Rear": 70
+      "Plates Number Rear": 4
+      "Pressure Front": 26
+      "Camber Front": -0.5
+      "Toe Front": 0.0003
+      "Pressure Rear": 26
+      "Camber Rear": -1.4
+      "Toe Rear": 0
+      "Brake Discs Front": "300/190X20 P TYPE1"
+      "Brake Calipers Front": "4X38.1 TYPE2"
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.7
+      "Front Cylinder": "19.05"
+      "Rear Cylinder": "22.23"
+      "Handbrake Force": 1
+      "Brake Discs Rear": "252/145X20 P TYPE1"
+      "Brake Calipers Rear": "4X38.1 TYPE2"
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "2"
+      "Adjuster Ring Front": 0.099
+      "Spring Stiffness Front": 28200
+      "Adjuster Ring Rear": 0.113
+      "Spring Stiffness Rear": 23678
+      "Slow Bump Front": 3000
+      "Slow Rebound Front": 3500
+      "Fast Bump Front": 2250
+      "Fast Rebound Front": 3000
+      "Bump Transition Front": 0.15
+      "Rebound Transition Front": 0.15
+      "Slow Bump Rear": 2250
+      "Slow Rebound Rear": 3750
+      "Fast Bump Rear": 1500
+      "Fast Rebound Rear": 3250
+      "Bump Transition Rear": 0.15
+      "Rebound Transition Rear": 0.15
+      "Anti-roll Bar Stiffness Front": 3500
+      "Anti-roll Bar Stiffness Rear": 0
+      "Differential Ratio Rear": "39//8"
+      "LSD Power/Coast Ramp Rear": "45/45"
+      "LSD Preload Rear": 80
+      "Plates Number Rear": 4
+      "Pressure Front": 30
+      "Camber Front": -1.5
+      "Toe Front": 0
+      "Pressure Rear": 29
+      "Camber Rear": -1
+      "Toe Rear": 0
+      "Brake Discs Front": "275/165X20 P TYPE1"
+      "Brake Calipers Front": "4X38.1 TYPE2"
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.6
+      "Front Cylinder": "19.05"
+      "Rear Cylinder": "22.23"
+      "Handbrake Force": 1
+      "Brake Discs Rear": "252/145X20 P TYPE1"
+      "Brake Calipers Rear": "4X38.1 TYPE2"
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Snow"
+    preset: "Balanced"
+    values:
+      "Gear Set": "2"
+      "Adjuster Ring Front": 0.099
+      "Spring Stiffness Front": 28200
+      "Adjuster Ring Rear": 0.113
+      "Spring Stiffness Rear": 23678
+      "Slow Bump Front": 3000
+      "Slow Rebound Front": 3500
+      "Fast Bump Front": 2250
+      "Fast Rebound Front": 3000
+      "Bump Transition Front": 0.15
+      "Rebound Transition Front": 0.15
+      "Slow Bump Rear": 2250
+      "Slow Rebound Rear": 3750
+      "Fast Bump Rear": 1500
+      "Fast Rebound Rear": 3250
+      "Bump Transition Rear": 0.15
+      "Rebound Transition Rear": 0.15
+      "Anti-roll Bar Stiffness Front": 3500
+      "Anti-roll Bar Stiffness Rear": 0
+      "Differential Ratio Rear": "43//7"
+      "LSD Power/Coast Ramp Rear": "45/45"
+      "LSD Preload Rear": 80
+      "Plates Number Rear": 4
+      "Pressure Front": 28
+      "Camber Front": -1.5
+      "Toe Front": 0
+      "Pressure Rear": 28
+      "Camber Rear": -1
+      "Toe Rear": 0
+      "Front Bias": 0.6
+      "Front Cylinder": "19.05"
+      "Rear Cylinder": "22.23"
+      "Handbrake Force": 1

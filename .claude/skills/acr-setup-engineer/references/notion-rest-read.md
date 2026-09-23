@@ -43,7 +43,9 @@ Resolve the structure **once**, then collapse the rest (`SKILL.md` → *Read eff
   `Guidelines` pages, the
   `Tuning guidelines` page, and any `{Stage}`/`{Location}` page. `notion-fetch` is one entity per
   call, so issue them in parallel rather than sequentially.
-- Run **all** the REST queries below (e.g. the learn-pool slice **and** the stored-default slice)
+- Run **all** the REST queries below (e.g. the learn-pool slice **and** the stored-default slice —
+  the stored-default slice is **for screenshot cars only**: a template car anchors on
+  `car-setups/<slug>.yaml` (`build-setup.md` step 4) and never runs `--source default`)
   in **one code-execution block**, not a separate block each.
 - **Fetch each page once** (identity facts are on `Catalog`, the user's notes on `Guidelines`),
   reuse the
@@ -57,7 +59,8 @@ it can't, walk the fallback ladder below):
 # Setups learn-pool slice (build-setup learn mode):
 python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_name>" --learn-only
 
-# Captured game-default (stock) baseline rows for a car (build-setup step 4 anchor):
+# Captured game-default (stock) baseline rows for a car (build-setup step 4 anchor) — SCREENSHOT
+# CARS ONLY: a template car anchors on car-setups/<slug>.yaml and never runs --source default:
 python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_name>" --source default
 
 # Plain (unfiltered) Setups slice for the car — every row, learn pool and defaults alike:
@@ -148,7 +151,9 @@ later workflow in the chat — don't re-run it per read.
 - **`egress: none`** → **offline mode for the rest of the chat.** Run **no** REST query at all, and
   don't fetch `Config` for a token or ask for one — a token can't help without network. Each read
   goes straight to the rung it would have fallen back to anyway:
-  - every **`Setups` slice** (the learn pool, a stored default) → **read from the car's `Setup
+  - every **`Setups` slice** (the learn pool, a stored default — the stored default **for
+    screenshot cars only**: a template car anchors on `car-setups/<slug>.yaml`
+    (`build-setup.md` step 4), which needs no network at all) → **read from the car's `Setup
     index` instead**, per [setups-list-read.md](setups-list-read.md): the list of links on the
     car's `Setups` page, a capped set of page fetches through the connector. Never empty by
     default, never a search;
@@ -180,8 +185,10 @@ and produces silently wrong setups. When the query can't run, walk this ladder i
    - **`Setups` slice reads have no fallback** (setups accumulate; no snapshot can stay current).
      Proceed as if the slice came back **empty**, and say plainly which feature was skipped and
      why: a learn-pool read ⇒ the setup is built without the user's setup history; a
-     stored-default read ⇒ no stored baseline is visible, so follow the normal no-baseline path
-     (ask for fresh default screenshots). Anything captured **in the current chat** is unaffected
+     stored-default read ⇒ no stored baseline is visible, so, **for a screenshot car**, follow its
+     no-baseline path (`build-setup.md` step 4, screenshot-car branch). A template car never makes
+     this read: it anchors on `car-setups/<slug>.yaml`, which no query failure can touch.
+     Anything captured **in the current chat** is unaffected
      — those values are already in context. This rung is for a plan **with** egress whose query
      failed; it never applies in offline mode, which reads the index instead.
 3. **The query can't run and the workflow needs the rows:** say which feature was skipped and go

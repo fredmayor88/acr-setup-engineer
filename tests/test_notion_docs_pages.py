@@ -81,6 +81,11 @@ class TestFreePlanPage(unittest.TestCase):
         self.assertIn('up to 6', body)
         self.assertIn('learn: yes', body)
 
+    def test_game_version_placeholder_is_distinct_from_skill_version(self):
+        header, body = split(FREE)
+        self.assertIn('{game_version}', body)
+        self.assertIn('GAME_VERSION', header)
+
 
 class TestNoRemovedCommands(unittest.TestCase):
     def test_no_snapshot_command(self):

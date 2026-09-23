@@ -1,0 +1,95 @@
+car: "Alpine A110 1.8 1973"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "2"
+      "Adjuster Ring Front": 0.01
+      "Spring Stiffness Front": 300000
+      "Adjuster Ring Rear": 0.007
+      "Spring Stiffness Rear": 195000
+      "Slow Bump Front": 12000
+      "Slow Rebound Front": 13000
+      "Fast Bump Front": 9500
+      "Fast Rebound Front": 10500
+      "Slow Bump Rear": 4250
+      "Slow Rebound Rear": 7000
+      "Fast Bump Rear": 3750
+      "Fast Rebound Rear": 6000
+      "Anti-roll Bar Stiffness Front": 15250
+      "Differential Ratio Rear": "27//8"
+      "LSD Power/Coast Ramp Rear": "45/30"
+      "LSD Preload Rear": 70
+      "Plates Number Rear": 2
+      "Pressure Front": 26
+      "Toe Front": 0
+      "Pressure Rear": 27
+      "Brake Discs Front": "254/160X12 P TYPE1"
+      "Brake Calipers Front": "1X48 TYPE3"
+      "Brake Pads Front": "MEDIUM"
+      "Proportioning Ratio": 0.3
+      "Handbrake Force": 1
+      "Brake Discs Rear": "250/160X10 P TYPE1"
+      "Brake Calipers Rear": "1X45 TYPE1"
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.043
+      "Spring Stiffness Front": 120000
+      "Adjuster Ring Rear": 0.055
+      "Spring Stiffness Rear": 63750
+      "Slow Bump Front": 13000
+      "Slow Rebound Front": 16000
+      "Fast Bump Front": 10000
+      "Fast Rebound Front": 14000
+      "Slow Bump Rear": 2750
+      "Slow Rebound Rear": 5500
+      "Fast Bump Rear": 2500
+      "Fast Rebound Rear": 5000
+      "Anti-roll Bar Stiffness Front": 12250
+      "Differential Ratio Rear": "27//8"
+      "LSD Power/Coast Ramp Rear": "45/45"
+      "LSD Preload Rear": 50
+      "Plates Number Rear": 4
+      "Pressure Front": 30
+      "Toe Front": 0
+      "Pressure Rear": 29
+      "Brake Discs Front": "260/170X8 P TYPE1"
+      "Brake Calipers Front": "1X38 TYPE2"
+      "Brake Pads Front": "MEDIUM"
+      "Proportioning Ratio": 0.3
+      "Handbrake Force": 1
+      "Brake Discs Rear": "260/170X8 P TYPE1"
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Snow"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.043
+      "Spring Stiffness Front": 120000
+      "Adjuster Ring Rear": 0.055
+      "Spring Stiffness Rear": 63750
+      "Slow Bump Front": 13000
+      "Slow Rebound Front": 16000
+      "Fast Bump Front": 10000
+      "Fast Rebound Front": 14000
+      "Slow Bump Rear": 2750
+      "Slow Rebound Rear": 5500
+      "Fast Bump Rear": 2500
+      "Fast Rebound Rear": 5000
+      "Anti-roll Bar Stiffness Front": 12250
+      "Differential Ratio Rear": "27//8"
+      "LSD Power/Coast Ramp Rear": "45/45"
+      "LSD Preload Rear": 50
+      "Plates Number Rear": 4
+      "Pressure Front": 28
+      "Toe Front": 0
+      "Pressure Rear": 28
+      "Proportioning Ratio": 0.3
+      "Handbrake Force": 1

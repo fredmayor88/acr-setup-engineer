@@ -1,0 +1,97 @@
+car: "Subaru Impreza 555 (S3) 1993"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.044
+      "Spring Stiffness Front": 85000
+      "Adjuster Ring Rear": 0.043
+      "Spring Stiffness Rear": 60000
+      "Slow Bump Front": 6000
+      "Slow Rebound Front": 7000
+      "Fast Bump Front": 4500
+      "Fast Rebound Front": 6500
+      "Bump Transition Front": 0.1
+      "Rebound Transition Front": 0.1
+      "Slow Bump Rear": 4000
+      "Slow Rebound Rear": 6000
+      "Fast Bump Rear": 3500
+      "Fast Rebound Rear": 5500
+      "Bump Transition Rear": 0.1
+      "Rebound Transition Rear": 0.1
+      "Anti-roll Bar Stiffness Front": 16500
+      "Anti-roll Bar Stiffness Rear": 17500
+      "Differential Ratio Front": "35//9"
+      "LSD Power/Coast Ramp Front": "65/80"
+      "LSD Preload Front": 80
+      "Plates Number Front": 6
+      "Center Ratio to Rear": "31//31"
+      "Differential Ratio Rear": "35//9"
+      "LSD Preload Center": 200
+      "LSD Power/Coast Ramp Rear": "60/70"
+      "LSD Preload Rear": 100
+      "Plates Number Rear": 6
+      "Pressure Front": 26
+      "Camber Front": -2.8
+      "Toe Front": 0.0001
+      "Pressure Rear": 27
+      "Camber Rear": -2.5
+      "Toe Rear": 0
+      "Brake Calipers Front": "8X26/32 TYPE1"
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.55
+      "Front Cylinder": 19.05
+      "Rear Cylinder": 19.05
+      "Handbrake Force": 1
+      "Brake Calipers Rear": "4X30/34 TYPE2"
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "4"
+      "Adjuster Ring Front": 0.159
+      "Spring Stiffness Front": 33000
+      "Adjuster Ring Rear": 0.135
+      "Spring Stiffness Rear": 29000
+      "Slow Bump Front": 4500
+      "Slow Rebound Front": 6500
+      "Fast Bump Front": 4000
+      "Fast Rebound Front": 6000
+      "Bump Transition Front": 0.1
+      "Rebound Transition Front": 0.1
+      "Slow Bump Rear": 3000
+      "Slow Rebound Rear": 4000
+      "Fast Bump Rear": 2500
+      "Fast Rebound Rear": 3500
+      "Bump Transition Rear": 0.1
+      "Rebound Transition Rear": 0.1
+      "Anti-roll Bar Stiffness Front": 0
+      "Anti-roll Bar Stiffness Rear": 3500
+      "Differential Ratio Front": "35//9"
+      "LSD Power/Coast Ramp Front": "75/85"
+      "LSD Preload Front": 90
+      "Plates Number Front": 6
+      "Center Ratio to Rear": "31//31"
+      "Differential Ratio Rear": "35//9"
+      "LSD Preload Center": 300
+      "LSD Power/Coast Ramp Rear": "60/70"
+      "LSD Preload Rear": 110
+      "Plates Number Rear": 6
+      "Pressure Front": 29
+      "Camber Front": -2.9
+      "Toe Front": 0.0001
+      "Pressure Rear": 29
+      "Camber Rear": -2.1
+      "Toe Rear": 0
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.55
+      "Front Cylinder": 19.05
+      "Rear Cylinder": 19.05
+      "Handbrake Force": 1
+      "Brake Calipers Rear": "4X30/34 TYPE2"
+      "Brake Pads Rear": "MEDIUM"

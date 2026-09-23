@@ -92,6 +92,8 @@ Shared knowledge (read as needed):
   it is a **guideline layer that overrides the base principles** for the symptoms it names (see the
   *Layered guidelines* core rule).
 - `VERSION` — the skill's own version (or `dev` for a source checkout); see *Skill version* below.
+- `GAME_VERSION` — the current game version every bundled `car-setups/` default setup was
+  extracted from; read with `scripts/load_default_setup.py --game-version`, never by eye.
 
 Bundled tools (stdlib Python, run via code execution):
 - `scripts/parse_acr_save.py` — import workflow: parse ACR `.sav` files into JSON. **Version-aware**:
@@ -119,6 +121,10 @@ Bundled tools (stdlib Python, run via code execution):
   line every saver writes (**never hand-format it**); `--pick`, `--find` and `--overrides` read
   the list back — the Free-plan way to find a car's setups (`references/setups-list-read.md`) and
   the `learn:` override on every plan.
+- `scripts/load_default_setup.py` — the bundled default setup for a car and surface (`--car <slug>
+  --surface Tarmac|Gravel|Snow [--preset Balanced|Aggressive]`, JSON; Snow falls back to Gravel and
+  says so; `--list <slug>`; `--game-version` prints the skill's `GAME_VERSION` file — the current
+  game version every bundled file was extracted from).
 - `scripts/query_notion_parameters.py` — `Setups` slices over REST, and
   `--show-order --from-template <file> …` for every view; it never reads a catalog. Call as
   `python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_name>"` (add
@@ -143,17 +149,25 @@ Bundled tools (stdlib Python, run via code execution):
   documented `FFB Multiplier` exception below. Never leave an applicable parameter blank because
   a default "would be fine." (This is about *blank cells*, and does not conflict with the
   baseline-first rule below: a **captured** default row holds explicit values for every parameter,
-  so anchoring a build on it never produces a blank.)
+  so anchoring a build on it never produces a blank. A **bundled** anchor's `values` carries only
+  the parameters the game's default data holds. **Any parameter absent from `values` has no anchor
+  and is chosen from scratch in step 8** — always `Tyre Type`, `ABS Map`, `TCS Map`, `Additional
+  Lights`; on many cars brake parts, master cylinders, proportioning preload, engine/throttle maps;
+  on the 206 the primary gear. `build-setup.md` step 8 chooses those exactly as it always has, so
+  this never produces a blank either.)
 - **Baseline first — anchor on the game's own default setup.** The catalog gives legal *ranges* but
   no sense of where inside them the game itself sits, so a from-scratch build is anchored on nothing.
-  For any new setup: if a **captured default** (`Source = default`) exists for this car in this
-  context, start from **its values** and move only what the driver's reported symptoms and the build's
-  intent justify — parameters nothing points at keep the default's value. If none exists, the default
-  path is to ask for **setup-screen screenshots of the in-game default first**, capture it, and
-  **check it (below) before recommending a drive** — then brief the user on what to notice
-  *before* they drive (`references/driving-feedback-interview.md` → *Pre-drive briefing*). This is a
-  **strong recommendation, never a gate** — if the user would rather just have a setup now, build one
-  and say no baseline anchor was used.
+  The anchor, in this order: **the bundled default** in `car-setups/<slug>.yaml` (every template
+  car; per surface, `Balanced` unless the user names another preset; read with
+  `scripts/load_default_setup.py` — no Notion read, no screenshots, on every plan); else, for a
+  screenshot car, a **captured default** (`Source = default`) for this car in this context; else
+  ask for **setup-screen screenshots of the in-game default first**, capture it, and **check it
+  (below) before recommending a drive**. Start from the anchor's values and move only what the
+  driver's reported symptoms and the build's intent justify — parameters nothing points at keep
+  the anchor's value. With no bundled file and no captured default, brief the user on what to
+  notice *before* they drive (`references/driving-feedback-interview.md` → *Pre-drive briefing*).
+  This is a **strong recommendation, never a gate** — if the user would rather just have a setup
+  now, build one and say no baseline anchor was used.
   **Never infer how the game scopes its defaults** — per stage, per surface, per conditions (a
   wet-tarmac default may differ from dry), or not at all is **unknown and changes between releases**.
   Match on the full capture context, and when a stored default was captured in a *different* context,
@@ -163,20 +177,22 @@ Bundled tools (stdlib Python, run via code execution):
 - **Check the default before anyone drives it — ACR's defaults are sometimes broken.** The game
   occasionally hands out a setup from the wrong regime entirely (the recurring case: a dry-tarmac
   setup for the same stage in **snow** conditions). So whenever a default's values are in hand and
-  about to become the anchor — fresh capture, exact-context match, or confirmed reuse — judge them
-  against the build's surface and conditions **before** sending the user out to drive it. The bar is
+  about to become the anchor — a bundled anchor (step 4, silently when it passes), a fresh capture,
+  an exact-context match, or a confirmed reuse — judge them against the build's surface and
+  conditions **before** sending the user out to drive it. The bar is
   **wrong-regime or self-contradictory, never merely suboptimal** (suboptimal is what the
   anchor-plus-interview flow is *for*), and the check is **silent when it passes**. Wrong in a few
   parameters ⇒ **keep the anchor and override just those**, naming them to the user. Wrong across the
   board ⇒ **tell the user the game's default looks broken**, don't recommend driving it, and build a
   proper setup with no anchor. A user who wants to drive it anyway gets to. The broken default is
-  still **stored and flagged** as a `Source = default` row, never withheld. Full procedure:
+  still **stored and flagged** as a `Source = default` row, never withheld (a screenshot car's
+  capture; a bundled anchor has no row — the build report carries the verdict). Full procedure:
   `references/build-setup.md` step 5b.
 - **Fix major issues before fine tuning.** When several things could be changed, work the
   **fix-order ladder**: tyre type → differential (preload → ramp angles → plates) → suspension (ride
   height → springs) → ARBs → dampers → alignment (camber, toe) → brake bias (and brake hardware when
   braking itself is the complaint). Gearing is a **parallel track**; **tyre pressure sits outside the
-  ladder** and is held at the captured default unless a symptom points at it (ACR's pressure model
+  ladder** and is held at the anchor unless a symptom points at it (ACR's pressure model
   isn't physically sensible). **What the driver actually reports always outranks this order.** See
   `references/driving-feedback-interview.md` → *Fix-order ladder*.
 - **Surface-resolved ranges.** A catalog row may carry an optional **`Surface`** tag
@@ -427,9 +443,10 @@ from the game files and are whatever the template says — editing them in chat 
 its own `Parameters` page (`references/edit-catalog.md`).
 
 ## Glossary (ACR)
-- **Default / stock baseline** = the setup the *game itself* gives you before you change anything.
-  Captured from setup-screen screenshots and stored as a `Setups` row with `Source = default`; it is
-  the numeric anchor a build starts from (*Baseline first*, above).
+- **Default / stock baseline** = the game's own default setup for the car and surface — bundled in
+  `car-setups/<slug>.yaml` for every template car; captured from setup-screen screenshots as a
+  `Source = default` row only for a screenshot car. It is the numeric anchor a build starts from
+  (*Baseline first*, above).
 - **Corner phases** — **entry** (turning in, usually still braking), **mid** (off the brakes, steady
   through the middle), **exit** (back on the throttle). Weight moves forward under braking, so the
   front governs entry; it moves back on power, so the rear governs exit. Every balance symptom

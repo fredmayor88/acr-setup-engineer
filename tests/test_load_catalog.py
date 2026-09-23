@@ -77,13 +77,28 @@ parameters:
     max: "—"
     unit: ""
     discrete_steps: ""
+  - section: "Brakes"
+    adjustment: "Proportioning Preload"
+    order: 7045
+    min: 1.75
+    max: 4.00
+    unit: "MPa"
+    discrete_steps: "1.75, 2.00, 2.25, 2.50, 2.75, 3.00, 3.25, 3.50, 3.75, 4.00"
+  - section: "Differentials"
+    adjustment: "LSD Power/Coast Ramp Rear"
+    order: 1510
+    min: "—"
+    max: "—"
+    unit: ""
+    discrete_steps: "45/50, 50/65"
 '''
 
 
 # The same file as it looks on a car's `Parameters` page: `--to-template` adds the three
 # bookkeeping keys, and `parameter_count` is the one the loader checks on read.
+PARAMETER_COUNT = FIXTURE.count('  - section:')
 COUNTED_FIXTURE = FIXTURE.replace('source: "game-files"',
-                                  'source: "screenshots"\nparameter_count: 5')
+                                  f'source: "screenshots"\nparameter_count: {PARAMETER_COUNT}')
 
 TARMAC_ROW_FIXTURE = '''\
 car: "Surfaced Car 2001"
@@ -246,6 +261,37 @@ class TestCheck(LoadCatalogTestCase):
         problem = json.loads(out)['problems'][0]
         self.assertEqual(problem['Adjustment'], 'Anti-roll Bar Stiffness Rear')
         self.assertEqual(problem['legal'], ['1', '2', '3', '4', '5', '6', '7', '8'])
+
+    def test_a_number_equal_to_a_step_passes_however_the_step_is_spelled(self):
+        """3.5 is the template's "3.50" step — the same pressure, fewer decimals.
+
+        A car's grid is spelled by whoever wrote the template; the value comes from the game
+        (or from a bundled default setup). Comparing only the text rejects a value the setup
+        screen can dial, which is how the Mini's gravel `Proportioning Preload 3.5` ended up
+        needing an allowlist entry in the extractor.
+        """
+        values = self.write_values({'Proportioning Preload': 3.5})
+        out, _ = run(self.fixture, '--check', values)
+        report = json.loads(out)
+        self.assertEqual(report['problems'], [])
+        self.assertEqual(report['ok'][0]['value'], 3.5)
+
+    def test_a_number_between_two_steps_is_still_rejected(self):
+        values = self.write_values({'Proportioning Preload': 3.51})
+        out, _ = run(self.fixture, '--check', values, expect=3)
+        problem = json.loads(out)['problems'][0]
+        self.assertEqual(problem['Adjustment'], 'Proportioning Preload')
+        self.assertEqual(problem['reason'], 'not one of the discrete steps')
+
+    def test_a_named_selection_still_needs_its_exact_text(self):
+        """Nothing about a ramp or a brake part is a number, so only the spelling can match."""
+        values = self.write_values({'LSD Power/Coast Ramp Rear': '45/50'})
+        out, _ = run(self.fixture, '--check', values)
+        self.assertEqual(json.loads(out)['problems'], [])
+
+        values = self.write_values({'LSD Power/Coast Ramp Rear': '45-50'})
+        out, _ = run(self.fixture, '--check', values, expect=3)
+        self.assertEqual(json.loads(out)['problems'][0]['legal'], ['45/50', '50/65'])
 
     def test_unknown_adjustment_is_flagged_as_not_in_catalog(self):
         values = self.write_values({'Nose Cone Angle': 3})
@@ -597,7 +643,7 @@ class TestHeader(LoadCatalogTestCase):
 
     def test_parameter_count_comes_back_as_an_int(self):
         path = self.write(COUNTED_FIXTURE, 'counted-header.yaml')
-        self.assertEqual(self.header_of(path)['parameter_count'], 5)
+        self.assertEqual(self.header_of(path)['parameter_count'], PARAMETER_COUNT)
 
     def test_a_file_with_no_parameters_still_prints_its_header(self):
         """The migration's third source writes exactly that file; it stays inspectable."""

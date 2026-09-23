@@ -18,7 +18,12 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
     catalog snapshots, `Parameters` DB reads, paste routes — checks that every
     catalog-loading workflow points at `catalog-read.md`, and guards the `Setup index` rules
     (every saver adds a line, refresh never writes it). `tests/test_setups_list.py` covers
-    `scripts/setups_list.py` itself — line formatting and parsing back.
+    `scripts/setups_list.py` itself — line formatting and parsing back. `tests/test_car_setups.py`
+    guards every bundled `car-setups/<slug>.yaml` — same car/version as its template, every entry
+    legal for its surface, the `KNOWN_OFF_GRID` allowlist genuinely present in the files it excuses.
+    `tests/test_decode_setups.py` pins the `PhysicsCarSetup` struct schema against fixture assets.
+    `tests/test_load_default_setup.py` covers the skill's own `scripts/load_default_setup.py`
+    reader. `tests/test_game_version_file.py` covers `write_game_version.py`'s `--check`.
   - `references/notion-structure.md` — Notion layout, schemas, view + mobile conventions,
     create-if-missing rules. **The source of truth for the data model.**
   - `references/notion-rest-read.md` — the way every workflow reads **rows in Notion**: the
@@ -43,6 +48,14 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
     interviewing rules, pre-drive briefing, gearing sub-interview) and the **fix-order ladder**.
     Read by `build-setup.md` (baseline-first flow) and `tweak-setup.md` (vague feedback).
   - `references/tuning-guidelines-template.md` — seed for the user's editable guidelines page.
+  - `car-setups/<slug>.yaml` — one bundled default setup per template car (one entry per surface,
+    plus a named preset where the game has more than one), extracted from the game's own setup
+    files by `tools/car-catalog/extract_default_setups.py`. It is the anchor `build-setup.md` step 4
+    reads via `scripts/load_default_setup.py` — no Notion read, no screenshots, on any plan.
+  - `GAME_VERSION` — one line, the display version of the game the bundled data was extracted from
+    (`0.6`), written by `tools/car-catalog/write_game_version.py`, read by
+    `scripts/load_default_setup.py --game-version` and stamped into every `Setups` row and Notion
+    doc page. Never hand-edit either file — regenerate both with `make extract` after a game update.
 - [README.md](README.md) — end-user docs (claude.ai install + usage).
 - `car-charts/` — the power/torque chart PNG per car, generated from the ACR game files.
   **Committed and served by public raw URL**, not bundled in the skill ZIP: a skill on claude.ai
@@ -63,8 +76,11 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
   each template links to its page there through its `gearing_tool:` field. Add new cars to `CARS`
   first.
 - `tools/car-catalog/` — maintainer-only. Rebuilds every template's `parameters:` block (Min/Max/
-  Discrete steps) straight from the game's setup-preset assets, so a game update is a re-run instead
-  of a fresh round of screenshots. See its README.
+  Discrete steps) straight from the game's setup-preset assets (`extract_car_catalog.py`); extracts
+  every bundled car's default setups into `car-setups/<slug>.yaml` (`extract_default_setups.py`,
+  built on `decode_setups.py`'s pinned struct schema for the presets asset); and stamps the current
+  game version into `GAME_VERSION` (`write_game_version.py`) — so a game update is a re-run
+  (`make extract`) instead of a fresh round of screenshots. See its README.
 - `Makefile` — `make zip` builds `dist/acr-setup-engineer-skill-<version>.zip`, where `<version>` is
   read from **HEAD's** `VERSION` file so the filename always matches the `VERSION` inside the
   archive (`make check-zip` enforces that). On an unstamped checkout that's the previous release's
@@ -148,6 +164,9 @@ For each release:
   Claude Code desktop is cheap since all data lives in Notion.
 
 ## Working guidelines for Claude
+- **Plans are executed with `superpowers:subagent-driven-development` by default** — a fresh
+  subagent per task, a review after each task, a whole-branch review at the end. Don't offer the
+  inline option; go straight to it once the plan is approved.
 - After finishing a feature or request, **do not run `make test` or build the ZIP
   (`make zip` / `make release`) by default** — only do so when explicitly instructed. These are
   part of the release procedure above, not a routine post-task check.
@@ -158,6 +177,9 @@ Whenever asked to **create or update a car template or its charts**, the default
 **everything you can** from the ACR game files with the `tools/` extractors. Don't ask for
 screenshots of anything the files already hold — the parameter catalogue in particular is fully
 extractable, and asking for min/max setup screens for it is redoing solved work.
+
+After a game update, run `make extract` once; it refreshes `GAME_VERSION`, every catalog, every
+bundled default setup, the charts and the car-lab data. Read the diff, run `make test`, commit.
 
 - **Ask for one thing: the in-game car-info screen.** It carries the display name, year, engine,
   max power, max torque, weight and steering lock in a single capture. Two known traps (both hit

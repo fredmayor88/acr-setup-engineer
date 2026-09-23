@@ -851,8 +851,9 @@ which. What follows is about your setup history, which affects every car. This i
   "also learn from my other Lancia Stratos setups" to read more. Setups saved by older versions or made by
   hand aren't listed — say "index these setups:" and paste their Notion links, as many as you like
   in one message, to add them. Add ` - learn: yes` or ` - learn: no` to the end of a line to force a setup in or out.
-- **A stored game default is found the same way** — only when the skill saved it from this version
-  on. Otherwise you're asked to screenshot it, and can say no.
+- **Setups start from the game's own default setup, built into the skill.** No screenshots needed
+  for a bundled car. A car you onboarded from screenshots still uses a default you captured, or
+  asks for its screenshots, and you can say no.
 - **Skip the read-only token setup.** The token only feeds the REST path, which can't run on
   Free. Nothing to configure.
 
@@ -904,13 +905,20 @@ make check-zip
 
 [AGPL v3](LICENSE) — free to use, modify and share; modifications must remain open-source.
 
+## Disclaimer
+
+This software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software. You use it at your own risk.
+
+This is an independent, unofficial project. It is not affiliated with, endorsed by or connected to Kunos Simulazioni, Supernova Games Studios, 505 Games, Notion Labs or Anthropic. Assetto Corsa Rally and all related names are trademarks of their respective owners. Setups the skill produces are suggestions, not guarantees of performance; the data it reads from the game files may lag behind the installed game version.
+
 ---
 
 ### For maintainers
 
 The skill source lives in [.claude/skills/acr-setup-engineer/](.claude/skills/acr-setup-engineer/) —
-a self-contained Claude Skill (`SKILL.md` + bundled `references/`, `car-templates/` and
-`car-troubleshooting/`). It also works as a project skill in Claude Code. See
+a self-contained Claude Skill (`SKILL.md` + bundled `references/`, `car-templates/`,
+`car-setups/`, `car-troubleshooting/` and `GAME_VERSION`). It also works as a project skill in
+Claude Code. See
 [CLAUDE.md](CLAUDE.md) for the full release procedure; the short version: `make zip` builds
 `dist/acr-setup-engineer-skill-<version>.zip` (named after the `VERSION` file it contains), then
 `make release TAG=vX.Y.Z` drafts the GitHub release.

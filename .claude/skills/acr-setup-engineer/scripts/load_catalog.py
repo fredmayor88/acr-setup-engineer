@@ -37,7 +37,9 @@ Options:
   --check FILE   FILE is JSON: {"<Adjustment>": <value>, ...}. Each value is checked against
                  its row for --surface, or against its baseline row when no --surface is
                  given: it must be one of the `Discrete steps` when the row has them, else
-                 inside the numeric Min..Max. Prints
+                 inside the numeric Min..Max. A step matches on its exact text, or, when both
+                 the value and the step are numbers, on the number — so `3.5` passes a grid
+                 spelled `3.50`, while `3.51` still fails. Prints
                  {"ok": [...], "problems": [...]}. A collapsed compound gear value
                  (`35//3033//28`, asterisks eaten by markdown) is repaired against the steps
                  and reported with "repaired": true (SKILL.md -> "A gear value with a `*` in it").
@@ -346,6 +348,51 @@ def as_text(value):
     return str(value)
 
 
+def as_number(value):
+    """`value` as a float when it is one or spells one, else None. A bool is not a number."""
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    try:
+        return float(str(value).strip())
+    except (TypeError, ValueError):
+        return None
+
+
+def matching_step(value, steps):
+    """The step `value` is, or None when it is none of them.
+
+    Exact text first: a named selection (`45/50`, `4X38.1 TYPE1`, `35//30*33//28`) is a string,
+    and for those only an identical spelling means anything.
+
+    When the text doesn't match and both sides are numbers, **the numbers decide**. A template
+    that spells its grid `"3.50"` and a value of `3.5` are the same brake pressure, and the grid
+    a car ships is not always spelled to the same number of decimals as the value the game
+    stores — rejecting that would reject a value the setup screen can actually dial. `3.51` is
+    still rejected, because nothing on the grid equals it.
+
+    The 1e-9 relative tolerance covers only the last-bit difference between two decimal
+    spellings of the same number. It is deliberately far too tight to absorb float32 storage
+    noise (`0.048` read back as `0.04800000041723251` is ~1e-8 out and still fails): a value
+    carrying that much noise has not been through the rounding its writer owes it, and this is
+    not the place to paper over it.
+    """
+    text = as_text(value)
+    if text in steps:
+        return text
+    number = as_number(value)
+    if number is None:
+        return None
+    for step in steps:
+        other = as_number(step)
+        if other is None:
+            continue
+        if other == number or abs(other - number) <= 1e-9 * max(abs(other), abs(number)):
+            return step
+    return None
+
+
 def repair_compound_gear(value, steps):
     """Restore the `*` markdown ate from a compound gear value (`35//3033//28`).
 
@@ -385,7 +432,7 @@ def check_values(rows, values, surface):
             if repaired is not None:
                 entry['value'] = value = repaired
                 entry['repaired'] = True
-            if as_text(value) in steps:
+            if matching_step(value, steps) is not None:
                 ok.append(entry)
             else:
                 entry.update(reason='not one of the discrete steps', legal=steps)

@@ -63,6 +63,123 @@ screenshot-derived templates exactly, which is what makes the rest of the number
 Ride height, LSD preload and handbrake force step so finely that listing every value is noise;
 `min`/`max` says it better. Anti-roll bars, dampers, springs and pressures still get a list.
 
+### The *values*, not the ranges — `decode_setups.py`
+
+The same presets asset also holds every car's **default setup** per surface and per named
+preset, and `decode_setups.py` reads it. Its module docstring is the reference: it pins the
+schema of `PhysicsCarSetup`, a nested unversioned struct that carries no setting ids at all
+(a value's meaning is its slot position), with byte offsets from the checked-in Stratos
+fixture. Re-verify it after a game update — `tests/test_decode_setups.py` asserts the
+Stratos's tarmac and gravel numbers and that the walk lands exactly on the export's trailer,
+which is what catches a moved slot.
+
+Two things worth knowing before looking for them:
+
+- **Tyre type is not in the presets asset.** There is no tyre setting and no `TireCompounds`
+  name in it. The car asset `DA_<Car>` names one (`TarmacSoft`), but that is the physics tyre,
+  not a per-surface setup value, so the default setups leave `Tyre Type` unfilled.
+- **Brake discs, calipers and pads are never in the base struct** — the three per-corner part
+  arrays are all-zero on every car. Every surface overrides them explicitly instead.
+
+## Default setups
+
+The same presets asset also holds every car's **default setup** — the game's own baseline, not
+just its legal ranges — and `extract_default_setups.py` turns it into the bundled
+`car-setups/<slug>.yaml` files the skill anchors a build on (`scripts/load_default_setup.py`, no
+Notion read, no screenshots). See the design spec
+(`docs/superpowers/specs/2026-09-22-bundled-default-setups-design.md`) for the full write-up;
+this section is the summary a maintainer needs day to day.
+
+### The three layers, composed in order
+
+1. **`PhysicsCarSetup`** — one export per car, the base setup: every tunable's value before any
+   surface or preset override. `decode_setups.py`'s module docstring pins its byte layout (see
+   *The values, not the ranges*, above) — that docstring is the reference to re-verify after a
+   game update.
+2. **`CarSetupVariantsSurface`** — one export per surface (every car has Tarmac and Gravel; the
+   Alpine A110 and the Fiat 131 also have Snow), overriding some of the base's values.
+3. **`CarSetupVariant`** — named presets per surface. Every car has `Balanced`, which is empty on
+   every car (it *is* the surface layer). The Lancia Delta and the Peugeot 208 Rally4 also have
+   `Aggressive`, on Tarmac only, a small further override on top.
+
+A complete preset is **base, then the surface's overrides, then the preset's overrides**
+(`decode_setups.compose`), corners collapsed to axles after asserting left equals right.
+
+### Resolving a list value to what the setup screen shows
+
+A number reads straight off the struct; a list-valued setting (gear set, primary gear, diff
+ratio, LSD ramp, pads, discs, calipers) is stored as a `{table hint, row}` DB reference and has
+to be resolved through the same tables `extract_car_catalog.py` already reads:
+
+| Setting | Stored as | Displayed as |
+| --- | --- | --- |
+| Gear set | `GearsSets → LanciaStratosSet0` | position in `DT_GearsSetsLists[car]` + 1 → `1` |
+| Primary gear, diff ratios | `Gears → 33//31*31//30` | the row name as is |
+| LSD ramps | `LSDRampAngles → 45_50` | `45/50` |
+| Pads | `Pads → Type13_Medium` | the suffix, upper-cased: `MEDIUM` |
+| Discs, calipers | `Discs → APLockheed_CP4448-81_267x28_…` | position in `DT_DiscsLists[<car>_<Surface>_<Axle>]`, taken as the same position in the template's `Discrete steps` for that parameter (the display strings aren't in the game data; the order is) |
+
+### The two oracles
+
+`tests/test_decode_setups.py` and `tests/test_car_setups.py` pin the Lancia Stratos's Tarmac and
+Gravel `Balanced` entries against the checked-in fixture, so a schema slip or a resolution bug
+fails loudly instead of silently drifting:
+
+- **Tarmac**: `Spring Stiffness Front 65000`, `Spring Stiffness Rear 42500`, `Front Bias 0.57`,
+  `Camber Front -2.4`, `Camber Rear -1.9`, `Gear Set "1"`, `Primary Gear "33//31*31//30"`,
+  `Differential Ratio Rear "65//19"`.
+- **Gravel**: `Spring Stiffness Front 35000`, `Spring Stiffness Rear 20000`, `Front Bias 0.53`,
+  `Camber Front -2`, `Camber Rear -3`, `Gear Set "2"`.
+
+### `KNOWN_OFF_GRID` — the game ships some of its own values off the template's grid
+
+`extract_default_setups.py`'s `KNOWN_OFF_GRID` allowlists exactly the values `load_catalog.py
+--check` would otherwise reject, each with a one-line comment naming the evidence: the Peugeot
+208 Rally4's tarmac `Slow Bump Front 4285` (its `Balanced` and `Aggressive` presets both — the
+grid steps by 105 N·s/m and 4285 sits 5 below a step) and the VW Polo GTI R5's tarmac
+`Anti-roll Bar Stiffness Front 19500` (2000 above the template's own `Max` of 17500). These are
+written as the game ships them, never clamped — a bundled default is a copy of the game's data,
+not a corrected version of it. A new entry is never added silently:
+`tests/test_car_setups.py::test_every_allowlisted_off_grid_value_is_really_in_its_file` fails if
+an entry stops describing the file it excuses, so the allowlist can't outlive the game update
+that made it necessary.
+
+### What stays unfilled
+
+`values` carries only the parameters the game's default data holds. **Any parameter absent from
+`values` has no anchor and is chosen from scratch in step 8** of `build-setup.md` — always
+`Tyre Type`, `ABS Map`, `TCS Map`, `Additional Lights`; on many cars brake parts, master cylinders,
+proportioning preload, engine/throttle maps; on the 206 the primary gear. Don't read the list that
+follows as exhaustive: the rule is the absence, not the roll call.
+
+The first four are missing on every car because the presets asset never gives them a base value:
+**`Tyre Type`, `ABS Map`, `TCS Map`, `Additional Lights`**. On top of
+that, a car's brake-part row (`Brake Discs` / `Brake Calipers`, front or rear) is left unfilled
+whenever the car's own option list for that axle is longer than the template's `Discrete steps`
+— the decoder names the gap rather than guessing a position. The bore fallback
+(`decode_setups._by_bore`) fills a caliper by matching its bore against the template's steps, but
+**refuses when more than one option shares that bore** (the 037's and the Alpine's gravel rear
+axles each fit two same-bore calipers the template can't tell apart) — unfilled and named is the
+honest answer there, not a guess. The per-car extractor report lists exactly what was left out,
+restricted to parameters the car's template actually has as a row.
+
+### Running it
+
+```bash
+python extract_default_setups.py --dry-run          # report only, writes nothing
+python extract_default_setups.py                    # write every car-setups/<slug>.yaml
+python extract_default_setups.py --car lancia-stratos
+```
+
+Or, as part of a full refresh after a game update: `make extract` (runs `extract-version`,
+`extract-catalogs`, `extract-setups`, then the charts and car-lab targets in order), or just
+`make extract-setups` on its own once the catalogs are current — it checks `GAME_VERSION` against
+the installed game first (its `check-game-version` prerequisite) and aborts with the mismatch until
+you run `make extract-version`, so it can never stamp files with a stale version. Idempotent —
+a second run reports zero changes. Nothing is written until every car validates: an illegal value
+or a missing Tarmac/Gravel surface aborts the whole run before any file is touched, so a bad run
+never leaves half the bundled files refreshed and the other half stale.
+
 ## What it doesn't touch
 
 These stay as the previous template had them, and the run prints which ones were carried over:

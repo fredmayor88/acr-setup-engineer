@@ -307,8 +307,13 @@ read off the user's setup-screen screenshots. It is the **numeric anchor** a bui
 supplies legal *ranges* but nothing about where inside them ACR actually sits, and the captured
 default supplies exactly that.
 
+- **Read only for cars without a bundled setups file.** Every template car anchors on
+  `car-setups/<slug>.yaml` (`build-setup.md` step 4); its stored default rows are left where they
+  are and never read.
 - **Written like any other `Setups` row**, with: `Source = default`, `Car`, `Stage`/`Location` (when
-  the build named them), `Surface`, `Date`, `Game version` (when known), `Skill version`, `Name`
+  the build named them), `Surface`, `Date`, `Game version` — the content of the skill's
+  `GAME_VERSION` file (`python scripts/load_default_setup.py --game-version`), unless the user said
+  they run another version in this chat — `Skill version`, `Name`
   ≤15 chars, **`Learn from this` unchecked**, and **`Model` blank** — the values are the game's, not
   a model's, exactly as for `imported` rows.
 - **Excluded from the learn pool.** These are the game's values, not the user's taste; the
@@ -1042,8 +1047,10 @@ Two short documentation pages directly under the root, for the user to read on a
 Both are **skill-owned and auto-maintained, exactly like `Parameter reference`**: never a user
 layer, and a whole-page replacement is always safe because nothing of the user's lives on them.
 **Create / refresh** the same way — copy everything below the template's `---` line, replace
-`{version}` with the skill version (`SKILL.md` → *Skill version*), and on a refresh delete every
-existing block first and write the body fresh (never append).
+`{version}` with the skill version (`SKILL.md` → *Skill version*) and `{game_version}` with the
+content of the skill's `GAME_VERSION` file
+(`python scripts/load_default_setup.py --game-version`) wherever either template uses it, and on a
+refresh delete every existing block first and write the body fresh (never append).
 
 ### Keeping them current — the version check
 

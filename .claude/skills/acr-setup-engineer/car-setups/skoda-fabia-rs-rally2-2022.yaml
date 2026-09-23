@@ -1,0 +1,82 @@
+car: "Skoda Fabia RS Rally2 2022"
+game: "ACR"
+version: "0.6"
+source: "game-files"
+written_at: "2026-09-22"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.063
+      "Spring Stiffness Front": 55000
+      "Adjuster Ring Rear": 0.056
+      "Spring Stiffness Rear": 50000
+      "Slow Bump Front": 4250
+      "Slow Rebound Front": 5500
+      "Fast Bump Front": 3750
+      "Fast Rebound Front": 5000
+      "Slow Bump Rear": 4750
+      "Slow Rebound Rear": 5750
+      "Fast Bump Rear": 4250
+      "Fast Rebound Rear": 5250
+      "Anti-roll Bar Stiffness Front": 11750
+      "Anti-roll Bar Stiffness Rear": 16750
+      "LSD Power/Coast Ramp Front": "44/85"
+      "LSD Preload Front": 85
+      "Plates Number Front": 6
+      "LSD Power/Coast Ramp Rear": "44/85"
+      "LSD Preload Rear": 115
+      "Plates Number Rear": 6
+      "Pressure Front": 26
+      "Camber Front": -1.7
+      "Toe Front": 0
+      "Pressure Rear": 27
+      "Camber Rear": -1.3
+      "Toe Rear": 0
+      "Brake Discs Front": "355/249X32 B TYPE1"
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.53
+      "Front Cylinder": 19.05
+      "Rear Cylinder": 20.64
+      "Handbrake Force": 1
+      "Brake Discs Rear": "355/249X32 B TYPE1"
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "1"
+      "Adjuster Ring Front": 0.227
+      "Spring Stiffness Front": 25000
+      "Adjuster Ring Rear": 0.209
+      "Spring Stiffness Rear": 22500
+      "Slow Bump Front": 3750
+      "Slow Rebound Front": 4750
+      "Fast Bump Front": 2750
+      "Fast Rebound Front": 4250
+      "Slow Bump Rear": 3750
+      "Slow Rebound Rear": 5250
+      "Fast Bump Rear": 3250
+      "Fast Rebound Rear": 3750
+      "Anti-roll Bar Stiffness Front": 2250
+      "Anti-roll Bar Stiffness Rear": 16750
+      "LSD Power/Coast Ramp Front": "39/85"
+      "LSD Preload Front": 100
+      "Plates Number Front": 6
+      "LSD Power/Coast Ramp Rear": "39/85"
+      "LSD Preload Rear": 120
+      "Plates Number Rear": 6
+      "Pressure Front": 29
+      "Camber Front": -2.9
+      "Toe Front": 0
+      "Pressure Rear": 29
+      "Camber Rear": -2.8
+      "Toe Rear": 0
+      "Brake Discs Front": "300/193X32 B TYPE1"
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.5
+      "Front Cylinder": 20.64
+      "Rear Cylinder": 20.64
+      "Handbrake Force": 1
+      "Brake Discs Rear": "300/193X32 B TYPE1"
+      "Brake Pads Rear": "MEDIUM"

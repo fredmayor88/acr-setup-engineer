@@ -100,7 +100,9 @@ Read `notion-structure.md` (schemas + create-if-missing) before writing.
    say the one line it gives. You already hold both sides of the comparison, so this adds no
    read. Then write the row: `Name` (≤15 chars), `Car`, `Location` / `Stage` (if
    given), `Surface`, `Conditions` (only when known — **blank rather than guessed**), `Date`
-   (the Python one-liner, never a guessed clock time), `Game version` (if known), `Skill version`,
+   (the Python one-liner, never a guessed clock time), `Game version` — the content of the skill's
+   `GAME_VERSION` file (`python scripts/load_default_setup.py --game-version`), unless the user
+   said they run another version in this chat, `Skill version`,
    **`Source = screenshot`**, `Mode` (default `learn`), a value for every parameter the car has,
    **`Model` blank** (the values are the user's, not a model's), **`Learn from this` unchecked**
    (the user opts in after rating it).
