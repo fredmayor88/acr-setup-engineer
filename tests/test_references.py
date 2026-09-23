@@ -168,8 +168,6 @@ class TestBundledDefaults(unittest.TestCase):
 class TestGameVersionNotes(unittest.TestCase):
     """The per-version tuning notes are a guideline layer every value-choosing workflow reads."""
     WORKFLOWS = ('build-setup.md', 'tweak-setup.md', 'review-setup.md', 'ask-setups.md')
-    # tweak-setup.md is rewritten in Task 5
-    SKIP_UNTIL_LATER = {'tweak-setup.md'}
 
     def ref(self, name):
         return read(os.path.join(SKILL, 'references', name))
@@ -182,8 +180,6 @@ class TestGameVersionNotes(unittest.TestCase):
 
     def test_version_claims_left_the_base_and_the_workflows(self):
         for path in FILES:
-            if os.path.basename(path) in self.SKIP_UNTIL_LATER:
-                continue
             text = read(path).lower()
             self.assertNotIn("pressure model isn't physically sensible", text, path)
             self.assertNotIn('early access', text, path)
@@ -204,6 +200,18 @@ class TestGameVersionNotes(unittest.TestCase):
         self.assertIn('0.6 tyre notes', text)
         self.assertIn('about how long is the stage?', text)
         self.assertIn('cold tyres', text)
+
+    def test_every_workflow_runs_the_notes_loader(self):
+        for name in self.WORKFLOWS:
+            self.assertIn('python scripts/load_game_version_notes.py', self.ref(name), name)
+
+    def test_tweak_moves_cold_pressure_by_the_gauge_difference(self):
+        self.assertIn('by the difference', self.ref('tweak-setup.md'))
+
+    def test_docs_pages_say_setups_follow_the_version_notes(self):
+        for name in ('how-to-use-template.md', 'free-plan-template.md'):
+            body = self.ref(name).partition('\n---\n')[2]
+            self.assertIn('tuning notes for game version {game_version}', body, name)
 
 
 if __name__ == '__main__':

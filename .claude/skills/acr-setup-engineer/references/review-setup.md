@@ -61,15 +61,20 @@ the baseline (see [notion-rest-read.md](notion-rest-read.md)).
 ### 3. Load the guideline layers — and the driver's history
 Same precedence chain as `build-setup.md` (lowest → highest priority):
 1. **Base** — `setup-tuning-principles.md`.
-2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
+2. **Game version notes** — run `python scripts/load_game_version_notes.py` and read the file it
+   prints (the tuning notes for the current game version, `game-versions/<version>.md`); when it
+   prints a second `note:` line, say it in one line. **They override the base principles** for the
+   rules they name (in 0.6: tarmac tyre pressure and tyre type by stage length). If it exits 1,
+   skip this layer and say so in one line.
+3. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
    matches this car (same match rule as a bundled template — `onboard-car.md` step 1 →
    *Matching a car name* — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
    it and apply its symptom→fix entries — they override the base principles** for the symptoms they
    name. If no file matches, skip this layer.
-3. **Global user guidelines** — Notion `Tuning guidelines` page under `ACR Setup Engineer`.
-4. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
+4. **Global user guidelines** — Notion `Tuning guidelines` page under `ACR Setup Engineer`.
+5. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
    `Surface` (not a separate page).
-5. **Per-car guidelines** — the car's `Guidelines` page.
+6. **Per-car guidelines** — the car's `Guidelines` page.
 The setup's own **driving intent** is the most specific layer. Apply only lines tagged `[All]` **or
 the car's drivetrain**. If two authored layers really contradict each other on something that
 matters here, say so in the review rather than silently picking a side. Never read content outside

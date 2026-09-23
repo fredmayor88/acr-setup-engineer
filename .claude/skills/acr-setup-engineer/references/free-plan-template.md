@@ -34,6 +34,8 @@ it can't connect, says so in one line. Nothing is broken. This is what changes.
 - **Setups start from the game's own default setup**, built into the skill for every bundled car
   (game version {game_version}) — no screenshots. Only a car you onboarded from screenshots still
   uses a default you captured, or asks for its screenshots.
+- **Setups follow the tuning notes for game version {game_version}**, built into the skill (in 0.6:
+  tarmac tyre pressure aims at 28 psi hot, and a stage of 8 km or more gets medium tyres).
 - **You can force a setup in or out.** On the car's `Setups` page, add ` - learn: yes` to the end
   of a setup's line to always learn from it, or ` - learn: no` to never read it. Only edit the end
   of the line; the skill never writes that part.

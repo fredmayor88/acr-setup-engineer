@@ -180,6 +180,16 @@ a second run reports zero changes. Nothing is written until every car validates:
 or a missing Tarmac/Gravel surface aborts the whole run before any file is touched, so a bad run
 never leaves half the bundled files refreshed and the other half stale.
 
+## Game version notes
+
+`game-versions/<version>.md` in the skill is **hand-written**, never extracted: the tuning rules
+that are true for one game version (0.6: tarmac hot pressure target 28 psi, cold start 27/26 by
+stage length, `Tarmac Medium` on stages of 8 km or more, the gauge test-run routine). After a game
+release, once `make extract` has bumped `GAME_VERSION`, copy the previous file to the new version
+number, edit what changed, and run `make test` — `tests/test_game_version_notes.py` fails until the
+current version has its own file. Until then `scripts/load_game_version_notes.py` falls back to the
+newest lower version and says so.
+
 ## What it doesn't touch
 
 These stay as the previous template had them, and the run prints which ones were carried over:

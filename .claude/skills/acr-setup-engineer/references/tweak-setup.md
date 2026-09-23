@@ -69,16 +69,21 @@ of `onboard-car.md` → *When the template may be stale*: say the one line and c
 ### 3. Load guideline layers
 Same precedence chain as `build-setup.md` (lowest → highest):
 1. **Base** — `setup-tuning-principles.md`.
-2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
+2. **Game version notes** — run `python scripts/load_game_version_notes.py` and read the file it
+   prints (the tuning notes for the current game version, `game-versions/<version>.md`); when it
+   prints a second `note:` line, say it in one line. **They override the base principles** for the
+   rules they name (in 0.6: tarmac tyre pressure and tyre type by stage length). If it exits 1,
+   skip this layer and say so in one line.
+3. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
    matches this car (same match rule as a bundled template — `onboard-car.md` step 1 →
    *Matching a car name* — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
    it and apply its symptom→fix entries — they override the base principles** for the symptoms they
    name. This is the main path for handling problems like "the brakes lock as soon as I touch them".
    If no file matches, skip this layer.
-3. **Global user guidelines** — Notion `Tuning guidelines` page under `ACR Setup Engineer`.
-4. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
+4. **Global user guidelines** — Notion `Tuning guidelines` page under `ACR Setup Engineer`.
+5. **Surface section** — the global guidelines' "Per surface" subsection matching the setup's
    `Surface` (not a separate page).
-5. **Per-car guidelines** — the car's `Guidelines` page.
+6. **Per-car guidelines** — the car's `Guidelines` page.
 The working setup's own **driving intent/goal** (from its page body, plus the user's feedback this
 round) is the most specific layer. Apply only lines tagged `[All]` **or the car's drivetrain**.
 **More specific is the default lean**, not an auto-resolution: if an authored layer materially
@@ -144,9 +149,11 @@ Each time the user gives feedback, run one round — **all in chat, no Notion wr
   *Fix-order ladder*): tyre type → differential (preload → ramps → plates) → ride height/springs →
   ARBs → dampers → alignment → brake bias, with gearing as a parallel track. Don't fine-tune
   alignment while the differential is wrong — it hides cause and effect. **What the user actually
-  asks for outranks the ladder.** **Tyre pressure sits outside it**: leave it alone unless a symptom
-  points directly at it (ACR's pressure model isn't physically sensible — see
-  `setup-tuning-principles.md` → *Tyre pressure*).
+  asks for outranks the ladder.**
+  **Tyre pressure sits outside it**: when the user reports an in-game gauge reading, move the cold
+  pressure **by the difference** to the game version notes' target (0.6 tarmac: 28 psi hot), front
+  and rear separately, **before** anything on the ladder; otherwise leave it alone unless a symptom
+  points directly at it (`setup-tuning-principles.md` → *Tyre pressure*).
 - Present a compact **before/after change table** of only the parameters that change:
 
   | Parameter | Current | Proposed | Reason |
