@@ -39,6 +39,11 @@ if not any(n.startswith("acr-setup-engineer/car-setups/") and n.endswith(".yaml"
 if "acr-setup-engineer/GAME_VERSION" not in names:
     errors.append("GAME_VERSION missing")
 
+# The tuning notes for the current game version ship with the skill: every workflow reads
+# game-versions/<version>.md as a guideline layer, so a ZIP without them tunes on stale rules.
+if not any(n.startswith("acr-setup-engineer/game-versions/") and n.endswith(".md") for n in names):
+    errors.append("no game-versions/*.md found")
+
 # The version in the filename must match the VERSION file inside, or a published asset would
 # advertise a version the skill doesn't self-report.
 m = re.search(r"acr-setup-engineer-skill-(.+)\.zip$", path.replace("\\", "/"))
