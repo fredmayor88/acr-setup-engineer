@@ -192,9 +192,10 @@ would rather just have a setup now, build one.
    doesn't know, treat the stage as under 8 km and say so.
 
    **Fix the build surface here:** if the user gave a **Surface override**
-   (Inputs), it wins over the stage's stated surface — use it as the surface for guideline layer 3
-   (step 2.3), tyre choice (step 8), range resolution (steps 8–9), and the row's `Surface`
-   (step 11); otherwise use the stage's surface (or, with no stage, the surface the user stated).
+   (Inputs), it wins over the stage's stated surface — use it as the surface for the surface
+   section of the guidelines (step 2, layer 5), tyre choice (step 8), range resolution
+   (steps 8–9), and the row's `Surface` (step 11); otherwise use the stage's surface (or, with no
+   stage, the surface the user stated).
    **Settle the conditions here too — before step 4, not after.** Conditions (dry / wet / damp /
    snow / ice) are part of the baseline's capture context and step 4 **matches on them**, so they
    must be known before the lookup: the game's default for a wet stage may not be the one it gives
@@ -468,12 +469,13 @@ would rather just have a setup now, build one.
    - **Tyre pressure is always two values** — choose `Pressure Front` and `Pressure Rear` separately,
      never a single combined pressure. **The target comes from the game version notes**
      (`game-versions/<version>.md` → *Tyre pressure*): when the notes give a rule for the build
-     surface, start from it — in 0.6, tarmac cold pressure 27 psi under 8 km and 26 psi at 8 km or
-     more, both axles, hot target 28 — make it legal on the catalog grid (nearest legal value below
-     when off it) and report it as `default → new (0.6 tyre notes)`. When the notes give no rule for
-     the surface (gravel, snow in 0.6), **hold the default's pressures** and move them only on a
-     reported pressure symptom. Without a baseline and without a notes rule, start in the upper
-     half of the legal range (`setup-tuning-principles.md` → *Tyre pressure*).
+     surface, start from it — in 0.6, tarmac cold pressure 27 psi under 8 km and 26 psi at 8 km
+     or more, both axles, hot target 28 psi — make it legal on the catalog grid (nearest legal
+     value below when off it) and report it as `default → new (0.6 tyre notes)`. When the notes
+     give no rule for the surface (gravel, snow in 0.6), **hold the default's pressures** and
+     move them only on a reported pressure symptom. Without a baseline and without a notes
+     rule, start in the upper half of the legal range (`setup-tuning-principles.md` → *Tyre
+     pressure*).
    - **Toe — the game's sign is inverted** (`SKILL.md` → *ACR's toe sign is inverted*): decide the
      direction physically (front toe-out for turn-in, rear toe-in for exit stability — the rally
      default), then write it as the **setup-screen number**: toe-out ⇒ **positive**, toe-in ⇒
