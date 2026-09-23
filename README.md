@@ -905,6 +905,12 @@ make check-zip
 
 [AGPL v3](LICENSE) — free to use, modify and share; modifications must remain open-source.
 
+## Disclaimer
+
+This software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and non-infringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software. You use it at your own risk.
+
+This is an independent, unofficial project. It is not affiliated with, endorsed by or connected to Kunos Simulazioni, Supernova Games Studios, 505 Games, Notion Labs or Anthropic. Assetto Corsa Rally and all related names are trademarks of their respective owners. Setups the skill produces are suggestions, not guarantees of performance; the data it reads from the game files may lag behind the installed game version.
+
 ---
 
 ### For maintainers
