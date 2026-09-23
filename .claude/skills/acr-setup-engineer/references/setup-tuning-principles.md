@@ -168,21 +168,14 @@ rear). Higher pressure → smaller contact patch (front high pressure adds under
 precise, stable response. Pick per surface and per axle from these trade-offs, then balance by
 feel — there is no default direction. **Do not default to low pressures.**
 
-**ACR pressure rule (early access).** Current ACR builds do not appear to reward low pressures
-the way real-world logic suggests (the tyre heating/pressure model is still maturing, so tyres
-may never reach their optimal hot pressure). Because the model isn't physically sensible, **the
-skill's own pressure reasoning is the weakest tool available** — prefer a measured reference over
-it:
-
-1. **A captured default (stock) setup exists for this car** → **hold its pressures.** They are the
-   game's own numbers, which beats anything derived from first principles here. Move them **only**
-   when the driver reports a pressure-related symptom (grip missing from turn-in, a darty/nervous
-   car, fading grip) or says outright that the pressures felt too low or too high. **Never** adjust
-   pressure as part of routine balance tuning — use the balance levers instead.
-2. **No captured default** → fall back to: when unsure, **start in the upper half of the surface's
-   legal range** and adjust from feedback.
-
-Revisit this rule as game builds update.
+**Target pressure is a game-version fact, not physics.** How the game's tyre model heats, wears
+and reads pressure changes between releases, so the pressure to aim at and how to reach it come
+from the **game version notes** (`python scripts/load_game_version_notes.py`, the layer right
+above this file). When the notes give a rule for the build surface, that rule is the anchor for
+`Pressure Front` and `Pressure Rear`. When they give none for the surface: with a bundled or
+captured default, **hold the default's pressures** and move them only on a reported pressure
+symptom; with no default, start in the upper half of the surface's legal range and adjust from
+feedback. Never adjust pressure as part of routine balance tuning — use the balance levers.
 
 ### Gearbox
 
@@ -444,5 +437,5 @@ tips), and BoxThisLap (v0.4 Impreza setup). Advice was filtered for physical sou
 single-creator opinions and non-handling tips were dropped.
 
 **Build-dependent — re-confirm after ACR updates:** compound **behaviour**, the tyre
-**heating/pressure** model, and **bump/rebound transition** behaviour. ACR is in early access and
-its tyre/physics model is still changing.
+**heating/pressure** model, and **bump/rebound transition** behaviour. ACR's tyre/physics model
+changes between builds.

@@ -69,8 +69,12 @@ Keep it to a handful of bullets:
    - *tight / technical* → hairpin exits (wheelspin, the back stepping out), whether it rotates at
      all in slow corners;
    - *snow / ice* → whether it goes anywhere at all on the throttle, how catchable the slides are.
-3. The gearing prompts (below) — those need to be noticed *while driving* or they're lost.
-4. Reassurance: **"I didn't notice"** is a fine answer, and the run is for a reference feel, not a
+3. **When the tyre is a medium compound**, one line: the first kilometres are on cold tyres — grip
+   comes in after a few corners, so be careful until it does. And for tarmac in the current
+   version: **read the tyre pressure gauge near the end of the run** and report the numbers — the
+   game version notes say what they should be.
+4. The gearing prompts (below) — those need to be noticed *while driving* or they're lost.
+5. Reassurance: **"I didn't notice"** is a fine answer, and the run is for a reference feel, not a
    fast time. Drive it the way they normally would.
 
 The briefing deliberately uses the same words the interview will use afterwards, so the user hears
@@ -252,11 +256,12 @@ Ranked causes: too much toe (either end), ARB too stiff, tyre pressure too high,
 Ranked causes: wrong compound for the surface/conditions (missing from the start), compound too soft
 / overheating (fades), then pressure.
 
-> **Pressure is a special case — leave it alone unless the user reports it.** ACR's tyre
-> pressure model is still maturing and doesn't behave the way real-world logic suggests, so a
-> captured default's pressures are a **better reference than any reasoning the skill can do**.
-> Change pressure only when a symptom points directly at it or the user says the pressures felt
-> wrong — never as part of routine balance tuning (`setup-tuning-principles.md` → *Tyre pressure*).
+> **Pressure is a special case — its target comes from the game version notes, not from feel.**
+> The notes (`python scripts/load_game_version_notes.py`) say what hot pressure the current
+> version rewards and how to read it off the in-game gauge. A driver who reports a gauge reading
+> is reporting a pressure symptom: move the cold pressure by the difference to the target. Change
+> pressure only on such a report or a symptom that points directly at it — never as part of
+> routine balance tuning (`setup-tuning-principles.md` → *Tyre pressure*).
 
 ### Other
 
@@ -325,8 +330,9 @@ hides cause and effect.
 7. **Brake bias** — and brake hardware (calipers/discs/master cylinder) when the complaint is
    hardware-scale: *barely brakes* or *locks instantly*.
 
-**Tyre pressure sits outside the ladder** — held at the captured default, moved only on a reported
-pressure symptom (see *Tyre feel* above).
+**Tyre pressure sits outside the ladder** — set from the game version notes' target (or held at
+the default where the notes give no rule), moved only on a gauge reading or a reported pressure
+symptom (see *Tyre feel* above).
 
 **Gearing is a parallel track** — resolved from its own sub-interview, in any order.
 

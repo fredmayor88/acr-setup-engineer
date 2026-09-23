@@ -165,5 +165,39 @@ class TestBundledDefaults(unittest.TestCase):
         self.assertIn('{game_version}', body)
 
 
+class TestGameVersionNotes(unittest.TestCase):
+    """The per-version tuning notes are a guideline layer every value-choosing workflow reads."""
+    WORKFLOWS = ('build-setup.md', 'tweak-setup.md', 'review-setup.md', 'ask-setups.md')
+    # build-setup.md and tweak-setup.md are rewritten in Tasks 4 and 5
+    SKIP_UNTIL_LATER = {'build-setup.md', 'tweak-setup.md'}
+
+    def ref(self, name):
+        return read(os.path.join(SKILL, 'references', name))
+
+    def test_skill_md_names_the_folder_the_script_and_the_layer(self):
+        text = read(os.path.join(SKILL, 'SKILL.md'))
+        self.assertIn('game-versions/', text)
+        self.assertIn('scripts/load_game_version_notes.py', text)
+        self.assertIn('game version notes', text.lower())
+
+    def test_version_claims_left_the_base_and_the_workflows(self):
+        for path in FILES:
+            if os.path.basename(path) in self.SKIP_UNTIL_LATER:
+                continue
+            text = read(path).lower()
+            self.assertNotIn("pressure model isn't physically sensible", text, path)
+            self.assertNotIn('early access', text, path)
+            self.assertNotIn('still maturing', text, path)
+
+    def test_principles_point_at_the_notes_for_pressure(self):
+        text = self.ref('setup-tuning-principles.md')
+        self.assertIn('load_game_version_notes.py', text)
+
+    def test_interview_points_at_the_notes_for_pressure_and_cold_tyres(self):
+        text = self.ref('driving-feedback-interview.md')
+        self.assertIn('game version notes', text.lower())
+        self.assertIn('cold tyres', text)
+
+
 if __name__ == '__main__':
     unittest.main()
