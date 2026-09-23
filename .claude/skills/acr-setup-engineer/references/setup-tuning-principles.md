@@ -8,14 +8,18 @@ descriptions and several community tuning guides, critically filtered for physic
 ## How this fits together (layers & precedence)
 
 This file is the **shipped base**. The user's own preferences live in **Notion** and
-**override** this file. When `build-setup` reasons about a setup, it combines four **authored**
-layers, in increasing priority:
+**override** this file. When `build-setup` reasons about a setup, it combines these layers, in
+increasing priority:
 
 1. **Base principles** (this file)
-2. **Global user guidelines** (Notion: `ACR Setup Engineer / Tuning guidelines`)
-3. **Surface section** of that same page (its "Per surface" subsection matching the build
+2. **Game version notes** (`game-versions/<version>.md`, found with
+   `python scripts/load_game_version_notes.py`) — bundled, override this file for the rules they name
+3. **Bundled car troubleshooting** (the matching file in `car-troubleshooting/`, if one exists) —
+   bundled, override this file for the symptoms they name
+4. **Global user guidelines** (Notion: `ACR Setup Engineer / Tuning guidelines`)
+5. **Surface section** of that same page (its "Per surface" subsection matching the build
    surface) — not a separate page
-4. **Per-car guidelines** (the car's `Guidelines` page)
+6. **Per-car guidelines** (the car's `Guidelines` page)
 
 The **setup's own driving intent** (what the driver wants from *this* build — rotation,
 stability, braking, bumps, conditions) is the most specific layer of all, supplied with the build

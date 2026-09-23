@@ -168,8 +168,8 @@ class TestBundledDefaults(unittest.TestCase):
 class TestGameVersionNotes(unittest.TestCase):
     """The per-version tuning notes are a guideline layer every value-choosing workflow reads."""
     WORKFLOWS = ('build-setup.md', 'tweak-setup.md', 'review-setup.md', 'ask-setups.md')
-    # build-setup.md and tweak-setup.md are rewritten in Tasks 4 and 5
-    SKIP_UNTIL_LATER = {'build-setup.md', 'tweak-setup.md'}
+    # tweak-setup.md is rewritten in Task 5
+    SKIP_UNTIL_LATER = {'tweak-setup.md'}
 
     def ref(self, name):
         return read(os.path.join(SKILL, 'references', name))
@@ -196,6 +196,13 @@ class TestGameVersionNotes(unittest.TestCase):
     def test_interview_points_at_the_notes_for_pressure_and_cold_tyres(self):
         text = self.ref('driving-feedback-interview.md')
         self.assertIn('game version notes', text.lower())
+        self.assertIn('cold tyres', text)
+
+    def test_build_uses_stage_length_and_the_pressure_target(self):
+        text = self.ref('build-setup.md')
+        self.assertIn('8 km', text)
+        self.assertIn('0.6 tyre notes', text)
+        self.assertIn('about how long is the stage?', text)
         self.assertIn('cold tyres', text)
 
 

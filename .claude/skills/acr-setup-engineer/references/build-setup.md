@@ -146,18 +146,23 @@ would rather just have a setup now, build one.
 
 2. **Load the guideline layers** (lowest → highest priority):
    1. **Base** — `setup-tuning-principles.md`.
-   2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose
+   2. **Game version notes** — run `python scripts/load_game_version_notes.py` and read the file it
+      prints (the tuning notes for the current game version, `game-versions/<version>.md`); when it
+      prints a second `note:` line, say it in one line. **They override the base principles** for
+      the rules they name (in 0.6: tarmac tyre pressure and tyre type by stage length). If it exits
+      1, skip this layer and say so in one line.
+   3. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose
       name matches this car (same match rule as a bundled template — `onboard-car.md` step 1 →
       *Matching a car name* — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one
       exists, read it and apply its symptom→fix entries — they override the base principles** for the
       symptoms they name. If no file matches, skip this layer.
-   3. **Global user guidelines** — the Notion `Tuning guidelines` page (under `ACR Setup Engineer`).
-   4. **Surface section** of those guidelines — the page's "Per surface" subsection matching the
+   4. **Global user guidelines** — the Notion `Tuning guidelines` page (under `ACR Setup Engineer`).
+   5. **Surface section** of those guidelines — the page's "Per surface" subsection matching the
       build surface (step 3 fixes the surface; this is not a separate page).
-   5. **Per-car guidelines** — the car's `Guidelines` page.
+   6. **Per-car guidelines** — the car's `Guidelines` page.
    The setup's own **driving intent** (Inputs) is the most specific layer, applied in step 8.
    Apply only base lines tagged `[All]` **or the car's drivetrain**. **More specific is the default
-   lean** (base < troubleshooting < global < surface < per-car < intent), but this is not auto-resolved on a real
+   lean** (base < version notes < troubleshooting < global < surface < per-car < intent), but this is not auto-resolved on a real
    contradiction: if two *authored* layers (global, surface, per-car, or the stated intent)
    materially disagree on the same parameter, **stop and ask the user which to follow** before
    choosing a value — don't silently pick the more specific one. **Read only content within
@@ -178,7 +183,15 @@ would rather just have a setup now, build one.
 3. **Load the stage facts (if a stage/location was given).** Fetch the `{Stage}` / `{Location}`
    page from the catalogue (`notion-structure.md`): surface, key corners/speeds, character. These
    are **objective facts, not a guideline layer** — they feed reasoning the same way the car's
-   identity facts do. **Fix the build surface here:** if the user gave a **Surface override**
+   identity facts do.
+
+   **Read the stage's length too.** The game version notes pick the tarmac tyre type by it (in 0.6:
+   under 8 km `Tarmac Soft`, 8 km or more `Tarmac Medium`) and the cold pressure with it. When the
+   build surface is tarmac and no stage was given, or the stage page has no length, ask in one short
+   line — "about how long is the stage?" — together with the conditions question below; if the user
+   doesn't know, treat the stage as under 8 km and say so.
+
+   **Fix the build surface here:** if the user gave a **Surface override**
    (Inputs), it wins over the stage's stated surface — use it as the surface for guideline layer 3
    (step 2.3), tyre choice (step 8), range resolution (steps 8–9), and the row's `Surface`
    (step 11); otherwise use the stage's surface (or, with no stage, the surface the user stated).
@@ -418,7 +431,9 @@ would rather just have a setup now, build one.
      setups, not discarding the game's own reference values.)
 
 8. **Choose values.** First pick the **tyre type** for the surface/conditions (biggest grip
-   decision) — **for ACR**, pick from the car's stored `Tyre Type` `Discrete steps` if it has
+   decision) — **on tarmac, by stage length per the game version notes**
+   (`game-versions/<version>.md` → *Tyre type on tarmac*; in 0.6 a stage of 8 km or more takes
+   `Tarmac Medium`) — **for ACR**, pick from the car's stored `Tyre Type` `Discrete steps` if it has
    one, else from the standard fallback list (per `SKILL.md` → *ACR tyre fallback + canonical
    names*); always write the fully-qualified name (never a bare/ambiguous value like `Snow`
    or `Gravel`). Then, per parameter, reason from tyre + surface + stage facts + driving intent
@@ -451,11 +466,14 @@ would rather just have a setup now, build one.
    - **Tyre type is always re-derived**, even with a baseline — it follows the build surface, never
      the default's compound.
    - **Tyre pressure is always two values** — choose `Pressure Front` and `Pressure Rear` separately,
-     never a single combined pressure, each per the *Tyre pressure* section of
-     [setup-tuning-principles.md](setup-tuning-principles.md). **With a baseline, hold the default's
-     pressures** and move them only on a reported pressure symptom — ACR's pressure model isn't
-     physically sensible, so the game's own numbers beat the skill's reasoning. Without a baseline,
-     fall back to that file's **ACR pressure rule** (start in the upper half of the legal range).
+     never a single combined pressure. **The target comes from the game version notes**
+     (`game-versions/<version>.md` → *Tyre pressure*): when the notes give a rule for the build
+     surface, start from it — in 0.6, tarmac cold pressure 27 psi under 8 km and 26 psi at 8 km or
+     more, both axles, hot target 28 — make it legal on the catalog grid (nearest legal value below
+     when off it) and report it as `default → new (0.6 tyre notes)`. When the notes give no rule for
+     the surface (gravel, snow in 0.6), **hold the default's pressures** and move them only on a
+     reported pressure symptom. Without a baseline and without a notes rule, start in the upper
+     half of the legal range (`setup-tuning-principles.md` → *Tyre pressure*).
    - **Toe — the game's sign is inverted** (`SKILL.md` → *ACR's toe sign is inverted*): decide the
      direction physically (front toe-out for turn-in, rear toe-in for exit stability — the rally
      default), then write it as the **setup-screen number**: toe-out ⇒ **positive**, toe-in ⇒
@@ -597,7 +615,15 @@ would rather just have a setup now, build one.
      the database row is the single source of truth.
 
 12. **Report.** Summarise the setup (incl. tyre type), assumptions, which user guidelines were
-   applied, and whether any checked prior setups were learned from. State whether the build was
+   applied, and whether any checked prior setups were learned from.
+
+   **Two fixed lines from the game version notes:** when the tyre type is a medium compound, "the
+   first kilometres are on cold tyres — be careful until the grip comes in"; and on tarmac, "read
+   the tyre pressure gauge near the end of the run and tell me the numbers — the target is 28 psi
+   hot; I'll move the cold pressure by the difference" (`game-versions/<version>.md` → *Finding the
+   right cold pressure for a stage*).
+
+   State whether the build was
    **anchored on a captured default** — if so, how many parameters moved off it and how many were
    held; if not, say plainly that **no baseline anchor was used** and that driving the game's default
    first would make the next iteration sharper. **When step 5b flagged the default**, lead with that
@@ -655,8 +681,9 @@ would rather just have a setup now, build one.
   self-contradictory*, never *suboptimal* — and a user who wants to drive it anyway gets to.
 - **Never infer how the game scopes its defaults** (per stage / surface / conditions / car). Reuse
   across any differing context is **user-confirmed**, never assumed.
-- **Hold the default's tyre pressures** unless a symptom points at them; ACR's pressure model isn't
-  physically sensible, so the game's numbers beat the skill's reasoning.
+- **Tyre pressure follows the game version notes.** Where the notes give a rule for the surface,
+  it is the anchor (0.6: tarmac 28 psi hot, cold start below it); where they don't, hold the
+  default's pressures unless a symptom or a gauge reading points at them.
 - **Toe sign is inverted** — pick the direction physically, write the screen number (toe-out ⇒
   positive, toe-in ⇒ negative), store/read it unconverted, and **warn the user** in both the page
   body and the chat report.
