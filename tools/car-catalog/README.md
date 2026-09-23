@@ -183,8 +183,8 @@ never leaves half the bundled files refreshed and the other half stale.
 ## Game version notes
 
 `game-versions/<version>.md` in the skill is **hand-written**, never extracted: the tuning rules
-that are true for one game version (0.6: tarmac hot pressure target 28 psi, cold start 27/26 by
-stage length, `Tarmac Medium` on stages of 8 km or more, the gauge test-run routine). After a game
+that are true for one game version (0.6: tarmac hot pressure target 28 psi, cold start 27 psi,
+`Tarmac Medium` on stages of 8 km or more, the gauge test-run routine). After a game
 release, once `make extract` has bumped `GAME_VERSION`, copy the previous file to the new version
 number, edit what changed, and run `make test` — `tests/test_game_version_notes.py` fails until the
 current version has its own file. The workflow files quote the current version's numbers as examples

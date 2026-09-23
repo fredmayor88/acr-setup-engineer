@@ -471,9 +471,9 @@ would rather just have a setup now, build one.
    - **Tyre pressure is always two values** — choose `Pressure Front` and `Pressure Rear` separately,
      never a single combined pressure. **The target comes from the game version notes**
      (`game-versions/<version>.md` → *Tyre pressure*): when the notes give a rule for the build
-     surface, start from it — in 0.6, tarmac cold pressure 27 psi under 8 km and 26 psi at 8 km
-     or more, both axles, hot target 28 psi — make it legal on the catalog grid (nearest legal
-     value below when off it) and report it as `default → new (0.6 tyre notes)`. When the notes
+     surface, start from it — in 0.6, tarmac cold pressure 27 psi on every stage, both axles,
+     hot target 28 psi — make it legal on the catalog grid (nearest legal value below when off
+     it) and report it as `default → new (0.6 tyre notes)`. When the notes
      give no rule for the surface (gravel, snow in 0.6), **hold the default's pressures** and
      move them only on a reported pressure symptom. Without a baseline and without a
      notes rule, start in the upper half of the legal range

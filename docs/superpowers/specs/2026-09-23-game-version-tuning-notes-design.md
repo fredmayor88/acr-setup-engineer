@@ -46,9 +46,8 @@ routine for finding a stage's cold pressure. The base principles go back to time
 - Version notes are the anchor for tarmac tyre pressure. They outrank the bundled default's
   pressures on tarmac. On gravel and snow the bundled default's pressures still hold.
 
-Assumption, to be confirmed by driving: the cold start pressure is **27 psi** on a stage
-under 8 km and **26 psi** on a stage of 8 km or more, because more heat builds over a longer
-run. The user said "27 or 26"; this is the rule that picks one.
+Cold start pressure on tarmac is **27 psi** on every stage (user decision, 2026-09-23; the
+gauge routine settles the rest).
 
 ## The file: `game-versions/0.6.md`
 
@@ -78,9 +77,9 @@ surface, per-car) and the driving intent still win over it.
 ## Tyre pressure
 
 - **Tarmac:** the optimal hot pressure is **28 psi, front and rear**. Set the cold pressure
-  below it so the tyre reaches 28 during the run: **27 psi** on a stage under 8 km,
-  **26 psi** on a stage of 8 km or more. Both axles the same. Make the value legal on the
-  car's catalog grid; if 27 or 26 is not on the grid, take the nearest legal value below it.
+  below it so the tyre reaches 28 during the run: start from **27 psi**, both axles, on every
+  tarmac stage. Make the value legal on the car's catalog grid; if 27 is not on the grid, take
+  the nearest legal value below it.
 - **Gravel, snow:** no version rule. Keep the bundled default's pressures unless a symptom
   points at them.
 - This replaces the base principles' "hold the default's pressures" advice on tarmac. The
