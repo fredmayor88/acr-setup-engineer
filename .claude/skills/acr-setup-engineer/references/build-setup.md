@@ -473,9 +473,9 @@ would rather just have a setup now, build one.
      or more, both axles, hot target 28 psi — make it legal on the catalog grid (nearest legal
      value below when off it) and report it as `default → new (0.6 tyre notes)`. When the notes
      give no rule for the surface (gravel, snow in 0.6), **hold the default's pressures** and
-     move them only on a reported pressure symptom. Without a baseline and without a notes
-     rule, start in the upper half of the legal range (`setup-tuning-principles.md` → *Tyre
-     pressure*).
+     move them only on a reported pressure symptom. Without a baseline and without a
+     notes rule, start in the upper half of the legal range
+     (`setup-tuning-principles.md` → *Tyre pressure*).
    - **Toe — the game's sign is inverted** (`SKILL.md` → *ACR's toe sign is inverted*): decide the
      direction physically (front toe-out for turn-in, rear toe-in for exit stability — the rally
      default), then write it as the **setup-screen number**: toe-out ⇒ **positive**, toe-in ⇒
