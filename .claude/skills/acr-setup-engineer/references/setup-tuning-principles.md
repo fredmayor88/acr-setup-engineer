@@ -7,9 +7,9 @@ descriptions and several community tuning guides, critically filtered for physic
 
 ## How this fits together (layers & precedence)
 
-This file is the **shipped base**. The user's own preferences live in **Notion** and
-**override** this file. When `build-setup` reasons about a setup, it combines these layers, in
-increasing priority:
+This file is the **shipped base**. Two bundled layers sit above this file, then the user's own
+preferences in **Notion**; each **overrides** what sits below it. When `build-setup` reasons about
+a setup, it combines these layers, in increasing priority:
 
 1. **Base principles** (this file)
 2. **Game version notes** (`game-versions/<version>.md`, found with

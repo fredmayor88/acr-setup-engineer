@@ -180,10 +180,29 @@ class TestGameVersionNotes(unittest.TestCase):
 
     def test_version_claims_left_the_base_and_the_workflows(self):
         for path in FILES:
-            text = read(path).lower()
+            text = re.sub(r'\s+', ' ', read(path).lower())
             self.assertNotIn("pressure model isn't physically sensible", text, path)
             self.assertNotIn('early access', text, path)
             self.assertNotIn('still maturing', text, path)
+
+    def test_illustrated_version_in_workflows_is_the_current_game_version(self):
+        """The workflow files quote the current version's rules as examples ("in 0.6, …",
+        "0.6 tyre notes"). After a game release those examples must be refreshed with the notes."""
+        current = open(os.path.join(SKILL, 'GAME_VERSION'), encoding='utf-8').read().strip()
+        forms = re.compile(
+            r'\bin (\d+\.\d+(?:\.\d+)?)\b(?=[,:)]| that is| tarmac| a\b)'  # "in 0.6, …", "in 0.6)", "in 0.6 a stage"
+            r'|\b(\d+\.\d+(?:\.\d+)?) tyre notes'                          # "0.6 tyre notes"
+            r'|\((\d+\.\d+(?:\.\d+)?) tarmac:'                             # "(0.6 tarmac: 28 psi hot)"
+            r'|\((\d+\.\d+(?:\.\d+)?): tarmac\b'                           # "(0.6: tarmac 28 psi hot)"
+            r'|\bgame (\d+\.\d+(?:\.\d+)?) are\b'                          # "on game 0.6 are examples"
+        )
+        stale = []
+        for path in FILES:
+            for m in forms.finditer(read(path)):
+                version = next(g for g in m.groups() if g)
+                if version != current:
+                    stale.append(f'{os.path.basename(path)}: {m.group(0)!r}')
+        self.assertFalse(stale, stale)
 
     def test_principles_point_at_the_notes_for_pressure(self):
         text = self.ref('setup-tuning-principles.md')

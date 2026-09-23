@@ -7,7 +7,6 @@ Run: python -m unittest discover -s tests
 """
 import glob
 import os
-import re
 import unittest
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))

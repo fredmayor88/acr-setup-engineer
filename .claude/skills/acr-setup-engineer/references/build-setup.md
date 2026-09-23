@@ -364,12 +364,13 @@ would rather just have a setup now, build one.
    Then take one of three routes:
    - **Sensible** (the common case) → say so in **one line**, deliver the **pre-drive briefing** from
      [driving-feedback-interview.md](driving-feedback-interview.md) (corner-phase vocabulary, a short
-     "what to pay attention to" list tailored to this stage's facts, the gearing prompts), ask them to
-     drive it, and **stop** — step 6 picks up when they report back. **On a stored default that
-     passes, stay silent**: no commentary, no write. **On a bundled anchor that passes, also stay
-     silent — and skip asking them to drive it at all**: go straight on to step 6 (which then finds
-     nothing was driven and skips itself, per its own rule) and step 7 — the anchor already holds the
-     game's exact values for this surface, so there is nothing to send them out to confirm first.
+     "what to pay attention to" list tailored to this stage's facts, the cold-tyre and gauge lines,
+     the gearing prompts), ask them to drive it, and **stop** — step 6 picks up when they report
+     back. **On a stored default that passes, stay silent**: no commentary, no write. **On a
+     bundled anchor that passes, also stay silent — and skip asking them to drive it at all**: go
+     straight on to step 6 (which then finds nothing was driven and skips itself, per its own rule)
+     and step 7 — the anchor already holds the game's exact values for this surface, so there is
+     nothing to send them out to confirm first.
      Don't re-litigate a baseline on every repeat build.
    - **Locally broken** — a few parameters are wrong-regime but the rest is plausible → **keep the
      default as the anchor and override only the flagged parameters** (step 8). Name them in plain
@@ -464,8 +465,9 @@ would rather just have a setup now, build one.
        the step 5b flag, not a driver symptom (there was no drive).
      - **Broadly broken** → there is **no anchor**: derive every parameter from principles, exactly
        as when no default exists at all.
-   - **Tyre type is always re-derived**, even with a baseline — it follows the build surface, never
-     the default's compound.
+   - **Tyre type is always re-derived**, even with a baseline — it follows the build surface **and,
+     on tarmac, the stage length** (game version notes → *Tyre type on tarmac*), never the default's
+     compound.
    - **Tyre pressure is always two values** — choose `Pressure Front` and `Pressure Rear` separately,
      never a single combined pressure. **The target comes from the game version notes**
      (`game-versions/<version>.md` → *Tyre pressure*): when the notes give a rule for the build

@@ -186,7 +186,9 @@ extractable, and asking for min/max setup screens for it is redoing solved work.
 After a game update, run `make extract` once; it refreshes `GAME_VERSION`, every catalog, every
 bundled default setup, the charts and the car-lab data. Then copy `game-versions/<old>.md` to
 `game-versions/<new>.md` and edit what changed — the notes are the one bundled file `make extract`
-does not write. Read the diff, run `make test`, commit.
+does not write. Read the diff, run `make test`, commit. Refresh the version numbers the workflow
+files quote as examples (grep for the old version under `.claude/skills/acr-setup-engineer/`); a
+guard in `tests/test_references.py` fails until they all equal `GAME_VERSION`.
 
 - **Ask for one thing: the in-game car-info screen.** It carries the display name, year, engine,
   max power, max torque, weight and steering lock in a single capture. Two known traps (both hit

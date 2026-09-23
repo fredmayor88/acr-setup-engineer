@@ -16,8 +16,9 @@ Output (stdout):
 
 Exit codes:
   0  a file was found (exact version, or the newest lower version)
-  1  no file at or below the version — skip the layer and say so in one line
-  2  usage error
+  1  no file at or below the version, or the notes folder / GAME_VERSION can't be read — skip
+     the layer and say so in one line
+  2  usage error, including a malformed --version
 """
 import os
 import sys
@@ -31,6 +32,23 @@ USAGE = ('Usage: load_game_version_notes.py [--version V] [--dir DIR]')
 
 class NotesError(Exception):
     pass
+
+
+def use_utf8_output():
+    """Print UTF-8 whatever the console's locale is.
+
+    Same reason as `load_catalog.py`: the skill always runs this with stdout piped, and on
+    Windows Python would otherwise encode a car name's accent with the ANSI code page while
+    the reader decodes it as UTF-8. Guarded because stdout may be a plain object with no
+    `reconfigure` (a test capturing output, an embedded runner).
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, 'reconfigure', None)
+        if reconfigure is not None:
+            try:
+                reconfigure(encoding='utf-8')
+            except (ValueError, OSError):        # already detached / not reconfigurable
+                pass
 
 
 def parse_version(text):
@@ -75,6 +93,7 @@ def read_game_version(path=GAME_VERSION_FILE):
 
 
 def main():
+    use_utf8_output()
     args = sys.argv[1:]
     version = None
     directory = NOTES_DIR
@@ -89,6 +108,9 @@ def main():
         else:
             print(f'unknown or incomplete option: {args[i]}\n{USAGE}', file=sys.stderr)
             return 2
+    if version is not None and parse_version(version) is None:
+        print(f'not a version: {version!r}\n{USAGE}', file=sys.stderr)
+        return 2
     try:
         if version is None:
             version = read_game_version()

@@ -187,8 +187,11 @@ that are true for one game version (0.6: tarmac hot pressure target 28 psi, cold
 stage length, `Tarmac Medium` on stages of 8 km or more, the gauge test-run routine). After a game
 release, once `make extract` has bumped `GAME_VERSION`, copy the previous file to the new version
 number, edit what changed, and run `make test` — `tests/test_game_version_notes.py` fails until the
-current version has its own file. Until then `scripts/load_game_version_notes.py` falls back to the
-newest lower version and says so.
+current version has its own file. The workflow files quote the current version's numbers as examples
+("in 0.6, tarmac cold pressure 27 psi…", "0.6 tyre notes"); grep the skill for the old version number
+and refresh those lines too — `tests/test_references.py` fails until every quoted version equals
+`GAME_VERSION`. Until then `scripts/load_game_version_notes.py` falls back to the newest lower
+version and says so.
 
 ## What it doesn't touch
 

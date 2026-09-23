@@ -134,9 +134,9 @@ The setup's own **driving intent** (its page-body summary) is the most specific 
 lines tagged `[All]` **or the car's drivetrain**.
 
 ### 3d. Load stage facts (if the setup references one)
-Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface, key
-corners/speeds, character. These are **objective facts** — what the driver was aiming for comes
-from the setup's own page-body summary, not the stage page.
+Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface,
+length, key corners/speeds, character. These are **objective facts** — what the driver was aiming
+for comes from the setup's own page-body summary, not the stage page.
 
 ### 3e. Explain the value
 For each parameter the user asked about (or, if they asked "explain this setup" broadly, the

@@ -78,6 +78,16 @@ class TestCommand(unittest.TestCase):
         self.assertEqual(r.returncode, 2)
         self.assertIn('Usage', r.stderr)
 
+    def test_malformed_version_flag_exits_2(self):
+        r = run('--version', '0.6a', '--dir', self.tmp.name)
+        self.assertEqual(r.returncode, 2)
+        self.assertIn('not a version', r.stderr)
+
+    def test_missing_dir_exits_1(self):
+        r = run('--version', '0.6', '--dir', os.path.join(self.tmp.name, 'nope'))
+        self.assertEqual(r.returncode, 1)
+        self.assertIn('cannot read notes folder', r.stderr)
+
     def test_default_resolves_the_skills_game_version_exactly(self):
         r = run()
         self.assertEqual(r.returncode, 0, r.stderr)

@@ -103,9 +103,9 @@ to move it to `Guidelines`, written exactly as they'd paste it — the user past
 never writes `Guidelines`.
 
 ### 4. Load stage facts (if the working setup references one)
-Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface, key
-corners/speeds, character. These are **objective facts, not a guideline** — the driver's goal for
-this setup comes from its page body and the user's feedback, not the stage page.
+Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface,
+length, key corners/speeds, character. These are **objective facts, not a guideline** — the
+driver's goal for this setup comes from its page body and the user's feedback, not the stage page.
 
 ### 5. Refinement iteration (repeat for each round of feedback)
 Each time the user gives feedback, run one round — **all in chat, no Notion writes**:
