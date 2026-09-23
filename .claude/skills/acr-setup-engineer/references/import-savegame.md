@@ -279,7 +279,8 @@ can hold setups from several versions):
 *Batch Notion writes*), one page per setup. Parsed names come from the in-game field and are already
 **≤15 chars**; if one somehow exceeds it, compact it before writing (per `SKILL.md` core rules).
 Each row:
-- `Name`, `Car`, `Surface`, `Game version`, `Date` (current date/time — per `notion-structure.md`
+- `Name`, `Car`, `Surface`, `Game version` (**this setup's `game_version` from the parser output** —
+  the version the save was written by, never the skill's `GAME_VERSION`), `Date` (current date/time — per `notion-structure.md`
   → `Date`: run the Python one-liner, don't guess the time), `Source = imported`. Leave
   **`Conditions` blank** — the save file doesn't record it, and it must never be guessed (the user
   can fill it in later if they care; often the setup name already says it). Write `Car` as the
