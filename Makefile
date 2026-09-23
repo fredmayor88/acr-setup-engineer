@@ -99,7 +99,9 @@ extract-setups: check-game-version
 # Everything that reads the installed game, in order: version first (every file is stamped with
 # it), then catalogs, default setups, power/torque charts, ACR Car Lab data. Re-run after a game
 # update, read the diff, run `make test`, commit. `extract-version` runs before the two extractors,
-# so their `check-game-version` prerequisite always passes here.
+# so their `check-game-version` prerequisite always passes here — `.NOTPARALLEL` keeps that order
+# under `make -j` too, since the check would otherwise race the write.
+.NOTPARALLEL:
 extract: extract-version extract-catalogs extract-setups charts-power car-lab
 
 # Stamps the release tag into VERSION and commits it, so the archived ZIP (built from HEAD's

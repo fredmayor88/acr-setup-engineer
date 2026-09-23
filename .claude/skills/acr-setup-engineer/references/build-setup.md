@@ -211,9 +211,11 @@ would rather just have a setup now, build one.
      one line, then take the **screenshot-car branch** for this build.
    - **Exit 1, message names the presets the file has** (`no {preset} preset on {Surface}
      (it has …)`) → the preset the user asked for doesn't exist here. Run
-     `python scripts/load_default_setup.py --list <slug>`, then say in one line *"this car's
-     Aggressive preset exists only on {the surfaces `--list` shows it for}; using Balanced for
-     {Surface}"*, re-run the command without `--preset`, and carry on in the bundled-anchor branch.
+     `python scripts/load_default_setup.py --list <slug>`. If the list shows that preset on other
+     surfaces, say in one line *"this car's {preset} preset exists only on {those surfaces}; using
+     Balanced for {Surface}"*; if it shows it on no surface, say *"this car has no {preset}
+     preset; using Balanced"*. Then re-run the command without `--preset` and carry on in the
+     bundled-anchor branch.
 
    **Bundled-anchor branch.** Anchors on the bundled file, on every plan, with no Notion read and
    no screenshots. The `values` from the command above are the **numeric anchor** — go to
@@ -228,7 +230,8 @@ would rather just have a setup now, build one.
      those exactly as it always has (tyre first, from the catalog) — never leave one blank.
    - **Check the anchor against the car's own grid, once, in the same block.** Write the loader's
      `values` to `anchor.json`, then run the catalog check on that file — these exact two lines
-     (add the same `--preset NAME` to the inner command if the build used one):
+     (if the build used a preset, insert `,'--preset','{NAME}'` right after `'{Surface}'` inside
+     the list in the first line — for example `,'--surface','Tarmac','--preset','Aggressive'`):
      ```
      python -c "import json,subprocess,sys; json.dump(json.loads(subprocess.run([sys.executable,'scripts/load_default_setup.py','--car','<slug>','--surface','{Surface}'],capture_output=True,text=True).stdout)['values'],open('anchor.json','w'))"
      python scripts/load_catalog.py car-templates/<slug>.yaml --surface {Surface} --check anchor.json
