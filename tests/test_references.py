@@ -165,5 +165,73 @@ class TestBundledDefaults(unittest.TestCase):
         self.assertIn('{game_version}', body)
 
 
+class TestGameVersionNotes(unittest.TestCase):
+    """The per-version tuning notes are a guideline layer every value-choosing workflow reads."""
+    WORKFLOWS = ('build-setup.md', 'tweak-setup.md', 'review-setup.md', 'ask-setups.md')
+
+    def ref(self, name):
+        return read(os.path.join(SKILL, 'references', name))
+
+    def test_skill_md_names_the_folder_the_script_and_the_layer(self):
+        text = read(os.path.join(SKILL, 'SKILL.md'))
+        self.assertIn('game-versions/', text)
+        self.assertIn('scripts/load_game_version_notes.py', text)
+        self.assertIn('game version notes', text.lower())
+
+    def test_version_claims_left_the_base_and_the_workflows(self):
+        for path in FILES:
+            text = re.sub(r'\s+', ' ', read(path).lower())
+            self.assertNotIn("pressure model isn't physically sensible", text, path)
+            self.assertNotIn('early access', text, path)
+            self.assertNotIn('still maturing', text, path)
+
+    def test_illustrated_version_in_workflows_is_the_current_game_version(self):
+        """The workflow files quote the current version's rules as examples ("in 0.6, …",
+        "0.6 tyre notes"). After a game release those examples must be refreshed with the notes."""
+        current = open(os.path.join(SKILL, 'GAME_VERSION'), encoding='utf-8').read().strip()
+        forms = re.compile(
+            r'\bin (\d+\.\d+(?:\.\d+)?)\b(?=[,:)]| that is| tarmac| a\b)'  # "in 0.6, …", "in 0.6)", "in 0.6 a stage"
+            r'|\b(\d+\.\d+(?:\.\d+)?) tyre notes'                          # "0.6 tyre notes"
+            r'|\((\d+\.\d+(?:\.\d+)?) tarmac:'                             # "(0.6 tarmac: 28 psi hot)"
+            r'|\((\d+\.\d+(?:\.\d+)?): tarmac\b'                           # "(0.6: tarmac 28 psi hot)"
+            r'|\bgame (\d+\.\d+(?:\.\d+)?) are\b'                          # "on game 0.6 are examples"
+        )
+        stale = []
+        for path in FILES:
+            for m in forms.finditer(read(path)):
+                version = next(g for g in m.groups() if g)
+                if version != current:
+                    stale.append(f'{os.path.basename(path)}: {m.group(0)!r}')
+        self.assertFalse(stale, stale)
+
+    def test_principles_point_at_the_notes_for_pressure(self):
+        text = self.ref('setup-tuning-principles.md')
+        self.assertIn('load_game_version_notes.py', text)
+
+    def test_interview_points_at_the_notes_for_pressure_and_cold_tyres(self):
+        text = self.ref('driving-feedback-interview.md')
+        self.assertIn('game version notes', text.lower())
+        self.assertIn('cold tyres', text)
+
+    def test_build_uses_stage_length_and_the_pressure_target(self):
+        text = self.ref('build-setup.md')
+        self.assertIn('8 km', text)
+        self.assertIn('0.6 tyre notes', text)
+        self.assertIn('about how long is the stage?', text)
+        self.assertIn('cold tyres', text)
+
+    def test_every_workflow_runs_the_notes_loader(self):
+        for name in self.WORKFLOWS:
+            self.assertIn('python scripts/load_game_version_notes.py', self.ref(name), name)
+
+    def test_tweak_moves_cold_pressure_by_the_gauge_difference(self):
+        self.assertIn('by the difference', self.ref('tweak-setup.md'))
+
+    def test_docs_pages_say_setups_follow_the_version_notes(self):
+        for name in ('how-to-use-template.md', 'free-plan-template.md'):
+            body = self.ref(name).partition('\n---\n')[2]
+            self.assertIn('tuning notes for game version {game_version}', body, name)
+
+
 if __name__ == '__main__':
     unittest.main()

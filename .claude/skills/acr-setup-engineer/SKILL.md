@@ -91,6 +91,12 @@ Shared knowledge (read as needed):
   workflow loads its guideline layers, **check this folder and, if a file matches the car, read it**;
   it is a **guideline layer that overrides the base principles** for the symptoms it names (see the
   *Layered guidelines* core rule).
+- `game-versions/` — bundled **per-game-version tuning notes**, one markdown file per version
+  (`game-versions/0.6.md`), hand-written by the maintainer after each game release. Found with
+  `scripts/load_game_version_notes.py` (exact `GAME_VERSION`, else the newest lower version, said
+  in one line). Whenever a workflow loads its guideline layers it reads this file as the layer
+  **right after the base principles**: it overrides them for the rules it names (in 0.6: tarmac
+  tyre pressure target and cold start, tyre type by stage length, the gauge test-run routine).
 - `VERSION` — the skill's own version (or `dev` for a source checkout); see *Skill version* below.
 - `GAME_VERSION` — the current game version every bundled `car-setups/` default setup was
   extracted from; read with `scripts/load_default_setup.py --game-version`, never by eye.
@@ -125,6 +131,8 @@ Bundled tools (stdlib Python, run via code execution):
   --surface Tarmac|Gravel|Snow [--preset Balanced|Aggressive]`, JSON; Snow falls back to Gravel and
   says so; `--list <slug>`; `--game-version` prints the skill's `GAME_VERSION` file — the current
   game version every bundled file was extracted from).
+- `scripts/load_game_version_notes.py` — prints the path of the `game-versions/` file for the
+  skill's `GAME_VERSION` (`--version V` to ask for another; exit 1 = no notes, skip the layer).
 - `scripts/query_notion_parameters.py` — `Setups` slices over REST, and
   `--show-order --from-template <file> …` for every view; it never reads a catalog. Call as
   `python scripts/query_notion_parameters.py <setups_data_source_id> <token> "<car_name>"` (add
@@ -191,9 +199,10 @@ Bundled tools (stdlib Python, run via code execution):
 - **Fix major issues before fine tuning.** When several things could be changed, work the
   **fix-order ladder**: tyre type → differential (preload → ramp angles → plates) → suspension (ride
   height → springs) → ARBs → dampers → alignment (camber, toe) → brake bias (and brake hardware when
-  braking itself is the complaint). Gearing is a **parallel track**; **tyre pressure sits outside the
-  ladder** and is held at the anchor unless a symptom points at it (ACR's pressure model
-  isn't physically sensible). **What the driver actually reports always outranks this order.** See
+  braking itself is the complaint). Gearing is a **parallel track**; **tyre pressure sits outside
+  the ladder** — its target comes from the game version notes (held at the anchor where the notes
+  give no rule) and it moves only on a gauge reading or a pressure symptom. **What the driver
+  actually reports always outranks this order.** See
   `references/driving-feedback-interview.md` → *Fix-order ladder*.
 - **Surface-resolved ranges.** A catalog row may carry an optional **`Surface`** tag
   (`Tarmac`/`Gravel`/`Snow`); a few parameters expose a different range per surface. The legal
@@ -356,8 +365,10 @@ Bundled tools (stdlib Python, run via code execution):
 - **Drivetrain-aware.** Determine the car's drivetrain (FWD/RWD/AWD) and apply only guidance
   tagged `[All]` or that drivetrain (legend in `references/setup-tuning-principles.md`).
 - **Layered guidelines — the user wins.** Reasoning precedence, later wins: base principles →
-  bundled car troubleshooting (the matching file in `car-troubleshooting/`, if one exists —
-  overrides the base for the symptoms it names) → global `Tuning guidelines` → matching surface
+  game version notes (`game-versions/<version>.md` for the current `GAME_VERSION`, found with
+  `scripts/load_game_version_notes.py` — overrides the base for the rules it names) → bundled car
+  troubleshooting (the matching file in `car-troubleshooting/`, if one exists — overrides the base
+  for the symptoms it names) → global `Tuning guidelines` → matching surface
   section (that page's
   "Per surface" subsection, not a separate page) → per-car guidelines (the car's **`Guidelines`**
   child page) → the setup's own driving intent (most specific).

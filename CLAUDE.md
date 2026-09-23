@@ -56,6 +56,11 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
     (`0.6`), written by `tools/car-catalog/write_game_version.py`, read by
     `scripts/load_default_setup.py --game-version` and stamped into every `Setups` row and Notion
     doc page. Never hand-edit either file — regenerate both with `make extract` after a game update.
+  - `game-versions/<version>.md` — hand-written tuning notes for one game version (0.6: tyre
+    pressure target and cold start, tyre type by stage length, gauge test runs). The guideline layer
+    right after the base principles in every value-choosing workflow; found with
+    `scripts/load_game_version_notes.py`. Copied and edited by hand after each game release —
+    never generated.
 - [README.md](README.md) — end-user docs (claude.ai install + usage).
 - `car-charts/` — the power/torque chart PNG per car, generated from the ACR game files.
   **Committed and served by public raw URL**, not bundled in the skill ZIP: a skill on claude.ai
@@ -179,7 +184,11 @@ screenshots of anything the files already hold — the parameter catalogue in pa
 extractable, and asking for min/max setup screens for it is redoing solved work.
 
 After a game update, run `make extract` once; it refreshes `GAME_VERSION`, every catalog, every
-bundled default setup, the charts and the car-lab data. Read the diff, run `make test`, commit.
+bundled default setup, the charts and the car-lab data. Then copy `game-versions/<old>.md` to
+`game-versions/<new>.md` and edit what changed — the notes are the one bundled file `make extract`
+does not write. Read the diff, run `make test`, commit. Refresh the version numbers the workflow
+files quote as examples (grep for the old version under `.claude/skills/acr-setup-engineer/`); a
+guard in `tests/test_references.py` fails until they all equal `GAME_VERSION`.
 
 - **Ask for one thing: the in-game car-info screen.** It carries the display name, year, engine,
   max power, max torque, weight and steering lock in a single capture. Two known traps (both hit

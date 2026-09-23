@@ -36,7 +36,9 @@ If a question mixes shapes (e.g. "what does ARB stiffness do, and why is mine so
 the conceptual part from the base first, then load the setup for the specific part.
 
 ## 2. Conceptual path (no Notion)
-Answer from `setup-tuning-principles.md`:
+Answer from `setup-tuning-principles.md`, and for anything the current game version changes (tyre
+pressure target, which compound lasts a stage) from the game version notes —
+`python scripts/load_game_version_notes.py` and read the file it prints:
 
 - **"What does parameter X do / what's the impact of more vs less?"** → explain the physics effect
   from the relevant *Parameters* subsection (e.g. *Axles — anti-roll bars* for ARBs, *Differential
@@ -113,23 +115,28 @@ to a `Gravel` row before the baseline (see `notion-rest-read.md`).
 ### 3c. Load the guideline layers
 Same precedence chain as `build-setup.md` / `review-setup.md` (lowest → highest):
 1. **Base** — `setup-tuning-principles.md`.
-2. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
+2. **Game version notes** — run `python scripts/load_game_version_notes.py` and read the file it
+   prints (the tuning notes for the current game version, `game-versions/<version>.md`); when it
+   prints a second `note:` line, say it in one line. **They override the base principles** for the
+   rules they name (in 0.6: tarmac tyre pressure and tyre type by stage length). If it exits 1,
+   skip this layer and say so in one line.
+3. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
    matches this car (same match rule as a bundled template — `onboard-car.md` step 1 →
    *Matching a car name* — e.g. `car-troubleshooting/lancia-037-evoluzione-2-1984.md`). **If one exists, read
    it and apply its symptom→fix entries — they override the base principles** for the symptoms they
    name. If no file matches, skip this layer.
-3. **Global user guidelines** — `Tuning guidelines` page under `ACR Setup Engineer`.
-4. **Surface section** — that page's "Per surface" subsection matching the setup's `Surface`.
-5. **Per-car guidelines** — the car's `Guidelines` page. **Fetch it** — it is its own page under
+4. **Global user guidelines** — `Tuning guidelines` page under `ACR Setup Engineer`.
+5. **Surface section** — that page's "Per surface" subsection matching the setup's `Surface`.
+6. **Per-car guidelines** — the car's `Guidelines` page. **Fetch it** — it is its own page under
    `{Car}`, not part of `Catalog`, so reading the identity facts does *not* give you this layer.
    Batch that fetch with the other reads (`SKILL.md` → *Read efficiently*).
 The setup's own **driving intent** (its page-body summary) is the most specific layer. Apply only
 lines tagged `[All]` **or the car's drivetrain**.
 
 ### 3d. Load stage facts (if the setup references one)
-Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface, key
-corners/speeds, character. These are **objective facts** — what the driver was aiming for comes
-from the setup's own page-body summary, not the stage page.
+Fetch the `{Stage}` / `{Location}` page from the catalogue (`notion-structure.md`): surface,
+length, key corners/speeds, character. These are **objective facts** — what the driver was aiming
+for comes from the setup's own page-body summary, not the stage page.
 
 ### 3e. Explain the value
 For each parameter the user asked about (or, if they asked "explain this setup" broadly, the
@@ -170,10 +177,11 @@ change, a car or feature not in the knowledge base — and **tell the user** whe
 on the web. Prefer the curated base over single-creator opinions when they conflict; the base was
 already filtered for physical soundness.
 
-Carry the **ACR early-access caveat** for build-dependent topics — tyre compound behaviour, the
-tyre heating/pressure model, and bump/rebound transition behaviour are still changing (see
-*Sources & version caveats* in `setup-tuning-principles.md`). Flag that the advice is a strong
-starting point to verify in-game, not a guarantee.
+Carry the **game-version caveat** for build-dependent topics — tyre compound behaviour, the tyre
+heating/pressure model, and bump/rebound transition behaviour change between game versions. What
+the current version does is in the game version notes (`python scripts/load_game_version_notes.py`);
+where the notes are silent, flag that web advice is a strong starting point to verify in-game, not
+a guarantee, and say which game version it was written for when the source says.
 
 ## Rules
 - **Read-only — never write to Notion.** This workflow only reads; it produces a chat answer. (If
