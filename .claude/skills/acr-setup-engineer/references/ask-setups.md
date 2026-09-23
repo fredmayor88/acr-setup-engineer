@@ -177,10 +177,11 @@ change, a car or feature not in the knowledge base — and **tell the user** whe
 on the web. Prefer the curated base over single-creator opinions when they conflict; the base was
 already filtered for physical soundness.
 
-Carry the **ACR early-access caveat** for build-dependent topics — tyre compound behaviour, the
-tyre heating/pressure model, and bump/rebound transition behaviour are still changing (see
-*Sources & version caveats* in `setup-tuning-principles.md`). Flag that the advice is a strong
-starting point to verify in-game, not a guarantee.
+Carry the **game-version caveat** for build-dependent topics — tyre compound behaviour, the tyre
+heating/pressure model, and bump/rebound transition behaviour change between game versions. What
+the current version does is in the game version notes (`python scripts/load_game_version_notes.py`);
+where the notes are silent, flag that web advice is a strong starting point to verify in-game, not
+a guarantee, and say which game version it was written for when the source says.
 
 ## Rules
 - **Read-only — never write to Notion.** This workflow only reads; it produces a chat answer. (If
