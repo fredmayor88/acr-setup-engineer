@@ -120,7 +120,7 @@ def gear_set(path):
 # Fitted against measured in-game top speeds at their measured rev limiters (the runs and cars
 # are in calibration.json; calibration.py refits). export_car_data imports this one, so there is a single
 # copy; a test asserts it equals the refit.
-LOADED_RADIUS_FACTOR = 0.978
+LOADED_RADIUS_FACTOR = 0.9812
 
 
 def tyre_geometry(blob):

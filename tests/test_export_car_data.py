@@ -99,7 +99,7 @@ class BuildCarJson(unittest.TestCase):
 
     def test_default_factor_is_exported(self):
         import gearing
-        self.assertEqual(self.doc['defaults']['loaded_radius_factor'], 0.978)
+        self.assertEqual(self.doc['defaults']['loaded_radius_factor'], 0.9812)
         self.assertEqual(self.doc['defaults']['loaded_radius_factor'],
                          gearing.LOADED_RADIUS_FACTOR)
 
@@ -617,7 +617,9 @@ class PickerPromo(unittest.TestCase):
 
     def test_the_issues_link_follows_the_promo_on_the_same_line(self):
         # the promo copy stays word for word; the issues link closes the same paragraph
-        self.assertIn(f'<p class="promo">{self.COPY}{self.ISSUES}</p>', self.page())
+        # then the site changelog, last
+        self.assertIn(f'<p class="promo">{self.COPY}{self.ISSUES} · <a href="changelog/">Changelog</a></p>',
+                      self.page())
 
     def test_the_issues_link_is_untracked_like_the_promo(self):
         html = self.page()

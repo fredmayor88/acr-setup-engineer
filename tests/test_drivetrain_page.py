@@ -82,7 +82,7 @@ P208 = 'peugeot-208-rally4'
 LANCIA037 = 'lancia-037-evoluzione-2-1984'
 P306 = 'peugeot-306-ii-maxi-1997'
 ALFA = 'alfa-romeo-gta-1300-junior-1972'
-STRATOS_LIMIT = 8520
+STRATOS_LIMIT = 8500                 # the game files' limiter (rev_limiter)
 SET_PRIMARY_CARS = (MINI, 'fiat-124-abarth-rally-16v-1974', 'fiat-131-abarth-1976',
                     'lancia-fulvia-coupe-hf-1970')
 
@@ -364,8 +364,9 @@ class Pages(unittest.TestCase):
                 self.assertNotIn('Engine curve', html)
                 self.assertNotIn('Own curve', html)
                 self.assertNotRegex(text_of(html), r'(?i)engine curve|borrow')
-        self.assertIn('7260 rpm, measured in game with telemetry (ACR 0.6).', facts[DELTA])
-        self.assertIn(f'{STRATOS_LIMIT} rpm, measured in game with telemetry (ACR 0.6).',
+        # the pages here are rendered for ACR 0.6 (setUpClass), so that is the version they name
+        self.assertIn('7250 rpm, read from the game files (ACR 0.6).', facts[DELTA])
+        self.assertIn(f'{STRATOS_LIMIT} rpm, read from the game files (ACR 0.6).',
                       facts[STRATOS])
         for name in ('Gear Set', 'Center Differential Ratio', 'Center Ratio to Rear',
                      'Differential Ratio Rear'):
@@ -395,7 +396,7 @@ class Pages(unittest.TestCase):
                       'stay in effect: final drive = Center Differential Ratio × '
                       f'13//34 × 30//12. 2. Final drive = {rule}, with the selected rear ratios.',
                       numbered(section(self.pages[DELTA], 'workings')))
-        self.assertIn('the two possibilities put 6th at about 182 and 180 km/h, only about 1% apart, too '
+        self.assertIn('the two possibilities put 6th at about 182 and 181 km/h, only about 1% apart, too '
                       'little to distinguish reliably with the in-game speedometer. The speedometer '
                       'read 180.', work[DELTA])
         self.assertIn('Center Differential Ratio stayed on 55//12 and the rear ratios were deliberately '
@@ -403,10 +404,10 @@ class Pages(unittest.TestCase):
         self.assertIn('about 182 km/h under possibility 1, or 160 km/h under possibility 2. '
                       f'The measured speed was 160 km/h, supporting final drive = '
                       f'{rule}.', work[DELTA])
-        self.assertIn('On gear set 1 the predictions for 3rd were about 126 km/h with primary = '
-                      'Primary Gear and 138 km/h with primary = 20//25. The speedometer read 127.',
+        self.assertIn('On gear set 1 the predictions for 3rd were about 127 km/h with primary = '
+                      'Primary Gear and 139 km/h with primary = 20//25. The speedometer read 127.',
                       work[P206])
-        self.assertIn('about 9% too high on gear set 1 and 15% too high on gear set 3', work[P206])
+        self.assertIn('about 10% too high on gear set 1 and 15% too high on gear set 3', work[P206])
         self.assertIn('31//21 (1.476)', work[P206])
         self.assertIn('The predictions for 5th were about 98 km/h if it multiplies and 145 km/h if it '
                       'changes nothing. The speedometer read 98', work[P206])
@@ -415,23 +416,23 @@ class Pages(unittest.TestCase):
         self.assertIn('instead of 24//24 (a ratio of 1).', work[P206])
         self.assertIn('supporting possibility 1: Center Differential Ratio multiplies the whole final '
                       'drive.', work[P206])
-        self.assertIn('The three possibilities put 4th at about 118, 175 and 141 km/h. The speedometer read '
+        self.assertIn('The three possibilities put 4th at about 119, 176 and 142 km/h. The speedometer read '
                       f'142, supporting final drive = {rule}.', work[P206])
-        self.assertIn('The three possibilities put 5th at about 128, 191 and 153 km/h. The speedometer read '
+        self.assertIn('The three possibilities put 5th at about 128, 192 and 154 km/h. The speedometer read '
                       f'155, supporting final drive = {rule}.', work[IMPREZA])
         self.assertIn('If Center Ratio to Rear multiplies, these keep the two path ratios nearly equal.',
                       work[IMPREZA])
-        self.assertIn('The three possibilities put 4th at about 162, 143 and 124 km/h. The speedometer read '
+        self.assertIn('The three possibilities put 4th at about 163, 143 and 124 km/h. The speedometer read '
                       '164, supporting rear path ratio = Center Ratio to Rear × Differential Ratio Rear.',
                       work[IMPREZA])
-        self.assertIn('the predictions for 5th were about 197 km/h if it replaces and 179 km/h if it '
+        self.assertIn('the predictions for 5th were about 198 km/h if it replaces and 180 km/h if it '
                       'multiplies. The speedometer read 197', work[STRATOS])
         self.assertIn('all three put 6th at about 184 km/h', work[XSARA])
         self.assertIn('It cannot be tested here.', work[AUDI])
         self.assertIn('This car was not run.', work[MINI])
         self.assertIn('This car was not run.', work[FABIA])
         self.assertIn('A run on gear set 2 with Differential Ratio Rear 46//9 fits that formula: the '
-                      'speedometer read 201 km/h in 5th, where it puts 5th at 202. That run is also '
+                      'speedometer read 201 km/h in 5th, where it puts 5th at 203. That run is also '
                       'one of those the rolling factor was fitted on.', work[LANCIA037])
         self.assertIn('the speedometer read 183 km/h in 6th, where it puts 6th at 185.', work[P306])
         self.assertIn('It fits final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02, the formula '
@@ -668,7 +669,7 @@ class ExportRuns(unittest.TestCase):
             with open(os.path.join(out, MINI, 'drivetrain', 'index.html'), encoding='utf-8') as fh:
                 html = fh.read()
             self.assertIn('Read from the ACR 0.5 game files. Generated 2026-09-01.', html)
-            self.assertIn('measured in game with telemetry (ACR 0.5).', html)
+            self.assertIn('read from the game files (ACR 0.5).', html)
             with open(os.path.join(out, 'data', 'index.json'), encoding='utf-8') as fh:
                 self.assertEqual(json.load(fh), index)          # not rewritten
 
@@ -720,16 +721,16 @@ class ExportRuns(unittest.TestCase):
                                  slug in (DELTA, P206, IMPREZA, XSARA))
 
     def test_the_torque_curve_runs_past_the_rev_limit_on_most_cars(self):
-        # backs "not the limiter: on most cars here the curve runs past it". The Delta Integrale's
-        # curve ends at 7250 rpm, 10 short of its 7260 limiter (measured 2026-09-14)
-        short = []
+        # backs "not the limiter: on most cars here the curve runs past it". With the game files'
+        # limiters no curve ends short of it; the Delta Integrale's ends exactly on it, 7250 rpm
+        short, level = [], []
         for slug in M.CARS:
             e = site_doc(slug)['engine']
-            with self.subTest(car=slug):
-                self.assertNotEqual(e['curve'][-1][0], e['redline'])
-                if e['curve'][-1][0] < e['redline']:
-                    short.append(slug)
-        self.assertEqual(short, [DELTA])
+            if e['curve'][-1][0] < e['redline']:
+                short.append(slug)
+            elif e['curve'][-1][0] == e['redline']:
+                level.append(slug)
+        self.assertEqual((short, level), ([], [DELTA]))
 
     def test_the_fit_summary_is_the_index_fit_and_the_intro(self):
         cal, notes = CAL.load_calibration(), D.load_notes()
@@ -765,16 +766,11 @@ class ReviewCopy(unittest.TestCase):
         for slug in M.CARS:
             text = self.work(slug)
             with self.subTest(car=slug):
-                if slug == DELTA:
-                    self.assertIn('The rev limit, 7260 rpm, was measured in game with telemetry. The '
-                                  'torque curve in the game files ends at 7250 rpm, just short of the '
-                                  'measured limit; on most other cars here it runs past the limit.', text)
-                    self.assertNotIn('The end of the torque curve', text)
-                else:
-                    self.assertIn('The end of the torque curve in the game files is not the limiter: '
-                                  'on most cars here the curve runs past it.', text)
+                self.assertIn("is the car's limiter, read from the game files next to its "
+                              'shift-light rev stages. The end of the torque curve in the game files '
+                              'is not the limiter: on most cars here the curve runs past it.', text)
                 self.assertIn('The free radius is the tyre radius stored in the game files. The rolling factor, '
-                              '0.9780, allows for a loaded tyre rolling on a slightly smaller radius; '
+                              '0.9812, allows for a loaded tyre rolling on a slightly smaller radius; '
                               'it was fitted', text)
                 self.assertNotIn('undriveable', text)
 
@@ -846,14 +842,14 @@ class FormulaBlocks(unittest.TestCase):
                 self.assertEqual(code_lines(work)[:3], [
                     'speed (km/h) = rpm × tyre circumference (m) × 0.06 ÷ total ratio',
                     'total ratio = primary × gear × final drive',
-                    'tyre circumference = 2π × free radius × 0.9780'])
+                    'tyre circumference = 2π × free radius × 0.9812'])
                 self.assertRegex(work, r'<code>speed \(km/h\)[^<]*</code></div>\s*<p>rpm × tyre circumference ÷ total '
                                        r'ratio is metres per minute; × 0\.06 \(× 60 minutes per hour ÷ '
                                        r'1000 metres per kilometre\) turns that into km/h\.</p>')
                 text = text_of(work)
                 self.assertIn('was fitted to the top speeds measured in game on 15 runs across eight '
                               'cars', text)
-                self.assertIn('was measured in game with telemetry', text)
+                self.assertIn("is the car's limiter, read from the game files", text)
 
     def test_the_speed_formula_is_the_one_the_code_computes(self):
         import math
@@ -886,9 +882,10 @@ class FormulaBlocks(unittest.TestCase):
         doc = site_doc(XSARA)
         run = D.car_runs(self.cal, XSARA)[0]
         hyps = self.notes['cars'][XSARA]['hypotheses']
-        got = {round(D.run_kmh(self.cal, doc, run, h, D.LOADED_RADIUS_FACTOR)[5])
-               for h in ({}, hyps['front'], hyps['rear'])}
-        self.assertEqual(len(got), 1)
+        # backs "all three put 6th at about N km/h, too close to distinguish": within 1 km/h
+        got = [D.run_kmh(self.cal, doc, run, h, D.LOADED_RADIUS_FACTOR)[5]
+               for h in ({}, hyps['front'], hyps['rear'])]
+        self.assertLess(max(got) - min(got), 1)
 
     def test_a_rest_hypothesis_uses_one_fixed_differential(self):
         doc = site_doc(XSARA)

@@ -734,7 +734,8 @@ def engine_facts(paks, slug, car_asset, text, tmp):
 
     stages = CAL.rev_stages(blob)
     v4 = stages[-1] if stages else None
-    rpm, source, warning = CAL.resolve_rev_limit(slug, v4, CAL.load_calibration())
+    rpm, source, warning = CAL.resolve_rev_limit(slug, v4, CAL.load_calibration(),
+                                                 CAL.rev_limiter(blob))
     if warning:
         print(f'  !! {warning}')
     return {'curve': curve, 'rpm': rpm, 'source': source,

@@ -25,6 +25,7 @@ import calibration as CAL                                        # noqa: E402
 LAYOUTS = {'FWD': 'Front-wheel drive', 'RWD': 'Rear-wheel drive', 'AWD': 'Four-wheel drive'}
 
 REV_LIMIT_SOURCES = {
+    'game': 'read from the game files',
     'measured': 'measured in game with telemetry',
     'estimated': 'estimated from the game files',
     'measured-stale': 'measured on an earlier game version',

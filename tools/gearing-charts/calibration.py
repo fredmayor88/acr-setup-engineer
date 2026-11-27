@@ -51,10 +51,38 @@ def rev_stages(blob):
     marker leads to a group is any whole rpm float (1000 to 20000) tried as the marker, so
     every car that has the 3000.0 marker reads exactly as before.
     """
+    found = _stage_group(blob)
+    return found[0] if found else None
+
+
+def _stage_group(blob):
+    """(stage values, offset of the first) or None: rev_stages' search, and where it found them."""
     found = _group_after(blob, _marker_offsets(blob))
     if found is None:
         found = _group_after(blob, _rpm_float_offsets(blob))
     return found
+
+
+def rev_limiter(blob):
+    """The car's rev limiter in rpm, from its DA_<car> asset, or None.
+
+    An int stored just before the shift-light rev stages, behind a two-byte header; on half the
+    cars one more small int (20 to 35) sits between the two. So the first of the three fields
+    before the header that reads as an rpm (3000 to 20000) is the limiter. Checked against the
+    rev limits measured in game with telemetry on all 20 cars of ACR 0.7: equal on three, the
+    telemetry max-hold 10 to 60 rpm above it on the other 17, never below.
+    """
+    found = _stage_group(blob)
+    if found is None:
+        return None
+    for k in (1, 2, 3):
+        at = found[1] - 2 - 4 * k
+        if at < 0:
+            break
+        value = struct.unpack_from('<i', blob, at)[0]
+        if 3000 <= value < 20000:
+            return value
+    return None
 
 
 def _marker_offsets(blob):
@@ -83,7 +111,7 @@ def _group_after(blob, markers):
                 group.append(v)
                 o += 4
             if len(group) >= 3:
-                return group
+                return group, start
     return None
 
 
@@ -129,9 +157,17 @@ def car_asset(paks, car_asset_name, tmp):
     return hits[0]
 
 
-def resolve_rev_limit(slug, v4, calibration):
+# A telemetry measurement this far from the game's own limiter is worth a look.
+MEASURED_DISAGREES = 100
+
+
+def resolve_rev_limit(slug, v4, calibration, game_rpm=None):
     """(rev limit rpm, source, warning or None) for one car.
 
+    game           — the limiter read from the car's DA_<car> asset (rev_limiter), the source
+                     for every car since 2026-11-27. A telemetry measurement, where one is
+                     stored, is only a cross-check: a warning when it is MEASURED_DISAGREES or
+                     more away. Only when the game value cannot be read do the rest apply:
     measured       — a telemetry limiter is stored and the game's v4 still matches the one it
                      was measured against.
     measured-stale — the limiter is stored but v4 has changed since, or the rev-stage block
@@ -140,6 +176,10 @@ def resolve_rev_limit(slug, v4, calibration):
     estimated      — nothing measured: v4 + ESTIMATE_OVER_V4.
     """
     entry = calibration.get('rev_limiters', {}).get(slug)
+    if game_rpm is not None:
+        off = entry is not None and abs(entry['rpm'] - game_rpm) >= MEASURED_DISAGREES
+        return game_rpm, 'game', (f'{slug}: telemetry measured {entry["rpm"]} rpm, the game '
+                                  f'files say {game_rpm} - check' if off else None)
     if entry is None:
         if v4 is None:
             raise SystemExit(f'{slug}: no measured rev limit and no rev stages in the game files')
@@ -199,7 +239,7 @@ def implied_factors(calibration):
     out = []
     limiters = calibration['rev_limiters']
     for i, run in enumerate(calibration['speed_runs']):
-        pred = run_predictions(run, limiters[run['car']]['rpm'])
+        pred = run_predictions(run, limiters[run['car']]['game_rpm'])
         for g, (measured, p) in enumerate(zip(run['kmh'], pred), start=1):
             if fitted(run, g):
                 out.append((i, g, measured / p))
@@ -214,7 +254,7 @@ def fit_factor(calibration):
 
 
 FORMULA = ('implied factor per gear = measured_kmh / (limiter_rpm * 2 * pi * free_radius * 0.06 '
-           '/ (gear * primary * below)); below = rest * option, or on a run that stores its '
+           '/ (gear * primary * below)); limiter_rpm = the rev limiter in the game files; below = rest * option, or on a run that stores its '
            'settings, the stock chain with the settings in their slots, centre diff * '
            '(centre->front * front diff + centre->rear * rear diff) / 2 (ruling R51); '
            'factor = mean over gears 2+ of every run, excluded gears skipped, each gear weighted '
@@ -229,7 +269,7 @@ def fit_report(calibration, factor=None):
     limiters = calibration['rev_limiters']
     runs = []
     for run in calibration['speed_runs']:
-        rpm = limiters[run['car']]['rpm']
+        rpm = limiters[run['car']]['game_rpm']
         pred = run_predictions(run, rpm, factor)
         runs.append({
             'car': run['car'], 'gear_set': run['gear_set'], 'limiter_rpm': rpm,

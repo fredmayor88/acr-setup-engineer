@@ -9,6 +9,7 @@
    "The free radius is the tyre radius stored in the game files. The rolling factor, {factor}, allows for a loaded tyre rolling on a slightly smaller radius; it was fitted to the top speeds measured in game on {fit_runs} runs across {fit_car_count} cars ({fit_cars})."
   ],
   "rev_limit": {
+   "game": "The rev limit, {rev_limit} rpm, is the car's limiter, read from the game files next to its shift-light rev stages. The end of the torque curve in the game files is not the limiter: on most cars here the curve runs past it.",
    "measured": "The rev limit, {rev_limit} rpm, was measured in game with telemetry. The end of the torque curve in the game files is not the limiter: on most cars here the curve runs past it.",
    "measured-past-curve": "The rev limit, {rev_limit} rpm, was measured in game with telemetry. The torque curve in the game files ends at {curve_end} rpm, just short of the measured limit; on most other cars here it runs past the limit.",
    "measured-stale": "The rev limit, {rev_limit} rpm, was measured in game with telemetry on an earlier game version, and the car's engine data has changed since.",

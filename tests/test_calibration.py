@@ -54,6 +54,30 @@ class RevStages(unittest.TestCase):
                 + f32(8000.0, 8500.0, 8750.0, 9000.0) + f32(1.0) + b'\x00' * 16)
         self.assertEqual(C.rev_stages(blob), [8000.0, 8500.0, 8750.0, 9000.0])
 
+    def test_the_rev_limiter_is_the_int_before_the_stages(self):
+        # the Stratos: 3000.0, the limiter 8500, a two-byte header, the stages
+        self.assertEqual(C.rev_limiter(stages_blob([7400.0, 7700.0, 7900.0, 8000.0])), 8500)
+        # the 306 and nine others: one more small int (30) between the limiter and the header
+        blob = (b'\x00' * 40 + f32(3000.0) + struct.pack('<ii', 9600, 30) + b'\x00\x09'
+                + f32(9000.0, 9200.0, 9400.0, 9500.0) + f32(1.0) + b'\x00' * 16)
+        self.assertEqual(C.rev_limiter(blob), 9600)
+        # the S4 Evo2: no 3000.0 marker, the limiter still right before the header
+        blob = (b'\x00' * 40 + f32(4000.0, 6500.0, 0.5) + struct.pack('<i', 9500) + b'\x00\x09'
+                + f32(8000.0, 8500.0, 8750.0, 9000.0) + f32(1.0) + b'\x00' * 16)
+        self.assertEqual(C.rev_limiter(blob), 9500)
+        # no stages, or nothing in rpm range before them: not read
+        self.assertIsNone(C.rev_limiter(b'\x00' * 64))
+        self.assertIsNone(C.rev_limiter(stages_blob([7400.0, 7700.0, 7900.0], int_before=35)))
+
+    def test_the_game_limiter_wins_and_a_far_measurement_warns(self):
+        cal = {'rev_limiters': {'x': {'rpm': 8520, 'game_v4': 8000}}}
+        self.assertEqual(C.resolve_rev_limit('x', 8000.0, cal, 8500), (8500, 'game', None))
+        rpm, source, warning = C.resolve_rev_limit('x', 8000.0, cal, 8400)
+        self.assertEqual((rpm, source), (8400, 'game'))
+        self.assertIn('8520', warning)
+        # unreadable: the measured value, as before
+        self.assertEqual(C.resolve_rev_limit('x', 8000.0, cal, None), (8520, 'measured', None))
+
     def test_steering_lock_is_twice_the_angle_after_the_one_0_04(self):
         lead = b'\x00' * 9 + struct.pack('<d', 257.0) + b'\x00\x0a\x01\x07'
         self.assertEqual(C.steering_lock(lead + f32(0.04, 450.0, 0.046, 7.5)), 900)
@@ -326,6 +350,20 @@ except Exception:                                  # pragma: no cover
 
 @unittest.skipUnless(PAKS, 'Assetto Corsa Rally is not installed')
 class InstalledGame(unittest.TestCase):
+    def test_every_car_has_a_game_limiter_and_the_fit_uses_the_one_installed(self):
+        # the site's rev limits come from here; the fit reads game_rpm from calibration.json,
+        # so a patch that moves a limiter fails this until game_rpm (and the fit) follow
+        import make_gearing_chart as M
+        cal = C.load_calibration()
+        with tempfile.TemporaryDirectory() as tmp:
+            for slug, (_a, _w, car_asset) in sorted(M.CARS.items()):
+                with self.subTest(car=slug):
+                    game = C.rev_limiter(open(C.car_asset(PAKS, car_asset, tmp), 'rb').read())
+                    self.assertIsNotNone(game)
+                    self.assertEqual(game, cal['rev_limiters'][slug]['game_rpm'])
+                    # the telemetry max-hold reads at or a little above the limiter, never below
+                    self.assertTrue(0 <= cal['rev_limiters'][slug]['rpm'] - game < C.MEASURED_DISAGREES)
+
     def test_v4_matches_the_value_each_limiter_was_measured_against(self):
         import make_gearing_chart as M
         cal = C.load_calibration()
