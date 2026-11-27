@@ -1,0 +1,80 @@
+car: "Lancia Delta S4 Evo2 Italtecnica 2021"
+game: "ACR"
+version: "0.7"
+source: "game-files"
+written_at: "2026-11-27"
+setups:
+  - surface: "Tarmac"
+    preset: "Balanced"
+    values:
+      "Gear Set": "2"
+      "Adjuster Ring Front": 0.045
+      "Spring Stiffness Front": 75000
+      "Adjuster Ring Rear": 0.057
+      "Spring Stiffness Rear": 50000
+      "Slow Bump Front": 4500
+      "Slow Rebound Front": 5750
+      "Fast Bump Front": 3750
+      "Fast Rebound Front": 5750
+      "Slow Bump Rear": 3750
+      "Slow Rebound Rear": 5750
+      "Fast Bump Rear": 2750
+      "Fast Rebound Rear": 5750
+      "Anti-roll Bar Stiffness Front": 4500
+      "Anti-roll Bar Stiffness Rear": 2500
+      "LSD Power/Coast Ramp Front": "70/70"
+      "LSD Preload Front": 20
+      "Plates Number Front": 2
+      "Center Differential Ratio": "43//19"
+      "LSD Power/Coast Ramp Rear": "50/50"
+      "LSD Preload Rear": 110
+      "Plates Number Rear": 6
+      "Pressure Front": 26
+      "Camber Front": -2.7
+      "Toe Front": 0
+      "Pressure Rear": 26
+      "Camber Rear": -2.7
+      "Toe Rear": 0
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.5
+      "Front Cylinder": "17.46"
+      "Rear Cylinder": "20.64"
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"
+  - surface: "Gravel"
+    preset: "Balanced"
+    values:
+      "Gear Set": "3"
+      "Adjuster Ring Front": 0.119
+      "Spring Stiffness Front": 40000
+      "Adjuster Ring Rear": 0.125
+      "Spring Stiffness Rear": 35000
+      "Slow Bump Front": 3750
+      "Slow Rebound Front": 4250
+      "Fast Bump Front": 2750
+      "Fast Rebound Front": 4250
+      "Slow Bump Rear": 3250
+      "Slow Rebound Rear": 3500
+      "Fast Bump Rear": 2750
+      "Fast Rebound Rear": 3500
+      "Anti-roll Bar Stiffness Front": 0
+      "Anti-roll Bar Stiffness Rear": 0
+      "LSD Power/Coast Ramp Front": "60/60"
+      "LSD Preload Front": 60
+      "Plates Number Front": 2
+      "Center Differential Ratio": "42//21"
+      "LSD Power/Coast Ramp Rear": "60/60"
+      "LSD Preload Rear": 90
+      "Plates Number Rear": 6
+      "Pressure Front": 29
+      "Camber Front": -3.2
+      "Toe Front": 0
+      "Pressure Rear": 29
+      "Camber Rear": -2.8
+      "Toe Rear": 0
+      "Brake Pads Front": "MEDIUM"
+      "Front Bias": 0.5
+      "Front Cylinder": "17.46"
+      "Rear Cylinder": "17.46"
+      "Handbrake Force": 1
+      "Brake Pads Rear": "MEDIUM"

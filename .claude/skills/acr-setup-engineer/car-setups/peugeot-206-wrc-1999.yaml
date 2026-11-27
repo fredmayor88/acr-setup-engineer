@@ -1,8 +1,8 @@
 car: "Peugeot 206 WRC 1999"
 game: "ACR"
-version: "0.6"
+version: "0.7"
 source: "game-files"
-written_at: "2026-09-22"
+written_at: "2026-11-27"
 setups:
   - surface: "Tarmac"
     preset: "Balanced"
@@ -12,36 +12,36 @@ setups:
       "Spring Stiffness Front": 60000
       "Adjuster Ring Rear": 0.061
       "Spring Stiffness Rear": 45000
-      "Slow Bump Front": 5500
-      "Slow Rebound Front": 7500
-      "Fast Bump Front": 4500
-      "Fast Rebound Front": 7000
+      "Slow Bump Front": 4250
+      "Slow Rebound Front": 7250
+      "Fast Bump Front": 3750
+      "Fast Rebound Front": 7250
       "Slow Bump Rear": 3500
-      "Slow Rebound Rear": 6000
+      "Slow Rebound Rear": 6750
       "Fast Bump Rear": 3000
-      "Fast Rebound Rear": 5000
+      "Fast Rebound Rear": 6750
       "Anti-roll Bar Stiffness Front": 19500
       "Anti-roll Bar Stiffness Rear": 16500
       "Differential Ratio Front": "46//14*26//16"
       "LSD Power/Coast Ramp Front": "55/85"
-      "LSD Preload Front": 120
+      "LSD Preload Front": 60
       "Plates Number Front": 6
       "Center Differential Ratio": "24//24"
       "Differential Ratio Rear": "46//14*26//16"
       "LSD Power/Coast Ramp Center": "35/50"
-      "LSD Preload Center": 250
-      "Plates Number Center": 8
+      "LSD Preload Center": 700
+      "Plates Number Center": 4
       "LSD Power/Coast Ramp Rear": "55/75"
-      "LSD Preload Rear": 120
+      "LSD Preload Rear": 80
       "Plates Number Rear": 6
       "Pressure Front": 26
-      "Camber Front": -2.3
+      "Camber Front": -2.9
       "Toe Front": 0.0001
       "Pressure Rear": 26
-      "Camber Rear": -1.9
+      "Camber Rear": -2.7
       "Toe Rear": 0
       "Brake Pads Front": "MEDIUM"
-      "Front Bias": 0.55
+      "Front Bias": 0.57
       "Front Cylinder": "19.05"
       "Rear Cylinder": "19.05"
       "Handbrake Force": 1
@@ -54,36 +54,36 @@ setups:
       "Spring Stiffness Front": 35000
       "Adjuster Ring Rear": 0.14
       "Spring Stiffness Rear": 30000
-      "Slow Bump Front": 3750
-      "Slow Rebound Front": 4250
-      "Fast Bump Front": 2750
-      "Fast Rebound Front": 3750
-      "Slow Bump Rear": 4750
-      "Slow Rebound Rear": 4250
-      "Fast Bump Rear": 4250
-      "Fast Rebound Rear": 3750
+      "Slow Bump Front": 2750
+      "Slow Rebound Front": 3250
+      "Fast Bump Front": 2250
+      "Fast Rebound Front": 3250
+      "Slow Bump Rear": 2500
+      "Slow Rebound Rear": 3250
+      "Fast Bump Rear": 2250
+      "Fast Rebound Rear": 3250
       "Anti-roll Bar Stiffness Front": 0
       "Anti-roll Bar Stiffness Rear": 6500
       "Differential Ratio Front": "46//14*26//16"
       "LSD Power/Coast Ramp Front": "55/85"
-      "LSD Preload Front": 120
+      "LSD Preload Front": 70
       "Plates Number Front": 6
       "Center Differential Ratio": "24//24"
       "Differential Ratio Rear": "46//14*26//16"
       "LSD Power/Coast Ramp Center": "35/50"
-      "LSD Preload Center": 250
-      "Plates Number Center": 8
+      "LSD Preload Center": 700
+      "Plates Number Center": 4
       "LSD Power/Coast Ramp Rear": "55/75"
-      "LSD Preload Rear": 120
+      "LSD Preload Rear": 80
       "Plates Number Rear": 6
       "Pressure Front": 30
-      "Camber Front": -3
+      "Camber Front": -3.8
       "Toe Front": 0.0001
       "Pressure Rear": 30
-      "Camber Rear": -2.2
+      "Camber Rear": -3.1
       "Toe Rear": 0
       "Brake Pads Front": "MEDIUM"
-      "Front Bias": 0.55
+      "Front Bias": 0.57
       "Front Cylinder": "19.05"
       "Rear Cylinder": "19.05"
       "Handbrake Force": 1

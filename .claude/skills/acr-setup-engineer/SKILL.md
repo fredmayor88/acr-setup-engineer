@@ -95,7 +95,7 @@ Shared knowledge (read as needed):
   (`game-versions/0.6.md`), hand-written by the maintainer after each game release. Found with
   `scripts/load_game_version_notes.py` (exact `GAME_VERSION`, else the newest lower version, said
   in one line). Whenever a workflow loads its guideline layers it reads this file as the layer
-  **right after the base principles**: it overrides them for the rules it names (in 0.6: tarmac
+  **right after the base principles**: it overrides them for the rules it names (in 0.7: tarmac
   tyre pressure target and cold start, tyre type by stage length, the gauge test-run routine).
 - `VERSION` — the skill's own version (or `dev` for a source checkout); see *Skill version* below.
 - `GAME_VERSION` — the current game version every bundled `car-setups/` default setup was

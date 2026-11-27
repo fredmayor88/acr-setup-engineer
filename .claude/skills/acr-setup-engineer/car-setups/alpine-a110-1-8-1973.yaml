@@ -1,37 +1,37 @@
 car: "Alpine A110 1.8 1973"
 game: "ACR"
-version: "0.6"
+version: "0.7"
 source: "game-files"
-written_at: "2026-09-22"
+written_at: "2026-11-27"
 setups:
   - surface: "Tarmac"
     preset: "Balanced"
     values:
       "Gear Set": "2"
-      "Adjuster Ring Front": 0.01
-      "Spring Stiffness Front": 300000
-      "Adjuster Ring Rear": 0.007
-      "Spring Stiffness Rear": 195000
-      "Slow Bump Front": 12000
-      "Slow Rebound Front": 13000
-      "Fast Bump Front": 9500
-      "Fast Rebound Front": 10500
-      "Slow Bump Rear": 4250
-      "Slow Rebound Rear": 7000
+      "Adjuster Ring Front": 0.019
+      "Spring Stiffness Front": 210000
+      "Adjuster Ring Rear": 0.025
+      "Spring Stiffness Rear": 101250
+      "Slow Bump Front": 7500
+      "Slow Rebound Front": 16500
+      "Fast Bump Front": 7000
+      "Fast Rebound Front": 16500
+      "Slow Bump Rear": 4000
+      "Slow Rebound Rear": 12000
       "Fast Bump Rear": 3750
-      "Fast Rebound Rear": 6000
-      "Anti-roll Bar Stiffness Front": 15250
+      "Fast Rebound Rear": 12000
+      "Anti-roll Bar Stiffness Front": 23250
       "Differential Ratio Rear": "27//8"
       "LSD Power/Coast Ramp Rear": "45/30"
-      "LSD Preload Rear": 70
-      "Plates Number Rear": 2
-      "Pressure Front": 26
-      "Toe Front": 0
-      "Pressure Rear": 27
+      "LSD Preload Rear": 30
+      "Plates Number Rear": 4
+      "Pressure Front": 24
+      "Toe Front": 0.0007
+      "Pressure Rear": 26
       "Brake Discs Front": "254/160X12 P TYPE1"
       "Brake Calipers Front": "1X48 TYPE3"
       "Brake Pads Front": "MEDIUM"
-      "Proportioning Ratio": 0.3
+      "Proportioning Ratio": 0.4
       "Handbrake Force": 1
       "Brake Discs Rear": "250/160X10 P TYPE1"
       "Brake Calipers Rear": "1X45 TYPE1"
@@ -40,22 +40,22 @@ setups:
     preset: "Balanced"
     values:
       "Gear Set": "1"
-      "Adjuster Ring Front": 0.043
-      "Spring Stiffness Front": 120000
-      "Adjuster Ring Rear": 0.055
-      "Spring Stiffness Rear": 63750
-      "Slow Bump Front": 13000
-      "Slow Rebound Front": 16000
-      "Fast Bump Front": 10000
-      "Fast Rebound Front": 14000
-      "Slow Bump Rear": 2750
-      "Slow Rebound Rear": 5500
-      "Fast Bump Rear": 2500
-      "Fast Rebound Rear": 5000
-      "Anti-roll Bar Stiffness Front": 12250
+      "Adjuster Ring Front": 0.057
+      "Spring Stiffness Front": 90000
+      "Adjuster Ring Rear": 0.035
+      "Spring Stiffness Rear": 101250
+      "Slow Bump Front": 9000
+      "Slow Rebound Front": 12000
+      "Fast Bump Front": 6500
+      "Fast Rebound Front": 12000
+      "Slow Bump Rear": 3750
+      "Slow Rebound Rear": 7250
+      "Fast Bump Rear": 3250
+      "Fast Rebound Rear": 7250
+      "Anti-roll Bar Stiffness Front": 6250
       "Differential Ratio Rear": "27//8"
       "LSD Power/Coast Ramp Rear": "45/45"
-      "LSD Preload Rear": 50
+      "LSD Preload Rear": 80
       "Plates Number Rear": 4
       "Pressure Front": 30
       "Toe Front": 0
@@ -63,7 +63,7 @@ setups:
       "Brake Discs Front": "260/170X8 P TYPE1"
       "Brake Calipers Front": "1X38 TYPE2"
       "Brake Pads Front": "MEDIUM"
-      "Proportioning Ratio": 0.3
+      "Proportioning Ratio": 0.4
       "Handbrake Force": 1
       "Brake Discs Rear": "260/170X8 P TYPE1"
       "Brake Pads Rear": "MEDIUM"
@@ -71,25 +71,25 @@ setups:
     preset: "Balanced"
     values:
       "Gear Set": "1"
-      "Adjuster Ring Front": 0.043
-      "Spring Stiffness Front": 120000
-      "Adjuster Ring Rear": 0.055
-      "Spring Stiffness Rear": 63750
-      "Slow Bump Front": 13000
-      "Slow Rebound Front": 16000
-      "Fast Bump Front": 10000
-      "Fast Rebound Front": 14000
-      "Slow Bump Rear": 2750
-      "Slow Rebound Rear": 5500
-      "Fast Bump Rear": 2500
-      "Fast Rebound Rear": 5000
-      "Anti-roll Bar Stiffness Front": 12250
+      "Adjuster Ring Front": 0.057
+      "Spring Stiffness Front": 90000
+      "Adjuster Ring Rear": 0.035
+      "Spring Stiffness Rear": 101250
+      "Slow Bump Front": 9000
+      "Slow Rebound Front": 12000
+      "Fast Bump Front": 6500
+      "Fast Rebound Front": 12000
+      "Slow Bump Rear": 3750
+      "Slow Rebound Rear": 7250
+      "Fast Bump Rear": 3250
+      "Fast Rebound Rear": 7250
+      "Anti-roll Bar Stiffness Front": 6250
       "Differential Ratio Rear": "27//8"
       "LSD Power/Coast Ramp Rear": "45/45"
-      "LSD Preload Rear": 50
+      "LSD Preload Rear": 80
       "Plates Number Rear": 4
       "Pressure Front": 28
       "Toe Front": 0
       "Pressure Rear": 28
-      "Proportioning Ratio": 0.3
+      "Proportioning Ratio": 0.4
       "Handbrake Force": 1

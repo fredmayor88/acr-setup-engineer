@@ -232,7 +232,8 @@ def template(*blocks):
 DELTA_CHAIN = ['51//13', '25//25', '13//34', '25//25', '30//12']
 XSARA_CHAIN = ['37//26', '(27+48)//27', '26//28', '25//25', '27//9']
 P206_CHAIN = ['24//24', '25//25', '25//25', '46//14*26//16', '46//14*26//16']
-IMPREZA_CHAIN = ['25//25', '25//25', '31//31', '35//9', '35//9']
+# ACR 0.7: the front and rear differentials' stock moved from 35//9 to 31//8
+IMPREZA_CHAIN = ['25//25', '25//25', '31//31', '31//8', '31//8']
 
 DELTA_TEMPLATE = template(
     ('Plates Number Front', ''),

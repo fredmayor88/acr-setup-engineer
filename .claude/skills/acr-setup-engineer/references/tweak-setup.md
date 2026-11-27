@@ -72,7 +72,7 @@ Same precedence chain as `build-setup.md` (lowest → highest):
 2. **Game version notes** — run `python scripts/load_game_version_notes.py` and read the file it
    prints (the tuning notes for the current game version, `game-versions/<version>.md`); when it
    prints a second `note:` line, say it in one line. **They override the base principles** for the
-   rules they name (in 0.6: tarmac tyre pressure and tyre type by stage length). If it exits 1,
+   rules they name (in 0.7: tarmac tyre pressure and tyre type by stage length). If it exits 1,
    skip this layer and say so in one line.
 3. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
    matches this car (same match rule as a bundled template — `onboard-car.md` step 1 →
@@ -151,7 +151,7 @@ Each time the user gives feedback, run one round — **all in chat, no Notion wr
   alignment while the differential is wrong — it hides cause and effect. **What the user actually
   asks for outranks the ladder.**
   **Tyre pressure sits outside it**: when the user reports an in-game gauge reading, move the cold
-  pressure **by the difference** to the game version notes' target (0.6 tarmac: 28 psi hot), front
+  pressure **by the difference** to the game version notes' target (0.7 tarmac: 28 psi hot), front
   and rear separately, **before** anything on the ladder; otherwise leave it alone unless a symptom
   points directly at it (`setup-tuning-principles.md` → *Tyre pressure*).
 - Present a compact **before/after change table** of only the parameters that change:

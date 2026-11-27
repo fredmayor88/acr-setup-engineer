@@ -133,7 +133,7 @@ class Notes(unittest.TestCase):
     def test_measurement_provenance_is_stored_with_each_rev_limiter(self):
         for slug, entry in CAL.load_calibration()['rev_limiters'].items():
             with self.subTest(car=slug):
-                s4 = slug in ('lancia-delta-s4-1985', 'lancia-delta-s4-evo2-italtecnica-2021')
+                s4 = slug in ('lancia-delta-s4-1986', 'lancia-delta-s4-evo2-italtecnica-2021')
                 self.assertEqual((entry['measured'], entry['game_version']),
                                  ('2026-11-27', '0.7') if s4 else ('2026-09-14', '0.6'))
 
@@ -162,7 +162,7 @@ class Facts(unittest.TestCase):
                         'fiat-124-abarth-rally-16v-1974', 'fiat-131-abarth-1976',
                         'lancia-037-evoluzione-2-1984', STRATOS},
                 'AWD': {AUDI, XSARA, DELTA, P206, IMPREZA, 'hyundai-i20-rally2-2021', FABIA,
-                        'volkswagen-polo-gti-r5-2018', 'lancia-delta-s4-1985',
+                        'volkswagen-polo-gti-r5-2018', 'lancia-delta-s4-1986',
                         'lancia-delta-s4-evo2-italtecnica-2021'}}
         got = {}
         for slug in M.CARS:

@@ -881,7 +881,7 @@ Every bundled `car-templates/*.yaml` carries an **`engine_curve:`** block holdin
 peak power, and the raw `[rpm, Nm]` points, read straight out of the ACR game files, so it
 describes **what the car actually makes in-game**, not a manufacturer brochure figure or a guess.
 Most also carry a **`power_torque_chart:`** URL — a PNG of that same curve, in the project's
-public repo. All 18 bundled templates carry a **`gearing_tool:`** URL — a link to that car's page
+public repo. All 20 bundled templates carry a **`gearing_tool:`** URL — a link to that car's page
 in the **ACR Car Lab**, the live interactive web tool (speed-per-gear for every gear set, final
 drive and rev limit, computed from the same game files).
 

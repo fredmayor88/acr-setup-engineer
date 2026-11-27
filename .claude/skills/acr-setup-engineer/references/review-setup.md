@@ -64,7 +64,7 @@ Same precedence chain as `build-setup.md` (lowest → highest priority):
 2. **Game version notes** — run `python scripts/load_game_version_notes.py` and read the file it
    prints (the tuning notes for the current game version, `game-versions/<version>.md`); when it
    prints a second `note:` line, say it in one line. **They override the base principles** for the
-   rules they name (in 0.6: tarmac tyre pressure and tyre type by stage length). If it exits 1,
+   rules they name (in 0.7: tarmac tyre pressure and tyre type by stage length). If it exits 1,
    skip this layer and say so in one line.
 3. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose name
    matches this car (same match rule as a bundled template — `onboard-car.md` step 1 →

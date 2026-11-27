@@ -216,7 +216,8 @@ class TestGameVersionNotes(unittest.TestCase):
     def test_build_uses_stage_length_and_the_pressure_target(self):
         text = self.ref('build-setup.md')
         self.assertIn('8 km', text)
-        self.assertIn('0.6 tyre notes', text)
+        game = open(os.path.join(SKILL, 'GAME_VERSION'), encoding='utf-8').read().strip()
+        self.assertIn(f'{game} tyre notes', text)
         self.assertIn('about how long is the stage?', text)
         self.assertIn('cold tyres', text)
 

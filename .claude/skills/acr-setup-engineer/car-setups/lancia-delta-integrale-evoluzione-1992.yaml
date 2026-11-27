@@ -1,27 +1,27 @@
 car: "Lancia Delta Integrale Evoluzione 1992"
 game: "ACR"
-version: "0.6"
+version: "0.7"
 source: "game-files"
-written_at: "2026-09-22"
+written_at: "2026-11-27"
 setups:
   - surface: "Tarmac"
     preset: "Balanced"
     values:
       "Gear Set": "2"
-      "Adjuster Ring Front": 0.051
-      "Spring Stiffness Front": 70000
+      "Adjuster Ring Front": 0.055
+      "Spring Stiffness Front": 65000
       "Adjuster Ring Rear": 0.048
       "Spring Stiffness Rear": 50000
-      "Slow Bump Front": 5250
+      "Slow Bump Front": 4250
       "Slow Rebound Front": 7250
       "Fast Bump Front": 3250
       "Fast Rebound Front": 6750
       "Bump Transition Front": 0.15
       "Rebound Transition Front": 0.15
-      "Slow Bump Rear": 5250
-      "Slow Rebound Rear": 6750
-      "Fast Bump Rear": 3750
-      "Fast Rebound Rear": 6250
+      "Slow Bump Rear": 3750
+      "Slow Rebound Rear": 4250
+      "Fast Bump Rear": 3250
+      "Fast Rebound Rear": 3750
       "Bump Transition Rear": 0.15
       "Rebound Transition Rear": 0.15
       "Anti-roll Bar Stiffness Front": 14500
@@ -41,30 +41,32 @@ setups:
       "Pressure Rear": 27
       "Camber Rear": -2.3
       "Toe Rear": 0
+      "Brake Calipers Front": "4X38/44 TYPE1"
       "Brake Pads Front": "MEDIUM"
-      "Front Bias": 0.55
-      "Front Cylinder": 15.88
-      "Rear Cylinder": 19.05
+      "Front Bias": 0.54
+      "Front Cylinder": 19.05
+      "Rear Cylinder": 20.64
       "Handbrake Force": 1
+      "Brake Calipers Rear": "4X36/44 TYPE1"
       "Brake Pads Rear": "MEDIUM"
   - surface: "Tarmac"
     preset: "Aggressive"
     values:
       "Gear Set": "2"
-      "Adjuster Ring Front": 0.051
-      "Spring Stiffness Front": 70000
+      "Adjuster Ring Front": 0.055
+      "Spring Stiffness Front": 65000
       "Adjuster Ring Rear": 0.048
       "Spring Stiffness Rear": 50000
-      "Slow Bump Front": 5250
+      "Slow Bump Front": 4250
       "Slow Rebound Front": 7250
       "Fast Bump Front": 3250
       "Fast Rebound Front": 6750
       "Bump Transition Front": 0.15
       "Rebound Transition Front": 0.15
-      "Slow Bump Rear": 5250
-      "Slow Rebound Rear": 6750
-      "Fast Bump Rear": 3750
-      "Fast Rebound Rear": 6250
+      "Slow Bump Rear": 3750
+      "Slow Rebound Rear": 4250
+      "Fast Bump Rear": 3250
+      "Fast Rebound Rear": 3750
       "Bump Transition Rear": 0.15
       "Rebound Transition Rear": 0.15
       "Anti-roll Bar Stiffness Front": 13500
@@ -84,11 +86,13 @@ setups:
       "Pressure Rear": 27
       "Camber Rear": -2.3
       "Toe Rear": 0
+      "Brake Calipers Front": "4X38/44 TYPE1"
       "Brake Pads Front": "MEDIUM"
-      "Front Bias": 0.55
-      "Front Cylinder": 15.88
-      "Rear Cylinder": 19.05
+      "Front Bias": 0.54
+      "Front Cylinder": 19.05
+      "Rear Cylinder": 20.64
       "Handbrake Force": 1
+      "Brake Calipers Rear": "4X36/44 TYPE1"
       "Brake Pads Rear": "MEDIUM"
   - surface: "Gravel"
     preset: "Balanced"
@@ -98,16 +102,16 @@ setups:
       "Spring Stiffness Front": 40000
       "Adjuster Ring Rear": 0.1
       "Spring Stiffness Rear": 40000
-      "Slow Bump Front": 4250
-      "Slow Rebound Front": 5750
-      "Fast Bump Front": 3250
-      "Fast Rebound Front": 5250
+      "Slow Bump Front": 3250
+      "Slow Rebound Front": 4250
+      "Fast Bump Front": 2750
+      "Fast Rebound Front": 4250
       "Bump Transition Front": 0.15
       "Rebound Transition Front": 0.15
-      "Slow Bump Rear": 4750
-      "Slow Rebound Rear": 6250
-      "Fast Bump Rear": 3750
-      "Fast Rebound Rear": 5750
+      "Slow Bump Rear": 2750
+      "Slow Rebound Rear": 3750
+      "Fast Bump Rear": 2500
+      "Fast Rebound Rear": 3750
       "Bump Transition Rear": 0.15
       "Rebound Transition Rear": 0.15
       "Anti-roll Bar Stiffness Front": 0
@@ -122,14 +126,14 @@ setups:
       "LSD Preload Rear": 110
       "Plates Number Rear": 6
       "Pressure Front": 29
-      "Camber Front": -2.2
+      "Camber Front": -2.9
       "Toe Front": 0.0001
       "Pressure Rear": 30
-      "Camber Rear": -1.7
+      "Camber Rear": -2.5
       "Toe Rear": 0
       "Brake Pads Front": "MEDIUM"
       "Front Bias": 0.55
-      "Front Cylinder": 19.05
-      "Rear Cylinder": 19.05
+      "Front Cylinder": 17.78
+      "Rear Cylinder": 17.78
       "Handbrake Force": 1
       "Brake Pads Rear": "MEDIUM"

@@ -73,7 +73,7 @@ CARS = {
                                                'Peugeot208Rally4'),
     'peugeot-206-wrc-1999':                   ('Peugeot206WRC', 'Peugeot206WRC',
                                                'Peugeot206WRC'),
-    'lancia-delta-s4-1985':                   ('LanciaDeltaS4GroupB', 'LanciaDeltaS4',
+    'lancia-delta-s4-1986':                   ('LanciaDeltaS4GroupB', 'LanciaDeltaS4',
                                                'LanciaDeltaS4GroupB'),
     'lancia-delta-s4-evo2-italtecnica-2021':  ('LanciaDeltaS4Evo2GroupS',
                                                'LanciaDeltaS4Evo2Italtecnica',

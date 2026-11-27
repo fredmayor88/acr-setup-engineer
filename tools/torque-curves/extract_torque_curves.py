@@ -57,7 +57,7 @@ CAR_MAP = {
     # this entry is a no-op until the game ships one, at which point charting
     # picks it up automatically.
     "Peugeot206WRC":                ("peugeot-206-wrc-1999", "Peugeot 206 WRC 1999"),
-    "LanciaDeltaS4GroupB":          ("lancia-delta-s4-1985", "Lancia Delta S4 1985"),
+    "LanciaDeltaS4GroupB":          ("lancia-delta-s4-1986", "Lancia Delta S4 1986"),
     "LanciaDeltaS4Evo2GroupS":      ("lancia-delta-s4-evo2-italtecnica-2021",
                                      "Lancia Delta S4 Evo2 Italtecnica 2021"),
 }

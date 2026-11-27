@@ -1,8 +1,8 @@
 car: "Mini Cooper S 1964"
 game: "ACR"
-version: "0.6"
+version: "0.7"
 source: "game-files"
-written_at: "2026-09-22"
+written_at: "2026-11-27"
 setups:
   - surface: "Tarmac"
     preset: "Balanced"
@@ -10,8 +10,8 @@ setups:
       "Gear Set": "1"
       "Adjuster Ring Front": 0.012
       "Adjuster Ring Rear": 0.01
-      "Anti-roll Bar Stiffness Front": 3500
-      "Anti-roll Bar Stiffness Rear": 0
+      "Anti-roll Bar Stiffness Front": 2500
+      "Anti-roll Bar Stiffness Rear": 3500
       "Differential Ratio Front": "63//16"
       "LSD Power/Coast Ramp Front": "35/60"
       "LSD Preload Front": 70
@@ -29,8 +29,8 @@ setups:
       "Gear Set": "4"
       "Adjuster Ring Front": 0.0155
       "Adjuster Ring Rear": 0.0107
-      "Anti-roll Bar Stiffness Front": 3500
-      "Anti-roll Bar Stiffness Rear": 0
+      "Anti-roll Bar Stiffness Front": 2500
+      "Anti-roll Bar Stiffness Rear": 3500
       "Differential Ratio Front": "63//16"
       "LSD Power/Coast Ramp Front": "35/60"
       "LSD Preload Front": 70

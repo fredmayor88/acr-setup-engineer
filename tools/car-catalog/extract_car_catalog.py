@@ -69,7 +69,7 @@ CAR_MAP = {
     'volkswagen-polo-gti-r5-2018':            'DA_VWPoloGTIR5Presets',
     'peugeot-208-rally4':                     'DA_Peugeot208Rally4Presets',
     'peugeot-206-wrc-1999':                   'DA_Peugeot206WRCPresets',
-    'lancia-delta-s4-1985':                   'DA_LanciaDeltaS4GroupBPresets',
+    'lancia-delta-s4-1986':                   'DA_LanciaDeltaS4GroupBPresets',
     'lancia-delta-s4-evo2-italtecnica-2021':  'DA_LanciaDeltaS4Evo2GroupSPresets',
 }
 
@@ -519,8 +519,15 @@ def bootstrap_header(slug):
     `SteeringAngle` field nor the `DT_SteeringAngles` table it points into holds a
     lock-angle for any car (a byte-level scan for every existing template's known
     `steering_lock` value found zero matches) - `DT_SteeringAngles` looks to be
-    about the visual wheel prop. Don't re-check those two tables for it; read the
-    car-info screen instead.
+    about the visual wheel prop. Don't re-check those two tables for it.
+
+    It *is* in each car's DA_<car>.uasset, as the per-side angle:
+    `tools/gearing-charts/calibration.steering_lock` reads it (the float right after the one
+    0.04 float) and doubles it. On ACR 0.7 twice that equals the template's screen value on 12 of
+    18 cars and differs on six (Alpine 900 vs 1152, Delta Integrale 1008 vs 900, Stratos 1196
+    vs 1170, 206 WRC 540 vs 720, 208 Rally4 540 vs 750, 306 Maxi 540 vs 720). The ACR Car Lab
+    shows the file's value; the two Delta S4 templates (onboarded from the files, no screen yet)
+    take it too, and say so.
     """
     # save_ids is the string ACR writes into a .sav, which is the DT_Cars ROW KEY - not the
     # Vehicles/ folder name. The two differ on several cars (folder AlfaRomeoGiuliaGTA1300Junior

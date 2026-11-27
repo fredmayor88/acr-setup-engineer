@@ -149,7 +149,7 @@ would rather just have a setup now, build one.
    2. **Game version notes** — run `python scripts/load_game_version_notes.py` and read the file it
       prints (the tuning notes for the current game version, `game-versions/<version>.md`); when it
       prints a second `note:` line, say it in one line. **They override the base principles** for
-      the rules they name (in 0.6: tarmac tyre pressure and tyre type by stage length). If it exits
+      the rules they name (in 0.7: tarmac tyre pressure and tyre type by stage length). If it exits
       1, skip this layer and say so in one line.
    3. **Bundled car troubleshooting** — check the `car-troubleshooting/` folder for a file whose
       name matches this car (same match rule as a bundled template — `onboard-car.md` step 1 →
@@ -185,7 +185,7 @@ would rather just have a setup now, build one.
    are **objective facts, not a guideline layer** — they feed reasoning the same way the car's
    identity facts do.
 
-   **Read the stage's length too.** The game version notes pick the tarmac tyre type by it (in 0.6:
+   **Read the stage's length too.** The game version notes pick the tarmac tyre type by it (in 0.7:
    under 8 km `Tarmac Soft`, 8 km or more `Tarmac Medium`) and the cold pressure with it. When the
    build surface is tarmac and no stage was given, or the stage page has no length, ask in one short
    line — "about how long is the stage?" — together with the conditions question below; if the user
@@ -254,9 +254,8 @@ would rather just have a setup now, build one.
      **Exit 3 → for each flagged parameter** say in one line *"the game's default {Parameter} is
      {value}, which is off this template's grid — kept as the game ships it"* and **keep the value
      exactly as loaded**: never clamp it, and never treat the template as stale because of it.
-     Only values the build **changes** must be legal (step 9). The two known cases on game 0.6 are
-     examples of what this catches: the Peugeot 208 Rally4's tarmac `Slow Bump Front` and the VW
-     Polo GTI R5's tarmac `Anti-roll Bar Stiffness Front`.
+     Only values the build **changes** must be legal (step 9). The known case on game 0.7 is an
+     example of what this catches: the VW Polo GTI R5's tarmac `Anti-roll Bar Stiffness Front`.
 
    **Screenshot-car branch** uses the stored defaults: fetch this car's `Source = default` rows
    (`… --source default`, per [notion-rest-read.md](notion-rest-read.md)) in the step 1–4 batch —
@@ -434,7 +433,7 @@ would rather just have a setup now, build one.
 
 8. **Choose values.** First pick the **tyre type** for the surface/conditions (biggest grip
    decision) — **on tarmac, by stage length per the game version notes**
-   (`game-versions/<version>.md` → *Tyre type on tarmac*; in 0.6 a stage of 8 km or more takes
+   (`game-versions/<version>.md` → *Tyre type on tarmac*; in 0.7 a stage of 8 km or more takes
    `Tarmac Medium`) — **for ACR**, pick from the car's stored `Tyre Type` `Discrete steps` if it has
    one, else from the standard fallback list (per `SKILL.md` → *ACR tyre fallback + canonical
    names*); always write the fully-qualified name (never a bare/ambiguous value like `Snow`
@@ -471,10 +470,10 @@ would rather just have a setup now, build one.
    - **Tyre pressure is always two values** — choose `Pressure Front` and `Pressure Rear` separately,
      never a single combined pressure. **The target comes from the game version notes**
      (`game-versions/<version>.md` → *Tyre pressure*): when the notes give a rule for the build
-     surface, start from it — in 0.6, tarmac cold pressure 27 psi on every stage, both axles,
+     surface, start from it — in 0.7, tarmac cold pressure 27 psi on every stage, both axles,
      hot target 28 psi — make it legal on the catalog grid (nearest legal value below when off
-     it) and report it as `default → new (0.6 tyre notes)`. When the notes
-     give no rule for the surface (gravel, snow in 0.6), **hold the default's pressures** and
+     it) and report it as `default → new (0.7 tyre notes)`. When the notes
+     give no rule for the surface (gravel, snow in 0.7), **hold the default's pressures** and
      move them only on a reported pressure symptom. Without a baseline and without a
      notes rule, start in the upper half of the legal range
      (`setup-tuning-principles.md` → *Tyre pressure*).
@@ -686,7 +685,7 @@ would rather just have a setup now, build one.
 - **Never infer how the game scopes its defaults** (per stage / surface / conditions / car). Reuse
   across any differing context is **user-confirmed**, never assumed.
 - **Tyre pressure follows the game version notes.** Where the notes give a rule for the surface,
-  it is the anchor (0.6: tarmac 28 psi hot, cold start below it); where they don't, hold the
+  it is the anchor (0.7: tarmac 28 psi hot, cold start below it); where they don't, hold the
   default's pressures unless a symptom or a gauge reading points at them.
 - **Toe sign is inverted** — pick the direction physically, write the screen number (toe-out ⇒
   positive, toe-in ⇒ negative), store/read it unconverted, and **warn the user** in both the page

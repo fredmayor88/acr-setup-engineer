@@ -57,11 +57,7 @@ SETUP_TABLES = ['DT_DiscsLists', 'DT_CalipersLists']
 # fails if an entry here stops describing the file, so the list can't outlive the game update
 # that made it necessary.
 KNOWN_OFF_GRID = {
-    # The 208's tarmac base slow bump. Its grid steps by 105 Ns/m (... 4185, 4290, 4395 ...), so
-    # 4285 is 5 below a step - the closest the screen can dial is 4290.
-    ('peugeot-208-rally4', 'Tarmac', 'Balanced', 'Slow Bump Front'): 4285,
-    # Aggressive does not override slow bump, so it inherits the same off-grid value.
-    ('peugeot-208-rally4', 'Tarmac', 'Aggressive', 'Slow Bump Front'): 4285,
+    # (The 208's tarmac slow bump 4285 was off its 105 Ns/m grid until ACR 0.7, which ships 3555.)
     # The Polo's tarmac front anti-roll bar: 19500 against a template Max of 17500, so the game
     # ships its own preset 2000 N/m outside the range it advertises for that parameter.
     ('volkswagen-polo-gti-r5-2018', 'Tarmac', 'Balanced', 'Anti-roll Bar Stiffness Front'): 19500,
@@ -70,6 +66,62 @@ KNOWN_OFF_GRID = {
 # in the first version. It was never off the grid - it is the template's own "3.50" step with one
 # decimal fewer, and `check_values` compared the text. `load_catalog.matching_step` now falls back
 # to a numeric comparison, so the value passes on its own merits and needs no excuse.
+
+# One corner of a preset that disagrees with the other side because the game file has a typo, and
+# the value to use instead: (slug, surface, preset, setting id) -> (value in the file, value to use).
+# The skill merges left and right into one setting, so a typo on one side would otherwise stop the
+# whole run (decode_setups.collapse). Exact match only: an entry whose value is no longer in the
+# file - the game fixed it - fails the run, so the list can't outlive the patch that fixes it.
+KNOWN_SIDE_TYPOS = {
+    # ACR 0.7: the Alpine's tarmac default stores 31750 on the right rear fast bump and 3750 on
+    # the left - an extra "1", six times the rear range's 5500 maximum. Every other corner and
+    # setting of the preset is symmetric, and the gravel and snow presets read 3250 both sides.
+    ('alpine-a110-1-8-1973', 'Tarmac', 'Balanced', 'Dampers.RearRight.FastBump'): (31750, 3750),
+}
+
+
+# A default the file stores differently from what the setup screen shows, and the screen's value:
+# (slug, surface, preset, adjustment) -> (value in the file, value on the screen). The skill gives
+# the driver what they will see. Exact match only, and an entry whose file value is gone fails
+# the run, as KNOWN_SIDE_TYPOS.
+KNOWN_SCREEN_VALUES = {
+    # Both Delta S4s (ACR 0.7): the file stores 0 front diff plates in every preset; the screen
+    # shows 2, the bottom of its 2..6 grid. Seen on both cars' gravel Balanced default
+    # (2026-11-27, every other differential value on those screens matched the file); their
+    # tarmac defaults store the same 0 and are taken to show the same 2.
+    ('lancia-delta-s4-1986', 'Tarmac', 'Balanced', 'Plates Number Front'): (0, 2),
+    ('lancia-delta-s4-1986', 'Gravel', 'Balanced', 'Plates Number Front'): (0, 2),
+    ('lancia-delta-s4-evo2-italtecnica-2021', 'Tarmac', 'Balanced', 'Plates Number Front'): (0, 2),
+    ('lancia-delta-s4-evo2-italtecnica-2021', 'Gravel', 'Balanced', 'Plates Number Front'): (0, 2),
+}
+
+
+def fix_screen_values(slug, surface, preset, adjustments):
+    """`adjustments` with this setup's KNOWN_SCREEN_VALUES applied. Raises SystemExit when an
+    entry for this setup no longer finds its file value."""
+    out = dict(adjustments)
+    for (s, surf, pre, name), (stored, shown) in KNOWN_SCREEN_VALUES.items():
+        if (s, surf, pre) != (slug, surface, preset):
+            continue
+        if out.get(name) != stored:
+            raise SystemExit(f'{slug} {surface}/{preset}: {name} is {out.get(name)!r}, not '
+                             f'{stored!r} - drop it from KNOWN_SCREEN_VALUES')
+        out[name] = shown
+    return out
+
+
+def fix_side_typos(slug, surface, preset, values):
+    """`values` with this setup's KNOWN_SIDE_TYPOS entries replaced. Raises SystemExit when an
+    entry for this setup no longer finds its value in the file."""
+    out = dict(values)
+    for (s, surf, pre, sid), (bad, good) in KNOWN_SIDE_TYPOS.items():
+        if (s, surf, pre) != (slug, surface, preset):
+            continue
+        if out.get(sid) != bad:
+            raise SystemExit(f'{slug} {surface}/{preset}: {sid} is {out.get(sid)!r}, not the '
+                             f'known typo {bad!r} - drop it from KNOWN_SIDE_TYPOS')
+        out[sid] = good
+    return out
 
 
 # -------------------------------------------------------------------------- rendering
@@ -305,9 +357,11 @@ def main():
 
             entries, unfilled, excused, stale = [], {}, [], []
             for surface, preset in D.surfaces_and_presets(decoded):
-                values = D.compose(decoded, surface, preset)
+                values = fix_side_typos(slug, surface, preset,
+                                        D.compose(decoded, surface, preset))
                 adjustments, missing = D.to_adjustments(values, template_rows, tables, car_keys)
-                adjustments = {k: clean(k, v, numeric) for k, v in adjustments.items()}
+                adjustments = fix_screen_values(slug, surface, preset, {
+                    k: clean(k, v, numeric) for k, v in adjustments.items()})
                 report = LC.check_values(catalog_rows, adjustments, surface)
                 bad_values += illegal(slug, surface, preset, adjustments, report)
                 off_grid, no_longer_needed = allowlisted(slug, surface, preset, adjustments,

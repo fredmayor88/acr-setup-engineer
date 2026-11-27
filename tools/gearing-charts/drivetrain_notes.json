@@ -121,7 +121,7 @@
     "For the second run Center Differential Ratio stayed on 55//12 and the rear ratios were deliberately moved far from stock: Center Ratio to Rear 17//38 and Differential Ratio Rear 34//13. This produced clearly different predictions for 6th: about {kmh:rear_ignored:2:6} km/h under possibility 1, or {kmh:formula:2:6} km/h under possibility 2. The measured speed was {measured:2:6} km/h, supporting final drive = (front path ratio + rear path ratio)\u00a0÷\u00a02."
    ]
   },
-  "lancia-delta-s4-1985": {
+  "lancia-delta-s4-1986": {
    "short": "Delta S4",
    "workings": [
     "On this car, Center Differential Ratio is the only ratio setup offers, and it is applied before the centre differential. The game files put the same fixed ratio on the front and the rear differential, so the front and rear path ratios are equal and the final drive is Center Differential Ratio times that fixed ratio:",

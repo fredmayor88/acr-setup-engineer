@@ -171,7 +171,7 @@ should go drive it.
 1. Install the skill (5 minutes, one-time — [full steps below](#installation-one-time-about-5-minutes),
    or [watch it](https://www.youtube.com/watch?v=f7NPJM9S9PU)).
 2. Say: *"Onboard the Lancia Stratos HF for Assetto Corsa Rally."* If it's one of the
-   [18 bundled cars](#bundled-car-library), that's it — no screenshots, no typing.
+   [20 bundled cars](#bundled-car-library), that's it — no screenshots, no typing.
 3. Say: *"Build me a setup for a fast, bumpy tarmac stage."*
 4. Drive it. Come back and say how it felt — even badly.
 5. Iterate until you like it, then say *"save it."*
@@ -776,6 +776,8 @@ these cars onboard in one command — no screenshots:
 - **Hyundai i20 Rally2** (2021) — AWD
 - **Lancia 037 Evoluzione 2** (1984) — RWD
 - **Lancia Delta Integrale Evoluzione** (1992) — AWD
+- **Lancia Delta S4** (1986) — AWD
+- **Lancia Delta S4 Evo2 Italtecnica** (2021) — AWD
 - **Lancia Fulvia Coupé HF** (1970) — FWD
 - **Lancia Stratos HF** (1976) — RWD
 - **Mini Cooper S** (1964) — FWD

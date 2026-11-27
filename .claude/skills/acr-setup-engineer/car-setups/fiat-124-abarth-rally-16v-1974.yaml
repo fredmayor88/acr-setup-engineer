@@ -1,8 +1,8 @@
 car: "Fiat 124 Abarth Rally 16V 1974"
 game: "ACR"
-version: "0.6"
+version: "0.7"
 source: "game-files"
-written_at: "2026-09-22"
+written_at: "2026-11-27"
 setups:
   - surface: "Tarmac"
     preset: "Balanced"
@@ -12,14 +12,14 @@ setups:
       "Spring Stiffness Front": 130000
       "Adjuster Ring Rear": 0.045
       "Spring Stiffness Rear": 50000
-      "Slow Bump Front": 5500
+      "Slow Bump Front": 6250
       "Slow Rebound Front": 8500
-      "Fast Bump Front": 3750
-      "Fast Rebound Front": 7250
-      "Slow Bump Rear": 2250
-      "Slow Rebound Rear": 3250
+      "Fast Bump Front": 5750
+      "Fast Rebound Front": 8500
+      "Slow Bump Rear": 2000
+      "Slow Rebound Rear": 3750
       "Fast Bump Rear": 1750
-      "Fast Rebound Rear": 2750
+      "Fast Rebound Rear": 3750
       "Anti-roll Bar Stiffness Front": 7800
       "Anti-roll Bar Stiffness Rear": 3830
       "Differential Ratio Rear": "43//10"
@@ -32,7 +32,7 @@ setups:
       "Brake Discs Front": "256/145X20 P TYPE1"
       "Brake Calipers Front": "2X48 TYPE2"
       "Brake Pads Front": "MEDIUM"
-      "Proportioning Ratio": 0.3
+      "Proportioning Ratio": 0.35
       "Handbrake Force": 1
       "Brake Discs Rear": "256/145X9.6 P TYPE1"
       "Brake Calipers Rear": "2X38 TYPE4"
@@ -62,11 +62,11 @@ setups:
       "Pressure Front": 30
       "Toe Front": 0
       "Pressure Rear": 29
-      "Brake Discs Front": "256/145X12.4 P TYPE1"
-      "Brake Calipers Front": "2X48 TYPE5"
+      "Brake Discs Front": "227/135X10 P TYPE1"
+      "Brake Calipers Front": "1X48 TYPE1"
       "Brake Pads Front": "MEDIUM"
-      "Proportioning Ratio": 0.3
+      "Proportioning Ratio": 0.35
       "Handbrake Force": 1
-      "Brake Discs Rear": "256/145X9.6 P TYPE1"
-      "Brake Calipers Rear": "2X38 TYPE4"
+      "Brake Discs Rear": "227/135X10 P TYPE1"
+      "Brake Calipers Rear": "1X34 TYPE1"
       "Brake Pads Rear": "MEDIUM"

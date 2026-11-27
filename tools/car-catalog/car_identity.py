@@ -53,7 +53,7 @@ SLUGS = {
     'VWPoloGTIR5':             'volkswagen-polo-gti-r5-2018',
     'Peugeot208Rally4':        'peugeot-208-rally4',
     'Peugeot206':              'peugeot-206-wrc-1999',   # DT_Cars key omits "WRC"
-    'LanciaDeltaS4':           'lancia-delta-s4-1985',
+    'LanciaDeltaS4':           'lancia-delta-s4-1986',
     'LanciaDeltaS4Evo2':       'lancia-delta-s4-evo2-italtecnica-2021',
 }
 

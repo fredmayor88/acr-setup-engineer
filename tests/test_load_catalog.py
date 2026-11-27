@@ -22,6 +22,8 @@ import yaml
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 SKILL = os.path.join(REPO, '.claude', 'skills', 'acr-setup-engineer')
+# the bundled templates are stamped with the game version they were extracted from
+GAME_VERSION = open(os.path.join(SKILL, 'GAME_VERSION'), encoding='utf-8').read().strip()
 SCRIPT = os.path.join(SKILL, 'scripts', 'load_catalog.py')
 STRATOS = os.path.join(SKILL, 'car-templates', 'lancia-stratos.yaml')
 
@@ -341,7 +343,7 @@ class TestPrettyAndUsage(LoadCatalogTestCase):
         self.assertEqual(err, '')
         self.assertIn('Lancia Stratos HF 1976', out)
         self.assertIn('game-files', out)
-        self.assertIn('0.6', out)
+        self.assertIn(f'version: {GAME_VERSION}', out)
         rows = json.loads(run(STRATOS)[0])
         self.assertGreaterEqual(len(out.strip().splitlines()), len(rows))
 
@@ -611,7 +613,7 @@ class TestHeader(LoadCatalogTestCase):
         self.assertEqual(head['car'], 'Lancia Stratos HF 1976')
         for key in self.NINE_FACTS:
             self.assertTrue(head.get(key), key)
-        self.assertEqual(head['version'], '0.6')
+        self.assertEqual(head['version'], GAME_VERSION)
         self.assertEqual(head['source'], 'game-files')
         self.assertEqual(head['save_ids'], ['LanciaStratosHF'])
 

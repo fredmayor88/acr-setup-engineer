@@ -148,8 +148,8 @@ class StoredMeasurements(unittest.TestCase):
             'peugeot-208-rally4': 6780, 'peugeot-306-ii-maxi-1997': 9600,
             'skoda-fabia-rs-rally2-2022': 7550, 'subaru-impreza-555-s3-1993': 6760,
             'volkswagen-polo-gti-r5-2018': 7550, 'lancia-stratos': 8520,
-            'lancia-delta-s4-1985': 9500, 'lancia-delta-s4-evo2-italtecnica-2021': 9500})
-        s4 = {'lancia-delta-s4-1985', 'lancia-delta-s4-evo2-italtecnica-2021'}
+            'lancia-delta-s4-1986': 9500, 'lancia-delta-s4-evo2-italtecnica-2021': 9500})
+        s4 = {'lancia-delta-s4-1986', 'lancia-delta-s4-evo2-italtecnica-2021'}
         for slug, entry in self.cal['rev_limiters'].items():
             with self.subTest(car=slug):
                 self.assertEqual((entry['measured'], entry['game_version']),
@@ -313,8 +313,10 @@ class SpeedRunsMatchTheExportedGearing(unittest.TestCase):
 
     def check_settings_run(self, run, fd):
         """A run that stores its settings: every ratio setting is one the car publishes, with a
-        step of that spelling; its stock chain agrees with the published stock and fixed ratios;
-        and the published formula gives the ratio the fit used."""
+        step of that spelling; the chain slots it did not set agree with the published fixed
+        ratios; and the published formula gives the ratio the fit used. The published *stock* of
+        a setting the run set is not compared: it never enters the run (see
+        test_every_settings_run_stores_the_chain_in_the_game_files)."""
         from gearing import CHAIN_SLOTS, ratio
         import export_car_data as E
         by_name = {st['adjustment']: st for st in fd['settings']}
@@ -326,7 +328,6 @@ class SpeedRunsMatchTheExportedGearing(unittest.TestCase):
                 continue
             published = by_name[name]
             self.assertIn(spelling, [st['name'] for st in published['steps']])
-            self.assertEqual(published['stock'], run['chain'][CHAIN_SLOTS[name]])
             values[published['key']] = ratio(spelling)
         taken = {CHAIN_SLOTS[n] for n in by_name}
         for field, slots in (('fixed_pre', [0]), ('fixed_front', [1, 3]),
@@ -377,8 +378,12 @@ class InstalledGame(unittest.TestCase):
                     self.assertEqual(int(stages[-1]), cal['rev_limiters'][slug]['game_v4'])
 
     def test_every_settings_run_stores_the_chain_in_the_game_files(self):
+        """The chain slots a run did not set are the game's: those, and only those, enter its
+        prediction. A slot the run set (its own ratio setting) may have a different stock in a
+        later game version without touching the run - the Impreza's two differentials, whose
+        stock moved from 35//9 to 31//8 in ACR 0.7 while both runs set them explicitly."""
         import make_gearing_chart as M
-        from gearing import drivetrain_chain
+        from gearing import CHAIN_SLOTS, drivetrain_chain
         from acrpkg import Package
         runs = [r for r in C.load_calibration()['speed_runs'] if 'chain' in r]
         self.assertEqual(len(runs), 8)
@@ -387,8 +392,10 @@ class InstalledGame(unittest.TestCase):
                 path = C.car_asset(PAKS, M.CARS[slug][2], tmp)
                 chain = drivetrain_chain(Package(open(path, 'rb').read()))
                 for run in (r for r in runs if r['car'] == slug):
+                    taken = {CHAIN_SLOTS[n] for n in run['settings'] if n != 'Primary Gear'}
                     with self.subTest(car=slug):
-                        self.assertEqual(run['chain'], chain)
+                        self.assertEqual([s for i, s in enumerate(run['chain']) if i not in taken],
+                                         [s for i, s in enumerate(chain) if i not in taken])
 
     def test_the_206_borrows_the_xsara_torque_curve(self):
         import make_gearing_chart as M

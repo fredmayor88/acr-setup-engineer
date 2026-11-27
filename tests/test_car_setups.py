@@ -96,10 +96,58 @@ class TestFiles(unittest.TestCase):
         v = next(e for e in doc['setups'] if (e['surface'], e['preset']) == ('Tarmac', 'Balanced'))['values']
         self.assertEqual(v['Spring Stiffness Front'], 65000)
         self.assertEqual(v['Spring Stiffness Rear'], 42500)
-        self.assertEqual(v['Front Bias'], 0.57)
+        self.assertEqual(v['Front Bias'], 0.53)            # 0.57 on ACR 0.6
         self.assertEqual(v['Gear Set'], '1')
         self.assertEqual(v['Primary Gear'], '33//31*31//30')
         self.assertEqual(v['Differential Ratio Rear'], '65//19')
+
+
+
+
+class TestSideTypos(unittest.TestCase):
+    """extract_default_setups.KNOWN_SIDE_TYPOS: a one-sided typo in a game preset is replaced,
+    and an entry the file no longer matches stops the run."""
+
+    def setUp(self):
+        from extract_default_setups import fix_side_typos
+        self.fix = fix_side_typos
+        self.key = ('alpine-a110-1-8-1973', 'Tarmac', 'Balanced')
+
+    def test_the_alpine_typo_is_replaced_by_the_other_sides_value(self):
+        values = {'Dampers.RearLeft.FastBump': 3750, 'Dampers.RearRight.FastBump': 31750}
+        self.assertEqual(self.fix(*self.key, values),
+                         {'Dampers.RearLeft.FastBump': 3750, 'Dampers.RearRight.FastBump': 3750})
+
+    def test_a_fixed_game_file_stops_the_run(self):
+        with self.assertRaises(SystemExit):
+            self.fix(*self.key, {'Dampers.RearRight.FastBump': 3750})
+
+    def test_other_setups_are_untouched(self):
+        values = {'Dampers.RearRight.FastBump': 31750}
+        self.assertEqual(self.fix('alpine-a110-1-8-1973', 'Gravel', 'Balanced', values), values)
+
+
+class TestScreenValues(unittest.TestCase):
+    """extract_default_setups.KNOWN_SCREEN_VALUES: a default the screen shows differently."""
+
+    def setUp(self):
+        from extract_default_setups import fix_screen_values
+        self.fix = fix_screen_values
+
+    def test_the_s4_front_plates_read_as_the_screen_shows_them(self):
+        got = self.fix('lancia-delta-s4-1986', 'Gravel', 'Balanced',
+                       {'Plates Number Front': 0, 'Plates Number Rear': 6})
+        self.assertEqual(got, {'Plates Number Front': 2, 'Plates Number Rear': 6})
+
+    def test_a_changed_file_stops_the_run(self):
+        with self.assertRaises(SystemExit):
+            self.fix('lancia-delta-s4-1986', 'Gravel', 'Balanced', {'Plates Number Front': 3})
+
+    def test_the_bundled_s4_files_carry_the_screen_value(self):
+        for slug in ('lancia-delta-s4-1986', 'lancia-delta-s4-evo2-italtecnica-2021'):
+            doc = lds.load_file(os.path.join(SETUPS, slug + '.yaml'))
+            for e in doc['setups']:
+                self.assertEqual(e['values']['Plates Number Front'], 2, (slug, e['surface']))
 
 
 if __name__ == '__main__':

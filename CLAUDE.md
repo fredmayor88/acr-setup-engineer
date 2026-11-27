@@ -53,11 +53,11 @@ This repo packages a **single self-contained Claude Skill** that builds car setu
     files by `tools/car-catalog/extract_default_setups.py`. It is the anchor `build-setup.md` step 4
     reads via `scripts/load_default_setup.py` — no Notion read, no screenshots, on any plan.
   - `GAME_VERSION` — one line, the display version of the game the bundled data was extracted from
-    (`0.6`), written by `tools/car-catalog/write_game_version.py`, read by
+    (`0.7`), written by `tools/car-catalog/write_game_version.py`, read by
     `scripts/load_default_setup.py --game-version` and stamped into every `Setups` row and Notion
     doc page. Never hand-edit either file — regenerate both with `make extract` after a game update.
-  - `game-versions/<version>.md` — hand-written tuning notes for one game version (0.6: tyre
-    pressure target and cold start, tyre type by stage length, gauge test runs). The guideline layer
+  - `game-versions/<version>.md` — hand-written tuning notes for one game version (0.7: what changed
+    in 0.7, and the 0.6 tyre rules carried over unconfirmed). The guideline layer
     right after the base principles in every value-choosing workflow; found with
     `scripts/load_game_version_notes.py`. Copied and edited by hand after each game release —
     never generated.

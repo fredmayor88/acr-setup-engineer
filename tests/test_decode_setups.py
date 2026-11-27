@@ -26,7 +26,11 @@ import decode_setups as D                                     # noqa: E402
 from extract_car_catalog import read_old                      # noqa: E402
 
 PAKS = os.path.join(HERE, 'fixtures', 'paks')
-TEMPLATES = os.path.join(REPO, '.claude', 'skills', 'acr-setup-engineer', 'car-templates')
+# The fixtures are game 0.6 assets, so they are checked against the two cars' templates as they
+# were on 0.6, kept next to them: 0.7 narrowed some of the 037's ranges, and a 0.6 default
+# outside a 0.7 range is not a decode error. The bundled 0.7 setups are checked against the
+# current templates by tests/test_car_setups.py.
+TEMPLATES = os.path.join(HERE, 'fixtures', 'templates')
 
 STRATOS = 'DA_LanciaStratosHFPresets'
 EVO2 = 'DA_LanciaRally037Evo2Presets'
