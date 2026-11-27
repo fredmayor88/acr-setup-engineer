@@ -1,5 +1,5 @@
 {
- "_doc": "Measured in game by Fred Mayor: rev limiters from SimHub telemetry (max-hold over a few seconds of SimHub telemetry at the limiter, rounded to the nearest 10 rpm), per-gear top speeds from the in-game speedometer. ACR 0.6; limiters 2026-09-14 (previously read by eye, 2026-09-13); speed runs 2026-09-13, Stratos speed runs 2026-09-11, GTA Junior speed run 2026-09-14. Units: rpm and km/h. rev_limiters[car].measured and game_version date each limiter and name the game version it was measured on; game_v4 is the last value of the car's shift-light rev stages in DA_<car>.uasset (calibration.rev_stages) as read when the limiter was measured; it is a change detector, not the limiter. speed_runs are all on dry tarmac with gear 1 first, and may stop before top gear; gears, primary, option, rest and free_radius are the run's gearing as read from the game files by the exporter (rest is the fixed ratio below the adjustable one, 1 on most cars). A run on an averaged-axle car (ruling R51: 206 WRC, Delta Integrale, Impreza) instead stores every ratio setting by its game name in settings (Primary Gear included where the car has one), primary is the one in force, and chain is the car's stock drivetrain chain from DA_<car> (centre diff, centre->front, centre->rear, front diff, rear diff); exclude_gears lists gears left out of the fit and the tolerance check: gears that did not reach the limiter, or, where exclude_why is \"approximate\", gears whose speed was only read roughly. The Xsara run's rest is its averaged fixed chains. The fit is in the 'fit' block: see calibration.fit_factor.",
+ "_doc": "Measured in game by Fred Mayor: rev limiters from SimHub telemetry (max-hold over a few seconds of SimHub telemetry at the limiter, rounded to the nearest 10 rpm), per-gear top speeds from the in-game speedometer. ACR 0.6; limiters 2026-09-14 (previously read by eye, 2026-09-13); speed runs 2026-09-13, Stratos speed runs 2026-09-11, GTA Junior speed run 2026-09-14. Lancia Delta S4 and Delta S4 Evo2 Italtecnica limiters measured 2026-11-27 on ACR 0.7. Units: rpm and km/h. rev_limiters[car].measured and game_version date each limiter and name the game version it was measured on; game_v4 is the last value of the car's shift-light rev stages in DA_<car>.uasset (calibration.rev_stages) as read when the limiter was measured; it is a change detector, not the limiter. speed_runs are all on dry tarmac with gear 1 first, and may stop before top gear; gears, primary, option, rest and free_radius are the run's gearing as read from the game files by the exporter (rest is the fixed ratio below the adjustable one, 1 on most cars). A run on an averaged-axle car (ruling R51: 206 WRC, Delta Integrale, Impreza) instead stores every ratio setting by its game name in settings (Primary Gear included where the car has one), primary is the one in force, and chain is the car's stock drivetrain chain from DA_<car> (centre diff, centre->front, centre->rear, front diff, rear diff); exclude_gears lists gears left out of the fit and the tolerance check: gears that did not reach the limiter, or, where exclude_why is \"approximate\", gears whose speed was only read roughly. The Xsara run's rest is its averaged fixed chains. The fit is in the 'fit' block: see calibration.fit_factor.",
  "rev_limiters": {
   "alfa-romeo-gta-1300-junior-1972": {
    "rpm": 8510,
@@ -54,6 +54,18 @@
    "game_v4": 7050,
    "measured": "2026-09-14",
    "game_version": "0.6"
+  },
+  "lancia-delta-s4-1985": {
+   "rpm": 9500,
+   "game_v4": 9000,
+   "measured": "2026-11-27",
+   "game_version": "0.7"
+  },
+  "lancia-delta-s4-evo2-italtecnica-2021": {
+   "rpm": 9500,
+   "game_v4": 9000,
+   "measured": "2026-11-27",
+   "game_version": "0.7"
   },
   "lancia-fulvia-coupe-hf-1970": {
    "rpm": 7270,

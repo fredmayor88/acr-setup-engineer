@@ -30,6 +30,7 @@ from acrpkg import Package                                        # noqa: E402
 from game_version import read_game_version                        # noqa: E402
 import calibration as CAL                                         # noqa: E402
 import drivetrain_page as DP                                      # noqa: E402
+import changelog as CL                                            # noqa: E402
 from extract_torque_curves import (CAR_MAP as CURVE_CARS,         # noqa: E402
                                    parse_rich_curve, summarise)
 # The site's public base, the same constant the car templates' gearing_tool links are
@@ -121,6 +122,8 @@ def build_car_json(slug, name, axle, gear_sets, engine_curve, final_drive, tyres
         'tyres': {key: {'asset': asset, 'free_radius': radius}
                   for key, (asset, radius) in tyres.items()},
         'defaults': {'loaded_radius_factor': LOADED_RADIUS_FACTOR},
+        # lock-to-lock degrees from DA_<car> (calibration.steering_lock), None if unread
+        'steering_lock': rev_limit.get('steering_lock'),
     }
 
     if final_drive is not None:
@@ -304,6 +307,11 @@ CAR_ROOT = '../../'
 TAGLINE = 'Gearing calculator for Assetto Corsa Rally'
 # The car's drivetrain notes: a static page beside gears/, built by drivetrain_page.py.
 DRIVETRAIN_PAGE_DIR = 'drivetrain'
+# <slug>/changelog/: what changed in the car's data between game releases, from the
+# cumulative CHANGELOG_FILE at the site root (see changelog.py). Not in data/, where every
+# .json is a car.
+CHANGELOG_PAGE_DIR = CL.CHANGELOG_PAGE_DIR
+CHANGELOG_FILE = 'car-changelogs.json'
 # The drivetrain pages are generated and kept current, but not linked from anywhere on the site
 # yet (and carry noindex). True puts back both links: the picker's "Drivetrain notes" section
 # and the "Drivetrain notes" crumb on every gears page.
@@ -399,7 +407,7 @@ INDEX_PAGE = """<!doctype html>
 {items}
   </ul>
 {drivetrain_section}  <div class="foot">
-    <p class="promo">Want a setup, not just the numbers? <a href="https://github.com/fredmayor88/acr-setup-engineer">ACR Setup Engineer</a> — a free Claude skill that tunes a car to how you drive and saves it to your Notion. · <a href="https://github.com/fredmayor88/acr-car-lab/issues">Issues and feedback</a></p>
+    <p class="promo">Want a setup, not just the numbers? <a href="https://github.com/fredmayor88/acr-setup-engineer">ACR Setup Engineer</a> — a free Claude skill that tunes a car to how you drive and saves it to your Notion. · <a href="https://github.com/fredmayor88/acr-car-lab/issues">Issues and feedback</a> · <a href="changelog/">Changelog</a></p>
   </div>
 </div>
 <script type="module" src="js/theme.js"></script>
@@ -731,7 +739,8 @@ def engine_facts(paks, slug, car_asset, text, tmp):
         print(f'  !! {warning}')
     return {'curve': curve, 'rpm': rpm, 'source': source,
             'game_v4': int(round(v4)) if v4 is not None else None,
-            'curve_source': folder, 'curve_from': curve_from(folder, slug)}
+            'curve_source': folder, 'curve_from': curve_from(folder, slug),
+            'steering_lock': CAL.steering_lock(blob)}
 
 
 def prune(out, exported):
@@ -753,12 +762,14 @@ def prune(out, exported):
         os.remove(os.path.join(data, entry))
         removed.append(f'data/{entry}')
         for parts in ((stem, CAR_PAGE_DIR, 'index.html'),
-                      (stem, DRIVETRAIN_PAGE_DIR, 'index.html'), (stem, 'index.html')):
+                      (stem, DRIVETRAIN_PAGE_DIR, 'index.html'),
+                      (stem, CHANGELOG_PAGE_DIR, 'index.html'), (stem, 'index.html')):
             page = os.path.join(out, *parts)
             if os.path.isfile(page):
                 os.remove(page)
                 removed.append('/'.join(parts))
-        for folder in ((stem, CAR_PAGE_DIR), (stem, DRIVETRAIN_PAGE_DIR), (stem,)):
+        for folder in ((stem, CAR_PAGE_DIR), (stem, DRIVETRAIN_PAGE_DIR),
+                       (stem, CHANGELOG_PAGE_DIR), (stem,)):
             try:
                 os.rmdir(os.path.join(out, *folder))
             except OSError:
@@ -786,7 +797,17 @@ def main():
     # what the site's index already says
     page_version, page_date = ((game_version, today) if args.all
                                else existing_index_facts(out))
-    cars, failed = [], []
+    cars, failed, docs = [], [], {}
+    # the changelog diffs each car against its document as the last export wrote it, so
+    # those are read before anything is overwritten
+    old_version = existing_index_facts(out)[0]
+    old_docs = {}
+    for slug in slugs:
+        try:
+            with open(os.path.join(out, 'data', slug + '.json'), encoding='utf-8') as fh:
+                old_docs[slug] = json.load(fh)
+        except (OSError, ValueError):
+            pass
     calibration = CAL.load_calibration()
     notes = DP.load_notes()
     with tempfile.TemporaryDirectory() as tmp:
@@ -808,9 +829,20 @@ def main():
                 failed.append(f'{slug}: {e}')
                 continue
             cars.append({'slug': slug, 'name': doc['name']})
+            docs[slug] = doc
             print(f'{slug}: {n_sets} gear sets, {len(doc["tyres"])} surfaces, rev limit '
                   f'{doc["engine"]["redline"]} ({doc["engine"]["redline_source"]}), '
                   f'curve ends {doc["engine"]["curve"][-1][0]}')
+
+    log_path = os.path.join(out, CHANGELOG_FILE)
+    log = CL.load(log_path)
+    if args.all:
+        log = CL.update_changelog(log, old_docs, docs, game_version, today, old_version)
+        CL.save(log_path, log)
+    for slug, doc in docs.items():
+        CL.write_page(out, slug, CL.render_page(
+            doc['name'], log.get(slug, []), DP.data_line(page_version, page_date),
+            theme_head=THEME_HEAD, theme_button=THEME_BUTTON))
 
     if args.all:
         pruned = prune(out, {c['slug'] for c in cars})

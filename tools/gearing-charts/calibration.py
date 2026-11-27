@@ -46,9 +46,34 @@ def rev_stages(blob):
     three strictly rising floats above 3000 and below 20000. Most cars store four; a stage left
     at its default is omitted from the unversioned data (the Alpine stores three). Returns
     None when no such group exists. The last value is "v4".
+
+    The Delta S4 Evo2 Italtecnica stores 6500.0 in the marker's place. Only when no 3000.0
+    marker leads to a group is any whole rpm float (1000 to 20000) tried as the marker, so
+    every car that has the 3000.0 marker reads exactly as before.
     """
+    found = _group_after(blob, _marker_offsets(blob))
+    if found is None:
+        found = _group_after(blob, _rpm_float_offsets(blob))
+    return found
+
+
+def _marker_offsets(blob):
     at = blob.find(_MARKER)
     while at >= 0:
+        yield at
+        at = blob.find(_MARKER, at + 1)
+
+
+def _rpm_float_offsets(blob):
+    for at in range(len(blob) - 3):
+        v = struct.unpack_from('<f', blob, at)[0]
+        if 1000.0 <= v < 20000.0 and v == int(v):
+            yield at
+
+
+def _group_after(blob, markers):
+    """The first run of at least three rising stage floats within _SEARCH bytes past a marker."""
+    for at in markers:
         for start in range(at + 4, min(at + 4 + _SEARCH, len(blob) - 4)):
             group, o = [], start
             while o + 4 <= len(blob):
@@ -59,8 +84,28 @@ def rev_stages(blob):
                 o += 4
             if len(group) >= 3:
                 return group
-        at = blob.find(_MARKER, at + 1)
     return None
+
+
+_STEERING_MARKER = struct.pack('<f', 0.04)
+
+
+def steering_lock(blob):
+    """Lock-to-lock steering wheel rotation in whole degrees, from a car's DA_<car> asset.
+
+    The asset stores the per-side angle as the float straight after a 0.04 float, the only one
+    in each of the 20 cars read so far (ACR 0.7). Twice it matches the car-info screen exactly
+    on 12 of the 18 cars whose screen value was noted; the other six differ, and the game file
+    is taken as the source. None unless there is exactly one marker and a per-side angle
+    between 90 and 1080 degrees.
+    """
+    if blob.count(_STEERING_MARKER) != 1:
+        return None
+    at = blob.find(_STEERING_MARKER) + 4
+    if at + 4 > len(blob):
+        return None
+    side = struct.unpack_from('<f', blob, at)[0]
+    return int(round(side * 2)) if 90.0 <= side <= 1080.0 else None
 
 
 _TORQUE_REF = re.compile(rb'/Game/Data/Vehicles/(\w+)/(FC_\w+?_Torque)(?![A-Za-z0-9_])')

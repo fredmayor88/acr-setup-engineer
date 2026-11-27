@@ -69,6 +69,8 @@ CAR_MAP = {
     'volkswagen-polo-gti-r5-2018':            'DA_VWPoloGTIR5Presets',
     'peugeot-208-rally4':                     'DA_Peugeot208Rally4Presets',
     'peugeot-206-wrc-1999':                   'DA_Peugeot206WRCPresets',
+    'lancia-delta-s4-1985':                   'DA_LanciaDeltaS4GroupBPresets',
+    'lancia-delta-s4-evo2-italtecnica-2021':  'DA_LanciaDeltaS4Evo2GroupSPresets',
 }
 
 # the hint FName inside a DB-set override -> the DataTable that actually holds it

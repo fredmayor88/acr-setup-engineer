@@ -47,6 +47,27 @@ class RevStages(unittest.TestCase):
     def test_a_falling_group_is_not_a_group(self):
         self.assertIsNone(C.rev_stages(stages_blob([8000.0, 7900.0, 7800.0, 7700.0])))
 
+    def test_another_value_in_the_markers_place(self):
+        # the Delta S4 Evo2 Italtecnica stores 4000.0, 6500.0 where every other car stores
+        # 3000.0, with the same int and header between it and the stages
+        blob = (b'\x00' * 40 + f32(4000.0, 6500.0) + struct.pack('<i', 9000) + b'\x00\x09'
+                + f32(8000.0, 8500.0, 8750.0, 9000.0) + f32(1.0) + b'\x00' * 16)
+        self.assertEqual(C.rev_stages(blob), [8000.0, 8500.0, 8750.0, 9000.0])
+
+    def test_steering_lock_is_twice_the_angle_after_the_one_0_04(self):
+        lead = b'\x00' * 9 + struct.pack('<d', 257.0) + b'\x00\x0a\x01\x07'
+        self.assertEqual(C.steering_lock(lead + f32(0.04, 450.0, 0.046, 7.5)), 900)
+        self.assertEqual(C.steering_lock(lead + f32(0.04, 598.0)), 1196)
+        # none, two, or an implausible angle: not read
+        self.assertIsNone(C.steering_lock(lead + f32(450.0)))
+        self.assertIsNone(C.steering_lock(lead + f32(0.04, 450.0, 0.04, 270.0)))
+        self.assertIsNone(C.steering_lock(lead + f32(0.04, 7.5)))
+
+    def test_the_3000_marker_wins_over_an_earlier_group(self):
+        blob = (f32(5000.0) + b'\x00' * 10 + f32(6000.0, 6100.0, 6200.0) + f32(1.0)
+                + stages_blob([7400.0, 7700.0, 7900.0, 8000.0]))
+        self.assertEqual(C.rev_stages(blob), [7400.0, 7700.0, 7900.0, 8000.0])
+
 
 class ResolveRevLimit(unittest.TestCase):
     cal = {'rev_limiters': {'lancia-stratos': {'rpm': 8450, 'game_v4': 8000}}}
@@ -83,15 +104,16 @@ class StoredMeasurements(unittest.TestCase):
     def test_every_exported_car_has_a_measured_limiter(self):
         import make_gearing_chart as M
         self.assertEqual(sorted(self.cal['rev_limiters']), sorted(M.CARS))
-        self.assertEqual(len(self.cal['rev_limiters']), 18)
+        self.assertEqual(len(self.cal['rev_limiters']), 20)
 
     def test_the_doc_states_provenance(self):
         for part in ('Fred Mayor', 'SimHub', 'ACR 0.6', '2026-09-14', '2026-09-13', '2026-09-11',
                      'max-hold over a few seconds of SimHub telemetry at the limiter'):
             self.assertIn(part, self.cal['_doc'])
 
-    def test_the_limiters_of_2026_09_14(self):
-        # max-hold over a few seconds of SimHub telemetry at the limiter, rounded to the nearest 10
+    def test_the_limiters_of_2026_09_14_and_2026_11_27(self):
+        # max-hold over a few seconds of SimHub telemetry at the limiter, rounded to the nearest
+        # 10; the two Delta S4s on 2026-11-27 (ACR 0.7), every other car on 2026-09-14 (ACR 0.6)
         self.assertEqual({s: e['rpm'] for s, e in self.cal['rev_limiters'].items()}, {
             'peugeot-206-wrc-1999': 7550, 'citroen-xsara-wrc-2003': 7560,
             'audi-quattro-gr4-1981': 7020, 'alfa-romeo-gta-1300-junior-1972': 8510,
@@ -101,10 +123,13 @@ class StoredMeasurements(unittest.TestCase):
             'lancia-fulvia-coupe-hf-1970': 7270, 'mini-cooper-s-1964': 7520,
             'peugeot-208-rally4': 6780, 'peugeot-306-ii-maxi-1997': 9600,
             'skoda-fabia-rs-rally2-2022': 7550, 'subaru-impreza-555-s3-1993': 6760,
-            'volkswagen-polo-gti-r5-2018': 7550, 'lancia-stratos': 8520})
+            'volkswagen-polo-gti-r5-2018': 7550, 'lancia-stratos': 8520,
+            'lancia-delta-s4-1985': 9500, 'lancia-delta-s4-evo2-italtecnica-2021': 9500})
+        s4 = {'lancia-delta-s4-1985', 'lancia-delta-s4-evo2-italtecnica-2021'}
         for slug, entry in self.cal['rev_limiters'].items():
             with self.subTest(car=slug):
-                self.assertEqual(entry['measured'], '2026-09-14')
+                self.assertEqual((entry['measured'], entry['game_version']),
+                                 ('2026-11-27', '0.7') if slug in s4 else ('2026-09-14', '0.6'))
 
     def test_every_limiter_is_a_multiple_of_10(self):
         for slug, entry in self.cal['rev_limiters'].items():
@@ -306,6 +331,8 @@ class InstalledGame(unittest.TestCase):
         cal = C.load_calibration()
         with tempfile.TemporaryDirectory() as tmp:
             for slug, (_a, _w, car_asset) in sorted(M.CARS.items()):
+                if slug not in cal['rev_limiters']:
+                    continue               # not measured yet: its rev limit is an estimate
                 path = C.car_asset(PAKS, car_asset, tmp)
                 with self.subTest(car=slug):
                     stages = C.rev_stages(open(path, 'rb').read())
